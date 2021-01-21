@@ -16,14 +16,12 @@ class _HomePageState extends State<HomePage> {
           decoration: new BoxDecoration(
             color: Color(0xff000000),
             image: new DecorationImage(
-              fit: BoxFit.cover,
-              colorFilter: new ColorFilter.mode(
-                  Colors.black.withOpacity(0.5), BlendMode.dstATop),
-              // image: AssetImage('assets/image.svg'),
-              image: new NetworkImage(
-                'http://www.allwhitebackground.com/images/2/2582-190x190.jpg',
-              ),
-            ),
+                fit: BoxFit.cover,
+                colorFilter: new ColorFilter.mode(
+                    Colors.black.withOpacity(0.5), BlendMode.dstATop),
+                image: new AssetImage(
+                  'assets/background.png',
+                )),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,27 +49,27 @@ class _HomePageState extends State<HomePage> {
                       )),
                 ),
               ),
-                  SizedBox(height: 250),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Sign Up',
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Login',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800),
-                      ),
-                    ],
+              SizedBox(height: 250),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Sign Up',
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800),
                   ),
+                  SizedBox(width: 10),
+                  Text(
+                    'Login',
+                    style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800),
+                  ),
+                ],
+              ),
             ],
           ),
         ),

@@ -17,8 +17,8 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
             colorFilter: new ColorFilter.mode(
                 Colors.black.withOpacity(0.5), BlendMode.dstATop),
             // image: AssetImage('assets/image.svg'),
-            image: new NetworkImage(
-              'http://www.allwhitebackground.com/images/2/2582-190x190.jpg',
+            image: new AssetImage(
+              'assets/youtubelogo.png',
             ),
           ),
         ),

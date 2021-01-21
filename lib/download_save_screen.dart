@@ -95,8 +95,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
                         onPressed: () {},
                         color: Colors.green,
                         child: Text(
@@ -105,8 +103,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                         )),
                     SizedBox(width: 20),
                     FlatButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
                         color: Colors.red,
                         onPressed: () {},
                         child: Text(

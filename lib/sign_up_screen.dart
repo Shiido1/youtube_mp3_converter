@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class SignInScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   @override
-  _SignInScreenState createState() => _SignInScreenState();
+  _SignUpScreenState createState() => _SignUpScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignUpScreenState extends State<SignUpScreen> {
+  TextEditingController _nameController;
   TextEditingController _emailController;
   TextEditingController _passwordController;
+  TextEditingController _confirmPasswordController;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +39,29 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 SizedBox(height: 35),
                 Text(
-                  'SIGN IN',
+                  'CREATE AN ACCOUNT',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
                       fontWeight: FontWeight.w500),
                 ),
-                SizedBox(height: 105),
+                SizedBox(height: 65),
+                Padding(
+                  padding: const EdgeInsets.only(right: 35.0, left: 35.0),
+                  child: TextField(
+                    controller: _nameController,
+                    decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      labelText: 'Name',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15),
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
@@ -59,7 +77,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 35),
+                SizedBox(height: 15),
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
@@ -75,7 +93,23 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 35),
+                SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.only(right: 35.0, left: 35.0),
+                  child: TextField(
+                    controller: _confirmPasswordController,
+                    decoration: new InputDecoration(
+                      border: new OutlineInputBorder(
+                        borderSide:
+                            const BorderSide(color: Colors.white, width: 2.0),
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      labelText: 'Confirm Password',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 15),
                 FlatButton(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -92,9 +126,9 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                     )),
-                SizedBox(height: 75),
+                SizedBox(height: 65),
                 Text(
-                  'Don\'t have an Account?',
+                  'Already have an Account?',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 17,
@@ -102,13 +136,13 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 SizedBox(height: 35),
                 Text(
-                  'Sign Up',
+                  'Login',
                   style: TextStyle(
                     color: Colors.red,
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                   ),
-                )
+                ),
               ],
             ),
           ),

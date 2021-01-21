@@ -23,7 +23,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             image: new DecorationImage(
               fit: BoxFit.cover,
               colorFilter: new ColorFilter.mode(
-                  Colors.black.withOpacity(0.5), BlendMode.dstATop),
+                  Colors.black.withOpacity(0.7), BlendMode.dstATop),
               image: new AssetImage(
                 'assets/authentication.png',
               ),
@@ -49,61 +49,97 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
-                    controller: _nameController,
+                    controller: _nameController,                    style: TextStyle(color: Colors.white),
+
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+
                       labelText: 'Name',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 23),
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
                     controller: _emailController,
+                    style: TextStyle(color: Colors.white),
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+
                       labelText: 'Email Address',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 23),
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
                     controller: _passwordController,
+                    style: TextStyle(color: Colors.white),
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                SizedBox(height: 15),
+                SizedBox(height: 23),
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
                     controller: _confirmPasswordController,
+                    style: TextStyle(color: Colors.white),
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+
                       labelText: 'Confirm Password',
                       labelStyle: TextStyle(color: Colors.white),
                     ),

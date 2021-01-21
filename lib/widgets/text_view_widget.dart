@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class TextViewWidget extends StatelessWidget {
   final String text;
   final double textSize;
@@ -35,10 +36,10 @@ class TextViewWidget extends StatelessWidget {
         Visibility(
             // visible: showIconPicker,
             child: IconButton(
-              color: Colors.black,
-              // icon: Icon(iconData),
-              onPressed: onTapCallBack,
-            )),
+          color: Colors.black,
+          icon: Icon(iconData),
+          onPressed: onTapCallBack,
+        )),
         Flexible(
           child: Text(
             text,

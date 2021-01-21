@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/string_assets/assets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
                 colorFilter: new ColorFilter.mode(
                     Colors.black.withOpacity(0.5), BlendMode.dstATop),
                 image: new AssetImage(
-                  'assets/background.png',
+                  AppAssets.bgImage1,
                 )),
           ),
           child: Column(
@@ -40,13 +41,25 @@ class _HomePageState extends State<HomePage> {
               SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.only(right: 20.0, left: 20),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                      labelText: 'Enter Youtube Url',
-                      labelStyle: TextStyle(color: Colors.white),
-                      border: OutlineInputBorder(
+                child: Container(
+                  child: TextFormField(
+                    decoration: new InputDecoration(
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
-                      )),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      labelText: 'Name',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 250),

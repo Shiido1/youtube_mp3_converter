@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/string_assets/assets.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -23,7 +24,7 @@ class _SignInScreenState extends State<SignInScreen> {
               colorFilter: new ColorFilter.mode(
                   Colors.black.withOpacity(0.5), BlendMode.dstATop),
               image: new AssetImage(
-                'assets/authentication.png',
+                AppAssets.bgImage2,
               ),
             ),
           ),
@@ -33,7 +34,7 @@ class _SignInScreenState extends State<SignInScreen> {
               children: [
                 SizedBox(height: 65),
                 Image.asset(
-                  'assets/youtubelogo.png',
+                  AppAssets.logo,
                 ),
                 SizedBox(height: 35),
                 Text(
@@ -49,10 +50,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: TextField(
                     controller: _emailController,
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
                       labelText: 'Email Address',
                       labelStyle: TextStyle(color: Colors.white),
@@ -65,10 +73,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   child: TextField(
                     controller: _passwordController,
                     decoration: new InputDecoration(
-                      border: new OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.white, width: 2.0),
+                      enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
                       ),
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),

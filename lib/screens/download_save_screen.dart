@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/string_assets/assets.dart';
 
 class DownloadAndSaveScreen extends StatefulWidget {
   @override
@@ -20,7 +21,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
               colorFilter: new ColorFilter.mode(
                   Colors.black.withOpacity(0.5), BlendMode.dstATop),
               image: new AssetImage(
-                'assets/background.png',
+                AppAssets.bgImage1,
               ),
             ),
           ),
@@ -42,13 +43,23 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                 SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.only(right: 20.0, left: 20),
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                        labelText: 'Enter Youtube Url',
-                        labelStyle: TextStyle(color: Colors.white),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                        )),
+                  child: TextField(
+                    decoration: new InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      border: new OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                        borderSide: BorderSide(color: Colors.white),
+                      ),
+                      labelText: 'Enter Youtube Url',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
                 SizedBox(height: 10),
@@ -62,7 +73,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset('assets/mqdefault.png'),
+                          Image.asset(AppAssets.image1),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),

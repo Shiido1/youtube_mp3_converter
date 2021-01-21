@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/download_save_screen.dart';
-import 'package:mp3_music_converter/home_page.dart';
-import 'package:mp3_music_converter/sign_in_screen.dart';
-import 'package:mp3_music_converter/sign_up_screen.dart';
+import 'package:mp3_music_converter/screens/dashboard.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +15,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: SignUpScreen(),
+      home: DashBoard(),
     );
   }
 }

@@ -34,12 +34,12 @@ class TextViewWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Visibility(
-            // visible: showIconPicker,
+            visible: showIconPicker,
             child: IconButton(
-          color: Colors.black,
-          icon: Icon(iconData),
-          onPressed: onTapCallBack,
-        )),
+              color: Colors.black,
+              icon: Icon(iconData),
+              onPressed: onTapCallBack,
+            )),
         Flexible(
           child: Text(
             text,

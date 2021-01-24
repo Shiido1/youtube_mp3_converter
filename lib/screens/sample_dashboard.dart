@@ -249,10 +249,11 @@ class _SampleState extends State<Sample> {
                           padding: const EdgeInsets.only(
                               left: 15.0, top: 10, bottom: 10),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Image.asset(AppAssets.image1, height: 85),
-                              SizedBox(
-                                width: 15,
+                              Image.asset(
+                                AppAssets.image1,
+                                height: 100,
                               ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,17 +268,17 @@ class _SampleState extends State<Sample> {
                                     color: Colors.white,
                                     textSize: 20,
                                   ),
-                                  Divider(
-                                    color: Colors.white,
-                                  )
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  SvgPicture.asset('assets/svg/line.svg'),
                                 ],
                               ),
-                              IconButton(
-                                  icon: SvgPicture.asset(
-                                      'assets/svg/play_icon.svg'),
-                                  color: Colors.white,
-                                  iconSize: 24,
-                                  onPressed: () {})
+                              SizedBox(
+                                width: 10,
+                              ),
+                              SvgPicture.asset('assets/svg/play-icon.svg',
+                                  height: 50, width: 80)
                             ],
                           ),
                         ),
@@ -312,7 +313,7 @@ class _SampleState extends State<Sample> {
               ),
             ),
             BottomNavigationBarItem(
-              label: 'Library',
+              label: 'My Library',
               icon: SvgPicture.asset(
                 AppAssets.playlist,
                 // color: _currentIndex == 1 ? AppColor.blue : AppColor.grey,

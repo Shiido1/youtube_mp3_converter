@@ -4,7 +4,8 @@ import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
-import 'package:mp3_music_converter/string_assets/assets.dart';
+import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class Sample extends StatefulWidget {
@@ -23,7 +24,7 @@ class _SampleState extends State<Sample> {
       title: 'Drawing Paths',
       home: Scaffold(
         body: Container(
-          color: Color(0xFF181F24),
+          color: AppColor.background,
           child: CustomPaint(
             painter: CurvePainter(),
             child: SingleChildScrollView(
@@ -53,7 +54,7 @@ class _SampleState extends State<Sample> {
                               'Profile',
                               style: TextStyle(
                                   fontSize: 17,
-                                  color: Colors.white,
+                                  color: AppColor.white,
                                   fontWeight: FontWeight.w500,
                                   fontFamily: 'Montserrat-Thin'),
                             ),
@@ -81,13 +82,13 @@ class _SampleState extends State<Sample> {
                               children: [
                                 SvgPicture.asset(
                                   'assets/svg/mp_file.svg',
-                                  color: Colors.black,
+                                  color: AppColor.black,
                                   height: 24,
                                   width: 25,
                                 ),
                                 SizedBox(width: 10),
                                 TextViewWidget(
-                                  color: Colors.black,
+                                  color: AppColor.black,
                                   text: 'Converter',
                                   textSize: 22,
                                   fontWeight: FontWeight.w500,
@@ -104,7 +105,7 @@ class _SampleState extends State<Sample> {
                         decoration: BoxDecoration(
                             // color: Colors.redAccent[100].withOpacity(0.8),
                             border: Border.all(
-                              color: Colors.white,
+                              color: AppColor.white,
                             ),
                             borderRadius: BorderRadius.only(
                                 topRight: Radius.circular(10),
@@ -115,14 +116,14 @@ class _SampleState extends State<Sample> {
                             children: [
                               SvgPicture.asset(
                                 'assets/svg/radio_wave.svg',
-                                color: Colors.white,
+                                color: AppColor.white,
                                 height: 24,
                                 width: 25,
                               ),
                               SizedBox(width: 10),
                               Expanded(
                                 child: TextViewWidget(
-                                  color: Colors.white,
+                                  color: AppColor.white,
                                   text: 'Create your Music',
                                   textSize: 22,
                                   fontWeight: FontWeight.w500,
@@ -141,7 +142,7 @@ class _SampleState extends State<Sample> {
                         decoration: BoxDecoration(
                             // color: Colors.redAccent[100].withOpacity(0.8),
                             border: Border.all(
-                              color: Colors.white,
+                              color: AppColor.white,
                             ),
                             borderRadius: BorderRadius.only(
                                 topRight: Radius.circular(10),
@@ -152,14 +153,14 @@ class _SampleState extends State<Sample> {
                             children: [
                               SvgPicture.asset(
                                 'assets/svg/radio.svg',
-                                color: Colors.white,
+                                color: AppColor.white,
                                 height: 24,
                                 width: 25,
                               ),
                               SizedBox(width: 10),
                               Expanded(
                                 child: TextViewWidget(
-                                  color: Colors.white,
+                                  color: AppColor.white,
                                   text: 'Radio World Wide',
                                   textSize: 22,
                                   fontWeight: FontWeight.w500,
@@ -178,7 +179,7 @@ class _SampleState extends State<Sample> {
                         decoration: BoxDecoration(
                             // color: Colors.redAccent[100].withOpacity(0.8),
                             border: Border.all(
-                              color: Colors.white,
+                              color: AppColor.white,
                             ),
                             borderRadius: BorderRadius.only(
                                 topRight: Radius.circular(10),
@@ -189,7 +190,7 @@ class _SampleState extends State<Sample> {
                             children: [
                               SvgPicture.asset(
                                 'assets/svg/dj_mixer.svg',
-                                color: Colors.white,
+                                color: AppColor.white,
                                 height: 24,
                                 width: 25,
                               ),
@@ -197,7 +198,7 @@ class _SampleState extends State<Sample> {
                                 width: 10,
                               ),
                               TextViewWidget(
-                                color: Colors.white,
+                                color: AppColor.white,
                                 text: 'Disk Jockey',
                                 textSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -215,7 +216,7 @@ class _SampleState extends State<Sample> {
                         decoration: BoxDecoration(
                             // color: Colors.redAccent[100].withOpacity(0.8),
                             border: Border.all(
-                              color: Colors.white,
+                              color: AppColor.white,
                             ),
                             borderRadius: BorderRadius.only(
                                 topRight: Radius.circular(10),
@@ -226,14 +227,14 @@ class _SampleState extends State<Sample> {
                             children: [
                               SvgPicture.asset(
                                 'assets/svg/plan.svg',
-                                color: Colors.white,
+                                color: AppColor.white,
                                 height: 24,
                                 width: 25,
                               ),
                               SizedBox(width: 10),
                               TextViewWidget(
                                 fontFamily: 'Montserrat',
-                                color: Colors.white,
+                                color: AppColor.white,
                                 text: 'Plan',
                                 textSize: 22,
                                 fontWeight: FontWeight.w500,
@@ -260,12 +261,12 @@ class _SampleState extends State<Sample> {
                                 children: [
                                   TextViewWidget(
                                     text: 'kofi',
-                                    color: Colors.white,
+                                    color: AppColor.white,
                                     textSize: 16,
                                   ),
                                   TextViewWidget(
                                     text: 'Came Up',
-                                    color: Colors.white,
+                                    color: AppColor.white,
                                     textSize: 20,
                                   ),
                                   SizedBox(
@@ -283,7 +284,7 @@ class _SampleState extends State<Sample> {
                           ),
                         ),
                       ),
-                      Divider(color: Colors.white, height: 0.1),
+                      Divider(color: AppColor.white, height: 0.1),
                     ],
                   ),
                 ],
@@ -294,9 +295,9 @@ class _SampleState extends State<Sample> {
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
-          backgroundColor: Colors.black,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.white,
+          backgroundColor: AppColor.black,
+          selectedItemColor: AppColor.white,
+          unselectedItemColor: AppColor.white,
           selectedLabelStyle: Theme.of(context).textTheme.caption,
           elevation: 5,
           unselectedLabelStyle: Theme.of(context).textTheme.caption,
@@ -345,7 +346,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint = Paint();
-    paint.color = Color(0xFFD81325);
+    paint.color = AppColor.red;
     paint.style = PaintingStyle.fill; // Change this to fill
 
     var path = Path();

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/string_assets/assets.dart';
+import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 
 class HomePage extends StatefulWidget {
   @override

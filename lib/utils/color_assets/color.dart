@@ -8,5 +8,7 @@ class AppColor {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color red = Color(0xFFD81325);
-  static final Color transparent = Color(0x00000);
+  static final Color transparent = Color(0x00000000);
+  static final Color bottomRed = Color(0xFFD81325);
+  static final Color fadedPink = Color(0xFFEA7162);
 }

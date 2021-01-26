@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
+import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
+import 'package:mp3_music_converter/bottom_navigation/search.dart';
+import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -7,10 +11,13 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 class MusicClass extends StatefulWidget {
   @override
   _MusicClassState createState() => _MusicClassState();
+  int _currentIndex = 0;
 }
 
 class _MusicClassState extends State<MusicClass> {
   int _currentIndex = 0;
+
+  List<Widget> _screens = [PlayList(), Library(), Search(), Setting()];
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +61,7 @@ class _MusicClassState extends State<MusicClass> {
                                     fontWeight: FontWeight.w500,
                                     fontFamily: 'Montserrat-Thin')),
                             SizedBox(
-                              height: 160,
+                              height: 50,
                             ),
                           ],
                         )
@@ -71,18 +78,18 @@ class _MusicClassState extends State<MusicClass> {
                   decoration: new InputDecoration(
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide(color: Colors.white),
+                      borderSide: BorderSide(color: AppColor.white),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide(color: Colors.white),
+                      borderSide: BorderSide(color: AppColor.white),
                     ),
                     border: new OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16.0),
-                      borderSide: BorderSide(color: Colors.white),
+                      borderSide: BorderSide(color: AppColor.white),
                     ),
                     labelText: 'Upload Song',
-                    labelStyle: TextStyle(color: Colors.white),
+                    labelStyle: TextStyle(color: AppColor.white),
                   ),
                   cursorColor: AppColor.white,
                 ),
@@ -94,9 +101,9 @@ class _MusicClassState extends State<MusicClass> {
                         border: Border.all(color: AppColor.white)),
                     child: ClipOval(
                       child: Material(
-                        color: Color(0x00000), // button color
+                        color: AppColor.transparent, // button color
                         child: InkWell(
-                          splashColor: Colors.white, // inkwell color
+                          splashColor: AppColor.white, // inkwell color
                           child: SizedBox(
                               width: 56,
                               height: 54,
@@ -164,7 +171,7 @@ class _MusicClassState extends State<MusicClass> {
             ),
             Column(mainAxisAlignment: MainAxisAlignment.end, children: [
               Container(
-                decoration: BoxDecoration(color: Colors.black),
+                decoration: BoxDecoration(color: AppColor.black),
                 child: Padding(
                   padding: const EdgeInsets.all(10),
                   child: Row(
@@ -210,7 +217,7 @@ class _MusicClassState extends State<MusicClass> {
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         backgroundColor: AppColor.black,
-        selectedItemColor: AppColor.white,
+        selectedItemColor: AppColor.bottomRed,
         unselectedItemColor: AppColor.white,
         selectedLabelStyle: Theme.of(context).textTheme.caption,
         elevation: 5,
@@ -224,28 +231,28 @@ class _MusicClassState extends State<MusicClass> {
             label: 'Playlist',
             icon: SvgPicture.asset(
               AppAssets.library,
-              // color: _currentIndex == 0 ? AppColor.blue : AppColor.grey,
+              color: _currentIndex == 0 ? AppColor.bottomRed : AppColor.white,
             ),
           ),
           BottomNavigationBarItem(
             label: 'My Library',
             icon: SvgPicture.asset(
               AppAssets.playlist,
-              // color: _currentIndex == 1 ? AppColor.blue : AppColor.grey,
+              color: _currentIndex == 1 ? AppColor.bottomRed : AppColor.white,
             ),
           ),
           BottomNavigationBarItem(
             label: 'Search',
             icon: SvgPicture.asset(
               AppAssets.search,
-              // color: _currentIndex == 2 ? AppColor.blue : AppColor.grey,
+              color: _currentIndex == 2 ? AppColor.bottomRed : AppColor.white,
             ),
           ),
           BottomNavigationBarItem(
             label: 'Setting',
             icon: SvgPicture.asset(
               AppAssets.setting,
-              // color: _currentIndex == 3 ? AppColor.blue : AppColor.grey,
+              color: _currentIndex == 3 ? AppColor.bottomRed : AppColor.white,
             ),
           ),
         ],

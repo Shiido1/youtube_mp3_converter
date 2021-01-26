@@ -24,4 +24,7 @@ class AppAssets {
   static final String repeat = 'assets/svg/repeat.svg';
   static final String share = 'assets/svg/share.svg';
   static final String dot = 'assets/svg/dot.svg';
+  static final String music = 'assets/svg/music.svg';
+  static final String record = 'assets/svg/record.svg';
+  static final String split = 'assets/svg/split.svg';
 }

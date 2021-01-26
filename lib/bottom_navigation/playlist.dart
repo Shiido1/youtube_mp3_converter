@@ -11,6 +11,8 @@ class PlayList extends StatefulWidget {
 }
 
 class _PlayListState extends State<PlayList> {
+  int _currentIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,6 +222,50 @@ class _PlayListState extends State<PlayList> {
             ]),
           ],
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _currentIndex,
+        backgroundColor: AppColor.black,
+        selectedItemColor: AppColor.bottomRed,
+        unselectedItemColor: AppColor.white,
+        selectedLabelStyle: Theme.of(context).textTheme.caption,
+        elevation: 5,
+        unselectedLabelStyle: Theme.of(context).textTheme.caption,
+        unselectedFontSize: 30,
+        onTap: (value) {
+          setState(() => _currentIndex = value);
+        },
+        items: [
+          BottomNavigationBarItem(
+            label: 'Playlist',
+            icon: SvgPicture.asset(
+              AppAssets.library,
+              color: _currentIndex == 0 ? AppColor.bottomRed : AppColor.white,
+            ),
+          ),
+          BottomNavigationBarItem(
+            label: 'My Library',
+            icon: SvgPicture.asset(
+              AppAssets.playlist,
+              color: _currentIndex == 1 ? AppColor.bottomRed : AppColor.white,
+            ),
+          ),
+          BottomNavigationBarItem(
+            label: 'Search',
+            icon: SvgPicture.asset(
+              AppAssets.search,
+              color: _currentIndex == 2 ? AppColor.bottomRed : AppColor.white,
+            ),
+          ),
+          BottomNavigationBarItem(
+            label: 'Setting',
+            icon: SvgPicture.asset(
+              AppAssets.setting,
+              color: _currentIndex == 3 ? AppColor.bottomRed : AppColor.white,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -49,8 +49,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Padding(
                   padding: const EdgeInsets.only(right: 35.0, left: 35.0),
                   child: TextField(
-                    controller: _nameController,                    style: TextStyle(color: Colors.white),
-
+                    controller: _nameController,
+                    style: TextStyle(color: Colors.white),
                     decoration: new InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16.0),
@@ -64,7 +64,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(16.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
-
                       labelText: 'Name',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
@@ -89,7 +88,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(16.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
-
                       labelText: 'Email Address',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
@@ -114,7 +112,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(16.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
-
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
                     ),
@@ -139,7 +136,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         borderRadius: BorderRadius.circular(16.0),
                         borderSide: BorderSide(color: Colors.white),
                       ),
-
                       labelText: 'Confirm Password',
                       labelStyle: TextStyle(color: Colors.white),
                     ),

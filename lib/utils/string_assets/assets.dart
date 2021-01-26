@@ -13,4 +13,11 @@ class AppAssets {
   static final String previous = 'assets/svg/previous.svg';
   static final String play = 'assets/svg/play-icon.svg';
   static final String next = 'assets/svg/next.svg';
+  static final String mpFile = 'assets/svg/mp_file.svg';
+  static final String djMixer = 'assets/svg/dj_mixer.svg';
+  static final String radio = 'assets/svg/radio.svg';
+  static final String radioWave = 'assets/svg/radio_wave.svg';
+  static final String line = 'assets/svg/line.svg';
+  static final String favorite = 'assets/svg/heart.svg';
+  static final String rect = 'assets/rect.png';
 }

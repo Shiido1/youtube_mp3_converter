@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/screens/dashboard.dart';
-import 'package:mp3_music_converter/screens/home_page.dart';
-import 'package:mp3_music_converter/screens/sample_dashboard.dart';
-import 'package:mp3_music_converter/screens/sign_up_screen.dart';
-import 'package:mp3_music_converter/screens/world_radio_screen.dart';
+import 'package:mp3_music_converter/screens/converter_screen.dart';
+import 'package:mp3_music_converter/screens/music_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +16,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: WorldRadioClass(),
+      home: MusicClass(),
     );
   }
 }

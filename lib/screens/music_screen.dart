@@ -11,7 +11,6 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 class MusicClass extends StatefulWidget {
   @override
   _MusicClassState createState() => _MusicClassState();
-  int _currentIndex = 0;
 }
 
 class _MusicClassState extends State<MusicClass> {

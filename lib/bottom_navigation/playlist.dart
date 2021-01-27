@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/screens/play_list_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -102,7 +101,7 @@ class _PlayListState extends State<PlayList> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PlaylistScreen()),
+                      MaterialPageRoute(builder: (context) => Container()),
                     );
                   },
                   child: Padding(
@@ -139,7 +138,7 @@ class _PlayListState extends State<PlayList> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PlaylistScreen()),
+                      MaterialPageRoute(builder: (context) => Container()),
                     );
                   },
                   child: Padding(

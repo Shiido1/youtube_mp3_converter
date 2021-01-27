@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/screens/converter_screen.dart';
 import 'package:mp3_music_converter/screens/music_screen.dart';
@@ -19,7 +18,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: Library(),
+      home: MusicClass(index: 4,),
     );
   }
 }

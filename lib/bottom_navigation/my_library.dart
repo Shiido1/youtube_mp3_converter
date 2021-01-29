@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded_class.dart';
 import 'package:mp3_music_converter/screens/song/songs_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -133,18 +134,27 @@ class _LibraryState extends State<Library> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 49.0),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(AppAssets.record),
-                          SizedBox(
-                            width: 35,
-                          ),
-                          TextViewWidget(
-                            text: ' Recorded',
-                            color: AppColor.white,
-                            textSize: 22,
-                          ),
-                        ],
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => RecordedClass()),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            SvgPicture.asset(AppAssets.record),
+                            SizedBox(
+                              width: 35,
+                            ),
+                            TextViewWidget(
+                              text: ' Recorded',
+                              color: AppColor.white,
+                              textSize: 22,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     Padding(

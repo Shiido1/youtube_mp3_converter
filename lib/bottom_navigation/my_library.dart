@@ -41,6 +41,7 @@ class _LibraryState extends State<Library> {
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.library),
+                    selectedTileColor: AppColor.bottomRed,
                     title: TextViewWidget(
                       text: 'Playlists',
                       color: AppColor.white,
@@ -58,6 +59,7 @@ class _LibraryState extends State<Library> {
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.music),
+                    selectedTileColor: AppColor.bottomRed,
                     title: TextViewWidget(
                       text: 'Songs',
                       color: AppColor.white,
@@ -67,13 +69,17 @@ class _LibraryState extends State<Library> {
                   Divider(
                     color: AppColor.white,
                   ),
-                  ListTile(
-                    onTap: () {},
-                    leading: SvgPicture.asset(AppAssets.record),
-                    title: TextViewWidget(
-                      text: 'Recorded',
-                      color: AppColor.white,
-                      textSize: 18,
+                  Theme(
+                    data: ThemeData(splashColor: Colors.red),
+                    child: ListTile(
+                      onTap: () {},
+                      leading: SvgPicture.asset(AppAssets.record),
+                      selectedTileColor: AppColor.bottomRed,
+                      title: TextViewWidget(
+                        text: 'Recorded',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
                     ),
                   ),
                   Divider(

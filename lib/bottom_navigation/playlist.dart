@@ -30,7 +30,7 @@ class _PlayListState extends State<PlayList> {
                           ListTile(
                             leading: Image.asset(AppAssets.image1),
                             title: TextViewWidget(
-                              text: 'Jaybankz',
+                              text: 'Untitled Playlist',
                               color: AppColor.white,
                               textSize: 18,
                             ),
@@ -42,8 +42,12 @@ class _PlayListState extends State<PlayList> {
                           SizedBox(
                             height: 3,
                           ),
-                          Divider(
-                            color: AppColor.white,
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 70.0, right: 23),
+                            child: Divider(
+                              color: AppColor.white,
+                            ),
                           )
                         ],
                       ))

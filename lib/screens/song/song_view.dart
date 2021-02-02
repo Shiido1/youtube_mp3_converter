@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class SongViewCLass extends StatefulWidget {
@@ -31,525 +32,48 @@ class _SongViewCLassState extends State<SongViewCLass> {
         ),
       ),
       body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                    right: 30, top: 2.0, bottom: 2.0, left: 90),
-                child: Divider(color: AppColor.white, height: 0.2),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Row(
-                  children: [
-                    Image.asset(
-                      AppAssets.image1,
-                      height: 60,
-                      width: 60,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        TextViewWidget(
-                          text: 'Something Fishy',
-                          color: AppColor.white,
-                          textSize: 22,
-                        ),
-                        TextViewWidget(
-                          text: 'davido',
-                          color: AppColor.white,
-                          textSize: 16,
-                        )
-                      ],
-                    ),
-                    SizedBox(
-                      width: 85,
-                    ),
-                    SvgPicture.asset(
-                      AppAssets.dot,
-                      color: AppColor.white,
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 5.0),
-                child:
-                    Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                  Container(
-                    decoration: BoxDecoration(color: AppColor.black),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Image.asset(
-                            AppAssets.image1,
-                            height: 80,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextViewWidget(
-                                text: 'kofi',
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [1, 2, 3, 4, 5, 6, 7]
+                    .map((mocked) => Column(
+                          children: [
+                            ListTile(
+                              onTap: () {},
+                              leading: Image.asset(AppAssets.image1),
+                              title: TextViewWidget(
+                                text: 'Something Fishy',
                                 color: AppColor.white,
-                                textSize: 16,
+                                textSize: 18,
                               ),
-                              TextViewWidget(
-                                text: 'Came Up',
+                              subtitle: TextViewWidget(
+                                text: 'Davido',
                                 color: AppColor.white,
-                                textSize: 20,
+                                textSize: 14,
                               ),
-                              SizedBox(
-                                height: 8,
+                              trailing: SvgPicture.asset(
+                                AppAssets.dot,
+                                color: AppColor.white,
                               ),
-                              SvgPicture.asset(AppAssets.line),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          SvgPicture.asset(AppAssets.play,
-                              height: 50, width: 80)
-                        ],
-                      ),
-                    ),
-                  ),
-                  Divider(color: AppColor.white, height: 0.1),
-                ]),
+                            ),
+                            SizedBox(
+                              height: 3,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 70.0, right: 23),
+                              child: Divider(
+                                color: AppColor.white,
+                              ),
+                            )
+                          ],
+                        ))
+                    .toList(),
               ),
-            ],
-          ),
+            ),
+            BottomPlayingIndicator()
+          ],
         ),
       ),
     );

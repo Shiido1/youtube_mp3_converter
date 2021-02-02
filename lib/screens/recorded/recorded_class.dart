@@ -9,6 +9,7 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 
 class RecordedClass extends StatefulWidget {
+  int index;
   @override
   _RecordedClassState createState() => _RecordedClassState();
 }

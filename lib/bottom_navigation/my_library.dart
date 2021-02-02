@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
+import 'package:mp3_music_converter/screens/playlist/music_screen.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
+import 'package:mp3_music_converter/screens/playlist/test_container.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded_class.dart';
 import 'package:mp3_music_converter/screens/song/songs_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
@@ -35,13 +41,12 @@ class _LibraryState extends State<Library> {
                   ListTile(
                     onTap: () {
                       Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PlaylistScreen()),
-                      );
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MusicClass(index: 1),
+                          ));
                     },
                     leading: SvgPicture.asset(AppAssets.library),
-                    selectedTileColor: AppColor.bottomRed,
                     title: TextViewWidget(
                       text: 'Playlists',
                       color: AppColor.white,
@@ -59,7 +64,6 @@ class _LibraryState extends State<Library> {
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.music),
-                    selectedTileColor: AppColor.bottomRed,
                     title: TextViewWidget(
                       text: 'Songs',
                       color: AppColor.white,
@@ -69,17 +73,19 @@ class _LibraryState extends State<Library> {
                   Divider(
                     color: AppColor.white,
                   ),
-                  Theme(
-                    data: ThemeData(splashColor: Colors.red),
-                    child: ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.record),
-                      selectedTileColor: AppColor.bottomRed,
-                      title: TextViewWidget(
-                        text: 'Recorded',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RecordedClass()),
+                      );
+                    },
+                    leading: SvgPicture.asset(AppAssets.record),
+                    title: TextViewWidget(
+                      text: 'Recorded',
+                      color: AppColor.white,
+                      textSize: 18,
                     ),
                   ),
                   Divider(
@@ -122,50 +128,7 @@ class _LibraryState extends State<Library> {
                 ]),
               ),
             ),
-            SizedBox(
-              height: 33,
-            ),
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-              Container(
-                decoration: BoxDecoration(color: AppColor.black),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Image.asset(
-                        AppAssets.image1,
-                        height: 80,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextViewWidget(
-                            text: 'kofi',
-                            color: AppColor.white,
-                            textSize: 16,
-                          ),
-                          TextViewWidget(
-                            text: 'Came Up',
-                            color: AppColor.white,
-                            textSize: 20,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          SvgPicture.asset(AppAssets.line),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      SvgPicture.asset(AppAssets.play, height: 50, width: 80)
-                    ],
-                  ),
-                ),
-              ),
-              Divider(color: AppColor.white, height: 0.1),
-            ]),
+            BottomPlayingIndicator(),
           ],
         ),
       ),

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
@@ -20,6 +23,16 @@ class _PlayListState extends State<PlayList> {
       body: Column(
         children: [
           RedBackground(
+            iconButton: IconButton(
+              icon: Icon(
+                Icons.arrow_back_ios_outlined,
+                color: AppColor.white,
+              ),
+              onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Sample()),
+              ),
+            ),
             text: 'Playlist',
           ),
           Expanded(
@@ -28,9 +41,14 @@ class _PlayListState extends State<PlayList> {
                   .map((mocked) => Column(
                         children: [
                           ListTile(
+                            onTap: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PlaylistScreen()),
+                            ),
                             leading: Image.asset(AppAssets.image1),
                             title: TextViewWidget(
-                              text: 'Jaybankz',
+                              text: 'Untitled Playlist',
                               color: AppColor.white,
                               textSize: 18,
                             ),
@@ -42,8 +60,12 @@ class _PlayListState extends State<PlayList> {
                           SizedBox(
                             height: 3,
                           ),
-                          Divider(
-                            color: AppColor.white,
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 70.0, right: 23),
+                            child: Divider(
+                              color: AppColor.white,
+                            ),
                           )
                         ],
                       ))

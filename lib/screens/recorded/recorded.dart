@@ -5,12 +5,12 @@ import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
-class SongViewCLass extends StatefulWidget {
+class Recorded extends StatefulWidget {
   @override
-  _SongViewCLassState createState() => _SongViewCLassState();
+  _RecordedState createState() => _RecordedState();
 }
 
-class _SongViewCLassState extends State<SongViewCLass> {
+class _RecordedState extends State<Recorded> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +18,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Song',
+          text: 'Recorded',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(

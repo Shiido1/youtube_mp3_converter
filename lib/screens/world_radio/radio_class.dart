@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class RadioClass extends StatefulWidget {
@@ -39,60 +40,18 @@ class _RadioClassState extends State<RadioClass>
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Stack(
-                children: [
-                  Image.asset('assets/rect.png'),
-                  Column(
-                    children: [
-                      SizedBox(height: 65),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                  icon: Icon(
-                                    Icons.arrow_back_ios_sharp,
-                                    color: AppColor.white,
-                                  ),
-                                  onPressed: () => Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Sample()),
-                                      )),
-                              TextViewWidget(
-                                  color: AppColor.white,
-                                  text: 'Radio World Wide',
-                                  textSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Montserrat'),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipOval(
-                                child: Image.asset('assets/burna.png'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 5.0),
-                                child: TextViewWidget(
-                                    color: AppColor.white,
-                                    text: 'Profile',
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Montserrat-Thin'),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
+              RedBackground(
+                iconButton: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: AppColor.white,
                   ),
-                ],
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Sample()),
+                  ),
+                ),
+                text: 'Radio World Wide',
               ),
               Center(
                 child: AnimatedBuilder(

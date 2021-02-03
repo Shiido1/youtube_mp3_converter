@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/screens/converter/converter_screen.dart';
+import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/playlist/music_screen.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
@@ -10,9 +11,8 @@ import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'utils/color_assets/color.dart';
 
 void main() {
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: AppColor.red
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(statusBarColor: AppColor.red));
   runApp(MyApp());
 }
 
@@ -26,6 +26,6 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         debugShowCheckedModeBanner: false,
-        home: Sample());
+        home: SignInScreen());
   }
 }

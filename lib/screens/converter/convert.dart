@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class Convert extends StatefulWidget {
@@ -22,63 +24,18 @@ class _ConvertState extends State<Convert> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Stack(
-                children: [
-                  Image.asset(AppAssets.rect),
-                  Column(
-                    children: [
-                      SizedBox(height: 65),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              IconButton(
-                                  icon: Icon(
-                                    Icons.arrow_back_ios_sharp,
-                                    color: AppColor.white,
-                                  ),
-                                  onPressed: () => Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Sample()),
-                                      )),
-                              TextViewWidget(
-                                  color: AppColor.white,
-                                  text: 'Converter',
-                                  textSize: 22,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Montserrat'),
-                            ],
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ClipOval(
-                                child: Image.asset('assets/burna.png'),
-                              ),
-                              Padding(
-                                  padding: const EdgeInsets.only(top: 5.0),
-                                  child: TextViewWidget(
-                                      color: AppColor.white,
-                                      text: 'Profile',
-                                      textSize: 17,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Montserrat-Thin')),
-                              SizedBox(
-                                height: 160,
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ],
+              RedBackground(
+                iconButton: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: AppColor.white,
                   ),
-                ],
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => Sample()),
+                  ),
+                ),
+                text: 'Converter',
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 6, bottom: 6, left: 30),
@@ -139,49 +96,9 @@ class _ConvertState extends State<Convert> {
                 ]),
               ),
               SizedBox(
-                height: 203,
+                height: 305,
               ),
-              Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-                Container(
-                  decoration: BoxDecoration(color: Colors.black),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Image.asset(
-                          AppAssets.image1,
-                          height: 80,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextViewWidget(
-                              text: 'kofi',
-                              color: AppColor.white,
-                              textSize: 16,
-                            ),
-                            TextViewWidget(
-                              text: 'Came Up',
-                              color: AppColor.white,
-                              textSize: 20,
-                            ),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            SvgPicture.asset(AppAssets.line),
-                          ],
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        SvgPicture.asset(AppAssets.play, height: 50, width: 80)
-                      ],
-                    ),
-                  ),
-                ),
-                Divider(color: AppColor.white, height: 0.1),
-              ]),
+              BottomPlayingIndicator(),
             ],
           ),
         ),

@@ -4,24 +4,21 @@ import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
-import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
-import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class Sample extends StatefulWidget {
+class RecordedClass extends StatefulWidget {
   int index;
-
   @override
-  _SampleState createState() => _SampleState();
+  _RecordedClassState createState() => _RecordedClassState();
 }
 
-class _SampleState extends State<Sample> {
+class _RecordedClassState extends State<RecordedClass> {
   int _currentIndex = 0;
 
   List<Widget> _screens = [
-    DashBoard(),
+    Recorded(),
     PlayList(),
     Library(),
     Search(),
@@ -64,7 +61,6 @@ class _SampleState extends State<Sample> {
             label: 'My Library',
             icon: SvgPicture.asset(
               AppAssets.playlist,
-              height: 22,
               color: _currentIndex == 2 ? AppColor.bottomRed : AppColor.white,
             ),
           ),

@@ -27,4 +27,5 @@ class AppAssets {
   static final String music = 'assets/svg/music.svg';
   static final String record = 'assets/svg/record.svg';
   static final String split = 'assets/svg/split.svg';
+  static final String plan = 'assets/svg/plan.svg';
 }

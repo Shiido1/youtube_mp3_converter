@@ -5,8 +5,10 @@ import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
+import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Sample extends StatefulWidget {
   int index;

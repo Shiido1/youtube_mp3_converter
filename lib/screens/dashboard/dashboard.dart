@@ -160,7 +160,7 @@ class _DashBoardState extends State<DashBoard> {
                         child: Row(
                           children: [
                             SvgPicture.asset(
-                              'assets/svg/mp_file.svg',
+                              AppAssets.mpFile,
                               color: converterRes != true
                                   ? AppColor.white
                                   : AppColor.black,
@@ -214,7 +214,7 @@ class _DashBoardState extends State<DashBoard> {
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            'assets/svg/radio_wave.svg',
+                            AppAssets.radioWave,
                             color: musicRes != true
                                 ? AppColor.white
                                 : AppColor.black,
@@ -269,7 +269,7 @@ class _DashBoardState extends State<DashBoard> {
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            'assets/svg/radio.svg',
+                            AppAssets.radio,
                             color: radioRes != true
                                 ? AppColor.white
                                 : AppColor.black,
@@ -318,7 +318,7 @@ class _DashBoardState extends State<DashBoard> {
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            'assets/svg/dj_mixer.svg',
+                            AppAssets.djMixer,
                             color:
                                 djRes != true ? AppColor.white : AppColor.black,
                             height: 24,
@@ -363,7 +363,7 @@ class _DashBoardState extends State<DashBoard> {
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            'assets/svg/plan.svg',
+                            AppAssets.plan,
                             color: planRes != true
                                 ? AppColor.white
                                 : AppColor.black,

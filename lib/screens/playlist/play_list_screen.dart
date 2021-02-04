@@ -1,9 +1,11 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class PlaylistScreen extends StatefulWidget {
@@ -13,6 +15,28 @@ class PlaylistScreen extends StatefulWidget {
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
   int _currentIndex = 0;
+
+  Drawer _drawer() => Drawer(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10.0, bottom: 10, left: 15),
+            child: Center(
+              child: Column(
+                children: [
+                  Text('endDrawer content'),
+                  Builder(
+                      builder: (context) => RaisedButton(
+                            child: Text('Click', semanticsLabel: 'Click 2'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          )),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -134,41 +158,44 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
           Expanded(
             child: ListView(
               children: [1, 2, 3, 4, 5, 6, 7]
-                  .map((mocked) => Column(
-                        children: [
-                          ListTile(
-                            onTap: () => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PlaylistScreen()),
-                            ),
-                            leading: Image.asset(AppAssets.image1),
-                            title: TextViewWidget(
-                              text: 'Something Fishy',
-                              color: AppColor.white,
-                              textSize: 18,
-                            ),
-                            subtitle: TextViewWidget(
-                              text: 'Davido',
-                              color: AppColor.white,
-                              textSize: 15,
-                            ),
-                            trailing: Icon(
-                              Icons.navigate_next_sharp,
-                              color: AppColor.white,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 3,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 70.0, right: 23),
-                            child: Divider(
-                              color: AppColor.white,
-                            ),
-                          )
-                        ],
+                  .map((mocked) => Padding(
+                        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
+                        child: Column(
+                          children: [
+                            ListTile(
+                                onTap: () => Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PlaylistScreen()),
+                                    ),
+                                leading: Image.asset(AppAssets.image1),
+                                title: TextViewWidget(
+                                  text: 'Something Fishy',
+                                  color: AppColor.white,
+                                  textSize: 18,
+                                ),
+                                subtitle: TextViewWidget(
+                                  text: 'Davido',
+                                  color: AppColor.white,
+                                  textSize: 15,
+                                ),
+                                trailing: InkWell(
+                                    onTap: () {
+                                      (context.ancestorWidgetOfExactType(
+                                              DrawerStack) as DrawerStack)
+                                          .openDrawer();
+                                    },
+                                    child: SvgPicture.asset(AppAssets.dot))),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 70.0, right: 23),
+                              child: Divider(
+                                color: AppColor.white,
+                              ),
+                            )
+                          ],
+                        ),
                       ))
                   .toList(),
             ),
@@ -176,6 +203,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
           BottomPlayingIndicator(),
         ],
       ),
+      drawer: _drawer(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -222,4 +250,38 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       ),
     );
   }
+}
+
+class DrawerStack extends StatelessWidget {
+  final GlobalKey<DrawerControllerState> _drawerKey =
+      GlobalKey<DrawerControllerState>();
+  final drawerScrimColor = AppColor.transparent;
+  final double drawerEdgeDragWidth = null;
+  final DragStartBehavior drawerDragStartBehavior = DragStartBehavior.start;
+
+  final Widget body;
+  final Drawer drawer;
+
+  DrawerStack({Key key, this.body, this.drawer}) : super(key: key);
+
+  void openDrawer() {
+    _drawerKey.currentState?.open();
+  }
+
+  @override
+  Widget build(BuildContext context) => Stack(
+        children: [
+          body,
+          DrawerController(
+            key: _drawerKey,
+            alignment: DrawerAlignment.end,
+            child: drawer,
+            drawerCallback: (_) {},
+            dragStartBehavior: drawerDragStartBehavior,
+            //widget.drawerDragStartBehavior,
+            scrimColor: drawerScrimColor,
+            edgeDragWidth: drawerEdgeDragWidth,
+          ),
+        ],
+      );
 }

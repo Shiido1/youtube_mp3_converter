@@ -26,6 +26,6 @@ class MyApp extends StatelessWidget {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         debugShowCheckedModeBanner: false,
-        home: SignInScreen());
+        home: PlaylistScreen());
   }
 }

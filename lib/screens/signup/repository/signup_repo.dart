@@ -8,7 +8,7 @@ class SignUpApiRepository {
     try {
       final response =
           await jayNetworkClient.makePostRequest("register", data: data);
-      return ApiResponse.success(data: SignupModel.fromJson(response));
+      return ApiResponse.success(data: SignupModel.fromJson(response.data));
     } catch (e) {
       return ApiResponse.failure(error: NetworkExceptions.handleResponse(e));
     }

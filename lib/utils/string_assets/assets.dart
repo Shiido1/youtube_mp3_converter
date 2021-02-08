@@ -1,6 +1,6 @@
 class AppAssets {
   AppAssets();
-
+  static final String otpSuccessfulIcon = 'assets/images/successful_otp.png';
   static final String bgImage1 = 'assets/background.png';
   static final String logo = 'assets/youtubelogo.png';
   static final String image1 = 'assets/mqdefault.png';

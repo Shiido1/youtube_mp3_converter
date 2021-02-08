@@ -1,22 +1,23 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class Login_Model {
+class OtpModel {
   String message;
   int totalsong;
-  List<Invoices> invoices;
+  List<Null> invoices;
   int totalsplitsongs;
   String storage;
   String token;
   String name;
-  String background;
-  String color;
+  Null background;
+  Null color;
   String profilepic;
-  String about;
+  Null about;
   int totalplayed;
   int followers;
   int following;
 
-  Login_Model(
+  OtpModel(
       {this.message,
       this.totalsong,
       this.invoices,
@@ -32,13 +33,13 @@ class Login_Model {
       this.followers,
       this.following});
 
-  Login_Model.fromJson(Map<String, dynamic> json) {
+  OtpModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {
-      invoices = new List<Invoices>();
+      invoices = new List<Null>();
       json['invoices'].forEach((v) {
-        invoices.add(new Invoices.fromJson(v));
+        invoices.add((v));
       });
     }
     totalsplitsongs = json['totalsplitsongs'];
@@ -55,47 +56,21 @@ class Login_Model {
   }
 
   static Map<String, dynamic> toJson(
-      {@required String email, @required String password}) {
+      {@required int otp,
+      @required String userid,
+      @required String verficationType}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['email'] = email;
-    data['password'] = password;
+    data['otp'] = otp;
+    data['userId'] = userid;
+    data['verficationType'] = verficationType;
     return data;
   }
-}
 
-class Invoices {
-  int id;
-  String transactionId;
-  String txRef;
-  String userid;
-  String amount;
-  String createdAt;
-
-  Invoices(
-      {this.id,
-      this.transactionId,
-      this.txRef,
-      this.userid,
-      this.amount,
-      this.createdAt});
-
-  Invoices.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    transactionId = json['transaction_id'];
-    txRef = json['tx_ref'];
-    userid = json['userid'];
-    amount = json['amount'];
-    createdAt = json['created_at'];
-  }
-
-  Map<String, dynamic> toJson() {
+  static Map<String, dynamic> resendOtpToJson(
+      {@required String email, @required String phoneNumber}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['transaction_id'] = this.transactionId;
-    data['tx_ref'] = this.txRef;
-    data['userid'] = this.userid;
-    data['amount'] = this.amount;
-    data['created_at'] = this.createdAt;
+    data['email'] = email;
+    data['phoneNumber'] = phoneNumber;
     return data;
   }
 }

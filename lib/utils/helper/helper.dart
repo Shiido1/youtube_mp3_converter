@@ -8,6 +8,10 @@ void showToast(BuildContext context,
       backgroundRadius: 10, duration: 4, gravity: gravity);
 }
 
+double getWidth(BuildContext context) {
+  return MediaQuery.of(context).size.width;
+}
+
 /// @ validate email
 bool validateEmail(String email) {
   String p =

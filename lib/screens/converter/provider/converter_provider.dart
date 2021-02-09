@@ -15,10 +15,10 @@ class ConverterProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void convert({@required Map map}) async {
+  void convert() async {
     try {
       _progressIndicator.show();
-      final _response = await _repository.convert(data: map);
+      final _response = await _repository.convert();
       _response.when(success: (success, _, __) async {
         await _progressIndicator.dismiss();
         notifyListeners();

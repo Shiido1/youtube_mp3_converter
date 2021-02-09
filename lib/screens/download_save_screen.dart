@@ -73,7 +73,10 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Image.asset(AppAssets.image1),
+                          Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Image.asset(AppAssets.image1),
+                          ),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),

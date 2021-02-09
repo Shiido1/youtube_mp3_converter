@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class YoutubeModel {
   String message;
   int id;
@@ -26,6 +28,12 @@ class YoutubeModel {
     data['url'] = this.url;
     data['title'] = this.title;
     data['filesize'] = this.filesize;
+    return data;
+  }
+
+  static Map<String, dynamic> mapToJson({@required String url}) {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['url'] = url;
     return data;
   }
 }

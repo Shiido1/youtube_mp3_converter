@@ -81,7 +81,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text('Chukwu Okike_ God of Creation',
                                       style: TextStyle(

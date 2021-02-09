@@ -45,7 +45,7 @@ class _OtpPageState extends State<OtpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.background1,
       appBar: AppBar(
         elevation: 0.0,
         backgroundColor: AppColor.background,
@@ -54,11 +54,11 @@ class _OtpPageState extends State<OtpPage> {
             icon: Platform.isAndroid
                 ? Icon(
                     Icons.arrow_back,
-                    color: AppColor.blue,
+                    color: AppColor.bottomRed,
                   )
                 : Icon(
                     Icons.navigate_before,
-                    color: AppColor.blue,
+                    color: AppColor.bottomRed,
                   ),
             onPressed: () => PageRouter.goBack(context)),
       ),
@@ -104,7 +104,7 @@ class _OtpPageState extends State<OtpPage> {
                     margin: EdgeInsets.only(left: 77, right: 77),
                     child: TextViewWidget(
                       text: 'Please check your email and type the code below.',
-                      color: AppColor.textColor,
+                      color: AppColor.background,
                       textSize: 16,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.normal,
@@ -131,7 +131,7 @@ class _OtpPageState extends State<OtpPage> {
                             : 'I did\'t receive the code.  ',
                         style: TextStyle(
                             fontSize: 16,
-                            color: AppColor.textColor,
+                            color: AppColor.background,
                             fontWeight: FontWeight.normal),
                         children: <TextSpan>[
                           TextSpan(

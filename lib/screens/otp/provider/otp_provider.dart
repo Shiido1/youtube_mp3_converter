@@ -22,7 +22,7 @@ class OtpProviders extends ChangeNotifier {
   void verifyOtp({@required Map map}) async {
     try {
       _progressIndicator.show();
-      final _response = await _repository.verify(map: map);
+      final _response = await _repository.verify(data: map);
       _response.when(success: (success, data, __) async {
         await _progressIndicator.dismiss();
         showToast(this._context, message: success.message);

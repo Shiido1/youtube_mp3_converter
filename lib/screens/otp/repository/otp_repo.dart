@@ -5,11 +5,11 @@ import 'package:mp3_music_converter/screens/otp/model/otp_model.dart';
 import 'package:mp3_music_converter/utils/instance.dart';
 
 class OtpApiRepository {
-  Future<ApiResponse<OtpModel>> verify({@required Map map}) async {
+  Future<ApiResponse<OtpModel>> verify({@required Map data}) async {
     try {
       final response =
-          await jayNetworkClient.makePutRequest("verify", data: map);
-      return ApiResponse.success(data: OtpModel.fromJson(response));
+          await jayNetworkClient.makePutRequest("verify", data: data);
+      return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {
       return handleNetworkException(e);
     }
@@ -19,7 +19,7 @@ class OtpApiRepository {
     try {
       final response = await jayNetworkClient
           .makeGetRequest("verify/resend?email=$email&channel=email");
-      return ApiResponse.success(data: OtpModel.fromJson(response));
+      return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {
       return handleNetworkException(e);
     }

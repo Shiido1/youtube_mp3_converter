@@ -14,9 +14,9 @@ class SignupModel {
   }
 
   static Map<String, dynamic> toJson(
-      {@required String name,
-      @required String email,
-      @required String password}) {
+      {String name,
+      String email,
+      String password}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['password'] = password;
     data['email'] = email;

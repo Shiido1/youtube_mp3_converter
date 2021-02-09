@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/common/providers.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';

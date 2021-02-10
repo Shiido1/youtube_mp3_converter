@@ -22,7 +22,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   }
   Widget downloadButton(FileDownloaderProvider downloaderProvider){
     return FlatButton(onPressed: (){
-      downloaderProvider.downloadedFile("URL", "My File.mp3").then((onValue){});
+      downloaderProvider.downloadedFile(_converterProvider?.youtubeModel?.title ?? "", "My File.mp3").then((onValue){});
     },
         color:AppColor.background,child: Text(
           'Download',

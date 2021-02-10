@@ -21,6 +21,9 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  permission_handler: ^5.1.0+2
+  http: ^0.12.2
+  path_provider: ^1.6.27
   pin_entry_text_field: ^0.1.4
   route_transitions: ^1.0.2
   image_picker: ^0.6.7+22

@@ -14,16 +14,12 @@ class Convert extends StatefulWidget {
 }
 
 class _ConvertState extends State<Convert> {
-  List<YoutubeModel> _list = new List<YoutubeModel>();
   ConverterProvider _converterProvider;
   bool convertResult = false;
+  TextEditingController controller = new TextEditingController();
 
-  _displayInfo() {
-    final list = _converterProvider.convert('');
-    setState(() {
-      _list = list as List<YoutubeModel>;
-      convertResult = true;
-    });
+  void _download() {
+    _converterProvider.convert('${controller.text}');
   }
 
   @override
@@ -70,55 +66,58 @@ class _ConvertState extends State<Convert> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: Stack(children: [
-                    TextFormField(
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 58.0),
+                      child: TextFormField(
+                        style: TextStyle(color: AppColor.white),
+                        decoration: new InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          border: new OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          labelText: 'Enter Youtube Url',
+                          labelStyle: TextStyle(color: Colors.white),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        labelText: 'Enter Youtube Url',
-                        labelStyle: TextStyle(color: Colors.white),
+                        cursorColor: AppColor.white,
+                        controller: controller,
                       ),
-                      cursorColor: AppColor.white,
                     ),
                     Align(
                       alignment: Alignment.centerRight,
                       child: Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(18.0),
-                            border: Border.all(color: AppColor.white)),
+                          borderRadius: BorderRadius.circular(23.0),
+                          border: Border.all(color: AppColor.white),
+                        ),
                         child: ClipOval(
-                          child: Material(
-                            color: Color(0x00000), // button color
-                            child: InkWell(
-                              splashColor: Colors.white, // inkwell color
-                              child: SizedBox(
-                                  width: 56,
-                                  height: 55.5,
-                                  child: Icon(
-                                    Icons.check,
-                                    color: AppColor.white,
-                                    size: 35,
-                                  )),
-                              onTap: () {
-                                _displayInfo();
-                              },
-                            ),
+                          child: InkWell(
+                            splashColor: Colors.white, // inkwell color
+                            child: Container(
+                                height: 55,
+                                width: 54,
+                                child: Icon(
+                                  Icons.check,
+                                  color: AppColor.white,
+                                  size: 35,
+                                )),
+                            onTap: () {
+                              _download();
+                            },
                           ),
                         ),
                       ),
                     )
                   ]),
                 ),
-                convertResult == true
+                _converterProvider.problem == true
                     ? Container(
                         child: Column(
                           children: [
@@ -132,22 +131,32 @@ class _ConvertState extends State<Convert> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Image.network(''),
+                                      Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Image.network(
+                                          model?.youtubeModel?.image ?? '',
+                                          width: 115,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                       Expanded(
                                         child: Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.center,
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                  'Chukwu Okike_ God of Creation',
+                                                  model?.youtubeModel?.title ??
+                                                      '',
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 18,
                                                   )),
                                               SizedBox(height: 10),
-                                              Text('File Size: 3.07mb',
+                                              Text(
+                                                  'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
                                                   style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 16,
@@ -192,7 +201,7 @@ class _ConvertState extends State<Convert> {
                       )
                     : Container(),
                 SizedBox(
-                  height: 305,
+                  height: 307,
                 ),
                 BottomPlayingIndicator(),
               ],

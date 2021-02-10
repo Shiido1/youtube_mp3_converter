@@ -11,6 +11,7 @@ class ConverterProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
   YoutubeModel youtubeModel = YoutubeModel();
+  bool problem = false;
 
   void init(BuildContext context) {
     this._context = context;
@@ -25,9 +26,11 @@ class ConverterProvider extends ChangeNotifier {
       _response.when(success: (success, _, __) async {
         await _progressIndicator.dismiss();
         youtubeModel = success;
+        problem = true;
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
+        problem = false;
         showToast(this._context, message: statusMessage ?? '');
         notifyListeners();
       });

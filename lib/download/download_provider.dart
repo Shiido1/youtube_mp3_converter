@@ -44,6 +44,7 @@ class FileDownloaderProvider with ChangeNotifier {
         r.stream.listen((List<int> chunk) async {
           print('downloadPercentage onListen: $_downloadPercentage');
           chunks.add(chunk);
+
           download == chunk.length;
           _downloadPercentage = (download / r.contentLength * 100).round();
           notifyListeners();

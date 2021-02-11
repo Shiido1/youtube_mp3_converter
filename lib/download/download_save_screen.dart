@@ -12,17 +12,20 @@ class DownloadAndSaveScreen extends StatefulWidget {
 
 class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   ConverterProvider _converterProvider;
+  FileDownloaderProvider fileDownloaderProvider;
   TextEditingController controller = new TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
+    fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     _converterProvider.init(context);
   }
   Widget downloadButton(FileDownloaderProvider downloaderProvider){
     return FlatButton(onPressed: (){
-      downloaderProvider.downloadedFile(_converterProvider?.youtubeModel?.url ?? "", "My File.mp3").then((onValue){});
+      fileDownloaderProvider.performFileDownloading("URL", "My File.mp3").then((onValue){});
+
     },
         color:AppColor.background,child: Text(
           'Download',
@@ -33,7 +36,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   Widget downloadProgress(){
     var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
     return Text(downloadStatus(fileDownloaderProvider),
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),);
+    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold,color: AppColor.white),);
   }
 
   downloadStatus(FileDownloaderProvider fileDownloaderProvider){
@@ -66,7 +69,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     return Scaffold(
       body: Consumer<ConverterProvider>(
         builder: (_, converter, __) => SingleChildScrollView(
@@ -175,11 +177,13 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Column(
-                        children: [
-                          downloadButton(fileDownloaderProvider),
-                          downloadProgress()
-                        ],
+                      Expanded(
+                        child: Column(
+                          children: [
+                            downloadButton(fileDownloaderProvider),
+                            downloadProgress()
+                          ],
+                        ),
                       ),
                       FlatButton(
                           onPressed: () => _download(),

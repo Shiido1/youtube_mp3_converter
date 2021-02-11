@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
+import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -13,12 +14,13 @@ class FileDownloaderProvider with ChangeNotifier {
   DownloadStatus _downloadStatus = DownloadStatus.NotStarted;
   int _downloadPercentage = 0;
   String _downloadFile = '';
+  ConverterProvider _converterProvider;
 
   int get downloadPercentage => _downloadPercentage;
   DownloadStatus get downloadStatus => _downloadStatus;
   String get downloadedFile => _downloadFile;
 
-  Future downloadFile(String url, String filename) async {
+  Future performFileDownloading(String url, String filename) async {
     bool _permissionReady = await _checkPermission();
     final Completer<void> completer = Completer<void>();
 
@@ -82,18 +84,46 @@ class FileDownloaderProvider with ChangeNotifier {
   }
 
   Future<bool> _checkPermission() async {
-    PermissionStatus permissionStatus = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
-    if (permissionStatus != PermissionStatus.granted) {
-      Map<PermissionGroup, PermissionStatus> permissions =
-          await PermissionHandler()
-              .requestPermission([PermissionGroup.storage]);
-      if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
-        return true;
-      }
-    } else {
+    if (await Permission.contacts.request().isGranted) {
+      // Either the permission was already granted before or the user just granted it.
+    }
+
+// You can request multiple permissions at once.
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.location,
+      Permission.storage,
+    ].request();
+    if (statuses[Permission.storage] == PermissionStatus.granted) {
       return true;
     }
+    print(statuses[Permission.location]);
+    // PermissionStatus permissionStatus = await PermissionHandler()
+    //     .checkPermissionStatus(PermissionGroup.storage);
+    // if (permissionStatus != PermissionStatus.granted) {
+    //   Map<PermissionGroup, PermissionStatus> permissions =
+    //       await PermissionHandler()
+    //           .requestPermission([PermissionGroup.storage]);
+    //   if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
+    //     return true;
+    //   }
+    // } else {
+    //   return true;
+    // }
     return false;
   }
+  // Future<bool> _checkPermission() async {
+  //   PermissionStatus permissionStatus = await PermissionHandler()
+  //       .checkPermissionStatus(PermissionGroup.storage);
+  //   if (permissionStatus != PermissionStatus.granted) {
+  //     Map<PermissionGroup, PermissionStatus> permissions =
+  //         await PermissionHandler()
+  //             .requestPermission([PermissionGroup.storage]);
+  //     if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
+  //       return true;
+  //     }
+  //   } else {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 }

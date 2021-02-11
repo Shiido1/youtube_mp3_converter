@@ -1,3 +1,4 @@
+import 'package:mp3_music_converter/download/download_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/otp/provider/otp_provider.dart';
@@ -14,5 +15,7 @@ class Providers {
     ChangeNotifierProvider<UtilityProvider>(create: (_) => UtilityProvider()),
     ChangeNotifierProvider<ConverterProvider>(
         create: (_) => ConverterProvider()),
+    ChangeNotifierProvider<FileDownloaderProvider>(
+        create: (_) => FileDownloaderProvider()),
   ];
 }

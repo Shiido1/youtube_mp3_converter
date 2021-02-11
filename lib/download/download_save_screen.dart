@@ -13,36 +13,50 @@ class DownloadAndSaveScreen extends StatefulWidget {
 class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   ConverterProvider _converterProvider;
   TextEditingController controller = new TextEditingController();
+  FileDownloaderProvider fileDownloaderProvider;
 
   @override
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
+    fileDownloaderProvider =
+        Provider.of<FileDownloaderProvider>(context, listen: false);
     _converterProvider.init(context);
   }
-  Widget downloadButton(FileDownloaderProvider downloaderProvider){
-    return FlatButton(onPressed: (){
-      downloaderProvider.downloadedFile(_converterProvider?.youtubeModel?.url ?? "", "My File.mp3").then((onValue){});
-    },
-        color:AppColor.background,child: Text(
+
+  Widget downloadButton() {
+    return FlatButton(
+        onPressed: () {
+          fileDownloaderProvider
+              .performFileDownloading(
+                  _converterProvider?.youtubeModel?.url ?? "", "My File.mp3")
+              .then((onValue) {});
+        },
+        color: AppColor.background,
+        child: Text(
           'Download',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ));
   }
 
-  Widget downloadProgress(){
-    var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
-    return Text(downloadStatus(fileDownloaderProvider),
-    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),);
+  Widget downloadProgress() {
+    var fileDownloaderProvider =
+        Provider.of<FileDownloaderProvider>(context, listen: true);
+    return Text(
+      downloadStatus(fileDownloaderProvider),
+      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    );
   }
 
-  downloadStatus(FileDownloaderProvider fileDownloaderProvider){
+  downloadStatus(FileDownloaderProvider fileDownloaderProvider) {
     var retStatus = '';
 
-    switch (fileDownloaderProvider.downloadStatus){
+    switch (fileDownloaderProvider.downloadStatus) {
       case DownloadStatus.Downloading:
         {
-          retStatus = "Download Progress: "+fileDownloaderProvider.downloadPercentage.toString()+"";
+          retStatus = "Download Progress: " +
+              fileDownloaderProvider.downloadPercentage.toString() +
+              "";
         }
         break;
       case DownloadStatus.Complete:
@@ -66,7 +80,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     return Scaffold(
       body: Consumer<ConverterProvider>(
         builder: (_, converter, __) => SingleChildScrollView(
@@ -176,10 +189,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Column(
-                        children: [
-                          downloadButton(fileDownloaderProvider),
-                          downloadProgress()
-                        ],
+                        children: [downloadButton(), downloadProgress()],
                       ),
                       FlatButton(
                           onPressed: () => _download(),

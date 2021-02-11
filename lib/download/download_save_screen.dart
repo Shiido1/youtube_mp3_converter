@@ -1,30 +1,89 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/download/download_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:path_provider/path_provider.dart';
+// import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
+import 'package:path_provider/path_provider.dart' as p;
 
 class DownloadAndSaveScreen extends StatefulWidget {
+
   @override
   _DownloadAndSaveScreenState createState() => _DownloadAndSaveScreenState();
 }
 
 class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
+
+  bool _isLoading = false;
+  String url;
+  String progress;
+  String filePath;
+  // Dio dio;
+
   ConverterProvider _converterProvider;
   FileDownloaderProvider fileDownloaderProvider;
   TextEditingController controller = new TextEditingController();
 
-  @override
+    @override
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     _converterProvider.init(context);
+
+    // dio = Dio();
   }
+
+
+  Future downloadNow() async{
+    final taskId = await FlutterDownloader.enqueue(
+      url: url,
+      savedDir: 'the path of directory where you want to save downloaded files',
+      showNotification: true, // show download progress in status bar (for Android)
+      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
+    );
+  }
+
+  Future<List<Directory>> _getExternal(){
+    return p.getExternalStorageDirectories(type: p.StorageDirectory.documents);
+  }
+
+  // Future _downloadFileToStorage(BuildContext context, String url, String filename) async {
+  //   ProgressDialog pr;
+  //   pr = new ProgressDialog(context,type: ProgressDialogType.Normal);
+  //   pr.style(message: 'Downloading file ...');
+  //  try{
+  //    await pr.show();
+  //    final dirList = await _getExternal();
+  //    final path = dirList[0].path;
+  //    final file = File('$path/$filename');
+  //    await dio.download(url, file.path, onReceiveProgress: (rec, total){
+  //      setState(() {
+  //        _isLoading=true;
+  //        progress = ((rec/total)*100).toStringAsFixed(0)+" %";
+  //        print(progress);
+  //        pr.update(message: 'Please wait : $progress');
+  //      });
+  //    });
+  //    pr.hide();
+  //    filePath = file.path;
+  //  }catch(e){
+  //    print(e);
+  //  }
+  //  setState(() {
+  //    _isLoading = false;
+  //  });
+  // }
+
   Widget downloadButton(FileDownloaderProvider downloaderProvider){
     return FlatButton(onPressed: (){
-      fileDownloaderProvider.performFileDownloading("URL", "My File.mp3").then((onValue){});
+      fileDownloaderProvider.performFileDownloading("http://youtubeaudio.com/"+url, "My File.mp4").then((onValue){});
 
     },
         color:AppColor.background,child: Text(
@@ -174,6 +233,15 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                     ),
                   ),
                   SizedBox(height: 50),
+                  // Center(
+                  //   child: FlatButton(
+                  //     color: Colors.grey,
+                  //       onPressed: (){
+                  //     _downloadFileToStorage(context, url, "mp3 File.mp3");
+                  //   }, child: Text('Download',
+                  //   style: TextStyle(color: AppColor.white),)),
+                  // ),
+                  SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -186,7 +254,11 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                         ),
                       ),
                       FlatButton(
-                          onPressed: () => _download(),
+                          onPressed: () { _download();
+                          setState(() {
+                            url = controller.text;
+                          });
+                          },
                           color: Colors.green,
                           child: Text(
                             'Download',
@@ -233,6 +305,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
         ),
       ),
     );
+
   }
 
   void _download() {

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
-import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -14,7 +13,6 @@ class FileDownloaderProvider with ChangeNotifier {
   DownloadStatus _downloadStatus = DownloadStatus.NotStarted;
   int _downloadPercentage = 0;
   String _downloadFile = '';
-  ConverterProvider _converterProvider;
 
   int get downloadPercentage => _downloadPercentage;
   DownloadStatus get downloadStatus => _downloadStatus;
@@ -34,7 +32,7 @@ class FileDownloaderProvider with ChangeNotifier {
       var response = httpClient.send(request);
 
       final dir = Platform.isAndroid
-          ? "sdcard/download"
+          ? "/sdcard/download"
           : (await getApplicationDocumentsDirectory()).path;
 
       List<List<int>> chunks = new List();
@@ -89,13 +87,18 @@ class FileDownloaderProvider with ChangeNotifier {
     }
 
 // You can request multiple permissions at once.
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.location,
-      Permission.storage,
-    ].request();
-    if (statuses[Permission.storage] == PermissionStatus.granted) {
-      return true;
-    }
+    Map<Permission, PermissionStatus> statuses;
+    if (statuses != PermissionStatus.granted) {
+      statuses = await [
+        Permission.location,
+        Permission.storage,
+      ].request();
+      if (statuses[Permission.storage] == PermissionStatus.granted) {
+        return true;
+      }
+    }else {
+        return true;
+      }
     print(statuses[Permission.location]);
     // PermissionStatus permissionStatus = await PermissionHandler()
     //     .checkPermissionStatus(PermissionGroup.storage);

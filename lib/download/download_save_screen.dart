@@ -28,7 +28,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   // Dio dio;
 
   ConverterProvider _converterProvider;
-  FileDownloaderProvider fileDownloaderProvider;
+  // FileDownloaderProvider fileDownloaderProvider;
   TextEditingController controller = new TextEditingController();
   static downloadingCallback(id, status,progress){
 
@@ -38,7 +38,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
-    fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
+    // fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     _converterProvider.init(context);
     // FlutterDownloader.registerCallback(downloadingCallback);
 
@@ -97,39 +97,39 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   //       ));
   // }
 
-  Widget downloadProgress(){
-    var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
-    return Text(downloadStatus(fileDownloaderProvider),
-    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold,color: AppColor.white),);
-  }
-
-  downloadStatus(FileDownloaderProvider fileDownloaderProvider){
-    var retStatus = '';
-
-    switch (fileDownloaderProvider.downloadStatus){
-      case DownloadStatus.Downloading:
-        {
-          retStatus = "Download Progress: "+fileDownloaderProvider.downloadPercentage.toString()+"";
-        }
-        break;
-      case DownloadStatus.Complete:
-        {
-          retStatus = "Download Completed: ";
-        }
-        break;
-      case DownloadStatus.NotStarted:
-        {
-          retStatus = "Click Download Button";
-        }
-        break;
-      case DownloadStatus.Started:
-        {
-          retStatus = "Download Started";
-        }
-        break;
-    }
-    return retStatus;
-  }
+  // Widget downloadProgress(){
+  //   var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
+  //   return Text(downloadStatus(fileDownloaderProvider),
+  //   style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold,color: AppColor.white),);
+  // }
+  //
+  // downloadStatus(FileDownloaderProvider fileDownloaderProvider){
+  //   var retStatus = '';
+  //
+  //   switch (fileDownloaderProvider.downloadStatus){
+  //     case DownloadStatus.Downloading:
+  //       {
+  //         retStatus = "Download Progress: "+fileDownloaderProvider.downloadPercentage.toString()+"";
+  //       }
+  //       break;
+  //     case DownloadStatus.Complete:
+  //       {
+  //         retStatus = "Download Completed: ";
+  //       }
+  //       break;
+  //     case DownloadStatus.NotStarted:
+  //       {
+  //         retStatus = "Click Download Button";
+  //       }
+  //       break;
+  //     case DownloadStatus.Started:
+  //       {
+  //         retStatus = "Download Started";
+  //       }
+  //       break;
+  //   }
+  //   return retStatus;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -243,7 +243,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                       color: Colors.grey,
                         onPressed: ()async{
                         final status = await Permission.storage.request();
-                        
+
                         if(status.isGranted){
 
                           final externalDir = await getExternalStorageDirectory();
@@ -298,25 +298,27 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                     ],
                   ),
                   SizedBox(height: 40),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Sign Up',
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        'Login',
-                        style: TextStyle(
-                            fontSize: 25,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800),
-                      )
-                    ],
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Sign Up',
+                          style: TextStyle(
+                              fontSize: 25,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Login',
+                          style: TextStyle(
+                              fontSize: 25,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800),
+                        )
+                      ],
+                    ),
                   ),
                 ],
               ),

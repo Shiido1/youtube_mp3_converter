@@ -15,7 +15,7 @@ class Providers {
     ChangeNotifierProvider<UtilityProvider>(create: (_) => UtilityProvider()),
     ChangeNotifierProvider<ConverterProvider>(
         create: (_) => ConverterProvider()),
-    ChangeNotifierProvider<FileDownloaderProvider>(
-        create: (_) => FileDownloaderProvider()),
+    // ChangeNotifierProvider<FileDownloaderProvider>(
+    //     create: (_) => FileDownloaderProvider()),
   ];
 }

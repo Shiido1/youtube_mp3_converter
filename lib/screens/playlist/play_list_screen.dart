@@ -1,12 +1,15 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:share/share.dart';
 
 class PlaylistScreen extends StatefulWidget {
   @override
@@ -15,6 +18,11 @@ class PlaylistScreen extends StatefulWidget {
 
 class _PlaylistScreenState extends State<PlaylistScreen> {
   int _currentIndex = 0;
+
+  Future<List<String>> pickFile() async {
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    return result == null ? <String>[] : result.paths;
+  }
 
   Drawer _drawer() => Drawer(
         child: SafeArea(
@@ -111,11 +119,21 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     TextViewWidget(text: 'Repeat', color: AppColor.white)
                   ],
                 ),
-                Column(
-                  children: [
-                    SvgPicture.asset(AppAssets.share),
-                    TextViewWidget(text: 'Share', color: AppColor.white)
-                  ],
+                InkWell(
+                  onTap: () async {
+                    final filePath = await pickFile();
+                    if (filePath.isEmpty){
+                      showToast(context, message: "Select file to share");
+                    }else {
+                      Share.shareFiles(filePath);
+                    }
+                  },
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(AppAssets.share),
+                      TextViewWidget(text: 'Share', color: AppColor.white)
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -182,9 +200,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 ),
                                 trailing: InkWell(
                                     onTap: () {
-                                      (context.ancestorWidgetOfExactType(
-                                              DrawerStack) as DrawerStack)
-                                          .openDrawer();
+                                      _drawer();
                                     },
                                     child: SvgPicture.asset(AppAssets.dot))),
                             Padding(

@@ -1,11 +1,19 @@
+import 'dart:isolate';
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/constant.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class Convert extends StatefulWidget {
@@ -17,16 +25,97 @@ class _ConvertState extends State<Convert> {
   ConverterProvider _converterProvider;
   bool convertResult = false;
   TextEditingController controller = new TextEditingController();
+  bool loading = false;
+  int _progress = 0;
+  var val;
+
+  ReceivePort receivePort = ReceivePort();
+
+  static downloadingCallback(id, status, progress) {
+    SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
+    sendPort.send([id, status, progress]);
+  }
 
   void _download() {
     _converterProvider.convert('${controller.text}');
   }
 
+  Future downloadNow() async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
+
+      final id = await FlutterDownloader.enqueue(
+          url: base_url + _converterProvider?.youtubeModel?.url,
+          savedDir: externalDir.path,
+          fileName: _converterProvider?.youtubeModel?.title,
+          showNotification: true,
+          openFileFromNotification: true);
+      print('path location' + externalDir.path);
+
+      setState(() {
+        loading = true;
+      });
+      // JC this was how i initailized an object of the model class and i also
+      // created the from n toJson method in the model class
+      // then i created my database, Hence, after downloading, the user should tab on the SaveLib
+      // button so the file can be saved in the db den when i navigate to the SongClass via the My Library
+      // the all the downloaded songs should display and when i tap on any the onPressed song should play
+      DownloadedFile file = DownloadedFile(
+          path: externalDir.path,
+          title: _converterProvider?.youtubeModel?.title);
+
+      var save = await Hive.openBox('music_db');
+      save.put('key', file);
+      val = save.get('key');
+    } else {
+      showToast(context, message: "Problem connecting to network");
+      print('Permission denied');
+    }
+  }
+
+  // void _playSound() {
+  //   AudioPlayer player = AudioPlayer();
+  //   player.play(mp3);
+  // }
+  //
+  // Future<void> _loadSong() async {
+  //   final ByteData data = await rootBundle.load(v);
+  //   File tempFile = File('$w');
+  //   await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
+  //   mp3 = tempFile.uri.toString();
+  // }
+
+  Widget downloadProgress() {
+    return Text(
+      'Downloading $_progress' + '%',
+      style: TextStyle(
+          fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
+    );
+  }
+
   @override
   void initState() {
+    super.initState();
+
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
-    super.initState();
+    IsolateNameServer.registerPortWithName(receivePort.sendPort, "downloading");
+    receivePort.listen((message) {
+      setState(() {
+        _progress = message[2];
+      });
+      print(_progress);
+    });
+    FlutterDownloader.registerCallback(downloadingCallback);
+    // _loadSong();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -176,7 +265,9 @@ class _ConvertState extends State<Convert> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FlatButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      downloadNow();
+                                    },
                                     color: Colors.green,
                                     child: Text(
                                       'Download',
@@ -186,7 +277,10 @@ class _ConvertState extends State<Convert> {
                                 SizedBox(width: 20),
                                 FlatButton(
                                     color: Colors.red,
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      //_playSound();
+                                      print(val);
+                                    },
                                     child: Text(
                                       'Save to lib',
                                       style: TextStyle(
@@ -196,6 +290,10 @@ class _ConvertState extends State<Convert> {
                                     ))
                               ],
                             ),
+                            SizedBox(height: 40),
+                            loading == false
+                                ? Container()
+                                : Center(child: downloadProgress()),
                           ],
                         ),
                       )

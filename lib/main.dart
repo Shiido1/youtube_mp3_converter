@@ -3,18 +3,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/download/download_save_screen.dart';
 import 'package:mp3_music_converter/screens/converter/converter_screen.dart';
-import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
+import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
+import 'package:mp3_music_converter/screens/song/song_view.dart';
+import 'package:mp3_music_converter/screens/song/songs_screen.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
 
 import 'common/providers.dart';
 import 'utils/color_assets/color.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
       debug: true // optional: set false to disable printing logs to console
-  );
+      );
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(statusBarColor: AppColor.red));
   runApp(MultiProvider(providers: Providers.getProviders, child: MyApp()));
@@ -30,7 +32,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: DownloadAndSaveScreen(),
+      home: ConverterScreen(),
       routes: Routes.getRoutes,
     );
   }

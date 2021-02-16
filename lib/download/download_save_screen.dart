@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/download/download_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -14,50 +17,70 @@ import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart' as p;
 
 class DownloadAndSaveScreen extends StatefulWidget {
-
   @override
   _DownloadAndSaveScreenState createState() => _DownloadAndSaveScreenState();
 }
 
 class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
-
-  bool _isLoading = false;
+  bool loading = false;
   // String url;
-  String progress;
+  // String progress;
   String filePath;
   // Dio dio;
 
   ConverterProvider _converterProvider;
   // FileDownloaderProvider fileDownloaderProvider;
   TextEditingController controller = new TextEditingController();
-  static downloadingCallback(id, status,progress){
+  int _progress = 0;
+  ReceivePort receivePort = ReceivePort();
 
+  static downloadingCallback(id, status, progress) {
+    SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
+    sendPort.send([id, status, progress]);
   }
 
-    @override
+  @override
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     // fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: false);
     _converterProvider.init(context);
-    // FlutterDownloader.registerCallback(downloadingCallback);
+    IsolateNameServer.registerPortWithName(receivePort.sendPort, "downloading");
+    receivePort.listen((message) {
+      setState(() {
+        _progress = message[2];
+      });
+      print(_progress);
+    });
+    FlutterDownloader.registerCallback(downloadingCallback);
 
     // dio = Dio();
   }
 
+  //
+  Future downloadNow() async {
+    final status = await Permission.storage.request();
 
-  Future downloadNow() async{
-    final taskId = await FlutterDownloader.enqueue(
-      url: "http://youtubeaudio.com/"+_converterProvider.youtubeModel.url,
-      savedDir: 'the path of directory where you want to save downloaded files',
-      showNotification: true, // show download progress in status bar (for Android)
-      openFileFromNotification: true, // click on notification to open downloaded file (for Android)
-    );
-  }
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
 
-  Future<List<Directory>> _getExternal(){
-    return p.getExternalStorageDirectories(type: p.StorageDirectory.documents);
+      final id = await FlutterDownloader.enqueue(
+          url: base_url + _converterProvider?.youtubeModel?.url,
+          savedDir: externalDir.path,
+          fileName: _converterProvider?.youtubeModel?.title,
+          showNotification: true,
+          openFileFromNotification: true);
+      setState(() {
+        loading = true;
+      });
+    } else {
+      print('Permission denied');
+    }
   }
+  //
+  // Future<List<Directory>> _getExternal(){
+  //   return p.getExternalStorageDirectories(type: p.StorageDirectory.documents);
+  // }
 
   // Future _downloadFileToStorage(BuildContext context, String url, String filename) async {
   //   ProgressDialog pr;
@@ -97,11 +120,14 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   //       ));
   // }
 
-  // Widget downloadProgress(){
-  //   var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
-  //   return Text(downloadStatus(fileDownloaderProvider),
-  //   style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold,color: AppColor.white),);
-  // }
+  Widget downloadProgress() {
+    // var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
+    return Text(
+      'Downloading $_progress' + '%',
+      style: TextStyle(
+          fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
+    );
+  }
   //
   // downloadStatus(FileDownloaderProvider fileDownloaderProvider){
   //   var retStatus = '';
@@ -240,26 +266,15 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                   SizedBox(height: 50),
                   Center(
                     child: FlatButton(
-                      color: Colors.grey,
-                        onPressed: ()async{
-                        final status = await Permission.storage.request();
-
-                        if(status.isGranted){
-
-                          final externalDir = await getExternalStorageDirectory();
-
-                          final id = await FlutterDownloader.enqueue(
-                              url: "http://youtubeaudio.com/"+converter?.youtubeModel?.url,
-                              savedDir: externalDir.path,
-                              fileName: converter?.youtubeModel?.title,
-                          showNotification: true,
-                          openFileFromNotification: true);
-                        } else{
-                          print('Permission denied');
-                        }
-                      // _downloadFileToStorage(context, url, "mp3 File.mp3");
-                    }, child: Text('Download',
-                    style: TextStyle(color: AppColor.white),)),
+                        color: Colors.grey,
+                        onPressed: () {
+                          downloadNow();
+                          // _downloadFileToStorage(context, url, "mp3 File.mp3");
+                        },
+                        child: Text(
+                          'Download',
+                          style: TextStyle(color: AppColor.white),
+                        )),
                   ),
                   SizedBox(height: 10),
                   Row(
@@ -274,10 +289,11 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                       //   ),
                       // ),
                       FlatButton(
-                          onPressed: () { _download();
-                          // setState(() {
-                          //   url = controller.text;
-                          // });
+                          onPressed: () {
+                            _download();
+                            // setState(() {
+                            //   url = controller.text;
+                            // });
                           },
                           color: Colors.green,
                           child: Text(
@@ -297,6 +313,10 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                           ))
                     ],
                   ),
+                  SizedBox(height: 40),
+                  loading == false
+                      ? Container()
+                      : Center(child: downloadProgress()),
                   SizedBox(height: 40),
                   Expanded(
                     child: Row(
@@ -327,7 +347,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
         ),
       ),
     );
-
   }
 
   void _download() {

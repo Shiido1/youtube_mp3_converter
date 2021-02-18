@@ -48,7 +48,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
 
   Future downloadNow() async{
     final taskId = await FlutterDownloader.enqueue(
-      url: "http://youtubeaudio.com/"+_converterProvider.youtubeModel.url,
+      url: "https://youtubeaudio.com/"+_converterProvider.youtubeModel.url,
       savedDir: 'the path of directory where you want to save downloaded files',
       showNotification: true, // show download progress in status bar (for Android)
       openFileFromNotification: true, // click on notification to open downloaded file (for Android)
@@ -249,7 +249,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                           final externalDir = await getExternalStorageDirectory();
 
                           final id = await FlutterDownloader.enqueue(
-                              url: "http://youtubeaudio.com/"+converter?.youtubeModel?.url,
+                              url: "https://youtubeaudio.com/"+converter?.youtubeModel?.url,
                               savedDir: externalDir.path,
                               fileName: converter?.youtubeModel?.title,
                           showNotification: true,

@@ -32,13 +32,14 @@ class LoginProviders extends ChangeNotifier {
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         isLoading = false;
-        showToast(this._context, message: statusMessage ?? '');
+        showToast(this._context,
+            message: statusMessage ?? 'Please connect to internet');
         notifyListeners();
       });
     } catch (e) {
       await _progressIndicator.dismiss();
       isLoading = false;
-      debugPrint('Error: $e');
+      showToast(_context, message: "Please connect to internet");
       notifyListeners();
     }
   }

@@ -2,13 +2,16 @@ import 'dart:isolate';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
+import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -23,11 +26,12 @@ class Convert extends StatefulWidget {
 
 class _ConvertState extends State<Convert> {
   ConverterProvider _converterProvider;
+  SaveConvertProvider _saveConvertProvider;
   bool convertResult = false;
   TextEditingController controller = new TextEditingController();
   bool loading = false;
   int _progress = 0;
-  var val;
+  bool downloaded = false;
 
   ReceivePort receivePort = ReceivePort();
 
@@ -37,7 +41,57 @@ class _ConvertState extends State<Convert> {
   }
 
   void _download() {
-    _converterProvider.convert('${controller.text}');
+    if (controller.text.isEmpty) {
+      showToast(context, message: "Please input Url");
+    } else {
+      _converterProvider.convert('${controller.text}');
+    }
+  }
+
+  void _saveLib() {
+    if (downloaded == true) {
+      _saveConvertProvider?.saveConvert(_saveConvertProvider?.saveModel?.url,
+          _saveConvertProvider?.saveModel?.id);
+    }
+  }
+
+  Future<void> _showDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+            child: AlertDialog(
+                backgroundColor: AppColor.white.withOpacity(0.5),
+                content: Container(
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius:
+                        new BorderRadius.all(new Radius.circular(32.0)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50, bottom: 70),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(AppAssets.check),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          'Successfully Downlaoded',
+                          style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+          );
+        });
   }
 
   Future downloadNow() async {
@@ -55,23 +109,28 @@ class _ConvertState extends State<Convert> {
       print('path location' + externalDir.path);
 
       setState(() {
+        downloaded = true;
         loading = true;
+        if (_progress == 100) {
+          loading = false;
+          _showDialog(context);
+        }
       });
       // JC this was how i initailized an object of the model class and i also
       // created the from n toJson method in the model class
       // then i created my database, Hence, after downloading, the user should tab on the SaveLib
       // button so the file can be saved in the db den when i navigate to the SongClass via the My Library
       // the all the downloaded songs should display and when i tap on any the onPressed song should play
-      DownloadedFile file = DownloadedFile(
-          path: externalDir.path,
-          title: _converterProvider?.youtubeModel?.title);
+      //   DownloadedFile file = DownloadedFile(
+      //       path: externalDir.path,
+      //       title: _converterProvider?.youtubeModel?.title);
 
-      var save = await Hive.openBox('music_db');
-      save.put('key', file);
-      val = save.get('key');
-    } else {
-      showToast(context, message: "Problem connecting to network");
-      print('Permission denied');
+      //   var save = await Hive.openBox('music_db');
+      //   save.put('key', file);
+      //   val = save.get('key');
+      // } else {
+      //   showToast(context, message: "Problem connecting to network");
+      //   print('Permission denied');
     }
   }
 
@@ -89,7 +148,7 @@ class _ConvertState extends State<Convert> {
 
   Widget downloadProgress() {
     return Text(
-      'Downloading $_progress' + '%',
+      'Downloading...',
       style: TextStyle(
           fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
     );
@@ -97,18 +156,18 @@ class _ConvertState extends State<Convert> {
 
   @override
   void initState() {
-    super.initState();
-
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
     IsolateNameServer.registerPortWithName(receivePort.sendPort, "downloading");
     receivePort.listen((message) {
       setState(() {
-        _progress = message[2];
+        _progress = message;
       });
       print(_progress);
     });
     FlutterDownloader.registerCallback(downloadingCallback);
+    super.initState();
+
     // _loadSong();
   }
 
@@ -278,8 +337,7 @@ class _ConvertState extends State<Convert> {
                                 FlatButton(
                                     color: Colors.red,
                                     onPressed: () {
-                                      //_playSound();
-                                      print(val);
+                                      _saveLib();
                                     },
                                     child: Text(
                                       'Save to lib',
@@ -290,7 +348,7 @@ class _ConvertState extends State<Convert> {
                                     ))
                               ],
                             ),
-                            SizedBox(height: 40),
+                            SizedBox(height: 60),
                             loading == false
                                 ? Container()
                                 : Center(child: downloadProgress()),

@@ -1,20 +1,18 @@
-import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:mp3_music_converter/download/download_provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:progress_dialog/progress_dialog.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart' as p;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DownloadAndSaveScreen extends StatefulWidget {
   @override
@@ -26,7 +24,8 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   // String url;
   // String progress;
   String filePath;
-  // Dio dio;
+  SharedPreferences loginPref;
+  bool newUser;
 
   ConverterProvider _converterProvider;
   // FileDownloaderProvider fileDownloaderProvider;
@@ -37,6 +36,69 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   static downloadingCallback(id, status, progress) {
     SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
     sendPort.send([id, status, progress]);
+  }
+
+  Future<void> _showDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+            child: AlertDialog(
+                backgroundColor: AppColor.white.withOpacity(0.5),
+                content: Container(
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius:
+                        new BorderRadius.all(new Radius.circular(32.0)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 50, bottom: 70),
+                    child: Column(
+                      children: [
+                        SvgPicture.asset(AppAssets.attention),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          'You have to login first',
+                          style: TextStyle(
+                              fontSize: 25,
+                              fontWeight: FontWeight.bold,
+                              color: AppColor.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+          );
+        });
+  }
+
+  Future downloadNow() async {
+    final status = await Permission.storage.request();
+
+    loginPref = await SharedPreferences.getInstance();
+    if (loginPref.getBool('login') ?? false) {
+      if (status.isGranted) {
+        final externalDir = await getExternalStorageDirectory();
+
+        final id = await FlutterDownloader.enqueue(
+            url: base_url + _converterProvider?.youtubeModel?.url,
+            savedDir: externalDir.path,
+            fileName: _converterProvider?.youtubeModel?.title,
+            showNotification: true,
+            openFileFromNotification: true);
+        setState(() {
+          loading = true;
+        });
+      } else {
+        print('Permission denied');
+      }
+    } else {
+      _showDialog(context);
+    }
   }
 
   @override
@@ -58,25 +120,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   }
 
   //
-  Future downloadNow() async {
-    final status = await Permission.storage.request();
 
-    if (status.isGranted) {
-      final externalDir = await getExternalStorageDirectory();
-
-      final id = await FlutterDownloader.enqueue(
-          url: base_url + _converterProvider?.youtubeModel?.url,
-          savedDir: externalDir.path,
-          fileName: _converterProvider?.youtubeModel?.title,
-          showNotification: true,
-          openFileFromNotification: true);
-      setState(() {
-        loading = true;
-      });
-    } else {
-      print('Permission denied');
-    }
-  }
   //
   // Future<List<Directory>> _getExternal(){
   //   return p.getExternalStorageDirectories(type: p.StorageDirectory.documents);
@@ -123,7 +167,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   Widget downloadProgress() {
     // var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
     return Text(
-      'Downloading $_progress' + '%',
+      'Downloading...',
       style: TextStyle(
           fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
     );
@@ -176,172 +220,252 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                 ),
               ),
             ),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 220),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 25.0),
-                    child: Text(
-                      'Enter YouTube Url',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold),
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 200),
+                Padding(
+                  padding: const EdgeInsets.only(left: 25.0),
+                  child: Text(
+                    'Enter YouTube Url',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 20),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20.0, left: 20),
-                    child: TextField(
-                      style: TextStyle(color: AppColor.white),
-                      controller: controller,
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Stack(children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 58.0),
+                      child: TextFormField(
+                        style: TextStyle(color: AppColor.white),
+                        decoration: new InputDecoration(
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          border: new OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          labelText: 'Enter Youtube Url',
+                          labelStyle: TextStyle(color: Colors.white),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: Colors.white),
-                        ),
-                        labelText: 'Enter Youtube Url',
-                        labelStyle: TextStyle(color: Colors.white),
+                        cursorColor: AppColor.white,
+                        controller: controller,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
+                    Align(
+                      alignment: Alignment.centerRight,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: Colors.grey.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(23.0),
+                          border: Border.all(color: AppColor.white),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        child: ClipOval(
+                          child: InkWell(
+                            splashColor: Colors.white, // inkwell color
+                            child: Container(
+                                height: 55,
+                                width: 54,
+                                child: Icon(
+                                  Icons.check,
+                                  color: AppColor.white,
+                                  size: 35,
+                                )),
+                            onTap: () {
+                              _download();
+                            },
+                          ),
+                        ),
+                      ),
+                    )
+                  ]),
+                ),
+                SizedBox(height: 10),
+                _converterProvider.problem == true
+                    ? Container(
+                        child: Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Image.network(
-                                converter?.youtubeModel?.image ?? '',
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Expanded(
+                            Center(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(converter?.youtubeModel?.title ?? '',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                        )),
-                                    SizedBox(height: 10),
-                                    Text(
-                                        'File Size: ${converter?.youtubeModel?.filesize ?? '0'}',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        )),
-                                    SizedBox(height: 30),
-                                  ],
+                                padding: const EdgeInsets.all(20.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.4),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Image.network(
+                                          converter?.youtubeModel?.image ?? '',
+                                          width: 115,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  converter?.youtubeModel
+                                                          ?.title ??
+                                                      '',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                  )),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                  'File Size: ${converter?.youtubeModel?.filesize ?? '0'}',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  )),
+                                              SizedBox(height: 30),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                            SizedBox(height: 50),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FlatButton(
+                                    onPressed: () {
+                                      downloadNow();
+                                    },
+                                    color: Colors.green,
+                                    child: Text(
+                                      'Download',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    )),
+                                SizedBox(width: 20),
+                                FlatButton(
+                                    color: Colors.red,
+                                    onPressed: () {},
+                                    child: Text(
+                                      'Save to lib',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ))
+                              ],
+                            ),
+                            SizedBox(height: 40),
+                            loading == false
+                                ? Container()
+                                : Center(child: downloadProgress()),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 50),
-                  Center(
-                    child: FlatButton(
-                        color: Colors.grey,
-                        onPressed: () {
-                          downloadNow();
-                          // _downloadFileToStorage(context, url, "mp3 File.mp3");
-                        },
-                        child: Text(
-                          'Download',
-                          style: TextStyle(color: AppColor.white),
-                        )),
-                  ),
-                  SizedBox(height: 10),
-                  Row(
+                      )
+                    : Container(),
+                SizedBox(height: 50),
+                // Center(
+                //   child: FlatButton(
+                //       color: Colors.grey,
+                //       onPressed: () {
+                //         downloadNow();
+                //         // _downloadFileToStorage(context, url, "mp3 File.mp3");
+                //       },
+                //       child: Text(
+                //         'Download',
+                //         style: TextStyle(color: AppColor.white),
+                //       )),
+                // ),
+                // SizedBox(height: 10),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     // Expanded(
+                //     //   child: Column(
+                //     //     children: [
+                //     //       downloadButton(fileDownloaderProvider),
+                //     //       downloadProgress()
+                //     //     ],
+                //     //   ),
+                //     // ),
+                //     FlatButton(
+                //         onPressed: () {
+                //           _download();
+                //           // setState(() {
+                //           //   url = controller.text;
+                //           // });
+                //         },
+                //         color: Colors.green,
+                //         child: Text(
+                //           'Download',
+                //           style: TextStyle(color: Colors.white, fontSize: 20),
+                //         )),
+                //     SizedBox(width: 20),
+                //     FlatButton(
+                //         color: Colors.red,
+                //         onPressed: () {},
+                //         child: Text(
+                //           'Save to lib',
+                //           style: TextStyle(
+                //             color: Colors.white,
+                //             fontSize: 20,
+                //           ),
+                //         ))
+                //   ],
+                // ),
+                // SizedBox(height: 40),
+                // loading == false
+                //     ? Container()
+                //     : Center(child: downloadProgress()),
+                // SizedBox(height: 40),
+                Expanded(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Expanded(
-                      //   child: Column(
-                      //     children: [
-                      //       downloadButton(fileDownloaderProvider),
-                      //       downloadProgress()
-                      //     ],
-                      //   ),
-                      // ),
-                      FlatButton(
-                          onPressed: () {
-                            _download();
-                            // setState(() {
-                            //   url = controller.text;
-                            // });
-                          },
-                          color: Colors.green,
-                          child: Text(
-                            'Download',
-                            style: TextStyle(color: Colors.white, fontSize: 20),
-                          )),
-                      SizedBox(width: 20),
-                      FlatButton(
-                          color: Colors.red,
-                          onPressed: () {},
-                          child: Text(
-                            'Save to lib',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                            ),
-                          ))
-                    ],
-                  ),
-                  SizedBox(height: 40),
-                  loading == false
-                      ? Container()
-                      : Center(child: downloadProgress()),
-                  SizedBox(height: 40),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
+                      InkWell(
+                        onTap: () =>
+                            PageRouter.gotoNamed(Routes.SIGNUP, context),
+                        child: Text(
                           'Sign Up',
                           style: TextStyle(
                               fontSize: 25,
                               color: Colors.white,
                               fontWeight: FontWeight.w800),
                         ),
-                        SizedBox(width: 10),
-                        Text(
+                      ),
+                      SizedBox(width: 20),
+                      InkWell(
+                        onTap: () =>
+                            PageRouter.gotoNamed(Routes.LOGIN, context),
+                        child: Text(
                           'Login',
                           style: TextStyle(
                               fontSize: 25,
                               color: Colors.white,
                               fontWeight: FontWeight.w800),
-                        )
-                      ],
-                    ),
+                        ),
+                      )
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -350,6 +474,10 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   }
 
   void _download() {
-    _converterProvider.convert('${controller.text}');
+    if (controller.text.isEmpty) {
+      showToast(context, message: "Please input Url");
+    } else {
+      _converterProvider.convert('${controller.text}');
+    }
   }
 }

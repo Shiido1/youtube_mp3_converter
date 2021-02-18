@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/utils/helper/constant.dart';
 
 class OtpModel {
   String message;
@@ -55,19 +56,19 @@ class OtpModel {
     following = json['following'];
   }
 
-  static Map<String, dynamic> toJson(
-      {@required int otp,
-      @required String userid,
-      @required String verficationType}) {
+  static Map<String, dynamic> toJson({
+    @required int otp,
+    @required String email,
+  }) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['otp'] = otp;
-    data['userId'] = userid;
-    data['verficationType'] = verficationType;
+    data['email'] = email;
     return data;
   }
 
-  static Map<String, dynamic> resendOtpToJson(
-      {@required String email,}) {
+  static Map<String, dynamic> resendOtpToJson({
+    @required String email,
+  }) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['email'] = email;
     return data;

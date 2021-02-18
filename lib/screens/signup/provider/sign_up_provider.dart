@@ -42,7 +42,7 @@ class SignUpProviders extends ChangeNotifier {
       });
     } catch (e) {
       await _progressIndicator.dismiss();
-      debugPrint('Error: $e');
+      showToast(_context, message: "Please connect to internet");
     }
   }
 }

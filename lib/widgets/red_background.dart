@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,13 +23,26 @@ class _RedBackgroundState extends State<RedBackground> {
   File image;
   bool img = false;
   SharedPreferences sharedPreferences;
+  bool newUser;
+  bool logOut = false;
 
   _checkLoginState() async {
     sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString('token') == null) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (BuildContext context) => SignInScreen()),
-          (Route<dynamic> route) => false);
+      PageRouter.gotoNamed(Routes.LOGIN, context);
+    }
+  }
+
+  void checkLogin() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    newUser = (sharedPreferences.getBool('login') ?? true);
+    PageRouter.gotoNamed(Routes.LOGIN, context);
+    setState(() {
+      logOut = true;
+    });
+
+    if (newUser == false) {
+      PageRouter.gotoNamed(Routes.DASHBOARD, context);
     }
   }
 
@@ -64,13 +77,14 @@ class _RedBackgroundState extends State<RedBackground> {
                     ),
                     onTap: () {
                       _checkLoginState();
+                      // _checkLoginState();
                       // sharedPreferences.clear();
                       // sharedPreferences.commit();
-                      Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  SignInScreen()),
-                          (Route<dynamic> route) => false);
+                      //   Navigator.of(context).pushAndRemoveUntil(
+                      //       MaterialPageRoute(
+                      //           builder: (BuildContext context) =>
+                      //               SignInScreen()),
+                      //       (Route<dynamic> route) => false);
                     },
                   ),
                   Padding(
@@ -128,15 +142,17 @@ class _RedBackgroundState extends State<RedBackground> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  img == false ? ClipOval(
-                    child: Image.asset('assets/burna.png'),
-                  ):ClipOval(
-                    child: Image.file(
-                      image,
-                      height: 70,
-                      width: 70,
-                    ),
-                  ),
+                  img == false
+                      ? ClipOval(
+                          child: Image.asset('assets/burna.png'),
+                        )
+                      : ClipOval(
+                          child: Image.file(
+                            image,
+                            height: 70,
+                            width: 70,
+                          ),
+                        ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),
                     child: InkWell(

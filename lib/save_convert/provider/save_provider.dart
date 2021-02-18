@@ -18,11 +18,11 @@ class SaveConvertProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void saveConvert(String id) async {
+  Future saveConvert(String url, String id) async {
     try {
       _progressIndicator.show();
-      final _response =
-      await _repository.saveConvert(id);
+      final _response = await _repository
+          .saveConvert(SaveConvert.mapToJson(url: url, id: id));
       _response.when(success: (success, _, __) async {
         await _progressIndicator.dismiss();
         saveModel = success;

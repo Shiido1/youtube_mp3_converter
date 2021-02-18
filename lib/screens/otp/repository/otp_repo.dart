@@ -8,7 +8,7 @@ class OtpApiRepository {
   Future<ApiResponse<OtpModel>> verify({@required Map data}) async {
     try {
       final response =
-          await jayNetworkClient.makePutRequest("verify", data: data);
+          await jayNetworkClient.makePostRequest("verify", data: data);
       return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {
       return handleNetworkException(e);
@@ -17,8 +17,9 @@ class OtpApiRepository {
 
   Future<ApiResponse<OtpModel>> resend({@required String email}) async {
     try {
-      final response = await jayNetworkClient
-          .makeGetRequest("verify/resend?email=$email&channel=email");
+      final response = await jayNetworkClient.makePostRequest(
+          "verify/resend?email=$email&channel=email",
+          data: email);
       return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {
       return handleNetworkException(e);

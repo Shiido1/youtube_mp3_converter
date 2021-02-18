@@ -23,11 +23,11 @@ class OtpProviders extends ChangeNotifier {
     try {
       _progressIndicator.show();
       final _response = await _repository.verify(data: map);
-      _response.when(success: (success, data, __) async {
+      _response.when(success: (OtpModel success, data, __) async {
         await _progressIndicator.dismiss();
         showToast(this._context, message: success.message);
         print('successful');
-        PageRouter.gotoNamed(Routes.OTP_SUCCESSFUL, _context);
+        PageRouter.gotoNamed(Routes.DASHBOARD, _context);
       }, failure: (NetworkExceptions error, _, statusMessage) {
         _progressIndicator.dismiss();
         showToast(this._context,

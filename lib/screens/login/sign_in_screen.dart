@@ -6,8 +6,10 @@ import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -20,6 +22,17 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isEmail = false;
   bool _isPassword = false;
   LoginProviders _loginProviders;
+  SharedPreferences loginPref;
+  bool newUser;
+
+  void checkLogin() async {
+    loginPref = await SharedPreferences.getInstance();
+    newUser = (loginPref.getBool('login') ?? true);
+
+    if (newUser == false) {
+      PageRouter.gotoNamed(Routes.DASHBOARD, context);
+    }
+  }
 
   void signIn(String email, String password) {
     if (_validateInputs())
@@ -45,6 +58,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void initState() {
+    // checkLogin();
     _loginProviders = Provider.of<LoginProviders>(context, listen: false);
     _loginProviders.initialize(context);
     super.initState();
@@ -138,6 +152,8 @@ class _SignInScreenState extends State<SignInScreen> {
                               ? 'Please enter correct password'
                               : null,
                         ),
+                        autofocus: false,
+                        obscureText: true,
                       ),
                     ),
                     SizedBox(height: 35),
@@ -150,8 +166,14 @@ class _SignInScreenState extends State<SignInScreen> {
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10)),
                             color: AppColor.bottomRed,
-                            onPressed: () => signIn(_emailController.text,
-                                _passwordController.text),
+                            onPressed: () {
+                              signIn(_emailController.text,
+                                  _passwordController.text);
+                              // if (_emailController.text != '' &&
+                              //     _passwordController.text != '') {
+                              //   loginPref.setBool('login', false);
+                              // }
+                            },
                             child: Padding(
                               padding: const EdgeInsets.only(
                                   top: 10.0, bottom: 10.0, right: 23, left: 23),

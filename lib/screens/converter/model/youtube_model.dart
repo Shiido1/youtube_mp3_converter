@@ -1,4 +1,28 @@
 import 'package:flutter/material.dart';
+// import 'package:hive/hive.dart';
+
+// @HiveType(typeId: 0)
+// class DownloadedFile extends HiveObject {
+//   @HiveField(0)
+//   String path;
+
+//   @HiveField(1)
+//   String title;
+
+//   DownloadedFile({this.path, this.title});
+
+//   DownloadedFile.fromJson(Map<String, dynamic> json) {
+//     path = json['path'];
+//     title = json['title'];
+//   }
+
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = new Map<String, dynamic>();
+//     data['path'] = this.path;
+//     data['title'] = this.title;
+//     return data;
+//   }
+// }
 
 class YoutubeModel {
   String message;

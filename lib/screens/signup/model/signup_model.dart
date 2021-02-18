@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-
 class SignupModel {
   String message;
   String email;
@@ -14,9 +12,7 @@ class SignupModel {
   }
 
   static Map<String, dynamic> toJson(
-      {String name,
-      String email,
-      String password}) {
+      {String name, String email, String password}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['password'] = password;
     data['email'] = email;

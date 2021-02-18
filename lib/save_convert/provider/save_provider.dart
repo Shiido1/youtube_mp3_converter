@@ -7,7 +7,7 @@ import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 
 final SaveConvertRepo _repository = SaveConvertRepo();
 
-class ConverterProvider extends ChangeNotifier {
+class SaveConvertProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
   SaveConvert saveModel = SaveConvert();
@@ -18,16 +18,17 @@ class ConverterProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void saveConvert(String id) async {
+  Future saveConvert(String url, String id) async {
     try {
       _progressIndicator.show();
-      final _response =
-      await _repository.saveConvert(id);
+      final _response = await _repository
+          .saveConvert(SaveConvert.mapToJson(url: url, id: id));
       _response.when(success: (success, _, __) async {
         await _progressIndicator.dismiss();
         saveModel = success;
         problem = true;
         notifyListeners();
+        print('Save Successful');
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;

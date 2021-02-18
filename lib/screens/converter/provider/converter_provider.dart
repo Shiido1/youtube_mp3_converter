@@ -31,12 +31,13 @@ class ConverterProvider extends ChangeNotifier {
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;
-        showToast(this._context, message: statusMessage ?? '');
+        showToast(this._context,
+            message: statusMessage ?? 'Please connect to internet');
         notifyListeners();
       });
     } catch (e) {
       await _progressIndicator.dismiss();
-      debugPrint('Error: $e');
+      showToast(_context, message: "Please connect your download to internet");
       notifyListeners();
     }
   }

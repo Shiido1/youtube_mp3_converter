@@ -9,7 +9,6 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
-import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:pin_entry_text_field/pin_entry_text_field.dart';
 import 'package:provider/provider.dart';
@@ -172,10 +171,7 @@ class _OtpPageState extends State<OtpPage> {
     if (util.timerIsNotExpired) {
       setState(() => userId = widget.userID);
       _otpProviders.verifyOtp(
-          map: OtpModel.toJson(
-              otp: int.parse(pin),
-              userid: widget.userID,
-              verficationType: 'email'));
+          map: OtpModel.toJson(otp: int.parse(pin), email: email));
     }
   }
 }

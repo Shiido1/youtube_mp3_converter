@@ -104,6 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -216,6 +217,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         labelStyle: TextStyle(color: AppColor.white),
                         errorText: _isPassword ? 'Please enter password' : null,
                       ),
+                      autofocus: false,
+                      obscureText: true,
                     ),
                   ),
                   SizedBox(height: 23),
@@ -243,6 +246,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             ? 'Please enter correct password'
                             : null,
                       ),
+                      autofocus: false,
+                      obscureText: true,
                     ),
                   ),
                   SizedBox(height: 15),

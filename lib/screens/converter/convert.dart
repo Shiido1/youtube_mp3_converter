@@ -70,6 +70,7 @@ class _ConvertState extends State<Convert> {
       ..registerAdapter(DownloadedFileAdapter());
     var save = await Hive.openBox('music_db');
     save.put('key', file);
+    save.get('key');
   }
 
   Future<void> _showDialog(BuildContext context) {

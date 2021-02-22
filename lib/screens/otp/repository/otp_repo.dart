@@ -17,9 +17,9 @@ class OtpApiRepository {
 
   Future<ApiResponse<OtpModel>> resend({@required String email}) async {
     try {
-      final response = await jayNetworkClient.makePostRequest(
-          "verify/resend?email=$email&channel=email",
-          data: email);
+      final response = await jayNetworkClient.makeGetRequest(
+        "verify/resend?email=$email&channel=email",
+      );
       return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {
       return handleNetworkException(e);

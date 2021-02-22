@@ -37,7 +37,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void signIn(String email, String password) {
     if (_validateInputs())
       _loginProviders.loginUser(
-          map: Login_Model.toJson(email: email, password: password));
+          map: LoginModel.toJson(email: email, password: password));
   }
 
   bool _validateInputs() {

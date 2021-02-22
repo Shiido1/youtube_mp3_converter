@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
@@ -28,7 +29,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   bool newUser;
 
   ConverterProvider _converterProvider;
-  // FileDownloaderProvider fileDownloaderProvider;
+  SaveConvertProvider _saveConvertProvider;
   TextEditingController controller = new TextEditingController();
   int _progress = 0;
   ReceivePort receivePort = ReceivePort();
@@ -56,6 +57,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                   child: Padding(
                     padding: const EdgeInsets.only(top: 50, bottom: 70),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SvgPicture.asset(AppAssets.attention),
                         SizedBox(
@@ -109,14 +111,12 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
     _converterProvider.init(context);
     IsolateNameServer.registerPortWithName(receivePort.sendPort, "downloading");
     receivePort.listen((message) {
-      setState(() {
-        _progress = message[2];
-      });
-      print(_progress);
+      // setState(() {
+      //   _progress = message[2];
+      // });
+      // print(_progress);
     });
     FlutterDownloader.registerCallback(downloadingCallback);
-
-    // dio = Dio();
   }
 
   //
@@ -477,7 +477,8 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
     } else {
-      _converterProvider.convert('${controller.text}');
+      _converterProvider.convert(
+          '${controller.text}', _converterProvider?.youtubeModel?.id ?? '');
     }
   }
 }

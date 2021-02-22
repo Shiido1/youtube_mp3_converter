@@ -3,7 +3,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -15,9 +17,10 @@ class SongViewCLass extends StatefulWidget {
 
 class _SongViewCLassState extends State<SongViewCLass> {
   SaveConvertProvider _saveConvertProvider;
-  List<Convert> convert = List();
+  ConverterProvider _converterProvider;
+  // List<Convert> convert = List();
   var save;
-  bool isSet = false;
+  Convert convert;
   // Future<void> openDb() async {
   //   var saveI = await Hive.openBox('music_db');
   //   save.get('key');
@@ -30,16 +33,17 @@ class _SongViewCLassState extends State<SongViewCLass> {
   @override
   void initState() {
     super.initState();
-    _saveConvertProvider?.saveConvert(_saveConvertProvider?.saveModel?.url,
-        _saveConvertProvider?.saveModel?.id);
-    print(_saveConvertProvider?.saveModel?.url);
+    init();
+  }
+
+  init() async {
+    var read = await Hive.openBox('music_db');
+    save = read.get('key');
+    return save;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isSet) {
-      print(save.get('key'));
-    }
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -69,9 +73,10 @@ class _SongViewCLassState extends State<SongViewCLass> {
                             ListTile(
                               onTap: () {},
                               leading: Image.network(
-                                  _saveConvertProvider?.saveModel?.image ?? ''),
+                                  _converterProvider?.youtubeModel?.image ??
+                                      ''),
                               title: TextViewWidget(
-                                text: _saveConvertProvider?.saveModel?.title ??
+                                text: _converterProvider?.youtubeModel?.title ??
                                     '',
                                 color: AppColor.white,
                                 textSize: 18,

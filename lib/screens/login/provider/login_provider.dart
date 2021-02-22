@@ -24,7 +24,7 @@ class LoginProviders extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
       final _response = await _repository.loginUser(data: map);
-      _response.when(success: (success, _, __) async {
+      _response.when(success: (success, _, statusMessage) async {
         await _progressIndicator.dismiss();
         isLoading = false;
         PageRouter.gotoNamed(Routes.DASHBOARD, _context);
@@ -33,7 +33,7 @@ class LoginProviders extends ChangeNotifier {
         await _progressIndicator.dismiss();
         isLoading = false;
         showToast(this._context,
-            message: statusMessage ?? 'Please connect to internet');
+            message: statusMessage);
         notifyListeners();
       });
     } catch (e) {

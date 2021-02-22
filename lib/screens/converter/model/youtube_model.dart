@@ -1,28 +1,50 @@
 import 'package:flutter/material.dart';
-// import 'package:hive/hive.dart';
+import 'package:hive/hive.dart';
 
-// @HiveType(typeId: 0)
-// class DownloadedFile extends HiveObject {
-//   @HiveField(0)
-//   String path;
+class DownloadedFileAdapter extends TypeAdapter<DownloadedFile> {
+  @override
+  final typeId = 0;
 
-//   @HiveField(1)
-//   String title;
+  @override
+  DownloadedFile read(BinaryReader reader) {
+    return DownloadedFile(reader.read(typeId));
+  }
 
-//   DownloadedFile({this.path, this.title});
+  @override
+  void write(BinaryWriter writer, DownloadedFile obj) {
+    writer.write(obj.path);
+    writer.write(obj.title);
+    writer.write(obj.image);
+  }
+}
 
-//   DownloadedFile.fromJson(Map<String, dynamic> json) {
-//     path = json['path'];
-//     title = json['title'];
-//   }
+@HiveType(typeId: 0)
+class DownloadedFile extends HiveObject {
+  @HiveField(0)
+  String path;
 
-//   Map<String, dynamic> toJson() {
-//     final Map<String, dynamic> data = new Map<String, dynamic>();
-//     data['path'] = this.path;
-//     data['title'] = this.title;
-//     return data;
-//   }
-// }
+  @HiveField(1)
+  String title;
+
+  @HiveField(2)
+  String image;
+
+  DownloadedFile(read, {this.path, this.title, this.image});
+
+  DownloadedFile.fromJson(Map<String, dynamic> json) {
+    path = json['path'];
+    title = json['title'];
+    image = json['image'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['path'] = this.path;
+    data['title'] = this.title;
+    data['image'] = this.image;
+    return data;
+  }
+}
 
 class YoutubeModel {
   String message;
@@ -55,9 +77,11 @@ class YoutubeModel {
     return data;
   }
 
-  static Map<String, dynamic> mapToJson({@required String url}) {
+  static Map<String, dynamic> mapToJson(
+      {@required String url, @required int id}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['url'] = url;
+    data['id'] = id;
     return data;
   }
 }

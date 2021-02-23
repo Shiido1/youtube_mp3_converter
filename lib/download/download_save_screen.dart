@@ -372,7 +372,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                             SizedBox(height: 40),
                             loading == false
                                 ? Container()
-                                : Center(child: downloadProgress()),
+                                : Center(),
                           ],
                         ),
                       )

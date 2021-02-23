@@ -72,7 +72,7 @@ class _ConvertState extends State<Convert> {
     // save.put('key', file);
     // save.get('key');
     final downBox = Hive.box('music_db');
-    downBox.add(file);
+  await  downBox.add(file.toJson());
   }
 
   Future<void> _showDialog(BuildContext context) {

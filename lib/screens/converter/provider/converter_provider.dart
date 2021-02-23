@@ -8,7 +8,6 @@ import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 
 final ConverterRepo _repository = ConverterRepo();
-final SaveConvertRepo _saveConvertRepo = SaveConvertRepo();
 
 class ConverterProvider extends ChangeNotifier {
   BuildContext _context;
@@ -22,11 +21,12 @@ class ConverterProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void convert(String url, int id) async {
+  void convert(String url) async {
     try {
       _progressIndicator.show();
-      final _response =
-          await _repository.convert(YoutubeModel.mapToJson(url: url, id: id));
+      final _response = await _repository.convert(YoutubeModel.mapToJson(
+        url: url,
+      ));
       _response.when(success: (success, _, statusMessage) async {
         await _progressIndicator.dismiss();
         youtubeModel = success;

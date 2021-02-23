@@ -477,8 +477,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
     } else {
-      _converterProvider.convert(
-          '${controller.text}', _converterProvider?.youtubeModel?.id ?? '');
+      _converterProvider.convert('${controller.text}');
     }
   }
 }

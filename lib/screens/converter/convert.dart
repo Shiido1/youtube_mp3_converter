@@ -31,7 +31,8 @@ class _ConvertState extends State<Convert> {
   bool convertResult = false;
   TextEditingController controller = new TextEditingController();
   bool loading = false;
-  static int _progress = 0;
+  int _progress = 0;
+  static int _progresss = 0;
   bool downloaded = false;
   int id;
   var val;
@@ -42,15 +43,14 @@ class _ConvertState extends State<Convert> {
   static downloadingCallback(id, status, progress) {
     SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
     sendPort.send([id, status, progress]);
-    // _progress = progress;
+    _progresss = progress;
   }
 
   void _download() {
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
     } else {
-      _converterProvider.convert(
-          '${controller.text}', _converterProvider.youtubeModel.id);
+      _converterProvider.convert('${controller.text}');
     }
   }
 
@@ -65,12 +65,14 @@ class _ConvertState extends State<Convert> {
         path: storagePath,
         image: _converterProvider?.youtubeModel?.image,
         title: _converterProvider?.youtubeModel?.title);
-    Hive
-      ..init(storagePath)
-      ..registerAdapter(DownloadedFileAdapter());
-    var save = await Hive.openBox('music_db');
-    save.put('key', file);
-    save.get('key');
+    // Hive
+    //   ..init(storagePath)
+    //   ..registerAdapter(DownloadedFileAdapter());
+    // var save = await Hive.openBox('music_db');
+    // save.put('key', file);
+    // save.get('key');
+    final downBox = Hive.box('music_db');
+    downBox.add(file);
   }
 
   Future<void> _showDialog(BuildContext context) {
@@ -131,7 +133,7 @@ class _ConvertState extends State<Convert> {
       IsolateNameServer.registerPortWithName(
           receivePort.sendPort, "downloading");
       setState(() {
-        _progress = _progress;
+        _progress = _progresss;
         downloaded = true;
         loading = true;
       });
@@ -199,6 +201,7 @@ class _ConvertState extends State<Convert> {
   @override
   void dispose() {
     controller.dispose();
+    receivePort.close();
     super.dispose();
   }
 

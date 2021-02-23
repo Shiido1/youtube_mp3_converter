@@ -8,6 +8,7 @@ import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 
+// ignore: must_be_immutable
 class SongClass extends StatefulWidget {
   int index;
   @override

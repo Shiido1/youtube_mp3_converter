@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+// part 'download.g.dart';
+
 class DownloadedFileAdapter extends TypeAdapter<DownloadedFile> {
   @override
   final typeId = 0;
 
   @override
   DownloadedFile read(BinaryReader reader) {
-    return DownloadedFile(reader.read(typeId));
+    return DownloadedFile(reader.read());
   }
 
   @override
@@ -77,11 +79,9 @@ class YoutubeModel {
     return data;
   }
 
-  static Map<String, dynamic> mapToJson(
-      {@required String url, @required int id}) {
+  static Map<String, dynamic> mapToJson({@required String url}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['url'] = url;
-    data['id'] = id;
     return data;
   }
 }

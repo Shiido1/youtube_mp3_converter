@@ -39,16 +39,15 @@ class OtpProviders extends ChangeNotifier {
     }
   }
 
-  void resendOtp(
-      {@required String email,
-      @required UtilityProvider utilityProvider}) async {
+  void resendOtp({@required Map map}) async {
     try {
       _progressIndicator.show();
-      final _response = await _repository.resend(email: email);
-      _response.when(success: (success, data, __) async {
+      final _response = await _repository.verify(data: map);
+      _response.when(success: (OtpModel success, data, __) async {
         await _progressIndicator.dismiss();
         showToast(this._context, message: success.message);
-        utilityProvider.startTimer(timeLimit: 4);
+        print('successful');
+        PageRouter.gotoNamed(Routes.DASHBOARD, _context);
       }, failure: (NetworkExceptions error, _, statusMessage) {
         _progressIndicator.dismiss();
         showToast(this._context,

@@ -68,9 +68,11 @@ class OtpModel {
 
   static Map<String, dynamic> resendOtpToJson({
     @required String email,
+    @required int otp,
   }) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['email'] = email;
+    data['otp'] = otp;
     return data;
   }
 }

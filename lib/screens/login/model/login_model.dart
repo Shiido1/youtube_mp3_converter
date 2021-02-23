@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Login_Model {
+class LoginModel {
   String message;
   int totalsong;
   List<Invoices> invoices;
@@ -16,7 +16,7 @@ class Login_Model {
   int followers;
   int following;
 
-  Login_Model(
+  LoginModel(
       {this.message,
       this.totalsong,
       this.invoices,
@@ -32,7 +32,7 @@ class Login_Model {
       this.followers,
       this.following});
 
-  Login_Model.fromJson(Map<String, dynamic> json) {
+  LoginModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {

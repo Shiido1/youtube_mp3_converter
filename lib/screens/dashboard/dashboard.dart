@@ -13,6 +13,7 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
+// ignore: must_be_immutable
 class DashBoard extends StatefulWidget {
   int index;
 

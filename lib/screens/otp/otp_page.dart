@@ -27,6 +27,8 @@ class _OtpPageState extends State<OtpPage> {
   OtpProviders _otpProviders;
   UtilityProvider _utilityProvider;
 
+  String pin;
+
   @override
   void initState() {
     _otpProviders = Provider.of<OtpProviders>(context, listen: false);
@@ -138,8 +140,8 @@ class _OtpPageState extends State<OtpPage> {
                               ..onTap = () => util.timerIsNotExpired
                                   ? null
                                   : _otpProviders.resendOtp(
-                                      email: widget.email,
-                                      utilityProvider: _utilityProvider),
+                                      map: OtpModel.toJson(
+                                          otp: int.parse(pin), email: email)),
                             text: util.timerIsNotExpired
                                 ? '0${util.minute} : ${util.seconds.toString().length == 1 ? '0${util.seconds}' : util.seconds}'
                                 : 'Resend OTP',

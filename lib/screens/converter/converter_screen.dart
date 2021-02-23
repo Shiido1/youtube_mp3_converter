@@ -7,8 +7,8 @@ import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
+// ignore: must_be_immutable
 class ConverterScreen extends StatefulWidget {
   int index;
 

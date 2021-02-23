@@ -14,7 +14,7 @@ class LoginApiRepository {
     try {
       final _response =
           await jayNetworkClient.makePostRequest("login", data: data);
-      final _finalData = Login_Model.fromJson(_response.data);
+      final _finalData = LoginModel.fromJson(_response.data);
 
       _saveUsersData(_finalData);
       return ApiResponse.success(data: _finalData);
@@ -23,7 +23,7 @@ class LoginApiRepository {
     }
   }
 
-  void _saveUsersData(Login_Model finalData) async {
+  void _saveUsersData(LoginModel finalData) async {
     /// cache users data here
     preferencesHelper.saveValue(key: usersPrefkey, value: finalData.invoices);
   }

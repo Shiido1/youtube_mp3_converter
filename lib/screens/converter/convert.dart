@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:mp3_music_converter/save_convert/model/save_convert_model.dart';
 import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
+import 'package:mp3_music_converter/screens/converter/model/downloaded_file_model.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';

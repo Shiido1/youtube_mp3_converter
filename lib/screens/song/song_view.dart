@@ -4,6 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/converter/model/downloaded_file_model.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -32,18 +33,19 @@ class _SongViewCLassState extends State<SongViewCLass> {
   //   });
   // }
 
-  @override
-  void initState() {
-    super.initState();
-    init();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   init();
+  // }
 
-  init() {
-    read = Hive.box('music_db');
-    // read.get('key');
-    // save = read.get('key');
-    // return save;
-  }
+  // init() {
+  //   read = Hive.box('music_db');
+
+  //   // read.get('key');
+  //   // save = read.get('key');
+  //   // return save;
+  // }
 
   @override
   Widget build(BuildContext context) {

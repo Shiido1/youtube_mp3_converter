@@ -127,7 +127,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
           return ListView.builder(
               itemCount: read.length,
               itemBuilder: (context, index) {
-                final readItem = read.getAt(index) as DownloadedFile;
+                final readItem = DownloadedFile(read.getAt(index));
 
                 return Column(
                   children: [

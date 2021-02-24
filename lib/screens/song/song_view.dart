@@ -41,6 +41,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
 
   init() {
     read = Hive.box('music_db');
+
     // read.get('key');
     // save = read.get('key');
     // return save;
@@ -126,7 +127,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
           return ListView.builder(
               itemCount: read.length,
               itemBuilder: (context, index) {
-                final readItem = DownloadedFile.fromJson(read.getAt(index));
+                final readItem = read.getAt(index) as DownloadedFile;
 
                 return Column(
                   children: [

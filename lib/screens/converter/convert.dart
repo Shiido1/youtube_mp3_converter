@@ -7,7 +7,6 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:mp3_music_converter/save_convert/model/save_convert_model.dart';
 import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
-import 'package:mp3_music_converter/screens/converter/model/downloaded_file_model.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
@@ -21,6 +20,8 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+
+import 'model/downloaded_file_model.dart';
 
 class Convert extends StatefulWidget {
   @override
@@ -73,7 +74,7 @@ class _ConvertState extends State<Convert> {
     // save.put('key', file);
     // save.get('key');
     final downBox = Hive.box('music_db');
-    downBox.add(file);
+    await  downBox.add(file.toJson());
   }
 
   Future<void> _showDialog(BuildContext context) {
@@ -89,7 +90,7 @@ class _ConvertState extends State<Convert> {
                   decoration: new BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius:
-                        new BorderRadius.all(new Radius.circular(32.0)),
+                    new BorderRadius.all(new Radius.circular(32.0)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 50, bottom: 70),
@@ -296,90 +297,90 @@ class _ConvertState extends State<Convert> {
                 ),
                 _converterProvider.problem == true
                     ? Container(
-                        child: Column(
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.4),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(2),
-                                        child: Image.network(
-                                          model?.youtubeModel?.image ?? '',
-                                          width: 115,
-                                          height: 120,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  model?.youtubeModel?.title ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18,
-                                                  )),
-                                              SizedBox(height: 10),
-                                              Text(
-                                                  'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  )),
-                                              SizedBox(height: 30),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.4),
                             ),
-                            SizedBox(height: 50),
-                            Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                FlatButton(
-                                    onPressed: () {
-                                      downloadNow();
-                                    },
-                                    color: Colors.green,
-                                    child: Text(
-                                      'Download',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    )),
-                                SizedBox(width: 20),
-                                FlatButton(
-                                    color: Colors.red,
-                                    onPressed: () {
-                                      _saveLib();
-                                    },
-                                    child: Text(
-                                      'Save to lib',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                      ),
-                                    ))
+                                Padding(
+                                  padding: const EdgeInsets.all(2),
+                                  child: Image.network(
+                                    model?.youtubeModel?.image ?? '',
+                                    width: 115,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                      CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            model?.youtubeModel?.title ??
+                                                '',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                            )),
+                                        SizedBox(height: 10),
+                                        Text(
+                                            'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            )),
+                                        SizedBox(height: 30),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
-                          ],
+                          ),
                         ),
-                      )
+                      ),
+                      SizedBox(height: 50),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FlatButton(
+                              onPressed: () {
+                                downloadNow();
+                              },
+                              color: Colors.green,
+                              child: Text(
+                                'Download',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 20),
+                              )),
+                          SizedBox(width: 20),
+                          FlatButton(
+                              color: Colors.red,
+                              onPressed: () {
+                                _saveLib();
+                              },
+                              child: Text(
+                                'Save to lib',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ))
+                        ],
+                      ),
+                    ],
+                  ),
+                )
                     : Container(),
                 SizedBox(height: 60),
                 loading == false

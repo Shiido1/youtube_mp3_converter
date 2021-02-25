@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:path_provider/path_provider.dart' as path;
 import 'common/providers.dart';
+import 'jaycee/home.dart';
 import 'utils/color_assets/color.dart';
 
 void main() async {
@@ -37,6 +38,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    final platform = Theme.of(context).platform;
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -56,6 +58,11 @@ class _MyAppState extends State<MyApp> {
             return Scaffold();
         },
       ),
+      // todo: Use this home instead of the first
+      // home: MyHomePage(
+      //   platform: platform,
+      //   title: 'Downloader',
+      // ),
       routes: Routes.getRoutes,
     );
   }

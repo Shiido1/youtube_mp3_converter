@@ -16,6 +16,7 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -30,7 +31,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   ConverterProvider _converterProvider;
   // List<Convert> convert = List();
   var box = Hive.box('music_db');
-  // var read;
+  var _scaffoldKey = GlobalKey<ScaffoldState>();
   String mp3 = '';
 
   @override
@@ -46,6 +47,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColor.background,
       appBar: AppBar(
         backgroundColor: AppColor.black,
@@ -63,6 +65,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
           ),
         ),
       ),
+      endDrawer: AppDrawer(),
       body: Center(
         child: Column(
           children: [
@@ -156,9 +159,14 @@ class _SongViewCLassState extends State<SongViewCLass> {
                             text: readItem?.title ?? '',
                             textSize: 15,
                           ),
-                          trailing: SvgPicture.asset(
-                            AppAssets.dot,
-                            color: AppColor.white,
+                          trailing: InkWell(
+                            onTap: () {
+                              _scaffoldKey.currentState.openEndDrawer();
+                            },
+                            child: SvgPicture.asset(
+                              AppAssets.dot,
+                              color: AppColor.white,
+                            ),
                           ),
                         ),
                       ),

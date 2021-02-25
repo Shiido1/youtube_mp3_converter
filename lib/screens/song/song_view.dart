@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audioplayer/audioplayer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -39,7 +40,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   }
 
   init() {
-    Convert().loadSound();
+    // Convert().loadSound();
   }
 
   @override
@@ -130,12 +131,25 @@ class _SongViewCLassState extends State<SongViewCLass> {
                       height: 60.0,
                       child: InkWell(
                         onTap: () {
-                          Convert().playSound();
+                          // Convert().playSound();
                         },
                         child: ListTile(
                           leading: readItem?.image != null &&
                                   readItem.image.isNotEmpty
-                              ? Image.network(readItem.image)
+                              ? SizedBox(
+                                  width: 95,
+                                  height: 150,
+                                  child: CachedNetworkImage(
+                                    imageUrl: readItem.image,
+                                    placeholder: (context, index) => Container(
+                                      child: Center(
+                                          child:
+                                              new CircularProgressIndicator()),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        new Icon(Icons.error),
+                                  ))
+                              // ? Image.network(readItem.image)
                               : null,
                           title: TextViewWidget(
                             color: AppColor.white,
@@ -150,7 +164,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(left: 115.0, right: 15),
+                      padding: const EdgeInsets.only(left: 105.0, right: 15),
                       child: Divider(
                         color: AppColor.white,
                       ),

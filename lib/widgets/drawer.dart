@@ -13,7 +13,7 @@ class _AppDrawerState extends State<AppDrawer> {
       padding: const EdgeInsets.only(top: 150, bottom: 120),
       child: Container(
         decoration: new BoxDecoration(
-          color: Colors.transparent,
+          color: Colors.green,
         ),
         child: Drawer(
           child: Column(

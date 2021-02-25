@@ -21,6 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
+  audioplayer: ^0.8.1
   hive_flutter: ^0.3.1
   hive: ^1.4.4+1
   file_picker: ^2.1.6

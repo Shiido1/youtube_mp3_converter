@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -12,8 +16,10 @@ import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:path_provider/path_provider.dart';
 
 class SongViewCLass extends StatefulWidget {
+  const SongViewCLass({Key key}) : super(key: key);
   @override
   _SongViewCLassState createState() => _SongViewCLassState();
 }
@@ -22,16 +28,9 @@ class _SongViewCLassState extends State<SongViewCLass> {
   SaveConvertProvider _saveConvertProvider;
   ConverterProvider _converterProvider;
   // List<Convert> convert = List();
-  var read;
-  Convert convert;
-  // Future<void> openDb() async {
-  //   var saveI = await Hive.openBox('music_db');
-  //   save.get('key');
-  //   setState(() {
-  //     save = saveI;
-  //     isSet = true;
-  //   });
-  // }
+  var box = Hive.box('music_db');
+  // var read;
+  String mp3 = '';
 
   @override
   void initState() {
@@ -40,11 +39,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   }
 
   init() {
-    read = Hive.box('music_db');
-
-    // read.get('key');
-    // save = read.get('key');
-    // return save;
+    Convert().loadSound();
   }
 
   @override
@@ -123,7 +118,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
     return WatchBoxBuilder(
         box: Hive.box('music_db'),
         builder: (context, read) {
-
           return ListView.builder(
               itemCount: read.length,
               itemBuilder: (context, index) {
@@ -134,18 +128,24 @@ class _SongViewCLassState extends State<SongViewCLass> {
                     SizedBox(
                       width: double.infinity,
                       height: 60.0,
-                      child: ListTile(
-                        leading: readItem?.image != null && readItem.image.isNotEmpty
-                            ? Image.network(readItem.image)
-                            : null,
-                        title: TextViewWidget(
-                          color: AppColor.white,
-                          text: readItem?.title ?? '',
-                          textSize: 15,
-                        ),
-                        trailing: SvgPicture.asset(
-                          AppAssets.dot,
-                          color: AppColor.white,
+                      child: InkWell(
+                        onTap: () {
+                          Convert().playSound();
+                        },
+                        child: ListTile(
+                          leading: readItem?.image != null &&
+                                  readItem.image.isNotEmpty
+                              ? Image.network(readItem.image)
+                              : null,
+                          title: TextViewWidget(
+                            color: AppColor.white,
+                            text: readItem?.title ?? '',
+                            textSize: 15,
+                          ),
+                          trailing: SvgPicture.asset(
+                            AppAssets.dot,
+                            color: AppColor.white,
+                          ),
                         ),
                       ),
                     ),

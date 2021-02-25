@@ -11,9 +11,14 @@ class DownloadedFile extends HiveObject {
   @HiveField(2)
   String image;
 
-  DownloadedFile(read, {this.path, this.title, this.image});
+  DownloadedFile(
+    read, {
+    this.path,
+    this.title,
+    this.image,
+  });
 
-  DownloadedFile.fromJson(Map<String, dynamic> json) {
+  DownloadedFile.fromJson(Map<dynamic, dynamic> json) {
     path = json['path'];
     title = json['title'];
     image = json['image'];

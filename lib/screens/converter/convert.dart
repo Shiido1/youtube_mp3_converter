@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
@@ -24,6 +27,8 @@ import 'package:provider/provider.dart';
 import 'model/downloaded_file_model.dart';
 
 class Convert extends StatefulWidget {
+  loadSound() => createState()._loadSong();
+  playSound() => createState()._playSound();
   @override
   _ConvertState createState() => _ConvertState();
 }
@@ -36,11 +41,13 @@ class _ConvertState extends State<Convert> {
   int _progress = 0;
   static int _progresss = 0;
   bool downloaded = false;
-  int id;
-  var val;
-  var storagePath;
+  var id;
+  String val;
+  String storagePath;
 
   ReceivePort receivePort = ReceivePort();
+
+  String mp3 = '';
 
   static downloadingCallback(id, status, progress) {
     SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
@@ -57,24 +64,26 @@ class _ConvertState extends State<Convert> {
   }
 
   _saveLib() async {
-    // if (downloaded == true) {
-    //   setState(() async {
-    //     id = await _saveConvertProvider.saveConvert(_id);
-    //   });
-    // }
     DownloadedFile file = DownloadedFile(
         read(base_url + _converterProvider?.youtubeModel?.url),
         path: storagePath,
         image: _converterProvider?.youtubeModel?.image,
         title: _converterProvider?.youtubeModel?.title);
-    // Hive
-    //   ..init(storagePath)
-    //   ..registerAdapter(DownloadedFileAdapter());
-    // var save = await Hive.openBox('music_db');
-    // save.put('key', file);
-    // save.get('key');
     final downBox = Hive.box('music_db');
-    await  downBox.add(file.toJson());
+    await downBox.add(file.toJson());
+  }
+
+  void _playSound() {
+    AudioPlayer player = AudioPlayer();
+    player.play(mp3);
+  }
+
+  Future<void> _loadSong() async {
+    final ByteData data = await rootBundle.load('$storagePath');
+    Directory tempDir = await getTemporaryDirectory();
+    File tempFile = File('${tempDir.path}/$storagePath');
+    await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    mp3 = tempFile.uri.toString();
   }
 
   Future<void> _showDialog(BuildContext context) {
@@ -90,7 +99,7 @@ class _ConvertState extends State<Convert> {
                   decoration: new BoxDecoration(
                     shape: BoxShape.rectangle,
                     borderRadius:
-                    new BorderRadius.all(new Radius.circular(32.0)),
+                        new BorderRadius.all(new Radius.circular(32.0)),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 50, bottom: 70),
@@ -121,16 +130,17 @@ class _ConvertState extends State<Convert> {
 
     if (status.isGranted) {
       final externalDir = await getExternalStorageDirectory();
-      setState(() {
+
+      setState(() async {
         storagePath = externalDir.path;
       });
+
       final idDownloadPath = await FlutterDownloader.enqueue(
           url: base_url + _converterProvider?.youtubeModel?.url,
-          savedDir: storagePath,
+          savedDir: externalDir.path,
           fileName: _converterProvider?.youtubeModel?.title,
           showNotification: true,
           openFileFromNotification: true);
-      print('path location' + externalDir.path);
 
       IsolateNameServer.registerPortWithName(
           receivePort.sendPort, "downloading");
@@ -138,6 +148,7 @@ class _ConvertState extends State<Convert> {
         _progress = _progresss;
         downloaded = true;
         loading = true;
+        id = idDownloadPath;
       });
       print(_progress);
       FlutterDownloader.registerCallback(downloadingCallback);
@@ -155,18 +166,6 @@ class _ConvertState extends State<Convert> {
       });
     }
   }
-
-  // void _playSound() {
-  //   AudioPlayer player = AudioPlayer();
-  //   player.play(mp3);
-  // }
-  //
-  // Future<void> _loadSong() async {
-  //   final ByteData data = await rootBundle.load(v);
-  //   File tempFile = File('$w');
-  //   await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
-  //   mp3 = tempFile.uri.toString();
-  // }
 
   Widget downloadProgress() {
     return Text(
@@ -297,90 +296,91 @@ class _ConvertState extends State<Convert> {
                 ),
                 _converterProvider.problem == true
                     ? Container(
-                  child: Column(
-                    children: [
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.4),
+                        child: Column(
+                          children: [
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.4),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(2),
+                                        child: Image.network(
+                                          model?.youtubeModel?.image ?? '',
+                                          width: 115,
+                                          height: 120,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                  model?.youtubeModel?.title ??
+                                                      '',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 18,
+                                                  )),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                  'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  )),
+                                              SizedBox(height: 30),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
-                            child: Row(
+                            SizedBox(height: 50),
+                            Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(2),
-                                  child: Image.network(
-                                    model?.youtubeModel?.image ?? '',
-                                    width: 115,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                            model?.youtubeModel?.title ??
-                                                '',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
-                                            )),
-                                        SizedBox(height: 10),
-                                        Text(
-                                            'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
-                                            )),
-                                        SizedBox(height: 30),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                                FlatButton(
+                                    onPressed: () {
+                                      downloadNow();
+                                    },
+                                    color: Colors.green,
+                                    child: Text(
+                                      'Download',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    )),
+                                SizedBox(width: 20),
+                                FlatButton(
+                                    color: Colors.red,
+                                    onPressed: () {
+                                      _saveLib();
+                                      print(storagePath);
+                                    },
+                                    child: Text(
+                                      'Save to lib',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
+                                    ))
                               ],
                             ),
-                          ),
+                          ],
                         ),
-                      ),
-                      SizedBox(height: 50),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FlatButton(
-                              onPressed: () {
-                                downloadNow();
-                              },
-                              color: Colors.green,
-                              child: Text(
-                                'Download',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 20),
-                              )),
-                          SizedBox(width: 20),
-                          FlatButton(
-                              color: Colors.red,
-                              onPressed: () {
-                                _saveLib();
-                              },
-                              child: Text(
-                                'Save to lib',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                ),
-                              ))
-                        ],
-                      ),
-                    ],
-                  ),
-                )
+                      )
                     : Container(),
                 SizedBox(height: 60),
                 loading == false

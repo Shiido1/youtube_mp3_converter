@@ -41,7 +41,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   }
 
   init() {
-    // Convert().loadSound();
+    Convert().loadSound();
   }
 
   @override
@@ -65,7 +65,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
           ),
         ),
       ),
-      // endDrawer: AppDrawer(),
+      endDrawer: AppDrawer(),
       body: Center(
         child: Column(
           children: [
@@ -134,7 +134,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
                       height: 60.0,
                       child: InkWell(
                         onTap: () {
-                          // Convert().playSound();
+                          Convert().playSound();
                         },
                         child: ListTile(
                           leading: readItem?.image != null &&
@@ -146,10 +146,8 @@ class _SongViewCLassState extends State<SongViewCLass> {
                                     imageUrl: readItem.image,
                                     placeholder: (context, index) => Container(
                                       child: Center(
-                                          child: SizedBox(
-                                            height: 20,
-                                              width: 20,
-                                              child:CircularProgressIndicator())),
+                                          child:
+                                              new CircularProgressIndicator()),
                                     ),
                                     errorWidget: (context, url, error) =>
                                         new Icon(Icons.error),

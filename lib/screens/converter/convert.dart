@@ -8,9 +8,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:mp3_music_converter/save_convert/model/save_convert_model.dart';
-import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
-import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -131,7 +128,7 @@ class _ConvertState extends State<Convert> {
     if (status.isGranted) {
       final externalDir = await getExternalStorageDirectory();
       setState(() {
-        storagePath = externalDir.path.toString();
+        storagePath = externalDir.path;
       });
       final idDownloadPath = await FlutterDownloader.enqueue(
           url: base_url + _converterProvider?.youtubeModel?.url,

@@ -65,7 +65,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
           ),
         ),
       ),
-      endDrawer: AppDrawer(),
+      // endDrawer: AppDrawer(),
       body: Center(
         child: Column(
           children: [
@@ -146,8 +146,10 @@ class _SongViewCLassState extends State<SongViewCLass> {
                                     imageUrl: readItem.image,
                                     placeholder: (context, index) => Container(
                                       child: Center(
-                                          child:
-                                              new CircularProgressIndicator()),
+                                          child: SizedBox(
+                                            height: 20,
+                                              width: 20,
+                                              child:CircularProgressIndicator())),
                                     ),
                                     errorWidget: (context, url, error) =>
                                         new Icon(Icons.error),

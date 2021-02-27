@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -33,6 +34,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   var box = Hive.box('music_db');
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   String mp3 = '';
+  // List<Song> _songs;
 
   @override
   void initState() {
@@ -40,8 +42,13 @@ class _SongViewCLassState extends State<SongViewCLass> {
     init();
   }
 
-  init() {
-    Convert().loadSound();
+  init() async {
+    // // Convert().loadSound();
+    // var songs = await MusicFinder.allSongs();
+    // songs = new List.from(songs);
+    // setState(() {
+    //   _songs = songs;
+    // });
   }
 
   @override
@@ -132,41 +139,40 @@ class _SongViewCLassState extends State<SongViewCLass> {
                     SizedBox(
                       width: double.infinity,
                       height: 60.0,
-                      child: InkWell(
-                        onTap: () {
-                          Convert().playSound();
-                        },
-                        child: ListTile(
-                          leading: readItem?.image != null &&
-                                  readItem.image.isNotEmpty
-                              ? SizedBox(
-                                  width: 95,
-                                  height: 150,
-                                  child: CachedNetworkImage(
-                                    imageUrl: readItem.image,
-                                    placeholder: (context, index) => Container(
-                                      child: Center(
-                                          child:
-                                              new CircularProgressIndicator()),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        new Icon(Icons.error),
-                                  ))
-                              // ? Image.network(readItem.image)
-                              : null,
-                          title: TextViewWidget(
+                      child: ListTile(
+                        leading: readItem?.image != null &&
+                                readItem.image.isNotEmpty
+                            ? SizedBox(
+                                width: 95,
+                                height: 150,
+                                child: CachedNetworkImage(
+                                  imageUrl: readItem.image,
+                                  placeholder: (context, index) => Container(
+                                    child: Center(
+                                        child: new CircularProgressIndicator()),
+                                  ),
+                                  errorWidget: (context, url, error) =>
+                                      new Icon(Icons.error),
+                                ))
+                            // ? Image.network(readItem.image)
+                            : null,
+                        title: InkWell(
+                          onTap: () {
+                            // Convert().playSound();
+                          },
+                          child: TextViewWidget(
                             color: AppColor.white,
                             text: readItem?.title ?? '',
                             textSize: 15,
                           ),
-                          trailing: InkWell(
-                            onTap: () {
-                              _scaffoldKey.currentState.openEndDrawer();
-                            },
-                            child: SvgPicture.asset(
-                              AppAssets.dot,
-                              color: AppColor.white,
-                            ),
+                        ),
+                        trailing: InkWell(
+                          onTap: () {
+                            _scaffoldKey.currentState.openEndDrawer();
+                          },
+                          child: SvgPicture.asset(
+                            AppAssets.dot,
+                            color: AppColor.white,
                           ),
                         ),
                       ),

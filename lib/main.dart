@@ -8,6 +8,7 @@ import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/screens/song/songs_screen.dart';
+import 'package:mp3_music_converter/screens/world_radio/world_radio_screen.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -50,7 +51,7 @@ class _MyAppState extends State<MyApp> {
             if (snapshot.hasError)
               return Text(snapshot.error.toString());
             else
-              return ConverterScreen();
+              return WorldRadioClass();
           } else
             return Scaffold();
         },

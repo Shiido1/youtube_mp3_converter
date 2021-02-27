@@ -41,6 +41,7 @@ class _ConvertState extends State<Convert> {
   var id;
   String val;
   String storagePath;
+  File _file;
 
   ReceivePort receivePort = ReceivePort();
 
@@ -70,15 +71,56 @@ class _ConvertState extends State<Convert> {
     await downBox.add(file.toJson());
   }
 
+  Future downloadNow() async {
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
+
+      final idDownloadPath = await FlutterDownloader.enqueue(
+          url: base_url + _converterProvider?.youtubeModel?.url,
+          savedDir: externalDir.path,
+          fileName: _converterProvider?.youtubeModel?.title,
+          showNotification: true,
+          openFileFromNotification: true);
+
+      setState(() {
+        _file = File(idDownloadPath);
+        storagePath = externalDir.path;
+      });
+      IsolateNameServer.registerPortWithName(
+          receivePort.sendPort, "downloading");
+      setState(() {
+        _progress = _progresss;
+        downloaded = true;
+        loading = true;
+        id = idDownloadPath;
+      });
+      print(_progress);
+      FlutterDownloader.registerCallback(downloadingCallback);
+      if (_progress == 100) {
+        _showDialog(context);
+        setState(() {
+          loading = false;
+          _progress = 0;
+        });
+      }
+    } else {
+      showToast(context, message: 'problem connecting to network');
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   void _playSound() {
     AudioPlayer player = AudioPlayer();
     player.play(mp3);
   }
 
   Future<void> _loadSong() async {
-    final ByteData data = await rootBundle.load('$storagePath');
+    final ByteData data = await rootBundle.load('key');
     Directory tempDir = await getTemporaryDirectory();
-    File tempFile = File('${tempDir.path}/$storagePath');
+    File tempFile = File('${tempDir.path}/.mp3');
     await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
     mp3 = tempFile.uri.toString();
   }
@@ -120,46 +162,6 @@ class _ConvertState extends State<Convert> {
                 )),
           );
         });
-  }
-
-  Future downloadNow() async {
-    final status = await Permission.storage.request();
-
-    if (status.isGranted) {
-      final externalDir = await getExternalStorageDirectory();
-      setState(() {
-        storagePath = externalDir.path;
-      });
-      final idDownloadPath = await FlutterDownloader.enqueue(
-          url: base_url + _converterProvider?.youtubeModel?.url,
-          savedDir: storagePath,
-          fileName: _converterProvider?.youtubeModel?.title,
-          showNotification: true,
-          openFileFromNotification: true);
-
-      IsolateNameServer.registerPortWithName(
-          receivePort.sendPort, "downloading");
-      setState(() {
-        _progress = _progresss;
-        downloaded = true;
-        loading = true;
-        id = idDownloadPath;
-      });
-      print(_progress);
-      FlutterDownloader.registerCallback(downloadingCallback);
-      if (_progress == 100) {
-        _showDialog(context);
-        setState(() {
-          loading = false;
-          _progress = 0;
-        });
-      }
-    } else {
-      showToast(context, message: 'problem connecting to network');
-      setState(() {
-        loading = false;
-      });
-    }
   }
 
   Widget downloadProgress() {

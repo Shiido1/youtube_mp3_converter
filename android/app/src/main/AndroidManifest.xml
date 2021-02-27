@@ -14,7 +14,8 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="mp3_music_converter"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
 
         <provider
             android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"

@@ -24,6 +24,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+bool debug = true;
+final String musicFolder = '.music';
 import 'model/downloaded_file_model.dart';
 
 class Convert extends StatefulWidget {
@@ -41,6 +43,12 @@ class _ConvertState extends State<Convert> {
   int _progress = 0;
   static int _progresss = 0;
   bool downloaded = false;
+  int id;
+  var val;
+  bool _isLoading;
+  bool _permissionReady;
+  static String _localPath;
+  ReceivePort _port = ReceivePort();
   var id;
   String val;
   String storagePath;
@@ -63,6 +71,24 @@ class _ConvertState extends State<Convert> {
     }
   }
 
+//* prepares the items we wish to download
+  Future<Null> _prepare() async {
+    _permissionReady = await _checkPermission(); // checks for users permission
+
+    _localPath = (await findLocalPath()) +
+        Platform.pathSeparator +
+        musicFolder; // gets users
+
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+=======
   _saveLib() async {
     DownloadedFile file = DownloadedFile(
         read(base_url + _converterProvider?.youtubeModel?.url),
@@ -85,6 +111,8 @@ class _ConvertState extends State<Convert> {
     await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
     mp3 = tempFile.uri.toString();
   }
+
+  _saveLib() async {}
 
   Future<void> _showDialog(BuildContext context) {
     return showDialog(
@@ -124,6 +152,7 @@ class _ConvertState extends State<Convert> {
           );
         });
   }
+
 
   Future downloadNow() async {
     final status = await Permission.storage.request();
@@ -179,31 +208,78 @@ class _ConvertState extends State<Convert> {
   void initState() {
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
-    IsolateNameServer.registerPortWithName(receivePort.sendPort, "downloading");
-    receivePort.listen((message) {
-      setState(() {
-        _progress = message[2];
-        downloaded = true;
-        loading = true;
-      });
-      if (_progress == 100) {
-        _showDialog(context);
-        setState(() {
-          loading = false;
-          _progress = 0;
-        });
-      }
-      print(_progress);
-    });
-    FlutterDownloader.registerCallback(downloadingCallback);
+
+    _bindBackgroundIsolate(); //
+
+    FlutterDownloader.registerCallback(
+        downloadCallback); // register our callbacks
+    _prepare();
+    _isLoading = true;
+    _permissionReady = false;
     super.initState();
+  }
+
+  /// Our static callbacks
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) {
+    if (debug) {
+      print(
+          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
+    }
+    final SendPort send =
+        IsolateNameServer.lookupPortByName('downloader_send_port');
+    //  since this a static functions which runs in isolates
+    // sends and updates the main isolates of the background isolates
+    send.send([id, status, progress]);
+
+    if (status == DownloadTaskStatus.complete) _cacheData();
+  }
+
+  static void _cacheData() async {
+    _localPath = (await findLocalPath()) + Platform.pathSeparator + musicFolder;
+    print('Path: $_localPath');
+  }
+
+  // handles the background process's so it communicates effectively with the main
+// thread
+  void _bindBackgroundIsolate() {
+    bool isSuccess = IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    if (!isSuccess) {
+      _unbindBackgroundIsolate();
+      _bindBackgroundIsolate();
+      return;
+    }
+    _port.listen((dynamic data) {
+      if (debug) {
+        print('UI Isolate Callback: $data');
+      }
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+      int progress = data[2];
+    });
+  }
+
+// removes our backgroung communications with the main
+// process's
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
   }
 
   @override
   void dispose() {
     controller.dispose();
-    receivePort.close();
+    _unbindBackgroundIsolate();
     super.dispose();
+  }
+
+  void _downloadNow({String link}) async {
+    await FlutterDownloader.enqueue(
+        url: link,
+        headers: {"auth": "test_for_sql_encoding"},
+        savedDir: _localPath,
+        showNotification: true,
+        openFileFromNotification: false);
   }
 
   @override
@@ -353,9 +429,7 @@ class _ConvertState extends State<Convert> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 FlatButton(
-                                    onPressed: () {
-                                      downloadNow();
-                                    },
+                                    onPressed: () {},
                                     color: Colors.green,
                                     child: Text(
                                       'Download',
@@ -386,6 +460,17 @@ class _ConvertState extends State<Convert> {
                 loading == false
                     ? Container()
                     : Center(child: downloadProgress()),
+                FlatButton(
+                    onPressed: () {
+                      _downloadNow(
+                          link:
+                              'https://miro.medium.com/max/1200/1*mk1-6aYaf_Bes1E3Imhc0A.jpeg');
+                    },
+                    color: Colors.green,
+                    child: Text(
+                      'Download',
+                      style: TextStyle(color: Colors.white, fontSize: 20),
+                    )),
                 SizedBox(
                   height: 307,
                 ),
@@ -396,5 +481,24 @@ class _ConvertState extends State<Convert> {
         );
       }),
     );
+  }
+
+//* checks for users permission
+//* and returns true if the permission is granted and false if no permission is granted to our application
+  Future<bool> _checkPermission() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
   }
 }

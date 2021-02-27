@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:toast/toast.dart';
 
 void showToast(BuildContext context,
@@ -30,7 +33,6 @@ void showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String msg,
   _scaffoldKey.currentState.showSnackBar(snackBar);
 }
 
-
 /// @ validate email
 bool validateEmail(String email) {
   String p =
@@ -53,4 +55,17 @@ bool isPasswordCompliant(String password, [int minLength = 8]) {
   // bool hasSpecialCharacters = password.contains(new RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
   bool _hasMinLength = password.length >= minLength;
   return _hasDigits & _hasLowercase & _hasMinLength;
+}
+
+String getStringPathName(String name) {
+  final List<String> _link = name.split('/');
+  return _link.last;
+}
+
+//* finds available space for storage on users device
+Future<String> findLocalPath() async {
+  final directory = Platform.isAndroid
+      ? await getExternalStorageDirectory()
+      : await getApplicationDocumentsDirectory();
+  return directory.path;
 }

@@ -118,6 +118,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
     return WatchBoxBuilder(
         box: Hive.box('music_db'),
         builder: (context, read) {
+
           return ListView.builder(
               itemCount: read.length,
               itemBuilder: (context, index) {
@@ -128,6 +129,18 @@ class _SongViewCLassState extends State<SongViewCLass> {
                     SizedBox(
                       width: double.infinity,
                       height: 60.0,
+                      child: ListTile(
+                        leading: readItem?.image != null && readItem.image.isNotEmpty
+                            ? Image.network(readItem.image)
+                            : null,
+                        title: TextViewWidget(
+                          color: AppColor.white,
+                          text: readItem?.title ?? '',
+                          textSize: 15,
+                        ),
+                        trailing: SvgPicture.asset(
+                          AppAssets.dot,
+                          color: AppColor.white,
                       child: InkWell(
                         onTap: () {
                           Convert().playSound();

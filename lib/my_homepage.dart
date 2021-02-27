@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           _requestDownload(
                               link:
-                                  'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1200px-Image_created_with_a_mobile_phone.png');
+                                  'todo: pass a link here'); // todo: replace with ur actuall link to download
                         },
                         child: Text('Download'),
                       ),

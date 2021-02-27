@@ -2,18 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hive/hive.dart';
-import 'package:mp3_music_converter/download/download_save_screen.dart';
 import 'package:mp3_music_converter/screens/converter/converter_screen.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
-import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
-import 'package:mp3_music_converter/screens/song/song_view.dart';
-import 'package:mp3_music_converter/screens/song/songs_screen.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:path_provider/path_provider.dart' as path;
+
 import 'common/providers.dart';
-import 'jaycee/home.dart';
 import 'utils/color_assets/color.dart';
 
 void main() async {
@@ -46,23 +41,19 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       // home: DownloadAndSaveScreen(),
-      home: FutureBuilder(
-        future: Hive.openBox('music_db'),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasError)
-              return Text(snapshot.error.toString());
-            else
-              return ConverterScreen();
-          } else
-            return Scaffold();
-        },
-      ),
-      // todo: Use this home instead of the first
-      // home: MyHomePage(
-      //   platform: platform,
-      //   title: 'Downloader',
+      // home: FutureBuilder(
+      //   future: Hive.openBox('music_db'),
+      //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      //     if (snapshot.connectionState == ConnectionState.done) {
+      //       if (snapshot.hasError)
+      //         return Text(snapshot.error.toString());
+      //       else
+      //         return ConverterScreen();
+      //     } else
+      //       return Scaffold();
+      //   },
       // ),
+      home: ConverterScreen(),
       routes: Routes.getRoutes,
     );
   }

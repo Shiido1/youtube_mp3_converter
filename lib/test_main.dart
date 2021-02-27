@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/screens/home_page.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:mp3_music_converter/database/repository/log_repository.dart';
 
-void main() => runApp(MyApp());
+import 'my_homepage.dart';
+
+void main() async {
+  await FlutterDownloader.initialize(debug: debug);
+  LogRepository.init();
+  runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
@@ -12,6 +19,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    final platform = Theme.of(context).platform;
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -19,7 +27,9 @@ class _MyAppState extends State<MyApp> {
       ),
       debugShowCheckedModeBanner: false,
       // home: DownloadAndSaveScreen(),
-      home: HomePage(),
+      home: MyHomePage(
+        platform: platform,
+      ),
     );
   }
 }

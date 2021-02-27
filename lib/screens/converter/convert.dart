@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive/hive.dart';
@@ -24,8 +26,11 @@ import 'package:provider/provider.dart';
 
 bool debug = true;
 final String musicFolder = '.music';
+import 'model/downloaded_file_model.dart';
 
 class Convert extends StatefulWidget {
+  loadSound() => createState()._loadSong();
+  playSound() => createState()._playSound();
   @override
   _ConvertState createState() => _ConvertState();
 }
@@ -44,6 +49,19 @@ class _ConvertState extends State<Convert> {
   bool _permissionReady;
   static String _localPath;
   ReceivePort _port = ReceivePort();
+  var id;
+  String val;
+  String storagePath;
+
+  ReceivePort receivePort = ReceivePort();
+
+  String mp3 = '';
+
+  static downloadingCallback(id, status, progress) {
+    SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
+    sendPort.send([id, status, progress]);
+    _progresss = progress;
+  }
 
   void _download() {
     if (controller.text.isEmpty) {
@@ -70,6 +88,28 @@ class _ConvertState extends State<Convert> {
     setState(() {
       _isLoading = false;
     });
+=======
+  _saveLib() async {
+    DownloadedFile file = DownloadedFile(
+        read(base_url + _converterProvider?.youtubeModel?.url),
+        path: storagePath,
+        image: _converterProvider?.youtubeModel?.image,
+        title: _converterProvider?.youtubeModel?.title);
+    final downBox = Hive.box('music_db');
+    await downBox.add(file.toJson());
+  }
+
+  void _playSound() {
+    AudioPlayer player = AudioPlayer();
+    player.play(mp3);
+  }
+
+  Future<void> _loadSong() async {
+    final ByteData data = await rootBundle.load('$storagePath');
+    Directory tempDir = await getTemporaryDirectory();
+    File tempFile = File('${tempDir.path}/$storagePath');
+    await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    mp3 = tempFile.uri.toString();
   }
 
   _saveLib() async {}
@@ -111,6 +151,49 @@ class _ConvertState extends State<Convert> {
                 )),
           );
         });
+  }
+
+
+  Future downloadNow() async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
+
+      setState(() async {
+        storagePath = externalDir.path;
+      });
+
+      final idDownloadPath = await FlutterDownloader.enqueue(
+          url: base_url + _converterProvider?.youtubeModel?.url,
+          savedDir: externalDir.path,
+          fileName: _converterProvider?.youtubeModel?.title,
+          showNotification: true,
+          openFileFromNotification: true);
+
+      IsolateNameServer.registerPortWithName(
+          receivePort.sendPort, "downloading");
+      setState(() {
+        _progress = _progresss;
+        downloaded = true;
+        loading = true;
+        id = idDownloadPath;
+      });
+      print(_progress);
+      FlutterDownloader.registerCallback(downloadingCallback);
+      if (_progress == 100) {
+        _showDialog(context);
+        setState(() {
+          loading = false;
+          _progress = 0;
+        });
+      }
+    } else {
+      showToast(context, message: 'problem connecting to network');
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   Widget downloadProgress() {
@@ -358,6 +441,7 @@ class _ConvertState extends State<Convert> {
                                     color: Colors.red,
                                     onPressed: () {
                                       _saveLib();
+                                      print(storagePath);
                                     },
                                     child: Text(
                                       'Save to lib',

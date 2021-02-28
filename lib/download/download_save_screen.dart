@@ -164,14 +164,11 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   //       ));
   // }
 
-  Widget downloadProgress() {
-    // var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
-    return Text(
-      'Downloading...',
-      style: TextStyle(
-          fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
-    );
-  }
+  // Widget downloadProgress(){
+  //   var fileDownloaderProvider = Provider.of<FileDownloaderProvider>(context,listen: true);
+  //   return Text(downloadStatus(fileDownloaderProvider),
+  //   style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold,color: AppColor.white),);
+  // }
   //
   // downloadStatus(FileDownloaderProvider fileDownloaderProvider){
   //   var retStatus = '';
@@ -375,7 +372,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                             SizedBox(height: 40),
                             loading == false
                                 ? Container()
-                                : Center(child: downloadProgress()),
+                                : Center(),
                           ],
                         ),
                       )
@@ -471,6 +468,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
         ),
       ),
     );
+
   }
 
   void _download() {

@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flute_music_player/flute_music_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -34,7 +33,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
   var box = Hive.box('music_db');
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   String mp3 = '';
-  // List<Song> _songs;
 
   @override
   void initState() {
@@ -141,20 +139,20 @@ class _SongViewCLassState extends State<SongViewCLass> {
                       height: 60.0,
                       child: ListTile(
                         leading: readItem?.image != null &&
-                                readItem.image.isNotEmpty
+                            readItem.image.isNotEmpty
                             ? SizedBox(
-                                width: 95,
-                                height: 150,
-                                child: CachedNetworkImage(
-                                  imageUrl: readItem.image,
-                                  placeholder: (context, index) => Container(
-                                    child: Center(
-                                        child: new CircularProgressIndicator()),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      new Icon(Icons.error),
-                                ))
-                            // ? Image.network(readItem.image)
+                            width: 95,
+                            height: 150,
+                            child: CachedNetworkImage(
+                              imageUrl: readItem.image,
+                              placeholder: (context, index) => Container(
+                                child: Center(
+                                    child: new CircularProgressIndicator()),
+                              ),
+                              errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                            ))
+                        // ? Image.network(readItem.image)
                             : null,
                         title: InkWell(
                           onTap: () {

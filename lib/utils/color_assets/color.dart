@@ -17,4 +17,5 @@ class AppColor {
   static const Color editTextBackground = Color(0xffF1F1F1);
   static const Color blue = Color(0xff109CF1);
   static const Color unknownTextColor = Color(0xff00255E);
+  static const Color green = Colors.green;
 }

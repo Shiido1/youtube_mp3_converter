@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class Search extends StatefulWidget {
@@ -191,47 +192,7 @@ class _SearchState extends State<Search> {
                 height: 6.5,
               ),
             ),
-            Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-              Container(
-                decoration: BoxDecoration(color: AppColor.black),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Image.asset(
-                        AppAssets.image1,
-                        height: 80,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextViewWidget(
-                            text: 'kofi',
-                            color: AppColor.white,
-                            textSize: 16,
-                          ),
-                          TextViewWidget(
-                            text: 'Came Up',
-                            color: AppColor.white,
-                            textSize: 20,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          SvgPicture.asset(AppAssets.line),
-                        ],
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      SvgPicture.asset(AppAssets.play, height: 50, width: 80)
-                    ],
-                  ),
-                ),
-              ),
-              Divider(color: AppColor.white, height: 0.1),
-            ]),
+            BottomPlayingIndicator(),
           ],
         ),
       ),

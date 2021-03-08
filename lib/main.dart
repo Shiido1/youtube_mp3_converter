@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:hive/hive.dart';
+import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/converter/converter_screen.dart';
-import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
+import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
 import 'common/providers.dart';
+import 'database/repository/log_repository.dart';
 import 'utils/color_assets/color.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(
-      debug: true // optional: set false to disable printing logs to console
+      debug: debug // optional: set false to disable printing logs to console
       );
-  final appDocument = await getExternalStorageDirectory();
-  Hive.init(appDocument.path);
-  Hive.registerAdapter(DownloadedFileAdapter());
+  LogRepository.init();
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(statusBarColor: AppColor.red));
   runApp(MultiProvider(providers: Providers.getProviders, child: MyApp()));
@@ -26,6 +23,7 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   // This widget is the root of your application.
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -33,7 +31,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    final platform = Theme.of(context).platform;
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -58,9 +55,9 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  @override
-  void dispose() {
-    Hive.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   Hive.close();
+  //   super.dispose();
+  // }
 }

@@ -174,6 +174,8 @@ class _OtpPageState extends State<OtpPage> {
       setState(() => userId = widget.userID);
       _otpProviders.verifyOtp(
           map: OtpModel.toJson(otp: int.parse(pin), email: email));
+    }else{
+      // _otpProviders.resendOtp(map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
     }
   }
 }

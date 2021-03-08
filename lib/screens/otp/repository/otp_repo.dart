@@ -15,10 +15,10 @@ class OtpApiRepository {
     }
   }
 
-  Future<ApiResponse<OtpModel>> resend({@required String email}) async {
+  Future<ApiResponse<OtpModel>> resend({@required Map email}) async {
     try {
-      final response = await jayNetworkClient.makeGetRequest(
-        "verify/resend?email=$email&channel=email",
+      final response = await jayNetworkClient.makePostRequest(
+        "verify", data: email,
       );
       return ApiResponse.success(data: OtpModel.fromJson(response.data));
     } catch (e) {

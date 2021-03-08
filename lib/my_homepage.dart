@@ -118,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         onPressed: () {
                           _requestDownload(
                               link:
-                                  'todo: pass a link here'); // todo: replace with ur actuall link to download
+                                  'https://tooxclusive.com/enoheva-the-blood/'); // todo: replace with ur actuall link to download
                         },
                         child: Text('Download'),
                       ),
@@ -167,15 +167,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
 //* requests for downloads to begin
   void _requestDownload({@required String link}) async {
-    _fileName = getStringPathName(link);
-    setState(() {});
-    await FlutterDownloader.enqueue(
-        url: link,
-        headers: {"auth": "test_for_sql_encoding"},
-        savedDir: _localPath,
-        fileName: _fileName,
-        showNotification: true,
-        openFileFromNotification: false);
+    final status = await Permission.storage.request();
+    if (status.isGranted) {
+      _fileName = getStringPathName(link);
+      setState(() {});
+      await FlutterDownloader.enqueue(
+          url: link,
+          headers: {"auth": "test_for_sql_encoding"},
+          savedDir: _localPath,
+          fileName: _fileName,
+          showNotification: true,
+          openFileFromNotification: false);
+    }
   }
 
 //* checks for users permission

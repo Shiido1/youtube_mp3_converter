@@ -25,6 +25,6 @@ class LoginApiRepository {
 
   void _saveUsersData(LoginModel finalData) async {
     /// cache users data here
-    preferencesHelper.saveValue(key: usersPrefkey, value: finalData.invoices);
+    preferencesHelper.saveValue(key: usersPrefkey, value: finalData.name);
   }
 }

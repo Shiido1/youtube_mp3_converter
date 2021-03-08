@@ -21,9 +21,10 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  # flute_music_player: ^0.0.6
+  audioplayers: ^0.17.4
+  # flutter_radio: ^0.1.7
   cached_network_image: ^2.5.0
-  audioplayer: ^0.8.1
+  marquee: ^1.7.0
   hive_flutter: ^0.3.1
   hive: ^1.4.4+1
   file_picker: ^2.1.6
@@ -77,3 +78,7 @@ flutter:
         - asset: fonts/Montserrat-Regular.ttf
         - asset: fonts/Montserrat-Bold.ttf
         - asset: fonts/Montserrat-Thin.ttf
+    - family: Roboto
+      fonts:
+        - asset: fonts/Roboto-Regular.ttf
+        - asset: fonts/Roboto-Medium.ttf

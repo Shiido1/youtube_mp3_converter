@@ -17,5 +17,9 @@ class LogRepository {
 
   static getLogs() => dbObject.getLogs();
 
+  static updateLogs(int logID, Log log) => dbObject.updateLogs(logID, log);
+
+  // static currenLogs(int logID, Log log) => dbObject.currentLogs(logID, log);
+
   static close() => dbObject.close();
 }

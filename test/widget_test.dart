@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mp3_music_converter/main.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {

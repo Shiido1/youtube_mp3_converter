@@ -4,10 +4,10 @@
 
 #import "GeneratedPluginRegistrant.h"
 
-#if __has_include(<audioplayer/AudioplayerPlugin.h>)
-#import <audioplayer/AudioplayerPlugin.h>
+#if __has_include(<audioplayers/AudioplayersPlugin.h>)
+#import <audioplayers/AudioplayersPlugin.h>
 #else
-@import audioplayer;
+@import audioplayers;
 #endif
 
 #if __has_include(<file_picker/FilePickerPlugin.h>)
@@ -61,7 +61,7 @@
 @implementation GeneratedPluginRegistrant
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
-  [AudioplayerPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayerPlugin"]];
+  [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
   [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDownloaderPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];

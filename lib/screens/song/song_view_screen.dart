@@ -1,6 +1,9 @@
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/slider_widget.dart';
@@ -20,15 +23,88 @@ class SongViewScreen extends StatefulWidget {
 
 class _SongViewScreenState extends State<SongViewScreen> {
   String _fileName, _image;
+  IconData _iconData = Icons.play_circle_outline;
+
+  AudioPlayer _player;
+  AudioCache cache;
+  String mp3 = '';
+  bool playing;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _player = AudioPlayer();
+    cache = AudioCache(fixedPlayer: _player);
+    init();
     setState(() {
       _image = widget.img;
       _fileName = widget.flname;
     });
+  }
+
+  init() {
+    if (prefMed() == true) {
+      prefMed();
+      setState(() {
+        // ignore: unnecessary_statements
+        prefMed() == false;
+        preferencesHelper
+            .getBoolValues(key: 'prefMed')
+            .then((value) => setState(() {}));
+      });
+    } else {
+      return null;
+    }
+  }
+
+  bool prefMed() {
+    preferencesHelper.getStringValues(key: 'mp3').then((value) => setState(() {
+          mp3 = value;
+        }));
+    if (mp3.isNotEmpty && mp3 != null && !playing) {
+      preferencesHelper.getBoolValues(key: 'true').then((value) => setState(() {
+            _iconData = Icons.pause_circle_outline;
+            // playing = true;
+          }));
+    } else {
+      setState(() {
+        _iconData = Icons.play_circle_outline;
+        // playing = false;
+      });
+    }
+    preferencesHelper.saveValue(key: 'prefMed', value: true);
+    return false;
+  }
+
+  playMeds() async {
+    // _player.play(mp3);
+    // if (mp3.isEmpty && mp3 == null) {
+    //   setState(() {
+    //     _iconData = Icons.play_circle_outline;
+    //   });
+    // preferencesHelper
+    //     .getStringValues(key: 'mp3')
+    //     .then((value) => setState(() {
+    //           mp3 = value;
+    //         }));
+    // return null;
+    // }
+    if (mp3.isNotEmpty && mp3 != null) {
+      await _player.play(mp3);
+
+      preferencesHelper.getBoolValues(key: 'true').then((value) => setState(() {
+            _iconData = Icons.pause_circle_outline;
+            playing = true;
+          }));
+    } else {
+      setState(() {
+        _iconData = Icons.play_circle_outline;
+        playing = false;
+      });
+
+      await _player.pause();
+    }
   }
 
   @override
@@ -102,8 +178,10 @@ class _SongViewScreenState extends State<SongViewScreen> {
                       color: AppColor.white,
                     ),
                     IconButton(
-                      icon: Icon(Icons.play_circle_outline),
-                      onPressed: () {},
+                      icon: Icon(_iconData),
+                      onPressed: () {
+                        playMeds();
+                      },
                       iconSize: 60,
                       color: AppColor.white,
                     ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/change_password.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -39,7 +39,7 @@ class _SettingState extends State<Setting> {
                             onPressed: () => Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => Sample()),
+                                      builder: (context) => MainDashBoard()),
                                 )),
                         TextViewWidget(
                             color: AppColor.white,

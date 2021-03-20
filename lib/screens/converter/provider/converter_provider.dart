@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:jaynetwork/network/network_exceptions.dart';
-import 'package:mp3_music_converter/save_convert/model/save_convert_model.dart';
-import 'package:mp3_music_converter/save_convert/repo/save_convert_repo.dart';
 import 'package:mp3_music_converter/screens/converter/model/youtube_model.dart';
 import 'package:mp3_music_converter/screens/converter/repository/repo_converter.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -31,7 +29,6 @@ class ConverterProvider extends ChangeNotifier {
         youtubeModel = success;
         problem = true;
         notifyListeners();
-        // _saveConvertRepo.saveConvert(SaveConvert.mapToJson(id: id));
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;

@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
-import 'package:audioplayers/audio_cache.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -10,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/log.dart';
 import 'package:mp3_music_converter/database/repository/log_repository.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -21,6 +19,7 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 
 const String musicPath = '.music';
 bool debug = true;
@@ -32,8 +31,6 @@ class Convert extends StatefulWidget with WidgetsBindingObserver {
     Key key,
     this.platform,
   }) : super(key: key);
-  // loadSound() => createState()._loadSong();
-  // playSound() => createState()._playSound();
   @override
   _ConvertState createState() => _ConvertState();
 }
@@ -43,7 +40,7 @@ class _ConvertState extends State<Convert> {
   bool convertResult = false;
   TextEditingController controller = new TextEditingController();
   bool loading = false;
-  int _progress;
+  int _progress = 0;
   bool downloaded = false;
   int id;
   var val;
@@ -52,34 +49,15 @@ class _ConvertState extends State<Convert> {
   static String _localPath;
   ReceivePort _port = ReceivePort();
   String _fileName;
-
-  AudioPlayer _player;
-  AudioCache cache;
-
-  Duration position = new Duration();
-  Duration musicLength = new Duration();
-
-  // Widget slider() {
-  //   return Slider.adaptive(
-  //       inactiveColor: AppColor.white,
-  //       activeColor: AppColor.bottomRed,
-  //       value: position.inSeconds.toDouble(),
-  //       max: musicLength.inSeconds.toDouble(),
-  //       onChanged: (value) {
-  //         seekToSec(value.toInt());
-  //       });
-  // }
-
-  // void seekToSec(int sec) {
-  //   Duration newPos = Duration(seconds: sec);
-  //   _player.seek(newPos);
-  // }
+  MusicProvider _musicProvider;
 
   @override
   void initState() {
     super.initState();
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
+
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
 
     _bindBackgroundIsolate(); //
     FlutterDownloader.registerCallback(
@@ -96,25 +74,6 @@ class _ConvertState extends State<Convert> {
     super.dispose();
   }
 
-  // void _playSound() {
-  //   AudioPlayer player = AudioPlayer();
-  //   player.play(mp3);
-  // }
-  //
-  // Future<void> _loadSong() async {
-  //   final ByteData data = await rootBundle.load('$_localPath');
-  //   Directory tempDir = await getTemporaryDirectory();
-  //   File tempFile = File('${tempDir.path}/$_localPath');
-  //   await tempFile.writeAsBytes(data.buffer.asUint8List(), flush: true);
-  //   mp3 = tempFile.uri.toString();
-  // }
-
-  // static downloadingCallback(id, status, progress) {
-  //   SendPort sendPort = IsolateNameServer.lookupPortByName('downloading');
-  //   sendPort.send([id, status, progress]);
-  //   _progresss = progress;
-  // }
-
   void _download() {
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
@@ -122,44 +81,6 @@ class _ConvertState extends State<Convert> {
       _converterProvider.convert('${controller.text}');
     }
   }
-
-  // Future<bool> _checkPermission() async {
-  //   if (Platform.isAndroid) {
-  //     final status = await Permission.storage.status;
-  //     if (status != PermissionStatus.granted) {
-  //       final result = await Permission.storage.request();
-  //       if (result == PermissionStatus.granted) {
-  //         return true;
-  //       }
-  //     } else {
-  //       return true;
-  //     }
-  //   } else {
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-//* prepares the items we wish to download
-//   Future<Null> _prepare() async {
-//     _permissionReady = await _checkPermission(); // checks for users permission
-//
-//     _localPath = (await findLocalPath()) +
-//         Platform.pathSeparator +
-//         musicFolder; // gets users
-//
-//     final savedDir = Directory(_localPath);
-//     bool hasExisted = await savedDir.exists();
-//     if (!hasExisted) {
-//       savedDir.create();
-//     }
-//
-//     setState(() {
-//       _isLoading = false;
-//     });
-//   }
-
-  // _saveLib() async {}
 
   Future<void> _showDialog(BuildContext context) {
     return showDialog(
@@ -178,21 +99,27 @@ class _ConvertState extends State<Convert> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.only(top: 50, bottom: 70),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(AppAssets.check),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          'Successfully Downloaded',
-                          style: TextStyle(
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                              color: AppColor.black),
-                        ),
-                      ],
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(AppAssets.check),
+                          SizedBox(
+                            height: 11.5,
+                          ),
+                          Center(
+                            child: Text(
+                              'Successfully Downloaded',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.black),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )),
@@ -200,58 +127,15 @@ class _ConvertState extends State<Convert> {
         });
   }
 
-  // Future downloadNow() async {
-  //   final status = await Permission.storage.request();
-  //
-  //   if (status.isGranted) {
-  //     final externalDir = await getExternalStorageDirectory();
-  //
-  //     setState(() async {
-  //       storagePath = externalDir.path;
-  //     });
-  //
-  //     final idDownloadPath = await FlutterDownloader.enqueue(
-  //         url: base_url + _converterProvider?.youtubeModel?.url,
-  //         savedDir: externalDir.path,
-  //         fileName: _converterProvider?.youtubeModel?.title,
-  //         showNotification: true,
-  //         openFileFromNotification: true);
-  //
-  //     IsolateNameServer.registerPortWithName(
-  //         receivePort.sendPort, "downloading");
-  //     setState(() {
-  //       _progress = _progresss;
-  //       downloaded = true;
-  //       loading = true;
-  //     });
-  //     print(_progress);
-  //     FlutterDownloader.registerCallback(downloadingCallback);
-  //     if (_progress == 100) {
-  //       _showDialog(context);
-  //       setState(() {
-  //         loading = false;
-  //         _progress = 0;
-  //       });
-  //     }
-  //   } else {
-  //     showToast(context, message: 'problem connecting to network');
-  //     setState(() {
-  //       loading = false;
-  //     });
-  //   }
-  // }
-
   void _bindBackgroundIsolate() {
     bool isSuccess = IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     if (!isSuccess) {
       _unbindBackgroundIsolate();
       _bindBackgroundIsolate();
-
-      setState(() {
+      return setState(() {
         loading = true;
       });
-      return;
     }
     _port.listen((dynamic data) async {
       if (debug) {
@@ -260,33 +144,26 @@ class _ConvertState extends State<Convert> {
 
       String id = data[0];
       DownloadTaskStatus status = data[1];
-      print(id);
+      print("id" + id);
 
       int progress = data[2];
       setState(() {
         _progress = progress;
+        loading = true;
       });
-      print(_progress);
+      print("proGRESs" + _progress.toString());
       if (_progress == 100) {
         _showDialog(context);
         setState(() {
-          // _progress = 0;
           loading = false;
         });
-      } else {
-        showToast(context, message: 'problem connecting to network');
-        setState(() {
-          loading = false;
-        });
-      }
-      if (status == DownloadTaskStatus.complete)
+      } else {}
+      if (status == DownloadTaskStatus.complete) {
         LogRepository.addLogs(Log(
             fileName: _fileName,
             filePath: _localPath,
             image: _converterProvider?.youtubeModel?.image ?? ''));
-
-      /// navigates user when download completes
-      // PageRouter.gotoWidget(SongViewCLass(), context);
+      }
     });
   }
 
@@ -294,23 +171,6 @@ class _ConvertState extends State<Convert> {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
   }
 
-  // void _bindBackgroundIsolate() {
-  //   bool isSuccess = IsolateNameServer.registerPortWithName(
-  //       _port.sendPort, 'downloader_send_port');
-  //   if (!isSuccess) {
-  //     _unbindBackgroundIsolate();
-  //     _bindBackgroundIsolate();
-  //     return;
-  //   }
-  //   _port.listen((dynamic data) {
-  //     if (debug) {
-  //       print('UI Isolate Callback: $data');
-  //     }
-  //     String id = data[0];
-  //     DownloadTaskStatus status = data[1];
-  //     int progress = data[2];
-  //   });
-  // }
   static void downloadCallback(
       String id, DownloadTaskStatus status, int progress) async {
     if (debug) {
@@ -320,36 +180,8 @@ class _ConvertState extends State<Convert> {
 
     final SendPort send =
         IsolateNameServer.lookupPortByName('downloader_send_port');
-    //  since this a static functions which runs in isolates
-    // sends and updates the main isolates of the background isolates
     send.send([id, status, progress]);
   }
-
-  // static void _cacheData() async {
-  //   _localPath = (await findLocalPath()) + Platform.pathSeparator + musicFolder;
-  //   print('Path: $_localPath');
-  // }
-
-  /// Our static callbacks
-  // static void downloadCallback(String id, DownloadTaskStatus status, int progress) {
-  //   if (debug) {
-  //     print(
-  //         'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
-  //   }
-  //   final SendPort send =
-  //   IsolateNameServer.lookupPortByName('downloader_send_port');
-  //   //  since this a static functions which runs in isolates
-  //   // sends and updates the main isolates of the background isolates
-  //   send.send([id, status, progress]);
-  //
-  //   if (status == DownloadTaskStatus.complete) _cacheData();
-  //
-  // }
-
-  // handles the background process's so it communicates effectively with the main
-// thread
-  // removes our backgroung communications with the main
-// process's
 
   @override
   Widget build(BuildContext context) {
@@ -375,7 +207,8 @@ class _ConvertState extends State<Convert> {
                           ),
                           onPressed: () => Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => Sample()),
+                            MaterialPageRoute(
+                                builder: (context) => MainDashBoard()),
                           ),
                         ),
                         text: 'Converter',
@@ -528,39 +361,6 @@ class _ConvertState extends State<Convert> {
                                                   ),
                                                 )
                                               : _buildNoPermissionWarning()),
-                                  // Row(
-                                  //   mainAxisAlignment: MainAxisAlignment.center,
-                                  //   children: [
-                                  //     _isLoading ? new Center(
-                                  //       child: new CircularProgressIndicator(),
-                                  //     ):_permissionReady
-                                  //         ?
-                                  //     FlatButton(
-                                  //         onPressed: () {
-                                  //           _requestDownload();
-                                  //         },
-                                  //         color: Colors.green,
-                                  //         child: Text(
-                                  //           'Download',
-                                  //           style: TextStyle(
-                                  //               color: Colors.white, fontSize: 20),
-                                  //         )): _buildNoPermissionWarning(),
-                                  //     SizedBox(width: 20),
-                                  //     // FlatButton(
-                                  //     //     color: Colors.red,
-                                  //     //     onPressed: () {
-                                  //     //       // _saveLib();
-                                  //     //       // print(storagePath);
-                                  //     //     },
-                                  //     //     child: Text(
-                                  //     //       'Save to lib',
-                                  //     //       style: TextStyle(
-                                  //     //         color: Colors.white,
-                                  //     //         fontSize: 20,
-                                  //     //       ),
-                                  //     //     ))
-                                  //   ],
-                                  // ),
                                 ],
                               ),
                             )
@@ -569,13 +369,6 @@ class _ConvertState extends State<Convert> {
                       loading == false
                           ? Container()
                           : Center(child: downloadProgress()),
-                      // FlatButton(
-                      //     onPressed: () {},
-                      //     color: Colors.green,
-                      //     child: Text(
-                      //       'Download',
-                      //       style: TextStyle(color: Colors.white, fontSize: 20),
-                      //     )),
                     ],
                   ),
                 ),
@@ -641,29 +434,14 @@ class _ConvertState extends State<Convert> {
     }
   }
 
-//* checks for users permission
-//* and returns true if the permission is granted and false if no permission is granted to our application
-
   Widget downloadProgress() {
     return Text(
-      'Downloading $_progress%',
+      'Downloading ' + _progress.toString() + '%',
       style: TextStyle(
           fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
     );
   }
 
-  // _saveLib() async {
-  //   DownloadedFile file = DownloadedFile(
-  //       read(base_url + _converterProvider?.youtubeModel?.url),
-  //       path: storagePath,
-  //       image: _converterProvider?.youtubeModel?.image,
-  //       title: _converterProvider?.youtubeModel?.title);
-  //   final downBox = Hive.box('music_db');
-  //   await downBox.add(file.toJson());
-  // }
-
-  //* checks for users permission
-//* and returns true if the permission is granted and false if no permission is granted to our application
   Future<bool> _checkPermission() async {
     if (widget.platform == TargetPlatform.android) {
       final status = await Permission.storage.status;

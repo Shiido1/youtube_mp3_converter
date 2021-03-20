@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:jaynetwork/network/network_exceptions.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/otp/otp_page.dart';
 import 'package:mp3_music_converter/screens/signup/model/signup_model.dart';
 import 'package:mp3_music_converter/screens/signup/repository/signup_repo.dart';

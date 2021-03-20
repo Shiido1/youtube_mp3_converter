@@ -46,12 +46,6 @@ class _RedBackgroundState extends State<RedBackground> {
     }
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _checkLoginState();
-  // }
-
   getGallery(BuildContext context) async {
     // ignore: deprecated_member_use
     var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -77,14 +71,6 @@ class _RedBackgroundState extends State<RedBackground> {
                     ),
                     onTap: () {
                       _checkLoginState();
-                      // _checkLoginState();
-                      // sharedPreferences.clear();
-                      // sharedPreferences.commit();
-                      //   Navigator.of(context).pushAndRemoveUntil(
-                      //       MaterialPageRoute(
-                      //           builder: (BuildContext context) =>
-                      //               SignInScreen()),
-                      //       (Route<dynamic> route) => false);
                     },
                   ),
                   Padding(

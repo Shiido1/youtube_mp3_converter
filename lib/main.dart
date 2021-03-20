@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/converter/converter_screen.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
@@ -37,27 +38,8 @@ class _MyAppState extends State<MyApp> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      // home: DownloadAndSaveScreen(),
-      // home: FutureBuilder(
-      //   future: Hive.openBox('music_db'),
-      //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-      //     if (snapshot.connectionState == ConnectionState.done) {
-      //       if (snapshot.hasError)
-      //         return Text(snapshot.error.toString());
-      //       else
-      //         return ConverterScreen();
-      //     } else
-      //       return Scaffold();
-      //   },
-      // ),
-      home: ConverterScreen(),
+      home: MainDashBoard(),
       routes: Routes.getRoutes,
     );
   }
-
-  // @override
-  // void dispose() {
-  //   Hive.close();
-  //   super.dispose();
-  // }
 }

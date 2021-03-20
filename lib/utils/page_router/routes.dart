@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/otp/otp_page_success.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
@@ -21,7 +21,7 @@ class Routes {
       {
         DASHBOARD: (BuildContext context) {
           globalContext = context;
-          return Sample();
+          return MainDashBoard();
         },
         PLAYLIST: (BuildContext context) {
           globalContext = context;
@@ -37,7 +37,7 @@ class Routes {
         },
         SONGSCREEN: (BuildContext context) {
           globalContext = context;
-          return SongViewScreen('imageFile', 'filename');
+          return SongViewScreen('imageFile', 'filename', 'mp3File');
         },
       };
 }

@@ -57,66 +57,6 @@ class _SearchState extends State<Search> {
                 ),
               ],
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(20.0),
-            //   child: Stack(children: [
-            //     Align(
-            //       alignment: Alignment.centerLeft,
-            //       child: Padding(
-            //         padding: const EdgeInsets.all(10.0),
-            //         child: Icon(
-            //           Icons.search,
-            //           color: AppColor.white,
-            //           size: 30,
-            //         ),
-            //       ),
-            //     ),
-            //     TextFormField(
-            //       decoration: new InputDecoration(
-            //         enabledBorder: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(16.0),
-            //           borderSide: BorderSide(color: AppColor.white),
-            //         ),
-            //         focusedBorder: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(16.0),
-            //           borderSide: BorderSide(color: AppColor.white),
-            //         ),
-            //         border: new OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(16.0),
-            //           borderSide: BorderSide(color: AppColor.white),
-            //         ),
-            //         labelText: 'Search',
-            //         labelStyle: TextStyle(color: AppColor.white),
-            //       ),
-            //       cursorColor: AppColor.white,
-            //     ),
-            //     Align(
-            //       alignment: Alignment.centerRight,
-            //       child: Container(
-            //         decoration: BoxDecoration(
-            //             borderRadius: BorderRadius.circular(18.0),
-            //             border: Border.all(color: AppColor.white)),
-            //         child: ClipOval(
-            //           child: Material(
-            //             color: AppColor.transparent, // button color
-            //             child: InkWell(
-            //               splashColor: AppColor.white, // inkwell color
-            //               child: SizedBox(
-            //                   width: 56,
-            //                   height: 54,
-            //                   child: Icon(
-            //                     Icons.check,
-            //                     color: AppColor.white,
-            //                     size: 35,
-            //                   )),
-            //               onTap: () {},
-            //             ),
-            //           ),
-            //         ),
-            //       ),
-            //     )
-            //   ]),
-            // ),
             Column(
               children: [
                 SizedBox(

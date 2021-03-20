@@ -1,40 +1,36 @@
+import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:share/share.dart';
+import 'package:provider/provider.dart';
 
 class AppDrawer extends StatefulWidget {
-  String filename, image;
-
-  AppDrawer({Key key, this.filename, this.image}) : super(key: key);
+  AppDrawer({Key key}) : super(key: key);
 
   @override
   _AppDrawerState createState() => _AppDrawerState();
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  String _filename, _image;
+  MusicProvider _musicProvider;
 
-  // _AppDrawerState({@required this.filename, @required this.image});
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    init();
+  Future<List<String>> pickFile() async {
+    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+    return result == null ? <String>[] : result.paths;
   }
 
-  init() {
-    setState(() {
-      _filename = widget.filename;
-      _image = widget.image;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
   }
 
   @override
@@ -44,7 +40,6 @@ class _AppDrawerState extends State<AppDrawer> {
       child: Drawer(
         child: Container(
           decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
-          // color: AppColor.black.withOpacity(0.1),
           child: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Column(
@@ -54,19 +49,20 @@ class _AppDrawerState extends State<AppDrawer> {
                   padding: const EdgeInsets.only(right: 20),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
-                    // crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      _image != null && _image.isNotEmpty
+                      _musicProvider?.drawerItem?.image?.isNotEmpty ?? false
                           ? Expanded(
                               child: Container(
                                   height: 60,
                                   width: 50,
-                                  child: CachedNetworkImage(imageUrl: _image)))
+                                  child: CachedNetworkImage(
+                                      imageUrl:
+                                          _musicProvider?.drawerItem?.image)))
                           : Container(),
-                      _filename != null && _filename.isNotEmpty
+                      _musicProvider?.drawerItem?.fileName?.isNotEmpty ?? false
                           ? Expanded(
                               child: TextViewWidget(
-                              text: _filename,
+                              text: _musicProvider?.drawerItem?.fileName,
                               color: AppColor.white,
                               textSize: 16.5,
                               fontWeight: FontWeight.w500,
@@ -107,12 +103,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                     InkWell(
                       onTap: () async {
-                        // final filePath = await pickFile();
-                        // if (filePath.isEmpty){
-                        //   showToast(context, message: "Select file to share");
-                        // }else {
-                        //   Share.shareFiles(filePath);
-                        // }
+                        final filePath = await pickFile();
+                        if (filePath.isEmpty) {
+                          showToast(context, message: "Select file to share");
+                        } else {
+                          Share.shareFiles(filePath);
+                        }
                       },
                       child: Column(
                         children: [

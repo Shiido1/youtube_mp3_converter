@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
-import 'package:mp3_music_converter/screens/playlist/music_screen.dart';
+import 'package:mp3_music_converter/screens/playlist/music_class.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
-import 'package:mp3_music_converter/screens/playlist/test_container.dart';
+import 'package:mp3_music_converter/screens/playlist/music_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_class.dart';
-import 'package:mp3_music_converter/screens/song/songs_screen.dart';
+import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -45,7 +45,7 @@ class _LibraryState extends State<Library> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => MusicClass(index: 1),
+                            builder: (context) => PlayList(),
                           ));
                     },
                     leading: SvgPicture.asset(AppAssets.library),
@@ -62,7 +62,8 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SongClass()),
+                        MaterialPageRoute(
+                            builder: (context) => SongViewCLass()),
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.music),
@@ -79,8 +80,7 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => RecordedClass()),
+                        MaterialPageRoute(builder: (context) => Recorded()),
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.record),

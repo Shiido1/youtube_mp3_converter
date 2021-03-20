@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
-// import 'package:mp3_music_converter/screens/signup/model/sign_up_model.dart';
 import 'package:mp3_music_converter/screens/signup/model/signup_model.dart';
 import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -55,27 +53,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return true;
   }
 
-  // void signUp() {
-  //   SignupModel model = new SignupModel(
-  //       name: _nameController.text,
-  //       email: _emailController.text,
-  //       message: _passwordController.text);
-  //   FocusScope.of(context).unfocus();
-  //   if (_validateInputs()) return;
-  //   email = _emailController.text;
-  //   password = _passwordController.text;
-  //   _signUpProvider.signUp(map: model.toJson());
-  // }
-
-  // void _signUp() {
-  //   if (_validateInputs()) email = _emailController.text;
-  //   password = _passwordController.text;
-  //   _signUpProvider.signUp(
-  //       map: SignupModel().toJson(
-  //           name: _nameController.text,
-  //           email: _emailController.text,
-  //           password: _passwordController.text));
-  // }
   void _signUpUser() {
     FocusScope.of(context).unfocus();
 

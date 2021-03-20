@@ -2,24 +2,30 @@ import 'package:flutter/cupertino.dart';
 
 class RadioModel {
   String message;
-  List<Radio> radio;
-  List<Favourite> favourite;
+  String token;
+  List<Radio> radio = [];
+  List<Favourite> favourite = [];
 
-  RadioModel({this.message, this.radio, this.favourite});
+  RadioModel({this.message, this.radio, this.favourite, this.token});
 
   RadioModel.fromJson(Map<String, dynamic> json) {
-    message = json['message'];
+    message = json['message'] == null ? "" : json['message'];
+    token = json['token'] == null ? "" : json['token'];
 
     if (json['radio'] != null) {
       radio = new List<Radio>();
       json['radio'].forEach((v) {
-        radio.add(new Radio.fromJson(v));
+        try {
+          radio.add(new Radio.fromJson(v));
+        } catch (e) {}
       });
     }
     if (json['favourite'] != null) {
       favourite = new List<Favourite>();
       json['favourite'].forEach((v) {
-        favourite.add(new Favourite.fromJson(v));
+        try {
+          favourite.add(new Favourite.fromJson(v));
+        } catch (e) {}
       });
     }
   }
@@ -27,6 +33,7 @@ class RadioModel {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['message'] = this.message;
+    data['token'] = this.token;
     if (this.radio != null) {
       data['radio'] = this.radio.map((v) => v.toJson()).toList();
     }
@@ -70,20 +77,20 @@ class Radio {
       this.createdAt});
 
   Radio.fromJson(Map<String, dynamic> json) {
-    uid = json['uid'];
-    id = json['id'];
-    name = json['name'];
-    slug = json['slug'];
-    website = json['website'];
-    placeName = json['place_name'];
-    placeLat = json['place_lat'];
-    placeLong = json['place_long'];
-    functioning = json['functioning'];
-    secure = json['secure'];
-    countryName = json['country_name'];
-    countryCode = json['country_code'];
-    mp3 = json['mp3'];
-    createdAt = json['created_at'];
+    uid = json['uid'] == null ? null : json['uid'];
+    id = json['id'] == null ? null : json['id'];
+    name = json['name'] == null ? null : json['name'];
+    slug = json['slug'] == null ? null : json['slug'];
+    website = json['website'] == null ? null : json['website'];
+    placeName = json['place_name'] == null ? null : json['place_name'];
+    placeLat = json['place_lat'] == null ? null : json['plate_lat'];
+    placeLong = json['place_long'] == null ? null : json['place_long'];
+    functioning = json['functioning'] == null ? null : json['functioning'];
+    secure = json['secure'] == null ? null : json['secure'];
+    countryName = json['country_name'] == null ? null : json['country_name'];
+    countryCode = json['country_code'] == null ? null : json['country_code'];
+    mp3 = json['mp3'] == null ? null : json['mp3'];
+    createdAt = json['created_at'] == null ? null : json['created_at'];
   }
 
   Map<String, dynamic> toJson() {
@@ -146,6 +153,7 @@ class Favourite {
       this.createdAt});
 
   Favourite.fromJson(Map<String, dynamic> json) {
+    if (json == null) return;
     uid = json['uid'];
     id = json['id'];
     name = json['name'];

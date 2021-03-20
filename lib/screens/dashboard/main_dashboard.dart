@@ -1,24 +1,29 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
+import 'package:mp3_music_converter/database/model/log.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
-import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
-class Sample extends StatefulWidget {
+class MainDashBoard extends StatefulWidget {
   int index;
 
   @override
-  _SampleState createState() => _SampleState();
+  _MainDashBoardState createState() => _MainDashBoardState();
 }
 
-class _SampleState extends State<Sample> {
+class _MainDashBoardState extends State<MainDashBoard> {
   int _currentIndex = 0;
+  MusicProvider _musicProvider;
 
   List<Widget> _screens = [
     DashBoard(),
@@ -27,6 +32,20 @@ class _SampleState extends State<Sample> {
     Search(),
     Setting()
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    _musicProvider.initPlayer();
+    preferencesHelper.getStringValues(key: "last_play").then((value) {
+      if (value != null) {
+        _musicProvider.updateLocal(Log.fromMap(json.decode(value)));
+      }
+    }).catchError((error) {
+      print(error);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,4 @@
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
@@ -7,7 +6,6 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
-import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:share/share.dart';
 
@@ -23,28 +21,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
     return result == null ? <String>[] : result.paths;
   }
-
-  Drawer _drawer() => Drawer(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 10.0, bottom: 10, left: 15),
-            child: Center(
-              child: Column(
-                children: [
-                  Text('endDrawer content'),
-                  Builder(
-                      builder: (context) => RaisedButton(
-                            child: Text('Click', semanticsLabel: 'Click 2'),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          )),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -122,9 +98,9 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                 InkWell(
                   onTap: () async {
                     final filePath = await pickFile();
-                    if (filePath.isEmpty){
+                    if (filePath.isEmpty) {
                       showToast(context, message: "Select file to share");
-                    }else {
+                    } else {
                       Share.shareFiles(filePath);
                     }
                   },
@@ -168,11 +144,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                   ))
             ],
           ),
-          // Padding(
-          //   padding: const EdgeInsets.only(
-          //       right: 30, top: 16.0, bottom: 16.0, left: 30),
-          //   child: Divider(color: AppColor.white, height: 0.1),
-          // ),
           Expanded(
             child: ListView(
               children: [1, 2, 3, 4, 5, 6, 7]
@@ -200,7 +171,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                 ),
                                 trailing: InkWell(
                                     onTap: () {
-                                      _drawer();
+                                      // _drawer();
                                     },
                                     child: SvgPicture.asset(AppAssets.dot))),
                             Padding(
@@ -219,7 +190,6 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
           BottomPlayingIndicator(),
         ],
       ),
-      drawer: _drawer(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
@@ -266,38 +236,4 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       ),
     );
   }
-}
-
-class DrawerStack extends StatelessWidget {
-  final GlobalKey<DrawerControllerState> _drawerKey =
-      GlobalKey<DrawerControllerState>();
-  final drawerScrimColor = AppColor.transparent;
-  final double drawerEdgeDragWidth = null;
-  final DragStartBehavior drawerDragStartBehavior = DragStartBehavior.start;
-
-  final Widget body;
-  final Drawer drawer;
-
-  DrawerStack({Key key, this.body, this.drawer}) : super(key: key);
-
-  void openDrawer() {
-    _drawerKey.currentState?.open();
-  }
-
-  @override
-  Widget build(BuildContext context) => Stack(
-        children: [
-          body,
-          DrawerController(
-            key: _drawerKey,
-            alignment: DrawerAlignment.end,
-            child: drawer,
-            drawerCallback: (_) {},
-            dragStartBehavior: drawerDragStartBehavior,
-            //widget.drawerDragStartBehavior,
-            scrimColor: drawerScrimColor,
-            edgeDragWidth: drawerEdgeDragWidth,
-          ),
-        ],
-      );
 }

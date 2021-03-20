@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/playlist/play_list_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -30,7 +30,7 @@ class _PlayListState extends State<PlayList> {
               ),
               onPressed: () => Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => Sample()),
+                MaterialPageRoute(builder: (context) => MainDashBoard()),
               ),
             ),
             text: 'Playlist',
@@ -44,7 +44,7 @@ class _PlayListState extends State<PlayList> {
                             onTap: () => Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => PlaylistScreen()),
+                                  builder: (context) => PlayList()),
                             ),
                             leading: Image.asset(AppAssets.image1),
                             title: TextViewWidget(

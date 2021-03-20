@@ -1,14 +1,9 @@
-import 'dart:io';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
-import 'package:mp3_music_converter/database/model/log.dart';
-import 'package:mp3_music_converter/database/repository/log_repository.dart';
-import 'package:mp3_music_converter/screens/song/song_view.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
-import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
 
 class TextTitle extends StatefulWidget {
   @override
@@ -17,12 +12,12 @@ class TextTitle extends StatefulWidget {
 
 class _TextTitleState extends State<TextTitle> {
   String filename;
+  MusicProvider _musicProvider;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    prefMed();
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
   }
 
   prefMed() {
@@ -35,12 +30,12 @@ class _TextTitleState extends State<TextTitle> {
 
   @override
   Widget build(BuildContext context) {
-    prefMed();
-    return filename != null && filename.isNotEmpty
+    // prefMed();
+    return _musicProvider?.musicdata?.fileName?.isNotEmpty ?? false
         ? Container(
             height: 20,
             child: Marquee(
-              text: filename,
+              text: _musicProvider.musicdata.fileName,
               scrollAxis: Axis.horizontal,
               crossAxisAlignment: CrossAxisAlignment.start,
               style: TextStyle(

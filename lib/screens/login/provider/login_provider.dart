@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:jaynetwork/jaynetwork.dart';
-import 'package:mp3_music_converter/screens/dashboard/sample_dashboard.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/repository/login_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
@@ -32,8 +32,7 @@ class LoginProviders extends ChangeNotifier {
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         isLoading = false;
-        showToast(this._context,
-            message: statusMessage);
+        showToast(this._context, message: statusMessage);
         notifyListeners();
       });
     } catch (e) {

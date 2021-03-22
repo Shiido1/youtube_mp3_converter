@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
@@ -20,11 +21,14 @@ class _RadioClassState extends State<RadioClass>
   RadioProvider _radioProvider;
   bool tap = false;
   String radioFile = '', radioMp3 = '';
+  bool isPlaying = false;
+  bool isVisible = true;
 
   @override
   void initState() {
     _radioProvider = Provider.of<RadioProvider>(context, listen: false);
     _radioProvider.init(context);
+    audioStart();
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2))
@@ -36,6 +40,11 @@ class _RadioClassState extends State<RadioClass>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> audioStart() async {
+    await FlutterRadio.audioStart();
+    print('Audio Start OK');
   }
 
   @override
@@ -194,28 +203,69 @@ class _RadioClassState extends State<RadioClass>
                     width: 2,
                   ),
                   Expanded(
-                    child: Row(
-                      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        SvgPicture.asset(AppAssets.previous,
-                            height: 30, width: 30),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        SvgPicture.asset(AppAssets.play, height: 45, width: 45),
-                        SizedBox(
-                          width: 7,
-                        ),
-                        SvgPicture.asset(AppAssets.next, height: 30, width: 30),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        SvgPicture.asset(AppAssets.favorite,
-                            height: 30, width: 30),
-                        SizedBox(
-                          width: 5,
-                        ),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          // SvgPicture.asset(AppAssets.previous,
+                          //     height: 30, width: 30),
+                          // SizedBox(
+                          //   width: 7,
+                          // ),
+                          // SvgPicture.asset(AppAssets.play, height: 45, width: 45),
+                          IconButton(
+                              icon: Icon(
+                                Icons.skip_previous_outlined,
+                                color: AppColor.white,
+                                size: 48,
+                              ),
+                              onPressed: () {}),
+
+                          IconButton(
+                            icon: isPlaying
+                                ? Icon(
+                                    Icons.pause_circle_outline,
+                                    size: 48,
+                                    color: Colors.white,
+                                  )
+                                : Icon(
+                                    Icons.play_circle_outline,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                            onPressed: () {
+                              setState(() {
+                                isPlaying = !isPlaying;
+                                isVisible = !isVisible;
+                                isPlaying == false
+                                    ? FlutterRadio.pause(url: radioMp3)
+                                    : FlutterRadio.play(url: radioMp3);
+                              });
+                            },
+                          ),
+                          IconButton(
+                              icon: Icon(
+                                Icons.skip_next_outlined,
+                                size: 48,
+                                color: AppColor.white,
+                              ),
+                              onPressed: () {}),
+                          // SizedBox(
+                          //   width: 7,
+                          // ),
+                          // SvgPicture.asset(AppAssets.next,
+                          //     height: 30, width: 30),
+                          // SizedBox(
+                          //   width: 6,
+                          // ),
+                          // SvgPicture.asset(AppAssets.favorite,
+                          //     height: 30, width: 30),
+                          // // SizedBox(
+                          //   width: 5,
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

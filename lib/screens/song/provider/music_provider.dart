@@ -25,7 +25,7 @@ class MusicProvider with ChangeNotifier {
 
     advancedPlayer.onDurationChanged.listen((Duration duration) {
       totalDuration = duration;
-      ;
+
       notifyListeners();
     });
     advancedPlayer.onPlayerStateChanged.listen((AudioPlayerState s) {

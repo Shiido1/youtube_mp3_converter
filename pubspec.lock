@@ -211,6 +211,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.11"
+  downloads_path_provider:
+    dependency: "direct main"
+    description:
+      name: downloads_path_provider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   fading_edge_scrollview:
     dependency: transitive
     description:
@@ -286,6 +293,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.11"
+  flutter_radio:
+    dependency: "direct main"
+    description:
+      name: flutter_radio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.8"
   flutter_spinkit:
     dependency: "direct main"
     description:

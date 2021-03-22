@@ -61,29 +61,6 @@ class HiveMethods implements LogInterface {
     // await box.delete(logId);
   }
 
-  // @override
-  // Future currentLogs(int clogs, Log clog) async {
-  //   // ignore: todo
-  //   // TODO: implement currentLogs
-  //   // var box = await Hive.openBox(hive_box);
-
-  //   // var newLogMap = clog.toMap(clog);
-
-  //   // box.putAt(clogs, newLogMap);
-  //   // return newLogMap;
-
-  //   var box = await Hive.openBox(hive_box);
-
-  //   var newLogMap = clog.toMap(clog);
-  //   bool _recover = true;
-  //   if (clogs != null) {
-  //     box.putAt(clogs, newLogMap);
-  //   } else {
-  //     box =
-  //         await _manager.open(hive_box, path ?? homePath, !_recover, newLogMap);
-  //   }
-  // }
-
   @override
   close() => Hive.close();
 }

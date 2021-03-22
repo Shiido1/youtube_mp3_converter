@@ -10,8 +10,6 @@ abstract class LogInterface {
 
   deleteLogs(int logId);
 
-  // currentLogs(int cls, Log clogs);
-
   updateLogs(int logID, Log log);
 
   close();

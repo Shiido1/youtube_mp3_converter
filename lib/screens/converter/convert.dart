@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -41,7 +42,7 @@ class _ConvertState extends State<Convert> {
   TextEditingController controller = new TextEditingController();
   bool loading = false;
   int _progress = 0;
-  bool downloaded = false;
+  bool downloaded;
   int id;
   var val;
   bool _isLoading;
@@ -133,9 +134,7 @@ class _ConvertState extends State<Convert> {
     if (!isSuccess) {
       _unbindBackgroundIsolate();
       _bindBackgroundIsolate();
-      return setState(() {
-        loading = true;
-      });
+      return;
     }
     _port.listen((dynamic data) async {
       if (debug) {
@@ -144,20 +143,20 @@ class _ConvertState extends State<Convert> {
 
       String id = data[0];
       DownloadTaskStatus status = data[1];
-      print("id" + id);
+      // print("id" + id);
 
       int progress = data[2];
       setState(() {
         _progress = progress;
         loading = true;
       });
-      print("proGRESs" + _progress.toString());
-      if (_progress == 100) {
+      // print("proGRESs" + _progress.toString());
+      if (_progress == 100 && downloaded == true) {
         _showDialog(context);
         setState(() {
           loading = false;
         });
-      } else {}
+      }
       if (status == DownloadTaskStatus.complete) {
         LogRepository.addLogs(Log(
             fileName: _fileName,
@@ -344,20 +343,53 @@ class _ConvertState extends State<Convert> {
                                             )
                                           : _permissionReady
                                               ? Center(
-                                                  child: RaisedButton(
-                                                    onPressed: () {
-                                                      _requestDownload(
-                                                          link: base_url +
-                                                              _converterProvider
-                                                                  ?.youtubeModel
-                                                                  ?.url); // todo: replace with ur actuall link to download
-                                                    },
-                                                    color: AppColor.green,
-                                                    child: TextViewWidget(
-                                                      text: 'Download',
-                                                      color: AppColor.white,
-                                                      textSize: 20,
-                                                    ),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      RaisedButton(
+                                                        onPressed: () {
+                                                          _requestDownload(
+                                                              link: base_url +
+                                                                  _converterProvider
+                                                                      ?.youtubeModel
+                                                                      ?.url,
+                                                              saveToDownload:
+                                                                  true);
+                                                          setState(() {
+                                                            downloaded = true;
+                                                          });
+                                                        },
+                                                        color: AppColor.green,
+                                                        child: TextViewWidget(
+                                                          text: 'Download',
+                                                          color: AppColor.white,
+                                                          textSize: 20,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 16,
+                                                      ),
+                                                      RaisedButton(
+                                                        onPressed: () {
+                                                          _requestDownload(
+                                                              link: base_url +
+                                                                  _converterProvider
+                                                                      ?.youtubeModel
+                                                                      ?.url);
+                                                          setState(() {
+                                                            downloaded = false;
+                                                          }); // todo: replace with ur actuall link to download
+                                                        },
+                                                        color: AppColor.red,
+                                                        child: TextViewWidget(
+                                                          text: 'Save to Lib',
+                                                          color: AppColor.white,
+                                                          textSize: 20,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 )
                                               : _buildNoPermissionWarning()),
@@ -369,6 +401,7 @@ class _ConvertState extends State<Convert> {
                       loading == false
                           ? Container()
                           : Center(child: downloadProgress()),
+                      SizedBox(height: 60)
                     ],
                   ),
                 ),
@@ -418,12 +451,20 @@ class _ConvertState extends State<Convert> {
         ),
       );
 
-  void _requestDownload({@required String link}) async {
+  void _requestDownload(
+      {@required String link, bool saveToDownload = false}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
+      if (saveToDownload) {
+        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
+        _localPath = downloadPath.path;
+      }
+
       _fileName = getStringPathName(link);
-      setState(() {});
+      // setState(() {
+      //   downloaded = false;
+      // });
       await FlutterDownloader.enqueue(
           url: link,
           headers: {"auth": "test_for_sql_encoding"},
@@ -435,11 +476,21 @@ class _ConvertState extends State<Convert> {
   }
 
   Widget downloadProgress() {
-    return Text(
-      'Downloading ' + _progress.toString() + '%',
-      style: TextStyle(
-          fontSize: 15, fontWeight: FontWeight.bold, color: AppColor.white),
-    );
+    return downloaded == true
+        ? Text(
+            'Downloading ' + _progress.toString() + '%',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppColor.white),
+          )
+        : Text(
+            'Saving to Library... ' + _progress.toString() + '%',
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppColor.white),
+          );
   }
 
   Future<bool> _checkPermission() async {

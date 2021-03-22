@@ -10,6 +10,12 @@
 @import audioplayers;
 #endif
 
+#if __has_include(<downloads_path_provider/DownloadsPathProviderPlugin.h>)
+#import <downloads_path_provider/DownloadsPathProviderPlugin.h>
+#else
+@import downloads_path_provider;
+#endif
+
 #if __has_include(<file_picker/FilePickerPlugin.h>)
 #import <file_picker/FilePickerPlugin.h>
 #else
@@ -20,6 +26,12 @@
 #import <flutter_downloader/FlutterDownloaderPlugin.h>
 #else
 @import flutter_downloader;
+#endif
+
+#if __has_include(<flutter_radio/FlutterRadioPlugin.h>)
+#import <flutter_radio/FlutterRadioPlugin.h>
+#else
+@import flutter_radio;
 #endif
 
 #if __has_include(<image_picker/FLTImagePickerPlugin.h>)
@@ -62,8 +74,10 @@
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
   [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
+  [DownloadsPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"DownloadsPathProviderPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
   [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDownloaderPlugin"]];
+  [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];

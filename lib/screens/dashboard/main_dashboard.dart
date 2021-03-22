@@ -8,6 +8,7 @@ import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/database/model/log.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
+import 'package:mp3_music_converter/screens/playlist/database/repo/playlist_log_repo.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -45,6 +46,8 @@ class _MainDashBoardState extends State<MainDashBoard> {
     }).catchError((error) {
       print(error);
     });
+
+    PlayListLogRepository.init();
   }
 
   @override

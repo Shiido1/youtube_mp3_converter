@@ -92,7 +92,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
               itemCount: logList.length,
               itemBuilder: (BuildContext context, int index) {
                 Log _log = logList[index];
-                print(_log.toJson());
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

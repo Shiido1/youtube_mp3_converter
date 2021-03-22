@@ -127,7 +127,9 @@ class _RadioClassState extends State<RadioClass>
                                             setState(() {
                                               radioFile = _radioLog.name;
                                               radioMp3 = _radioLog.mp3;
+                                              isPlaying = true;
                                             });
+                                            FlutterRadio.play(url: radioMp3);
                                           },
                                           child: Column(
                                             children: [
@@ -204,21 +206,14 @@ class _RadioClassState extends State<RadioClass>
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 10),
+                      padding: const EdgeInsets.only(right: 10, bottom: 20),
                       child: Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // SvgPicture.asset(AppAssets.previous,
-                          //     height: 30, width: 30),
-                          // SizedBox(
-                          //   width: 7,
-                          // ),
-                          // SvgPicture.asset(AppAssets.play, height: 45, width: 45),
                           IconButton(
                               icon: Icon(
                                 Icons.skip_previous_outlined,
                                 color: AppColor.white,
-                                size: 48,
+                                size: 50,
                               ),
                               onPressed: () {}),
 
@@ -226,19 +221,19 @@ class _RadioClassState extends State<RadioClass>
                             icon: isPlaying
                                 ? Icon(
                                     Icons.pause_circle_outline,
-                                    size: 48,
-                                    color: Colors.white,
+                                    size: 50,
+                                    color: AppColor.white,
                                   )
                                 : Icon(
                                     Icons.play_circle_outline,
-                                    color: Colors.white,
-                                    size: 48,
+                                    color: AppColor.white,
+                                    size: 50,
                                   ),
                             onPressed: () {
                               setState(() {
-                                isPlaying = !isPlaying;
                                 isVisible = !isVisible;
-                                isPlaying == false
+                                isPlaying = !isPlaying;
+                                isPlaying == true
                                     ? FlutterRadio.pause(url: radioMp3)
                                     : FlutterRadio.play(url: radioMp3);
                               });

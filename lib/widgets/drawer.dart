@@ -1,3 +1,5 @@
+import 'package:mp3_music_converter/screens/playlist/database/model/playlist_log.dart';
+import 'package:mp3_music_converter/screens/playlist/database/repo/playlist_log_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -123,7 +125,11 @@ class _AppDrawerState extends State<AppDrawer> {
                   color: AppColor.white,
                 ),
                 ListTile(
-                  onTap: () {},
+                  onTap: () {
+                    PlayListLogRepository.deleteLog(
+                        _musicProvider?.drawerItem?.fileName);
+                    PageRouter.gotoNamed(Routes.PLAYLIST, context);
+                  },
                   leading: SvgPicture.asset(AppAssets.rubbish),
                   title: TextViewWidget(
                     text: 'Remove from Playlist',
@@ -161,6 +167,10 @@ class _AppDrawerState extends State<AppDrawer> {
                 Expanded(
                   child: ListTile(
                     onTap: () {
+                      PlayListLogRepository.addLogs((PlayListLog(
+                          fileName: _musicProvider?.drawerItem?.fileName,
+                          image: _musicProvider?.drawerItem?.image,
+                          file: _musicProvider?.drawerItem?.fileName)));
                       PageRouter.gotoNamed(Routes.PLAYLIST, context);
                     },
                     leading: Icon(

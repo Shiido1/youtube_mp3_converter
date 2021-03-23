@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/save_convert/provider/save_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
@@ -29,9 +28,9 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
   bool newUser;
 
   ConverterProvider _converterProvider;
-  SaveConvertProvider _saveConvertProvider;
+  // SaveConvertProvider _saveConvertProvider;
   TextEditingController controller = new TextEditingController();
-  int _progress = 0;
+  // int _progress = 0;
   ReceivePort receivePort = ReceivePort();
 
   static downloadingCallback(id, status, progress) {
@@ -86,7 +85,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
       if (status.isGranted) {
         final externalDir = await getExternalStorageDirectory();
 
-        final id = await FlutterDownloader.enqueue(
+        await FlutterDownloader.enqueue(
             url: base_url + _converterProvider?.youtubeModel?.url,
             savedDir: externalDir.path,
             fileName: _converterProvider?.youtubeModel?.title,
@@ -370,9 +369,7 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                               ],
                             ),
                             SizedBox(height: 40),
-                            loading == false
-                                ? Container()
-                                : Center(),
+                            loading == false ? Container() : Center(),
                           ],
                         ),
                       )
@@ -468,7 +465,6 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
         ),
       ),
     );
-
   }
 
   void _download() {

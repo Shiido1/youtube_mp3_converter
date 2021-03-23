@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -54,6 +54,7 @@ class _RedBackgroundState extends State<RedBackground> {
       img = true;
     });
     Navigator.of(context).pop();
+    preferencesHelper.saveValue(key: 'profileimage', value: image);
   }
 
   Future<void> _showDialog(BuildContext context) {
@@ -87,6 +88,24 @@ class _RedBackgroundState extends State<RedBackground> {
             ),
           );
         });
+  }
+
+  @override
+  void initState() {
+    // init();
+
+    super.initState();
+  }
+
+  init() {
+    if (image == null) {
+      preferencesHelper
+          .getCachedData(key: 'profileimage')
+          .then((value) => setState(() {
+                image = value;
+              }));
+      return image;
+    }
   }
 
   @override
@@ -132,12 +151,14 @@ class _RedBackgroundState extends State<RedBackground> {
                       ? ClipOval(
                           child: Image.asset('assets/burna.png'),
                         )
-                      : ClipOval(
-                          child: Image.file(
-                            image,
-                            height: 70,
-                            width: 70,
-                          ),
+                      : Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: FileImage(image), // picked file
+                                  fit: BoxFit.cover)),
                         ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5.0),

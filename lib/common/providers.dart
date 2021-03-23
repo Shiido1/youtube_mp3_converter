@@ -2,6 +2,7 @@ import 'package:mp3_music_converter/screens/converter/provider/converter_provide
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/otp/provider/otp_provider.dart';
 import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dart';
+import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
@@ -18,5 +19,7 @@ class Providers {
         create: (_) => ConverterProvider()),
     ChangeNotifierProvider<RadioProvider>(create: (_) => RadioProvider()),
     ChangeNotifierProvider<MusicProvider>(create: (_) => MusicProvider()),
+    ChangeNotifierProvider<RadioPlayProvider>(
+        create: (_) => RadioPlayProvider()),
   ];
 }

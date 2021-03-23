@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
-import 'package:mp3_music_converter/screens/otp/otp_page_success.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/screens/song/song_view_screen.dart';
 

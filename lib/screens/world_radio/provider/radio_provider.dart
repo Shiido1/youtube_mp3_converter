@@ -10,7 +10,6 @@ class RadioProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
   bool problem = false;
-  var _response;
   RadioModel radioModels;
 
   void init(BuildContext context) {

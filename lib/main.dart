@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:mp3_music_converter/screens/splash_sreen.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
 import 'common/providers.dart';
@@ -11,9 +11,7 @@ import 'utils/color_assets/color.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(
-      debug: debug // optional: set false to disable printing logs to console
-      );
+  await FlutterDownloader.initialize(debug: debug);
   LogRepository.init();
   SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(statusBarColor: AppColor.red));
@@ -21,8 +19,6 @@ void main() async {
 }
 
 class MyApp extends StatefulWidget {
-  // This widget is the root of your application.
-
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -36,7 +32,7 @@ class _MyAppState extends State<MyApp> {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       debugShowCheckedModeBanner: false,
-      home: Convert(),
+      home: SplashScreenPage(),
       routes: Routes.getRoutes,
     );
   }

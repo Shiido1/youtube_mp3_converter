@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:jaynetwork/jaynetwork.dart';
-import 'package:mp3_music_converter/error_handler/handler.dart';
 import 'package:mp3_music_converter/screens/otp/model/otp_model.dart';
 import 'package:mp3_music_converter/screens/otp/repository/otp_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 

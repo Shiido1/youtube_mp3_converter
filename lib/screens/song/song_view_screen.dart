@@ -1,4 +1,3 @@
-import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/widgets/icon_button.dart';
 
+// ignore: must_be_immutable
 class SongViewScreen extends StatefulWidget {
   String img, flname, mp3File;
   SongViewScreen(
@@ -29,7 +29,6 @@ class _SongViewScreenState extends State<SongViewScreen> {
   String _fileName, _image, _mp3File;
   MusicProvider _musicProvider;
   String mp3 = '';
-  double _value = 0.0;
 
   @override
   void initState() {
@@ -83,59 +82,63 @@ class _SongViewScreenState extends State<SongViewScreen> {
               ),
             ),
           ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(35.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(18.0),
-                    child: CachedNetworkImage(
-                      imageUrl: _image,
-                      height: 300,
-                      width: 250,
-                      fit: BoxFit.fill,
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.all(35.0),
+            child: Column(
+              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(18.0),
+                  child: CachedNetworkImage(
+                    imageUrl: _image,
+                    height: 400,
+                    width: 280,
+                    fit: BoxFit.contain,
                   ),
-                  Center(
-                    child: TextViewWidget(
-                      text: _fileName,
+                ),
+                Center(
+                  child: TextViewWidget(
+                    text: _fileName,
+                    color: AppColor.white,
+                    textSize: 18,
+                    fontWeight: FontWeight.w700,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(
+                  height: 35,
+                ),
+                SliderClass2(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.skip_previous_outlined),
+                      onPressed: () {},
+                      iconSize: 56,
                       color: AppColor.white,
-                      textSize: 18,
-                      fontWeight: FontWeight.w700,
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  SliderClass2(),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.skip_previous_outlined),
-                        onPressed: () {},
-                        iconSize: 56,
-                        color: AppColor.white,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: IconButt(),
-                      ),
-                      SizedBox(
-                        width: 23,
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.skip_next_outlined),
-                        onPressed: () {},
-                        iconSize: 56,
-                        color: AppColor.white,
-                      )
-                    ],
-                  )
-                ],
-              ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: IconButt(),
+                    ),
+                    SizedBox(
+                      width: 23,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.skip_next_outlined),
+                      onPressed: () {},
+                      iconSize: 56,
+                      color: AppColor.white,
+                    ),
+                    SizedBox(
+                      height: 65,
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
         ),

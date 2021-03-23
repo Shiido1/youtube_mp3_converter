@@ -50,7 +50,7 @@ class _ConvertState extends State<Convert> {
   static String _localPath;
   ReceivePort _port = ReceivePort();
   String _fileName;
-  MusicProvider _musicProvider;
+  MusicProvider musicProvider;
 
   @override
   void initState() {
@@ -58,7 +58,7 @@ class _ConvertState extends State<Convert> {
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
 
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    musicProvider = Provider.of<MusicProvider>(context, listen: false);
 
     _bindBackgroundIsolate(); //
     FlutterDownloader.registerCallback(
@@ -141,16 +141,15 @@ class _ConvertState extends State<Convert> {
         print('UI Isolate Callback: $data');
       }
 
+      // ignore: unused_local_variable
       String id = data[0];
       DownloadTaskStatus status = data[1];
-      // print("id" + id);
 
       int progress = data[2];
       setState(() {
         _progress = progress;
         loading = true;
       });
-      // print("proGRESs" + _progress.toString());
       if (_progress == 100 && downloaded == true) {
         _showDialog(context);
         setState(() {

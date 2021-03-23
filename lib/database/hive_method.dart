@@ -7,6 +7,7 @@ import 'interface/log_interface.dart';
 import 'model/log.dart';
 
 class HiveMethods implements LogInterface {
+  // ignore: non_constant_identifier_names
   String hive_box = "musc_log";
 
   @override

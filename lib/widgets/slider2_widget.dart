@@ -14,13 +14,13 @@ class _SliderClass2State extends State<SliderClass2> {
   bool isPlay;
   String mp3 = '';
 
-  MusicProvider _musicProvider;
-  double _value = 0.0;
+  MusicProvider musicProvider;
+  double val = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    musicProvider = Provider.of<MusicProvider>(context, listen: false);
     prefMed();
   }
 
@@ -58,7 +58,7 @@ class _SliderClass2State extends State<SliderClass2> {
                   onChanged: (double value) {
                     setState(() {
                       provider.seekToSecond(value.toInt());
-                      _value = value;
+                      val = value;
                     });
                   }),
             ),

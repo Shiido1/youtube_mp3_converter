@@ -18,6 +18,7 @@ class BottomPlayingIndicator extends StatefulWidget {
 
 class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
   String mp3 = '';
+  // ignore: non_constant_identifier_names
   String file_name, image, file;
   MusicProvider _musicProvider;
 

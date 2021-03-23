@@ -25,8 +25,8 @@ class SongViewCLass extends StatefulWidget {
 }
 
 class _SongViewCLassState extends State<SongViewCLass> {
-  String _filename, _flname;
-  String _imageFile, _img;
+  String _filename;
+  String _imageFile;
   String _filepath;
   String _tpFile;
   MusicProvider _musicProvider;

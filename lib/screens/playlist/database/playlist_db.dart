@@ -1,13 +1,12 @@
 import 'dart:io';
 
 import 'package:hive/hive.dart';
-import 'package:mp3_music_converter/database/interface/log_interface.dart';
 import 'package:mp3_music_converter/screens/playlist/database/interface/playlist_log_interface.dart';
 import 'package:mp3_music_converter/screens/playlist/database/model/playlist_log.dart';
-// import 'package:mp3_music_converter/database/model/log.dart';
 import 'package:path_provider/path_provider.dart';
 
 class PlaylistHive implements PlaylistLogInterface {
+  // ignore: non_constant_identifier_names
   String hv_box = "playlist";
 
   @override
@@ -53,7 +52,6 @@ class PlaylistHive implements PlaylistLogInterface {
 
   @override
   updateLogs(int logID, PlayListLog log) {
-    // TODO: implement p_updateLogs
     throw UnimplementedError();
   }
 }

@@ -13,6 +13,7 @@ class MusicProvider with ChangeNotifier {
 
   String mp3;
   AudioPlayerState audioPlayerState;
+  PlayerControlCommand playerControlCommand;
 
   void initPlayer() {
     if (advancedPlayer != null) return;

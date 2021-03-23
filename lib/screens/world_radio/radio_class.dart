@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
-import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
+import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -23,17 +23,36 @@ class _RadioClassState extends State<RadioClass>
   String radioFile = '', radioMp3 = '';
   bool isPlaying = false;
   bool isVisible = true;
+  RadioPlayProvider _playProvider;
 
   @override
   void initState() {
     _radioProvider = Provider.of<RadioProvider>(context, listen: false);
     _radioProvider.init(context);
-    audioStart();
+    _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2))
           ..repeat();
     super.initState();
+    if (radioFile.isNotEmpty && radioMp3.isNotEmpty) {
+      _playProvider.playAudio(radioMp3);
+    } else {
+      init();
+    }
+  }
+
+  init() {
+    preferencesHelper
+        .getStringValues(key: 'radiomp3')
+        .then((value) => setState(() {
+              radioMp3 = value;
+            }));
+    preferencesHelper
+        .getStringValues(key: 'radioFile')
+        .then((value) => setState(() {
+              radioFile = value;
+            }));
   }
 
   @override
@@ -42,10 +61,10 @@ class _RadioClassState extends State<RadioClass>
     super.dispose();
   }
 
-  Future<void> audioStart() async {
-    await FlutterRadio.audioStart();
-    print('Audio Start OK');
-  }
+  // Future<void> audioStart() async {
+  //   await FlutterRadio.audioStart();
+  //   print('Audio Start OK');
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +148,13 @@ class _RadioClassState extends State<RadioClass>
                                               radioMp3 = _radioLog.mp3;
                                               isPlaying = true;
                                             });
-                                            FlutterRadio.play(url: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            _playProvider.playAudio(radioMp3);
                                           },
                                           child: Column(
                                             children: [
@@ -197,7 +222,7 @@ class _RadioClassState extends State<RadioClass>
                   Expanded(
                     child: TextViewWidget(
                         text: '$radioFile',
-                        color: Colors.white,
+                        color: AppColor.white,
                         textSize: 16,
                         fontWeight: FontWeight.w600),
                   ),
@@ -206,7 +231,7 @@ class _RadioClassState extends State<RadioClass>
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 10, bottom: 20),
+                      padding: const EdgeInsets.only(right: 4, bottom: 20),
                       child: Row(
                         children: [
                           IconButton(
@@ -231,12 +256,9 @@ class _RadioClassState extends State<RadioClass>
                                   ),
                             onPressed: () {
                               setState(() {
-                                isVisible = !isVisible;
                                 isPlaying = !isPlaying;
-                                isPlaying == true
-                                    ? FlutterRadio.pause(url: radioMp3)
-                                    : FlutterRadio.play(url: radioMp3);
                               });
+                              _playProvider.playAudio(radioMp3);
                             },
                           ),
                           IconButton(
@@ -254,10 +276,13 @@ class _RadioClassState extends State<RadioClass>
                           // SizedBox(
                           //   width: 6,
                           // ),
-                          // SvgPicture.asset(AppAssets.favorite,
-                          //     height: 30, width: 30),
-                          // // SizedBox(
-                          //   width: 5,
+                          // SvgPicture.asset(
+                          //   AppAssets.favorite,
+                          // ),
+                          // Expanded(
+                          //   child: SizedBox(
+                          //     width: 5,
+                          //   ),
                           // ),
                         ],
                       ),

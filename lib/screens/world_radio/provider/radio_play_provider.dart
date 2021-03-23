@@ -15,10 +15,7 @@ class RadioPlayProvider with ChangeNotifier {
   }
 
   void playAudio(mp3) async {
-    if (currentRadio == mp3) return;
-
     FlutterRadio.playOrPause(url: mp3);
     notifyListeners();
-    currentRadio = mp3;
   }
 }

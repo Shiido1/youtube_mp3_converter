@@ -3,15 +3,19 @@ import 'package:flutter_radio/flutter_radio.dart';
 
 class RadioPlayProvider with ChangeNotifier {
   String currentRadio;
+  bool value;
 
   void initPlayer() {
     audioStart();
   }
 
   Future<void> audioStart() async {
-    await FlutterRadio.audioStart();
-    notifyListeners();
-    print('Audio Start OK');
+    if (!await FlutterRadio.isPlaying()) {
+      await FlutterRadio.audioStart();
+      value = true;
+      print('Audio Start OK');
+      notifyListeners();
+    }
   }
 
   void playAudio(mp3) async {

@@ -80,14 +80,13 @@ class MusicProvider with ChangeNotifier {
     });
   }
 
-  void updateLocal(Song log) {
-    currentSong = log;
+  void updateLocal(Song song) {
+    currentSong = song;
     notifyListeners();
   }
 
   void updateDrawer(Song log) {
     drawerItem = log;
-    notifyListeners();
   }
 
   void seekToSecond(int second) {
@@ -100,6 +99,7 @@ class MusicProvider with ChangeNotifier {
     if (advancedPlayer == null) initPlayer();
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
     await advancedPlayer.play(song.file);
+    currentSong = song;
     notifyListeners();
   }
 

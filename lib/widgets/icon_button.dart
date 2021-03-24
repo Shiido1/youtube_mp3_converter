@@ -22,19 +22,17 @@ class _IconButtState extends State<IconButt> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MusicProvider>(builder: (_, provider, __) {
-      return IconButton(
-        icon: Icon(
-          provider.audioPlayerState == AudioPlayerState.PLAYING
-              ? Icons.pause_circle_outline
-              : Icons.play_circle_outline,
-          size: 56,
-        ),
-        onPressed: () {
-          _musicProvider.handlePlaying();
-        },
-        color: AppColor.white,
-      );
-    });
+    return IconButton(
+      icon: Icon(
+        _musicProvider.audioPlayerState == AudioPlayerState.PLAYING
+            ? Icons.pause_circle_outline
+            : Icons.play_circle_outline,
+        size: 56,
+      ),
+      onPressed: () {
+        _musicProvider.handlePlaying();
+      },
+      color: AppColor.white,
+    );
   }
 }

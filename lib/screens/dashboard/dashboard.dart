@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
-import 'package:mp3_music_converter/screens/playlist/music_screen.dart';
+import 'package:mp3_music_converter/screens/create_music/create_music_screen.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -44,7 +44,7 @@ class _DashBoardState extends State<DashBoard> {
                 _buttonItem(
                   title: "Create your Music",
                   item: HomeButtonItem.CREATE_MUSIC,
-                  screen: MusicScreen(),
+                  screen: CreateMusicScreen(),
                   assets: AppAssets.radioWave,
                 ),
                 SizedBox(

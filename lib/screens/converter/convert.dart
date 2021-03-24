@@ -6,8 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/database/model/log.dart';
-import 'package:mp3_music_converter/database/repository/log_repository.dart';
+import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -157,10 +157,15 @@ class _ConvertState extends State<Convert> {
         });
       }
       if (status == DownloadTaskStatus.complete) {
-        LogRepository.addLogs(Log(
-            fileName: _fileName,
-            filePath: _localPath,
-            image: _converterProvider?.youtubeModel?.image ?? ''));
+        SongRepository.addSong(Song(
+          fileName: _fileName,
+          filePath: _localPath,
+          image: _converterProvider?.youtubeModel?.image ?? '',
+          playList: false,
+          favorite: false,
+          lastPlayDate: DateTime.now(),
+        )
+        );
       }
     });
   }

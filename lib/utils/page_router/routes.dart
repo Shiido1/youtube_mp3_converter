@@ -34,9 +34,5 @@ class Routes {
           globalContext = context;
           return SignUpScreen();
         },
-        SONGSCREEN: (BuildContext context) {
-          globalContext = context;
-          return SongViewScreen('imageFile', 'filename', 'mp3File');
-        },
       };
 }

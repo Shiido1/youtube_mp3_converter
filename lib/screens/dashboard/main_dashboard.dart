@@ -6,9 +6,8 @@ import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
-import 'package:mp3_music_converter/database/model/log.dart';
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
-import 'package:mp3_music_converter/screens/playlist/database/repo/playlist_log_repo.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -39,20 +38,20 @@ class _MainDashBoardState extends State<MainDashBoard> {
 
   @override
   void initState() {
-    super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.initPlayer();
+    _musicProvider.initProvider();
     preferencesHelper.getStringValues(key: "last_play").then((value) {
       if (value != null) {
-        _musicProvider.updateLocal(Log.fromMap(json.decode(value)));
+        _musicProvider.updateLocal(Song.fromMap(json.decode(value)));
       }
     }).catchError((error) {
       print(error);
     });
 
-    PlayListLogRepository.init();
     _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
     _playProvider.initPlayer();
+
+    super.initState();
   }
 
   @override

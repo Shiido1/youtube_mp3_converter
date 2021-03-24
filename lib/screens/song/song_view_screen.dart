@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -11,13 +12,14 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/widgets/icon_button.dart';
 
+import '../../utils/color_assets/color.dart';
+import 'provider/music_provider.dart';
+
 // ignore: must_be_immutable
 class SongViewScreen extends StatefulWidget {
-  String img, flname, mp3File;
+  Song song;
   SongViewScreen(
-    this.img,
-    this.flname,
-    this.mp3File, {
+    this.song, {
     Key key,
   }) : super(key: key);
 
@@ -26,39 +28,25 @@ class SongViewScreen extends StatefulWidget {
 }
 
 class _SongViewScreenState extends State<SongViewScreen> {
-  String _fileName, _image, _mp3File;
   MusicProvider _musicProvider;
-  String mp3 = '';
 
   @override
   void initState() {
-    super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    prefMed();
-    setState(() {
-      _image = widget.img;
-      _fileName = widget.flname;
-      _mp3File = widget.mp3File;
-    });
-    _musicProvider.handlePlaying(_mp3File, state: AudioPlayerState.COMPLETED);
-  }
-
-  prefMed() {
-    preferencesHelper.getStringValues(key: 'mp3').then((value) => setState(() {
-          mp3 = value;
-        }));
+    _musicProvider.playerType = PlayerType.ALL;
+    _musicProvider.playAudio(widget.song);
+    _musicProvider.updateDrawer(widget.song);
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MusicProvider>(builder: (_, provider, __) {
+    return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.grey,
           leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            onPressed: () => Navigator.pop(context),
             icon: Icon(
               Icons.arrow_back_ios_sharp,
               color: AppColor.white,
@@ -67,7 +55,8 @@ class _SongViewScreenState extends State<SongViewScreen> {
         ),
         endDrawer: Theme(
             data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-            child: AppDrawer()),
+            child: AppDrawer()
+        ),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -85,13 +74,11 @@ class _SongViewScreenState extends State<SongViewScreen> {
           child: Padding(
             padding: const EdgeInsets.all(35.0),
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18.0),
                   child: CachedNetworkImage(
-                    imageUrl: _image,
+                    imageUrl: _provider.currentSong.image,
                     height: 400,
                     width: 280,
                     fit: BoxFit.contain,
@@ -99,7 +86,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
                 ),
                 Center(
                   child: TextViewWidget(
-                    text: _fileName,
+                    text: _provider.currentSong.fileName,
                     color: AppColor.white,
                     textSize: 18,
                     fontWeight: FontWeight.w700,
@@ -114,12 +101,12 @@ class _SongViewScreenState extends State<SongViewScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    IconButton(
-                      icon: Icon(Icons.skip_previous_outlined),
-                      onPressed: () {},
-                      iconSize: 56,
-                      color: AppColor.white,
-                    ),
+                      IconButton(
+                        icon: Icon(Icons.skip_previous_outlined),
+                        onPressed: () => !_provider.canPrevSong ?  _musicProvider.prev() : null,
+                        iconSize: 56,
+                        color: !_provider.canPrevSong ? AppColor.white : AppColor.grey,
+                      ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: IconButt(),
@@ -128,14 +115,11 @@ class _SongViewScreenState extends State<SongViewScreen> {
                       width: 23,
                     ),
                     IconButton(
-                      icon: Icon(Icons.skip_next_outlined),
-                      onPressed: () {},
-                      iconSize: 56,
-                      color: AppColor.white,
-                    ),
-                    SizedBox(
-                      height: 65,
-                    ),
+                    icon: Icon(Icons.skip_next_outlined),
+                    onPressed: () => !_provider.canNextSong ? _musicProvider.next() : null,
+                    iconSize: 56,
+                    color: !_provider.canNextSong ? AppColor.white : AppColor.grey,
+                  ),
                   ],
                 )
               ],

@@ -20,11 +20,11 @@ class _ImageFileState extends State<ImageFile> {
 
   @override
   Widget build(BuildContext context) {
-    return _musicProvider?.musicdata?.image?.isNotEmpty ?? false
+    return _musicProvider?.currentSong?.image?.isNotEmpty ?? false
         ? Padding(
             padding: const EdgeInsets.all(5.0),
             child: CachedNetworkImage(
-              imageUrl: _musicProvider?.musicdata?.image,
+              imageUrl: _musicProvider?.currentSong?.image,
               fit: BoxFit.fitHeight,
             ),
           )

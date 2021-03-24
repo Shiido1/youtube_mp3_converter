@@ -31,7 +31,7 @@ class _IconButtState extends State<IconButt> {
           size: 56,
         ),
         onPressed: () {
-          _musicProvider.handlePlaying(_musicProvider.musicdata.file);
+          _musicProvider.handlePlaying();
         },
         color: AppColor.white,
       );

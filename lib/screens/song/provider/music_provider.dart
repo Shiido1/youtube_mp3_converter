@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:audioplayers/audio_cache.dart';
@@ -5,6 +6,8 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+
+import '../../../utils/helper/instances.dart';
 
 enum PlayerType {ALL, SHUFFLE, REPEAT}
 
@@ -81,8 +84,10 @@ class MusicProvider with ChangeNotifier {
   }
 
   void updateLocal(Song song) {
-    currentSong = song;
-    notifyListeners();
+    if(audioPlayerState != AudioPlayerState.PLAYING){
+      currentSong = songs.firstWhere((element) => element.fileName == song.fileName, orElse: () => song);
+      notifyListeners();
+    }
   }
 
   void updateDrawer(Song log) {
@@ -100,7 +105,15 @@ class MusicProvider with ChangeNotifier {
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
     await advancedPlayer.play(song.file);
     currentSong = song;
+    savePlayingSong(song);
     notifyListeners();
+  }
+
+  savePlayingSong(Song song){
+    preferencesHelper.saveValue(
+        key: 'last_play',
+        value: json.encode(song.toJson())
+    );
   }
 
   void resumeAudio() async {

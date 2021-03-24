@@ -104,11 +104,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
                           : null),
                   title: GestureDetector(
                     onTap: () async {
-                      // _musicProvider.currentSong = _song;
-                      // preferencesHelper.saveValue(
-                      //     key: 'last_play',
-                      //     value: json
-                      //         .encode(_musicProvider.currentSong.toJson()));
                       _musicProvider.songs = _musicProvider.allSongs;
                       _musicProvider.setCurrentIndex(index);
                       PageRouter.gotoWidget(SongViewScreen(_song), context);

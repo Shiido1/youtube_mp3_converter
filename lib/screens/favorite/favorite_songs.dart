@@ -8,21 +8,21 @@ import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
-import '../screens/song/provider/music_provider.dart';
-import '../screens/song/song_view_screen.dart';
-import '../utils/page_router/navigator.dart';
+import '../../utils/page_router/navigator.dart';
+import '../song/provider/music_provider.dart';
+import '../song/song_view_screen.dart';
 
-class PlayList extends StatefulWidget {
+class FavoriteSongs extends StatefulWidget {
   @override
-  _PlayListState createState() => _PlayListState();
+  _FavoriteSongsState createState() => _FavoriteSongsState();
 }
 
-class _PlayListState extends State<PlayList> {
+class _FavoriteSongsState extends State<FavoriteSongs> {
   MusicProvider _musicProvider;
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.getPlayLists();
+    _musicProvider.getFavoriteSongs();
     super.initState();
   }
 
@@ -43,20 +43,20 @@ class _PlayListState extends State<PlayList> {
                 MaterialPageRoute(builder: (context) => MainDashBoard()),
               ),
             ),
-            text: 'Playlist',
+            text: 'Favorites',
           ),
           Expanded(
               child: Consumer<MusicProvider>(
             builder: (_, _provider, __) {
-              if (_provider.playLists.length == 0) {
+              if (_provider.favoriteSongs.length == 0) {
                 return Center(
                     child: TextViewWidget(text: 'No Song', color: AppColor.white)
                 );
               }
               return ListView.builder(
-                itemCount: _provider.playLists.length,
+                itemCount: _provider.favoriteSongs.length,
                 itemBuilder: (BuildContext context, int index) {
-                  Song _song = _provider.playLists[index];
+                  Song _song = _provider.favoriteSongs[index];
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -83,7 +83,7 @@ class _PlayListState extends State<PlayList> {
                                 : null),
                         title: InkWell(
                           onTap: () {
-                            _musicProvider.songs = _musicProvider.playLists;
+                            _musicProvider.songs = _musicProvider.favoriteSongs;
                             PageRouter.gotoWidget(SongViewScreen(_song), context);
                           },
                           child: TextViewWidget(
@@ -98,8 +98,8 @@ class _PlayListState extends State<PlayList> {
                           color: AppColor.white,
                         ),
                       ),
-                      if(_provider.playLists.length - 1 != index)
-                        Padding(
+                      if(_provider.favoriteSongs.length - 1 != index)
+                      Padding(
                         padding:
                         const EdgeInsets.only(left: 115.0, right: 15),
                         child: Divider(

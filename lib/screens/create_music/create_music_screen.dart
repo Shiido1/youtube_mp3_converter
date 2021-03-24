@@ -5,12 +5,12 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
-class MusicScreen extends StatefulWidget {
+class CreateMusicScreen extends StatefulWidget {
   @override
-  _MusicScreenState createState() => _MusicScreenState();
+  _CreateMusicScreenState createState() => _CreateMusicScreenState();
 }
 
-class _MusicScreenState extends State<MusicScreen> {
+class _CreateMusicScreenState extends State<CreateMusicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

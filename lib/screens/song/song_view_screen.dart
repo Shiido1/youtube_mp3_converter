@@ -85,8 +85,6 @@ class _SongViewScreenState extends State<SongViewScreen> {
           child: Padding(
             padding: const EdgeInsets.all(35.0),
             child: Column(
-              // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              // crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18.0),

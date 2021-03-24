@@ -26,7 +26,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Future<List<String>> pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-    return result == null ? <String>[] : result.paths;
+    return result == null ? <String>[] : _musicProvider.drawerItem.filePath;
   }
 
   @override

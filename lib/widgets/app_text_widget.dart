@@ -31,11 +31,11 @@ class _TextTitleState extends State<TextTitle> {
   @override
   Widget build(BuildContext context) {
     // prefMed();
-    return _musicProvider?.musicdata?.fileName?.isNotEmpty ?? false
+    return _musicProvider?.currentSong?.fileName?.isNotEmpty ?? false
         ? Container(
             height: 20,
             child: Marquee(
-              text: _musicProvider.musicdata.fileName,
+              text: _musicProvider.currentSong.fileName,
               scrollAxis: Axis.horizontal,
               crossAxisAlignment: CrossAxisAlignment.start,
               style: TextStyle(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -19,8 +20,8 @@ class _RadioClassState extends State<RadioClass>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   RadioProvider _radioProvider;
-  bool tap = false;
-  String radioFile = '', radioMp3 = '';
+  bool tap = false, favTap = false;
+  String radioFile = '', radioMp3 = '', radioFavMp3 = '', radioFavFile = '';
   bool isPlaying = false;
   bool isVisible = true;
   RadioPlayProvider _playProvider;
@@ -30,14 +31,15 @@ class _RadioClassState extends State<RadioClass>
     _radioProvider = Provider.of<RadioProvider>(context, listen: false);
     _radioProvider.init(context);
     _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
+    _playProvider.getFavoriteRadio();
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2))
           ..repeat();
     super.initState();
+    if (radioFile.isEmpty && radioMp3.isEmpty) return;
     if (radioFile.isNotEmpty && radioMp3.isNotEmpty) {
       _playProvider.playAudio(radioMp3);
-    } else {
       init();
     }
   }
@@ -60,11 +62,6 @@ class _RadioClassState extends State<RadioClass>
     _controller.dispose();
     super.dispose();
   }
-
-  // Future<void> audioStart() async {
-  //   await FlutterRadio.audioStart();
-  //   print('Audio Start OK');
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +175,54 @@ class _RadioClassState extends State<RadioClass>
                                     ),
                             )
                           : Container(),
+                      favTap == true
+                          ? Container(
+                              height: 340,
+                              width: 230,
+                              color: AppColor.black2,
+                              child: (_playProvider.favRadio.length ?? 0) > 0
+                                  ? ListView.builder(
+                                      itemCount: _playProvider.favRadio.length,
+                                      itemBuilder: (context, index) {
+                                        var _radioFav =
+                                            _playProvider.favRadio[index];
+                                        return InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              radioFavFile = _radioFav.name;
+                                              radioFavMp3 = _radioFav.mp3;
+                                              isPlaying = true;
+                                            });
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            _playProvider.playAudio(radioMp3);
+                                          },
+                                          child: Column(
+                                            children: [
+                                              TextViewWidget(
+                                                text: _radioFav.name,
+                                                color: AppColor.white,
+                                                textSize: 16,
+                                              ),
+                                              Divider(
+                                                  thickness: 1,
+                                                  color: AppColor.white)
+                                            ],
+                                          ),
+                                        );
+                                      })
+                                  : Center(
+                                      child: Text(
+                                        'No Station',
+                                        style: TextStyle(color: AppColor.white),
+                                      ),
+                                    ),
+                            )
+                          : Container(),
                       Container(
                         width: 230,
                         height: 50,
@@ -189,18 +234,31 @@ class _RadioClassState extends State<RadioClass>
                               onTap: () {
                                 setState(() {
                                   tap = !tap;
+                                  favTap = false;
                                 });
                               },
                               child: SvgPicture.asset(
                                 AppAssets.bookmark,
                                 height: 25,
                                 width: 25,
+                                color: tap == true
+                                    ? AppColor.black
+                                    : AppColor.white,
                               ),
                             ),
-                            SvgPicture.asset(
-                              AppAssets.favourite,
-                              height: 25,
-                              width: 25,
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  favTap = !favTap;
+                                  tap = false;
+                                });
+                              },
+                              child: SvgPicture.asset(AppAssets.favourite,
+                                  height: 25,
+                                  width: 25,
+                                  color: favTap == true
+                                      ? AppColor.black
+                                      : AppColor.white),
                             )
                           ],
                         ),
@@ -229,64 +287,67 @@ class _RadioClassState extends State<RadioClass>
                   SizedBox(
                     width: 2,
                   ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 4, bottom: 20),
-                      child: Row(
-                        children: [
-                          IconButton(
-                              icon: Icon(
-                                Icons.skip_previous_outlined,
-                                color: AppColor.white,
-                                size: 50,
-                              ),
-                              onPressed: () {}),
-
-                          IconButton(
-                            icon: isPlaying
-                                ? Icon(
-                                    Icons.pause_circle_outline,
-                                    size: 50,
-                                    color: AppColor.white,
-                                  )
-                                : Icon(
-                                    Icons.play_circle_outline,
-                                    color: AppColor.white,
-                                    size: 50,
-                                  ),
-                            onPressed: () {
-                              setState(() {
-                                isPlaying = !isPlaying;
-                              });
-                              _playProvider.playAudio(radioMp3);
-                            },
-                          ),
-                          IconButton(
-                              icon: Icon(
-                                Icons.skip_next_outlined,
-                                size: 48,
-                                color: AppColor.white,
-                              ),
-                              onPressed: () {}),
-                          // SizedBox(
-                          //   width: 7,
-                          // ),
-                          // SvgPicture.asset(AppAssets.next,
-                          //     height: 30, width: 30),
-                          // SizedBox(
-                          //   width: 6,
-                          // ),
-                          // SvgPicture.asset(
-                          //   AppAssets.favorite,
-                          // ),
-                          // Expanded(
-                          //   child: SizedBox(
-                          //     width: 5,
-                          //   ),
-                          // ),
-                        ],
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: Row(
+                          children: [
+                            IconButton(
+                                icon: Icon(
+                                  Icons.skip_previous_outlined,
+                                  color: AppColor.white,
+                                  size: 50,
+                                ),
+                                onPressed: () {}),
+                            IconButton(
+                              icon: isPlaying
+                                  ? Icon(
+                                      Icons.pause_circle_outline,
+                                      size: 53,
+                                      color: AppColor.white,
+                                    )
+                                  : Icon(
+                                      Icons.play_circle_outline,
+                                      color: AppColor.white,
+                                      size: 53,
+                                    ),
+                              onPressed: () {
+                                setState(() {
+                                  isPlaying = !isPlaying;
+                                });
+                                _playProvider.playAudio(radioMp3);
+                              },
+                            ),
+                            IconButton(
+                                icon: Icon(
+                                  Icons.skip_next_outlined,
+                                  size: 50,
+                                  color: AppColor.white,
+                                ),
+                                onPressed: () {}),
+                          ],
+                        ),
                       ),
-                    ),
+                      IconButton(
+                          icon: Icon(
+                            Icons.favorite_outlined,
+                            size: 35,
+                            color: _playProvider.favourite.favorite
+                                ? AppColor.red
+                                : AppColor.white,
+                          ),
+                          onPressed: () {
+                            _playProvider.updateFavourite(
+                                _playProvider.favourite
+                                  ..favorite = _playProvider.favourite.favorite
+                                      ? false
+                                      : true);
+                          }),
+                      SizedBox(
+                        width: 7,
+                      ),
+                    ],
                   ),
                 ],
               ),

@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
-class PgHiveBoxes {
-  static final songs = 'songs';
-  static final playList = 'playList';
+class RadioHiveBoxes {
+  static final favourites = 'songs';
 
   static init() async {
     Directory dir = await getApplicationDocumentsDirectory();
@@ -37,8 +36,7 @@ class PgHiveBoxes {
   }
 
   static void clearData() {
-    _clearBox(songs);
-    _clearBox(playList);
+    _clearBox(favourites);
   }
 
   static _clearBox<T>(String name) async {

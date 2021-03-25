@@ -45,13 +45,12 @@ class _PlayListState extends State<PlayList> {
             ),
             text: 'Playlist',
           ),
-          Expanded(
-              child: Consumer<MusicProvider>(
+          Expanded(child: Consumer<MusicProvider>(
             builder: (_, _provider, __) {
               if (_provider.playLists.length == 0) {
                 return Center(
-                    child: TextViewWidget(text: 'No Song', color: AppColor.white)
-                );
+                    child:
+                        TextViewWidget(text: 'No Song', color: AppColor.white));
               }
               return ListView.builder(
                 itemCount: _provider.playLists.length,
@@ -65,26 +64,26 @@ class _PlayListState extends State<PlayList> {
                             width: 95,
                             height: 150,
                             child: _song?.image != null &&
-                                _song.image.isNotEmpty
+                                    _song.image.isNotEmpty
                                 ? CachedNetworkImage(
-                              imageUrl: _song.image,
-                              placeholder: (context, index) =>
-                                  Container(
-                                    child: Center(
-                                        child: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child:
-                                            CircularProgressIndicator())),
-                                  ),
-                              errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                            )
+                                    imageUrl: _song.image,
+                                    placeholder: (context, index) => Container(
+                                      child: Center(
+                                          child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child:
+                                                  CircularProgressIndicator())),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        new Icon(Icons.error),
+                                  )
                                 : null),
                         title: InkWell(
                           onTap: () {
                             _musicProvider.songs = _musicProvider.playLists;
-                            PageRouter.gotoWidget(SongViewScreen(_song), context);
+                            PageRouter.gotoWidget(
+                                SongViewScreen(_song), context);
                           },
                           child: TextViewWidget(
                             text: _song?.fileName ?? '',
@@ -98,14 +97,14 @@ class _PlayListState extends State<PlayList> {
                           color: AppColor.white,
                         ),
                       ),
-                      if(_provider.playLists.length - 1 != index)
+                      if (_provider.playLists.length - 1 != index)
                         Padding(
-                        padding:
-                        const EdgeInsets.only(left: 115.0, right: 15),
-                        child: Divider(
-                          color: AppColor.white,
-                        ),
-                      )
+                          padding:
+                              const EdgeInsets.only(left: 115.0, right: 15),
+                          child: Divider(
+                            color: AppColor.white,
+                          ),
+                        )
                     ],
                   );
                 },

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/splash_sreen.dart';
@@ -16,8 +15,7 @@ void main() async {
   await PgHiveBoxes.init();
 
   SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(statusBarColor: AppColor.red)
-  );
+      SystemUiOverlayStyle(statusBarColor: AppColor.red));
   runApp(MyApp());
 }
 

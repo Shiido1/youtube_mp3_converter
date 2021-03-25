@@ -59,6 +59,7 @@ class Radio {
   String countryCode;
   String mp3;
   String createdAt;
+  bool favorite = false;
 
   Radio(
       {this.uid,
@@ -74,6 +75,7 @@ class Radio {
       this.countryName,
       this.countryCode,
       this.mp3,
+      this.favorite,
       this.createdAt});
 
   Radio.fromJson(Map<String, dynamic> json) {
@@ -91,6 +93,7 @@ class Radio {
     countryCode = json['country_code'] == null ? null : json['country_code'];
     mp3 = json['mp3'] == null ? null : json['mp3'];
     createdAt = json['created_at'] == null ? null : json['created_at'];
+    favorite = json["favourite"] == null ? false : json["favourite"];
   }
 
   Map<String, dynamic> toJson() {
@@ -109,6 +112,7 @@ class Radio {
     data['country_code'] = this.countryCode;
     data['mp3'] = this.mp3;
     data['created_at'] = this.createdAt;
+    data['favourite'] = favorite;
     return data;
   }
 
@@ -154,20 +158,20 @@ class Favourite {
 
   Favourite.fromJson(Map<String, dynamic> json) {
     if (json == null) return;
-    uid = json['uid'];
-    id = json['id'];
-    name = json['name'];
-    slug = json['slug'];
-    website = json['website'];
-    placeName = json['place_name'];
-    placeLat = json['place_lat'];
-    placeLong = json['place_long'];
-    functioning = json['functioning'];
-    secure = json['secure'];
-    countryName = json['country_name'];
-    countryCode = json['country_code'];
-    mp3 = json['mp3'];
-    createdAt = json['created_at'];
+    uid = json['uid'] == null ? null : json['uid'];
+    id = json['id'] == null ? null : json['id'];
+    name = json['name'] == null ? null : json['name'];
+    slug = json['slug'] == null ? null : json['slug'];
+    website = json['website'] == null ? null : json['website'];
+    placeName = json['place_name'] == null ? null : json['place_name'];
+    placeLat = json['place_lat'] == null ? null : json['place_lat'];
+    placeLong = json['place_long'] == null ? null : json['place_long'];
+    functioning = json['functioning'] == null ? null : json['functioning'];
+    secure = json['secure'] == null ? null : json['secure'];
+    countryName = json['country_name'] == null ? null : json['country_name'];
+    countryCode = json['country_code'] == null ? null : json['country_code'];
+    mp3 = json['mp3'] == null ? null : json['mp3'];
+    createdAt = json['created_at'] == null ? null : json['create_at'];
   }
 
   Map<String, dynamic> toJson() {

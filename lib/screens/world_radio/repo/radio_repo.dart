@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mp3_music_converter/screens/world_radio/model/radio_db.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 import 'package:mp3_music_converter/utils/instance.dart';
 
@@ -11,4 +12,16 @@ class RadioRepo {
       return throw e;
     }
   }
+}
+
+class RadioPlayerRepository {
+  static RadioService _services;
+
+  static init() {
+    _services = RadioService();
+  }
+
+  static addRadio(Radio favourite) => _services.addRadio(favourite);
+  static deleteRadio(String key) => _services.deleteRadio(key);
+  static getFavoriteRadio() => _services.getFavoriteRadio();
 }

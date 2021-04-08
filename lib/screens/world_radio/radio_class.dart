@@ -12,6 +12,8 @@ import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
+import 'model/radio_model.dart';
+
 class RadioClass extends StatefulWidget {
   @override
   _RadioClassState createState() => _RadioClassState();
@@ -27,7 +29,7 @@ class _RadioClassState extends State<RadioClass>
   bool isVisible = true;
   RadioPlayProvider _playProvider;
 
-  List _favoriteStations = [];
+  List _favourites = [];
   var _currentStation;
 
   @override
@@ -146,6 +148,7 @@ class _RadioClassState extends State<RadioClass>
                                       itemBuilder: (context, index) {
                                         var _radioLog = _radioProvider
                                             .radioModels.radio[index];
+
                                         return Card(
                                           color: AppColor.black2,
                                           child: ListTile(
@@ -171,14 +174,14 @@ class _RadioClassState extends State<RadioClass>
                                             ),
                                             trailing: InkWell(
                                               onTap: () {
-                                                _favoriteStations
-                                                        .contains(_radioLog)
+                                                print(jsonEncode(_favourites));
+                                                _favourites.contains(_radioLog)
                                                     ? setState(
-                                                        () => _favoriteStations
+                                                        () => _favourites
                                                             .remove(_radioLog),
                                                       )
                                                     : setState(
-                                                        () => _favoriteStations
+                                                        () => _favourites
                                                             .add(_radioLog),
                                                       );
                                               },
@@ -186,7 +189,7 @@ class _RadioClassState extends State<RadioClass>
                                                 AppAssets.favourite,
                                                 height: 25,
                                                 width: 25,
-                                                color: _favoriteStations
+                                                color: _favourites
                                                         .contains(_radioLog)
                                                     ? AppColor.red
                                                     : AppColor.white,
@@ -294,7 +297,19 @@ class _RadioClassState extends State<RadioClass>
                                 color: AppColor.white,
                                 size: 50,
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                int index = _radioProvider.radioModels.radio
+                                    .indexWhere((var element) =>
+                                        element.name == _currentStation.name);
+                                if (index != 0)
+                                  setState(() {
+                                    _currentStation = _radioProvider
+                                        .radioModels.radio[index - 1];
+                                    radioFile = _currentStation.name;
+                                    _playProvider
+                                        .playAudio(_currentStation.mp3);
+                                  });
+                              }),
 
                           IconButton(
                             icon: isPlaying
@@ -321,7 +336,21 @@ class _RadioClassState extends State<RadioClass>
                                 size: 48,
                                 color: AppColor.white,
                               ),
-                              onPressed: () {}),
+                              onPressed: () {
+                                print('pressed');
+                                int index = _radioProvider.radioModels.radio
+                                    .indexWhere((var element) =>
+                                        element.name == _currentStation.name);
+                                if (index <
+                                    _radioProvider.radioModels.radio.length)
+                                  setState(() {
+                                    _currentStation = _radioProvider
+                                        .radioModels.radio[index + 1];
+                                    radioFile = _currentStation.name;
+                                    _playProvider
+                                        .playAudio(_currentStation.mp3);
+                                  });
+                              }),
                           // SizedBox(
                           //   width: 7,
                           // ),

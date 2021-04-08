@@ -53,7 +53,7 @@ class SongServices implements SongInterface {
   Future<List<Song>> getFavoriteSongs() async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     return _box.values
-        .where((e) => e['favourite'] == true)
+        .where((e) => e['favorite'] == true)
         .map((e) => Song.fromMap(e))
         .toList();
   }

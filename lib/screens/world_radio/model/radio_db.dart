@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:mp3_music_converter/screens/world_radio/model/radio_hive.dart';
+import 'package:mp3_music_converter/screens/world_radio/db/radio_hive.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_interface.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 
@@ -7,13 +7,13 @@ class RadioService implements RadioInterface {
   Box<Map> _box;
 
   Future<Box<Map>> openBox() {
-    return RadioHiveBoxes.openBox<Map>(RadioHiveBoxes.favourites);
+    return RadioHiveBox.openRadioBox<Map>(RadioHiveBox.radio);
   }
 
   @override
-  addRadio(Radio favourite) async {
+  addRadio(Radio favorite) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    return _box.put(favourite.id, favourite.toJson());
+    return _box.put(favorite.name, favorite.toJson());
   }
 
   @override
@@ -22,11 +22,11 @@ class RadioService implements RadioInterface {
     await _box.delete(key);
   }
 
-  // @override
+  @override
   Future<List<Radio>> getFavoriteRadio() async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     return _box.values
-        .where((e) => e['favourite'] == true)
+        .where((e) => e["favorite"] == true)
         .map((e) => Radio.fromJson(e))
         .toList();
   }

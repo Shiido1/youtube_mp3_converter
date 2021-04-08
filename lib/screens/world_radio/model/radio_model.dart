@@ -78,7 +78,8 @@ class Radio {
       this.favorite,
       this.createdAt});
 
-  Radio.fromJson(Map<String, dynamic> json) {
+  Radio.fromJson(Map json) {
+    this.favorite = json["favorite"] == null ? false : json["favorite"];
     uid = json['uid'] == null ? null : json['uid'];
     id = json['id'] == null ? null : json['id'];
     name = json['name'] == null ? null : json['name'];
@@ -93,11 +94,10 @@ class Radio {
     countryCode = json['country_code'] == null ? null : json['country_code'];
     mp3 = json['mp3'] == null ? null : json['mp3'];
     createdAt = json['created_at'] == null ? null : json['created_at'];
-    favorite = json["favourite"] == null ? false : json["favourite"];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    Map<String, dynamic> data = Map();
     data['uid'] = this.uid;
     data['id'] = this.id;
     data['name'] = this.name;
@@ -112,7 +112,7 @@ class Radio {
     data['country_code'] = this.countryCode;
     data['mp3'] = this.mp3;
     data['created_at'] = this.createdAt;
-    data['favourite'] = favorite;
+    data["favorite"] = favorite;
     return data;
   }
 

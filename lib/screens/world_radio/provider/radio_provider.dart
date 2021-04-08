@@ -11,6 +11,8 @@ class RadioProvider extends ChangeNotifier {
   CustomProgressIndicator _progressIndicator;
   bool problem = false;
   RadioModel radioModels;
+  int index;
+  Radio radio;
 
   void init(BuildContext context) {
     this._context = context;

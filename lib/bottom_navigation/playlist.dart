@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/screens/create_playlist.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
@@ -13,12 +14,27 @@ import '../screens/song/song_view_screen.dart';
 import '../utils/page_router/navigator.dart';
 
 class PlayList extends StatefulWidget {
+  final String playListName;
+  PlayList({this.playListName});
+
   @override
   _PlayListState createState() => _PlayListState();
 }
 
 class _PlayListState extends State<PlayList> {
   MusicProvider _musicProvider;
+
+  void openPlaylist({String title}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PlayList(
+          playListName: title,
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
@@ -56,9 +72,46 @@ class _PlayListState extends State<PlayList> {
                 itemCount: _provider.playLists.length,
                 itemBuilder: (BuildContext context, int index) {
                   Song _song = _provider.playLists[index];
+                  // int songCount = index > 0
+                  //     ? _provider.playList[index]['songs'].length
+                  //     : null;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                      GestureDetector(
+                        onTap: () {
+                          // if (_provider.playList[index]['name'] ==
+                          //     'Create playlist') {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CreatePlayList(
+                                createNewPlaylist: true,
+                              );
+                            },
+                          );
+                          // } else {
+                          //   openPlaylist(
+                          //       title: _provider.playList[index]['name']);
+                          // }
+                        },
+                        child: ListTile(
+                          leading: Icon(
+                            Icons.add_box,
+                            size: 65,
+                            color: AppColor.white,
+                          ),
+                          title: TextViewWidget(
+                            color: AppColor.white,
+                            text: "Create New Playlist",
+                            textSize: 20,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 25,
+                      ),
                       ListTile(
                         leading: SizedBox(
                             width: 95,
@@ -66,7 +119,7 @@ class _PlayListState extends State<PlayList> {
                             child: _song?.image != null &&
                                     _song.image.isNotEmpty
                                 ? CachedNetworkImage(
-                                    imageUrl: _song.image,
+                                    imageUrl: _song?.image ?? '',
                                     placeholder: (context, index) => Container(
                                       child: Center(
                                           child: SizedBox(

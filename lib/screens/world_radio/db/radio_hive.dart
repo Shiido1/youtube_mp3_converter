@@ -3,15 +3,15 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
-class RadioHiveBoxes {
-  static final favourites = 'songs';
+class RadioHiveBox {
+  static final radio = 'radio';
 
   static init() async {
     Directory dir = await getApplicationDocumentsDirectory();
     Hive.init(dir.path);
   }
 
-  static Future<Box<T>> openBox<T>(String boxName) async {
+  static Future<Box<T>> openRadioBox<T>(String boxName) async {
     Box<T> box;
     if (Hive.isBoxOpen(boxName)) {
       box = Hive.box<T>(boxName);
@@ -27,7 +27,7 @@ class RadioHiveBoxes {
     return box;
   }
 
-  static Future<void> closeBox<T>(String boxName) async {
+  static Future<void> closeRadioBox<T>(String boxName) async {
     Box box;
     if (Hive.isBoxOpen(boxName)) {
       box = Hive.box<T>(boxName);
@@ -35,14 +35,14 @@ class RadioHiveBoxes {
     }
   }
 
-  static void clearData() {
-    _clearBox(favourites);
+  static void clearRadioData() {
+    _clearRadioBox(radio);
   }
 
-  static _clearBox<T>(String name) async {
+  static _clearRadioBox<T>(String name) async {
     try {
       print('clearing box $name');
-      final Box<T> _box = await openBox<T>(name);
+      final Box<T> _box = await openRadioBox<T>(name);
       await _box?.clear();
     } catch (_) {
       print('clear $name error: ${_.toString()}');

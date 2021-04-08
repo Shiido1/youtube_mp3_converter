@@ -39,7 +39,13 @@ class _LibraryState extends State<Library> {
                 margin: const EdgeInsets.only(left: 16, right: 16),
                 child: ListView(children: [
                   ListTile(
-                    onTap: () => PageRouter.gotoWidget(PlayList(), context),
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlayList(),
+                          ));
+                    },
                     leading: SvgPicture.asset(AppAssets.library),
                     title: TextViewWidget(
                       text: 'Playlists',

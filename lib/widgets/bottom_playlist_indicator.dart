@@ -1,3 +1,4 @@
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/app_text_widget.dart';
 import 'package:mp3_music_converter/widgets/slider2_widget.dart';
 import 'package:mp3_music_converter/widgets/icon_button.dart';
@@ -18,10 +19,31 @@ class BottomPlayingIndicator extends StatefulWidget {
 class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
   MusicProvider _musicProvider;
 
+  String image, filename, file;
+  var fileValue;
+
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     super.initState();
+  }
+
+  prefMed() {
+    preferencesHelper
+        .getStringValues(key: 'image')
+        .then((value) => setState(() {
+              image = value;
+            }));
+
+    preferencesHelper
+        .getStringValues(key: 'filename')
+        .then((value) => setState(() {
+              filename = value;
+            }));
+
+    preferencesHelper.getStringValues(key: 'mp3').then((value) => setState(() {
+          file = value;
+        }));
   }
 
   @override

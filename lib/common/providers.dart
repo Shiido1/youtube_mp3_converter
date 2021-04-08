@@ -6,6 +6,7 @@ import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_prov
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/utils/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -21,5 +22,6 @@ class Providers {
     ChangeNotifierProvider<MusicProvider>(create: (_) => MusicProvider()),
     ChangeNotifierProvider<RadioPlayProvider>(
         create: (_) => RadioPlayProvider()),
+    ChangeNotifierProvider<ProviderClass>(create: (_) => ProviderClass()),
   ];
 }

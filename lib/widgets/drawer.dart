@@ -1,4 +1,6 @@
 import 'dart:io';
+
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +26,7 @@ class AppDrawer extends StatefulWidget {
 
 class _AppDrawerState extends State<AppDrawer> {
   MusicProvider _musicProvider;
+  Song song;
 
   Future<List<String>> pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
@@ -34,6 +37,7 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    song = _musicProvider.drawerItem;
   }
 
   @override
@@ -54,20 +58,18 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        _musicProvider?.drawerItem?.image?.isNotEmpty ?? false
+                        song?.image?.isNotEmpty ?? false
                             ? Expanded(
                                 child: Container(
                                     height: 60,
                                     width: 50,
                                     child: CachedNetworkImage(
-                                        imageUrl:
-                                            _musicProvider?.drawerItem?.image)))
+                                        imageUrl: song?.image)))
                             : Container(),
-                        _musicProvider?.drawerItem?.fileName?.isNotEmpty ??
-                                false
+                        song?.fileName?.isNotEmpty ?? false
                             ? Expanded(
                                 child: TextViewWidget(
-                                text: _musicProvider?.drawerItem?.fileName,
+                                text: song?.fileName,
                                 color: AppColor.white,
                                 textSize: 16.5,
                                 fontWeight: FontWeight.w500,
@@ -200,6 +202,40 @@ class _AppDrawerState extends State<AppDrawer> {
                           ),
                           ListTile(
                             onTap: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      content: SingleChildScrollView(
+                                        child: ListBody(
+                                          children: [
+                                            GestureDetector(
+                                              child: Text(
+                                                'Create Playlist',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w400),
+                                              ),
+                                              onTap: () {
+                                                PageRouter.gotoNamed(
+                                                    Routes.PLAYLIST, context);
+                                              },
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                            ),
+                                            GestureDetector(
+                                              child: Text('Add to Playlist',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w400)),
+                                              onTap: () {},
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  });
                               _musicProvider.updateSong(
                                   _musicProvider.drawerItem..playList = true);
                               PageRouter.gotoNamed(Routes.PLAYLIST, context);

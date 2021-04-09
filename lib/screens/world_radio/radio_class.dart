@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
@@ -166,7 +168,7 @@ class _RadioClassState extends State<RadioClass>
                                               preferencesHelper.saveValue(
                                                   key: 'radioFile',
                                                   value: radioFile);
-                                              _playProvider.playAudio(radioMp3);
+                                              _playProvider.playRadio(radioMp3);
                                             },
                                             title: TextViewWidget(
                                               text: _radioLog.name,
@@ -289,7 +291,7 @@ class _RadioClassState extends State<RadioClass>
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 4, bottom: 20),
+                      padding: const EdgeInsets.only(bottom:10.0),
                       child: Row(
                         children: [
                           IconButton(
@@ -308,7 +310,7 @@ class _RadioClassState extends State<RadioClass>
                                         .radioModels.radio[index - 1];
                                     radioFile = _currentStation.name;
                                     _playProvider
-                                        .playAudio(_currentStation.mp3);
+                                        .playRadio(_currentStation.mp3);
                                   });
                               }),
 
@@ -328,7 +330,7 @@ class _RadioClassState extends State<RadioClass>
                               setState(() {
                                 isPlaying = !isPlaying;
                               });
-                              _playProvider.playAudio(radioMp3);
+                              _playProvider.playRadio(radioMp3);
                             },
                           ),
                           IconButton(
@@ -349,42 +351,26 @@ class _RadioClassState extends State<RadioClass>
                                         .radioModels.radio[index + 1];
                                     radioFile = _currentStation.name;
                                     _playProvider
-                                        .playAudio(_currentStation.mp3);
+                                        .playRadio(_currentStation.mp3);
                                   });
                               }),
-                          // SizedBox(
-                          //   width: 7,
-                          // ),
-                          // SvgPicture.asset(AppAssets.next,
-                          //     height: 30, width: 30),
-                          // SizedBox(
-                          //   width: 6,
-                          // ),
-                          // SvgPicture.asset(
-                          //   AppAssets.favorite,
-                          // ),
-                          // Expanded(
-                          //   child: SizedBox(
-                          //     width: 5,
-                          //   ),
-                          // ),
+
                         ],
-                      ),
-                      IconButton(
-                        onPressed: () => null,
-                        icon: Icon(Icons.favorite,
-                            size: 34, color: AppColor.white),
-                      ),
-                      SizedBox(
-                        width: 3,
-                      )
-                    ],
+
                   ),
-                ],
+                    ),
               ),
-            ),
+                  IconButton(
+                    onPressed: () => null,
+                    icon: Icon(Icons.favorite,
+                        size: 34, color: AppColor.white),
+                  ),
+                  SizedBox(
+                    width: 3,
+                  ),
+            ]),
           ),
-        ],
+        )]
       ),
     ));
   }

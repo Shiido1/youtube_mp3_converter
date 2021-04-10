@@ -115,7 +115,7 @@ class _RadioClassState extends State<RadioClass>
                         width: 350,
                       )),
                 ),
-                Positioned(
+                Positioned( 
                   bottom: 0,
                   right: 0,
                   left: 0,

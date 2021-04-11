@@ -21,6 +21,7 @@ class Library extends StatefulWidget {
 }
 
 class _LibraryState extends State<Library> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,8 +58,7 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () =>
-                        PageRouter.gotoWidget(SongViewCLass(), context),
+                    onTap: () => PageRouter.gotoWidget(SongViewCLass(), context),
                     leading: SvgPicture.asset(AppAssets.music),
                     title: TextViewWidget(
                       text: 'Song',
@@ -70,8 +70,7 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () =>
-                        PageRouter.gotoWidget(FavoriteSongs(), context),
+                    onTap: () => PageRouter.gotoWidget(FavoriteSongs(), context),
                     leading: SvgPicture.asset(AppAssets.favorite),
                     title: TextViewWidget(
                       text: 'Favorite',
@@ -124,26 +123,27 @@ class _LibraryState extends State<Library> {
                     height: 100,
                     margin: EdgeInsets.only(top: 10),
                     child: StreamBuilder<List<Song>>(
-                        stream: SongRepository.streamAllSongs(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Container();
-                          }
-                          return ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: snapshot.data
-                                .map((e) => Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: InkWell(
-                                        onTap: () => PageRouter.gotoWidget(
-                                            SongViewScreen(e), context),
-                                        child: CachedNetworkImage(
-                                            imageUrl: e.image),
-                                      ),
-                                    ))
-                                .toList(),
-                          );
-                        }),
+                      stream: SongRepository.streamAllSongs(),
+                      builder: (context, snapshot) {
+                        if(!snapshot.hasData){
+                          return Container();
+                        }
+                        return ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: snapshot.data
+                              .map((e) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () => PageRouter.gotoWidget(SongViewScreen(e), context),
+                                      child: CachedNetworkImage(
+                                          imageUrl:
+                                          e.image),
+                                    ),
+                                  ))
+                              .toList(),
+                        );
+                      }
+                    ),
                   )
                 ]),
               ),

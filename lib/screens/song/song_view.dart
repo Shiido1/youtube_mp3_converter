@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
 class SongViewCLass extends StatefulWidget {
+
   @override
   _SongViewCLassState createState() => _SongViewCLassState();
 }
@@ -28,7 +29,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
     _musicProvider.getSongs();
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,8 @@ class _SongViewCLassState extends State<SongViewCLass> {
       ),
       endDrawer: Theme(
           data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-          child: AppDrawer()),
+          child: AppDrawer()
+      ),
       body: Center(
         child: Column(
           children: [
@@ -68,74 +69,78 @@ class _SongViewCLassState extends State<SongViewCLass> {
   }
 
   Widget buildSongList() {
-    return Consumer<MusicProvider>(builder: (_, _provider, __) {
-      if (_provider.allSongs.length < 1) {
-        return Center(
-            child: TextViewWidget(text: 'No Song', color: AppColor.white));
-      }
-      return ListView.builder(
-        itemCount: _provider.allSongs.length,
-        itemBuilder: (BuildContext context, int index) {
-          Song _song = _provider.allSongs[index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
-                leading: SizedBox(
-                    width: 95,
-                    height: 150,
-                    child: _song?.image != null && _song.image.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: _song.image,
-                            placeholder: (context, index) => Container(
-                              child: Center(
-                                  child: SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator())),
-                            ),
-                            errorWidget: (context, url, error) =>
-                                new Icon(Icons.error),
-                          )
-                        : null),
-                title: GestureDetector(
-                  onTap: () async {
-                    _musicProvider.songs = _musicProvider.allSongs;
-                    _musicProvider.setCurrentIndex(index);
-                    PageRouter.gotoWidget(SongViewScreen(_song), context);
-                  },
-                  child: TextViewWidget(
-                    text: _song?.fileName ?? '',
-                    color: AppColor.white,
-                    textSize: 15,
-                    fontFamily: 'Roboto-Regular',
-                  ),
-                ),
-                trailing: InkWell(
-                  onTap: () {
-                    _musicProvider.updateDrawer(_song);
-                    _scaffoldKey.currentState.openEndDrawer();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset(
-                      AppAssets.dot,
+    return Consumer<MusicProvider>(
+      builder: (_, _provider, __) {
+        if(_provider.allSongs.length < 1){
+          return Center(
+              child: TextViewWidget(text: 'No Song', color: AppColor.white)
+          );
+        }
+        return ListView.builder(
+          itemCount: _provider.allSongs.length,
+          itemBuilder: (BuildContext context, int index) {
+            Song _song = _provider.allSongs[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ListTile(
+                  leading: SizedBox(
+                      width: 95,
+                      height: 150,
+                      child: _song?.image != null && _song.image.isNotEmpty
+                          ? CachedNetworkImage(
+                        imageUrl: _song.image,
+                        placeholder: (context, index) => Container(
+                          child: Center(
+                              child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child:
+                                  CircularProgressIndicator())),
+                        ),
+                        errorWidget: (context, url, error) =>
+                        new Icon(Icons.error),
+                      )
+                          : null),
+                  title: GestureDetector(
+                    onTap: () async {
+                      _musicProvider.songs = _musicProvider.allSongs;
+                      _musicProvider.setCurrentIndex(index);
+                      PageRouter.gotoWidget(SongViewScreen(_song), context);
+                    },
+                    child: TextViewWidget(
+                      text: _song?.fileName ?? '',
                       color: AppColor.white,
+                      textSize: 15,
+                      fontFamily: 'Roboto-Regular',
+                    ),
+                  ),
+                  trailing: InkWell(
+                    onTap: () {
+                      _musicProvider.updateDrawer(_song);
+                      _scaffoldKey.currentState.openEndDrawer();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        AppAssets.dot,
+                        color: AppColor.white,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (_provider.allSongs.length - 1 != index)
-                Padding(
+                if(_provider.allSongs.length - 1 != index)
+                  Padding(
                   padding: const EdgeInsets.only(left: 115.0, right: 15),
                   child: Divider(
                     color: AppColor.white,
                   ),
                 )
-            ],
-          );
-        },
-      );
-    });
+              ],
+            );
+          },
+        );
+      }
+    );
   }
 }

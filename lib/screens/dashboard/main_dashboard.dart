@@ -9,6 +9,7 @@ import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -25,6 +26,7 @@ class MainDashBoard extends StatefulWidget {
 class _MainDashBoardState extends State<MainDashBoard> {
   int _currentIndex = 0;
   MusicProvider _musicProvider;
+  RadioPlayProvider _playProvider;
 
   List<Widget> _screens = [
     DashBoard(),
@@ -45,6 +47,9 @@ class _MainDashBoardState extends State<MainDashBoard> {
     }).catchError((error) {
       print(error);
     });
+
+    _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
+    _playProvider.initPlayer();
 
     super.initState();
   }

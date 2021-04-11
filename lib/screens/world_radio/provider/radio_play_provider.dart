@@ -1,18 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_radio/flutter_radio.dart';
-import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 import 'package:mp3_music_converter/screens/world_radio/repo/radio_repo.dart';
 
 class RadioPlayProvider with ChangeNotifier {
-  List<Radio> favRadio = [];
-  List<Radio> favourite = [];
-  Radio favorite;
-  String radioPlayer = '';
-  bool isPLay = false;
-
-  int _currentRadioIndex = -1;
-  int get length => favourite.length;
-  int get songNumber => _currentRadioIndex + 1;
+  String currentRadio;
+  bool value;
 
   void initPlayer() {
     audioStart();
@@ -20,36 +12,38 @@ class RadioPlayProvider with ChangeNotifier {
   }
 
   Future<void> audioStart() async {
-    await FlutterRadio.audioStart();
-    print('Audio Start OK');
-    notifyListeners();
+    if (!await FlutterRadio.isPlaying()) {
+      await FlutterRadio.audioStart();
+      value = true;
+      print('Audio Start OK');
+      notifyListeners();
+    }
   }
 
   void playRadio(radioPlayer) async {
-    if (await FlutterRadio.isPlaying()) return;
     await FlutterRadio.playOrPause(url: radioPlayer);
     notifyListeners();
   }
 
-  void updateFavourite(Radio fav) {
-    favorite = fav;
-  }
+  // void updateFavourite(Radio fav) {
+  //   favorite = fav;
+  // }
 
-  getFavoriteRadio() async {
-    favourite = await RadioPlayerRepository.getFavoriteRadio();
+  // getFavoriteRadio() async {
+  //   favourite = await RadioPlayerRepository.getFavoriteRadio();
 
-    notifyListeners();
-  }
+  //   notifyListeners();
+  // }
 
-  updateRadio(Radio radio) {
-    favRadio.forEach((element) {
-      if (element.name == radio.name) {
-        element = radio;
-      }
-    });
-    RadioPlayerRepository.addRadio(radio);
-    notifyListeners();
-  }
+  // updateRadio(Radio radio) {
+  //   favRadio.forEach((element) {
+  //     if (element.name == radio.name) {
+  //       element = radio;
+  //     }
+  //   });
+  //   RadioPlayerRepository.addRadio(radio);
+  //   notifyListeners();
+  // }
 
   // Future next() async {
   //   playRadio(nextRadio);

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -13,11 +15,12 @@ import 'utils/color_assets/color.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(debug: debug);
+  var path = Directory.current.path;
+  Hive.init(path);
   await PgHiveBoxes.init();
 
   SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(statusBarColor: AppColor.red)
-  );
+      SystemUiOverlayStyle(statusBarColor: AppColor.red));
   runApp(MyApp());
 }
 

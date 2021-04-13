@@ -16,6 +16,8 @@ class AppAssets {
   static final String mpFile = 'assets/svg/mp_file.svg';
   static final String djMixer = 'assets/svg/dj_mixer.svg';
   static final String radio = 'assets/svg/radio.svg';
+  static final String vocal = 'assets/svg/vocalist.svg';
+  static final String instrumental = 'assets/svg/guitar.svg';
   static final String radioWave = 'assets/svg/radio_wave.svg';
   static final String line = 'assets/svg/line.svg';
   static final String favorite = 'assets/svg/heart.svg';

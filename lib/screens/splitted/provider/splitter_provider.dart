@@ -1,16 +1,16 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:jaynetwork/network/network_exceptions.dart';
-import 'package:mp3_music_converter/save_convert/model/save_convert_model.dart';
-import 'package:mp3_music_converter/save_convert/repo/save_convert_repo.dart';
+import 'package:mp3_music_converter/screens/splitted/model/splitter_model.dart';
+import 'package:mp3_music_converter/screens/splitted/repo/splitter_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 
-final SaveConvertRepo _repository = SaveConvertRepo();
+final SplitterRepo _repository = SplitterRepo();
 
-class SaveConvertProvider extends ChangeNotifier {
+class SplitterProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
-  SaveConvert saveModel = SaveConvert();
+  Splitter splitter = Splitter();
   bool problem = false;
 
   void init(BuildContext context) {
@@ -18,28 +18,24 @@ class SaveConvertProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  Future saveConvert(
-    int id,
-  ) async {
+  void split(String token) async {
     try {
       _progressIndicator.show();
-      final _response =
-          await _repository.saveConvert(SaveConvert.mapToJson(id: id));
-      _response.when(success: (success, _, __) async {
+      final _response = await _repository.split(token);
+      _response.when(success: (success, _, statusMessage) async {
         await _progressIndicator.dismiss();
-        saveModel = success;
+        splitter = success;
         problem = true;
         notifyListeners();
-        print('Save Successful');
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;
-        showToast(this._context, message: statusMessage ?? '');
+        showToast(this._context, message: statusMessage);
         notifyListeners();
       });
     } catch (e) {
       await _progressIndicator.dismiss();
-      debugPrint('Error: $e');
+      showToast(_context, message: "please check your token");
       notifyListeners();
     }
   }

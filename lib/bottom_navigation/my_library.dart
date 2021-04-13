@@ -7,6 +7,7 @@ import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/favorite/favorite_songs.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
+import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
@@ -100,7 +101,13 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SplittedScreen()),
+                      );
+                    },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
                       text: 'Splitted',

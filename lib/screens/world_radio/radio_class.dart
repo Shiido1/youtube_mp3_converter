@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
@@ -27,6 +30,9 @@ class _RadioClassState extends State<RadioClass>
   bool isVisible = true;
   RadioPlayProvider _playProvider;
   int currentRadioIndex;
+  List favourite = [];
+  bool isFavourite = false;
+  String selectedTab = "radio";
 
   @override
   void initState() {
@@ -44,6 +50,7 @@ class _RadioClassState extends State<RadioClass>
       init();
     }
 
+    getFavourites();
     super.initState();
   }
 
@@ -69,6 +76,103 @@ class _RadioClassState extends State<RadioClass>
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  getFavourites() async{
+    var box = await Hive.openBox('testBox');
+    var _favourite = await box.get('fav');
+    print(_favourite);
+    if(_favourite!=null){
+        setState(() {
+              favourite = _favourite;
+            });
+        checkFavourite();
+    }else{
+      box.put('fav', []);
+    }
+  }
+
+  checkFavourite() async{
+    if(favourite.length>0){
+      for (var map in favourite) {
+          if (json.decode(map)["name"] == radioFile) {
+            // file already added to favourite
+            // remove file
+            setState((){
+              isFavourite = true;
+            });
+            break;
+          }else{
+            setState((){
+              isFavourite = false;
+            });
+          }
+      }
+
+    }
+  }
+
+  addFavourite() async{
+    var box = await Hive.openBox('testBox');
+    var _favourite = box.get('fav');
+    var _radioLog = _radioProvider.radioModels.radio[currentRadioIndex];
+
+    if(currentRadioIndex!=null){
+      if (_favourite!=null){
+        print(_favourite);
+        if(_favourite.contains(
+          json.encode({
+              'name': _radioLog.name,
+              'mp3': _radioLog.mp3,
+            })
+          )){
+              print("already added to favourite, removing...");
+              for (var map in _favourite) {
+                  if (json.decode(map)["name"] == radioFile) {
+                    // file already added to favourite
+                    // remove file
+                    _favourite.remove(map);
+                    box.put('fav', _favourite);
+                    setState((){
+                      favourite = _favourite;
+                      isFavourite = false;
+                    });
+                    print("Removed from in fav..");
+                    break;
+                  }
+                // print(json.decode(map));
+              }
+            }
+            else{
+              print("Adding to favourite");
+              setState((){
+                favourite = _favourite;
+                favourite.add(json.encode({
+                  'name': _radioLog.name,
+                  'mp3': _radioLog.mp3,
+                }));
+              });
+              box.put('fav', favourite);
+              checkFavourite();
+
+              print(
+                json.encode({
+                'name': _radioLog.name,
+                'mp3': _radioLog.mp3,
+                })
+              );
+            }
+        
+      }else{
+        setState((){
+          favourite.add(_radioProvider.radioModels.radio[currentRadioIndex]);
+        });
+        box.put('fav', favourite);
+        checkFavourite();
+      }
+    }
+  
+    // print('Name: ${box.get('fav')}');
   }
 
   @override
@@ -125,12 +229,12 @@ class _RadioClassState extends State<RadioClass>
                       child: Center(
                         child: TextViewWidget(
                           color: AppColor.white,
-                          text: placeName == null ? '' : '$placeName',
+                          text: selectedTab == 'radio' ? 'Radio' : 'Favourites',
                           textSize: 20,
                         ),
                       ),
                     ),
-                    tap == true
+                    selectedTab == 'radio'
                         ? Container(
                             height: 340,
                             width: 230,
@@ -159,6 +263,7 @@ class _RadioClassState extends State<RadioClass>
                                           preferencesHelper.saveValue(
                                               key: 'radioFile',
                                               value: radioFile);
+                                          checkFavourite();
                                           _playProvider.playRadio(radioMp3);
                                         },
                                         child: Column(
@@ -182,7 +287,57 @@ class _RadioClassState extends State<RadioClass>
                                     ),
                                   ),
                           )
-                        : Container(),
+                        : Container(
+                            height: 340,
+                            width: 230,
+                            color: AppColor.black2,
+                            child: favourite.length >0
+                                ? ListView.builder(
+                                    itemCount: favourite.length ??
+                                        0,
+                                    itemBuilder: (context, index) {
+                                      var _radioLog = json.decode(favourite[index]);
+                                      print(_radioLog);
+                                      return InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            currentRadioIndex = index;
+                                            radioFile = _radioLog["name"];
+                                            radioMp3 = _radioLog["mp3"];
+                                            isPlaying = true;
+                                          });
+                                          preferencesHelper.saveValue(
+                                              key: 'radiomp3', value: radioMp3);
+                                          preferencesHelper.saveValue(
+                                              key: 'radioFile',
+                                              value: radioFile);
+                                          checkFavourite();
+                                          _playProvider.playRadio(radioMp3);
+                                        },
+                                        child: Column(
+                                          children: [
+                                            TextViewWidget(
+                                              text: _radioLog["name"],
+                                              color: AppColor.white,
+                                              textSize: 16,
+                                            ),
+                                            Divider(
+                                                thickness: 1,
+                                                color: AppColor.white)
+                                          ],
+                                        ),
+                                      );
+                                    })
+                                : Center(
+                                    child: Text(
+                                      'No favourite added.',
+                                      style: TextStyle(color: AppColor.white),
+                                    ),
+                                  ),
+                          ),
+
+
+
                     Container(
                       width: 230,
                       height: 50,
@@ -193,7 +348,7 @@ class _RadioClassState extends State<RadioClass>
                           InkWell(
                             onTap: () {
                               setState(() {
-                                tap = !tap;
+                                selectedTab = "radio";
                               });
                             },
                             child: SvgPicture.asset(
@@ -202,10 +357,18 @@ class _RadioClassState extends State<RadioClass>
                               width: 25,
                             ),
                           ),
-                          SvgPicture.asset(
-                            AppAssets.favourite,
-                            height: 25,
-                            width: 25,
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                selectedTab = "favourite";
+                              });
+                            },
+                            child:
+                            SvgPicture.asset(
+                              AppAssets.favourite,
+                              height: 25,
+                              width: 25,
+                            )
                           )
                         ],
                       ),
@@ -259,6 +422,7 @@ class _RadioClassState extends State<RadioClass>
                               preferencesHelper.saveValue(
                                   key: 'radioFile', value: radioFile);
                               _playProvider.playRadio(radioMp3);
+                              checkFavourite();
                             }
                           }),
 
@@ -304,6 +468,7 @@ class _RadioClassState extends State<RadioClass>
                               preferencesHelper.saveValue(
                                   key: 'radioFile', value: radioFile);
                               _playProvider.playRadio(radioMp3);
+                              checkFavourite();
                             }
                           }),
                       // }),
@@ -312,8 +477,10 @@ class _RadioClassState extends State<RadioClass>
                 ),
               ),
               IconButton(
-                onPressed: () => null,
-                icon: Icon(Icons.favorite, size: 34, color: AppColor.white),
+                icon: Icon(Icons.favorite, size: 34, color: isFavourite?Colors.red: AppColor.white),
+                onPressed: (){
+                  addFavourite();
+                },
               ),
               SizedBox(
                 width: 3,

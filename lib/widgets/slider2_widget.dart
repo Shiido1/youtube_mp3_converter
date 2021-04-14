@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +21,16 @@ class _SliderClass2State extends State<SliderClass2> {
   void initState() {
     super.initState();
     musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    prefMed();
+  }
+
+  prefMed() {
+    preferencesHelper.getStringValues(key: 'mp3').then((value) => setState(() {
+          mp3 = value;
+        }));
+    preferencesHelper.getBoolValues(key: 'true').then((value) => setState(() {
+          isPlay = value;
+        }));
   }
 
   @override
@@ -36,6 +47,7 @@ class _SliderClass2State extends State<SliderClass2> {
               color: AppColor.white,
               textAlign: TextAlign.center,
             ),
+            //try and remove the expanded and see
             Expanded(
               child: Slider(
                   activeColor: AppColor.bottomRed,

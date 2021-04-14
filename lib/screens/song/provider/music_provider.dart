@@ -1,18 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
-import 'package:path_provider/path_provider.dart';
 
 import '../../../utils/helper/instances.dart';
 
-enum PlayerType { ALL, SHUFFLE, REPEAT }
+enum PlayerType {ALL, SHUFFLE, REPEAT}
 
 class MusicProvider with ChangeNotifier {
   Duration totalDuration = Duration();
@@ -33,29 +30,29 @@ class MusicProvider with ChangeNotifier {
   PlayerControlCommand playerControlCommand;
   PlayerType playerType = PlayerType.ALL;
 
-  initProvider() {
+  initProvider(){
     SongRepository.init();
     initPlayer();
   }
-
-  getSongs() async {
+  
+  getSongs()async{
     allSongs = await SongRepository.getSongs();
     notifyListeners();
   }
 
-  getPlayLists() async {
+  getPlayLists()async{
     playLists = await SongRepository.getPlayLists();
     notifyListeners();
   }
 
-  getFavoriteSongs() async {
+  getFavoriteSongs()async{
     favoriteSongs = await SongRepository.getFavoriteSongs();
     notifyListeners();
   }
 
-  updateSong(Song song) {
+  updateSong(Song song){
     songs.forEach((element) {
-      if (element.fileName == song.fileName) {
+      if(element.fileName == song.fileName){
         element = song;
       }
     });
@@ -87,10 +84,8 @@ class MusicProvider with ChangeNotifier {
   }
 
   void updateLocal(Song song) {
-    if (audioPlayerState != AudioPlayerState.PLAYING) {
-      currentSong = songs.firstWhere(
-          (element) => element.fileName == song.fileName,
-          orElse: () => song);
+    if(audioPlayerState != AudioPlayerState.PLAYING){
+      currentSong = songs.firstWhere((element) => element.fileName == song.fileName, orElse: () => song);
       notifyListeners();
     }
   }
@@ -104,11 +99,8 @@ class MusicProvider with ChangeNotifier {
     advancedPlayer.seek(newDuration);
   }
 
-  void playAudio(
-    Song song,
-  ) async {
-    if (audioPlayerState == AudioPlayerState.PLAYING &&
-        currentSong.fileName == song.fileName) return;
+  void playAudio(Song song,) async {
+    if(audioPlayerState == AudioPlayerState.PLAYING && currentSong.fileName == song.fileName) return;
     if (advancedPlayer == null) initPlayer();
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
     await advancedPlayer.play(song.file);
@@ -117,9 +109,11 @@ class MusicProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  savePlayingSong(Song song) {
+  savePlayingSong(Song song){
     preferencesHelper.saveValue(
-        key: "last_play", value: json.encode(song.toJson()));
+        key: 'last_play',
+        value: json.encode(song.toJson())
+    );
   }
 
   void resumeAudio() async {
@@ -140,9 +134,8 @@ class MusicProvider with ChangeNotifier {
 
   void completion() async {
     audioPlayerState = AudioPlayerState.STOPPED;
-    switch (playerType) {
+    switch(playerType){
       case PlayerType.ALL:
-        if (nextSong == null) return;
         playAudio(nextSong);
         break;
       case PlayerType.SHUFFLE:
@@ -176,6 +169,7 @@ class MusicProvider with ChangeNotifier {
     playAudio(song);
     notifyListeners();
   }
+
 
   handlePlaying() {
     switch (audioPlayerState) {
@@ -224,83 +218,5 @@ class MusicProvider with ChangeNotifier {
     }
     if (_currentSongIndex < 0) return null;
     return songs[_currentSongIndex];
-  }
-
-  List<Map<dynamic, dynamic>> playList = [];
-
-  List<Song> recentList = [];
-
-  Future<String> getPlaylistPath() async {
-    Directory documentDirectory = await getApplicationDocumentsDirectory();
-    final path = documentDirectory.path + '/playlist.db';
-    return path;
-  }
-
-  Future<String> getRecentPath() async {
-    Directory documentDirectory = await getApplicationDocumentsDirectory();
-    final path = documentDirectory.path + '/recent.db';
-    return path;
-  }
-
-  Future<void> createPlaylist(String name) async {
-    var newItem = {
-      'name': name,
-      'songs': [],
-    };
-    playList.add(newItem);
-    Box db = await Hive.openBox('playlist', path: await getPlaylistPath());
-    for (var each in playList) {
-      // if it doesnt already exist add it to the database
-      if (db.get(each['name']) == null) {
-        db.put(each['name'], each);
-      }
-    }
-    refresh();
-  }
-
-  Future<void> refresh() async {
-    Box db = await Hive.openBox('playlist', path: await getPlaylistPath());
-    if (db.values.length != 0) {
-      playList.clear();
-      for (var each in db.values) {
-        // createplaylist should always be first
-        if (each['name'] == 'Create playlist') {
-          playList.insert(0, each);
-          // followed by favourites
-        } else if (each['name'] == 'Favourites') {
-          playList.insert(1, each);
-        } else {
-          playList.add(each);
-        }
-      }
-      // await getRecentlyPlayed();
-    } else {
-      Box recentdb = await Hive.openBox('recent', path: await getRecentPath());
-      // else block runs just the first time, when db is empty
-      // happens when app is run for the first time or after playlist is reset
-      db.put('Create playlist', {'name': 'Create playlist'});
-      db.put('Favourites', {
-        'name': 'Favourites',
-        'songs': [],
-      });
-      recentdb.put('Recently played', []);
-      refresh();
-    }
-    notifyListeners();
-  }
-
-  Future<void> addToPlaylist(String playlistName, Song song) async {
-    Box db = await Hive.openBox('playlist', path: await getPlaylistPath());
-    var dbPlaylist = db.get(playlistName);
-    List songs = dbPlaylist['songs'];
-    bool found = songs.any((element) => element['path'] == song.filePath);
-    if (!found) {
-      songs.add(song.toJson());
-      db.put(playlistName, {
-        'name': playlistName,
-        'songs': songs,
-      });
-    }
-    refresh();
   }
 }

@@ -8,7 +8,7 @@ class RadioPlayProvider with ChangeNotifier {
 
   void initPlayer() {
     audioStart();
-    RadioPlayerRepository.init();
+    // RadioPlayerRepository.init();
   }
 
   Future<void> audioStart() async {

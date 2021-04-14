@@ -12,8 +12,6 @@ class _ImageFileState extends State<ImageFile> {
   String imagefile;
   MusicProvider _musicProvider;
 
-  var fileValue;
-
   @override
   void initState() {
     super.initState();

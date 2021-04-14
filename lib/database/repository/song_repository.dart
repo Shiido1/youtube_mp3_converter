@@ -1,4 +1,3 @@
-import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 
 import '../songs/song_service.dart';
@@ -16,6 +15,5 @@ class SongRepository {
   static getSongs() => _services.getSongs();
   static getPlayLists() => _services.getPlayLists();
   static getFavoriteSongs() => _services.getFavoriteSongs();
-  static  Stream<List<Song>> streamAllSongs() => _services.streamAllSongs();
-
+  static Stream<List<Song>> streamAllSongs() => _services.streamAllSongs();
 }

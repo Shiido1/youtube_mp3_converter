@@ -1,10 +1,8 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/slider2_widget.dart';
@@ -55,8 +53,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
         ),
         endDrawer: Theme(
             data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-            child: AppDrawer()
-        ),
+            child: AppDrawer()),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -101,12 +98,15 @@ class _SongViewScreenState extends State<SongViewScreen> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                      IconButton(
-                        icon: Icon(Icons.skip_previous_outlined),
-                        onPressed: () => !_provider.canPrevSong ?  _musicProvider.prev() : null,
-                        iconSize: 56,
-                        color: !_provider.canPrevSong ? AppColor.white : AppColor.grey,
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.skip_previous_outlined),
+                      onPressed: () =>
+                          !_provider.canPrevSong ? _musicProvider.prev() : null,
+                      iconSize: 56,
+                      color: !_provider.canPrevSong
+                          ? AppColor.white
+                          : AppColor.grey,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20),
                       child: IconButt(),
@@ -115,11 +115,14 @@ class _SongViewScreenState extends State<SongViewScreen> {
                       width: 23,
                     ),
                     IconButton(
-                    icon: Icon(Icons.skip_next_outlined),
-                    onPressed: () => !_provider.canNextSong ? _musicProvider.next() : null,
-                    iconSize: 56,
-                    color: !_provider.canNextSong ? AppColor.white : AppColor.grey,
-                  ),
+                      icon: Icon(Icons.skip_next_outlined),
+                      onPressed: () =>
+                          !_provider.canNextSong ? _musicProvider.next() : null,
+                      iconSize: 56,
+                      color: !_provider.canNextSong
+                          ? AppColor.white
+                          : AppColor.grey,
+                    ),
                   ],
                 )
               ],

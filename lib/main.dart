@@ -15,8 +15,8 @@ import 'utils/color_assets/color.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(debug: debug);
-  // var path = Directory.current.path;
-  // Hive.init(path);
+  var path = Directory.current.path;
+  Hive.init(path);
   await PgHiveBoxes.init();
 
   SystemChrome.setSystemUIOverlayStyle(

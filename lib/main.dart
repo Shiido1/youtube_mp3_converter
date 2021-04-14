@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/splash_sreen.dart';
@@ -12,6 +15,8 @@ import 'utils/color_assets/color.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize(debug: debug);
+  // var path = Directory.current.path;
+  // Hive.init(path);
   await PgHiveBoxes.init();
 
   SystemChrome.setSystemUIOverlayStyle(

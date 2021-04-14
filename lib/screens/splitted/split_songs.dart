@@ -61,14 +61,15 @@ class _SplittedScreenState extends State<SplittedScreen> {
                                     : Icon(Icons.expand_less_rounded),
                                 color: AppColor.white,
                                 iconSize: 30,
-                                onPressed: () => setState(() {
+                                onPressed: () {setState(() {
                                       tap = !tap;
-                                      if (tap = true) {
-                                        DropDownSplit();
-                                      } else {
-                                        return;
-                                      }
-                                    })),
+
+                                    });
+                                if (tap = true) {
+                                  DropDownSplit();
+                                } else {
+                                  return;
+                                }}),
                             // Expanded(
                             //   child: Row(
                             //     children: [

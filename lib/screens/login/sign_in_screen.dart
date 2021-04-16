@@ -34,10 +34,11 @@ class _SignInScreenState extends State<SignInScreen> {
     }
   }
 
-  void signIn(String email, String password) {
+  void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
       _loginProviders.loginUser(
-          map: LoginModel.toJson(email: email, password: password));
+          map: LoginModel.toJson(email: email, password: password),
+          context: context);
   }
 
   bool _validateInputs() {
@@ -167,8 +168,8 @@ class _SignInScreenState extends State<SignInScreen> {
                                 borderRadius: BorderRadius.circular(10)),
                             color: AppColor.bottomRed,
                             onPressed: () {
-                              signIn(_emailController.text,
-                                  _passwordController.text);
+                              signIn(context, _emailController.text.trim(),
+                                  _passwordController.text.trim());
                               // if (_emailController.text != '' &&
                               //     _passwordController.text != '') {
                               //   loginPref.setBool('login', false);

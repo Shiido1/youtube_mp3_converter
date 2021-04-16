@@ -9,3 +9,9 @@ abstract class SongInterface {
   watchSongs();
   Stream<List<Song>> streamAllSongs();
 }
+
+abstract class SplittedSongInterface {
+  addSong(List<Song> log);
+  Future<List<dynamic>> getSongs();
+  deleteSong(String key);
+}

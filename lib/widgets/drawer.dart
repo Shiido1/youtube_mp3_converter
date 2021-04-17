@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
+import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,7 +17,6 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../utils/color_assets/color.dart';
-import '../utils/page_router/navigator.dart';
 import '../utils/page_router/navigator.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -41,115 +42,125 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<MusicProvider>(
-      builder: (_, _provider, __) {
-        return Padding(
-          padding: const EdgeInsets.only(top: 150, bottom: 120),
-          child: Drawer(
-            child: Container(
-              decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
-              child: Padding(
-                padding: const EdgeInsets.only(top: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _musicProvider?.drawerItem?.image?.isNotEmpty ?? false
-                              ? Expanded(
-                                  child: Container(
-                                      height: 60,
-                                      width: 50,
-                                      child: CachedNetworkImage(
-                                          imageUrl:
-                                              _musicProvider?.drawerItem?.image)))
-                              : Container(),
-                          _musicProvider?.drawerItem?.fileName?.isNotEmpty ?? false
-                              ? Expanded(
-                                  child: TextViewWidget(
-                                  text: _musicProvider?.drawerItem?.fileName,
-                                  color: AppColor.white,
-                                  textSize: 16.5,
-                                  fontWeight: FontWeight.w500,
-                                ))
-                              : Container()
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 40,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Consumer<MusicProvider>(builder: (_, _provider, __) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 150, bottom: 120),
+        child: Drawer(
+          child: Container(
+            decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        InkWell(
-                          onTap: () => _musicProvider.updateSong(
-                              _musicProvider.drawerItem..favorite = _musicProvider.drawerItem.favorite ? false : true
-                          ),
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.favorite,
-                                height: 20.8,
-                                color: _musicProvider.drawerItem.favorite ? AppColor.red : AppColor.white,
-                              ),
-                              TextViewWidget(
-                                text: 'Favorite',
+                        _musicProvider?.drawerItem?.image?.isNotEmpty ?? false
+                            ? Expanded(
+                                child: Container(
+                                    height: 60,
+                                    width: 50,
+                                    child: CachedNetworkImage(
+                                        imageUrl:
+                                            _musicProvider?.drawerItem?.image)))
+                            : Container(),
+                        _musicProvider?.drawerItem?.fileName?.isNotEmpty ??
+                                false
+                            ? Expanded(
+                                child: TextViewWidget(
+                                text: _musicProvider?.drawerItem?.fileName,
                                 color: AppColor.white,
-                              )
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            _musicProvider.shuffle();
-                            PageRouter.goBack(context);
-                          },
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(AppAssets.shuffle),
-                              TextViewWidget(text: 'Shuffle', color: AppColor.white)
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            _musicProvider.repeat(_musicProvider.drawerItem);
-                            PageRouter.goBack(context);
-                          },
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(AppAssets.repeat),
-                              TextViewWidget(text: 'Repeat', color: AppColor.white)
-                            ],
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () async {
-                            Share.shareFiles([File('${_musicProvider.drawerItem.filePath}/${_musicProvider.drawerItem.fileName}').path]);
-                            PageRouter.goBack(context);
-                          },
-                          child: Column(
-                            children: [
-                              SvgPicture.asset(AppAssets.share),
-                              TextViewWidget(text: 'Share', color: AppColor.white)
-                            ],
-                          ),
-                        ),
+                                textSize: 16.5,
+                                fontWeight: FontWeight.w500,
+                              ))
+                            : Container()
                       ],
                     ),
-                    Divider(
-                      color: AppColor.white,
-                    ),
-                    if(_musicProvider?.drawerItem?.playList ?? false)
+                  ),
+                  SizedBox(
+                    height: 40,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      InkWell(
+                        onTap: () => _musicProvider.updateSong(
+                            _musicProvider.drawerItem
+                              ..favorite = _musicProvider.drawerItem.favorite
+                                  ? false
+                                  : true),
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(
+                              AppAssets.favorite,
+                              height: 20.8,
+                              color: _musicProvider.drawerItem.favorite
+                                  ? AppColor.red
+                                  : AppColor.white,
+                            ),
+                            TextViewWidget(
+                              text: 'Favorite',
+                              color: AppColor.white,
+                            )
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _musicProvider.shuffle();
+                          PageRouter.goBack(context);
+                        },
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(AppAssets.shuffle),
+                            TextViewWidget(
+                                text: 'Shuffle', color: AppColor.white)
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          _musicProvider.repeat(_musicProvider.drawerItem);
+                          PageRouter.goBack(context);
+                        },
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(AppAssets.repeat),
+                            TextViewWidget(
+                                text: 'Repeat', color: AppColor.white)
+                          ],
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          Share.shareFiles([
+                            File('${_musicProvider.drawerItem.filePath}/${_musicProvider.drawerItem.fileName}')
+                                .path
+                          ]);
+                          PageRouter.goBack(context);
+                        },
+                        child: Column(
+                          children: [
+                            SvgPicture.asset(AppAssets.share),
+                            TextViewWidget(text: 'Share', color: AppColor.white)
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(
+                    color: AppColor.white,
+                  ),
+                  if (_musicProvider?.drawerItem?.playList ?? false)
                     Wrap(
                       children: [
                         ListTile(
                           onTap: () {
-                            _musicProvider.updateSong(_musicProvider.drawerItem..playList = false);
+                            _musicProvider.updateSong(
+                                _musicProvider.drawerItem..playList = false);
                           },
                           leading: SvgPicture.asset(AppAssets.rubbish),
                           title: TextViewWidget(
@@ -163,38 +174,48 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                       ],
                     ),
-                    ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.split),
-                      title: TextViewWidget(
-                        text: 'Split Song',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
-                    ),
-                    Divider(
+                  ListTile(
+                    onTap: () {},
+                    leading: SvgPicture.asset(AppAssets.split),
+                    title: TextViewWidget(
+                      text: 'Split Song',
                       color: AppColor.white,
+                      textSize: 18,
                     ),
-                    ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.record),
-                      title: TextViewWidget(
-                        text: 'Record',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
+                  ),
+                  Divider(
+                    color: AppColor.white,
+                  ),
+                  ListTile(
+                    onTap: () {},
+                    leading: SvgPicture.asset(AppAssets.record),
+                    title: TextViewWidget(
+                      text: 'Record',
+                      color: AppColor.white,
+                      textSize: 18,
                     ),
-                    if(!(_musicProvider?.drawerItem?.playList ?? false))
-                      Expanded(
-                        child: Wrap(
+                  ),
+                  if (!(_musicProvider?.drawerItem?.playList ?? false))
+                    Expanded(
+                      child: Wrap(
                         children: [
                           Divider(
                             color: AppColor.white,
                           ),
                           ListTile(
-                            onTap: () {
-                              _musicProvider.updateSong(_musicProvider.drawerItem..playList = true);
-                              PageRouter.gotoNamed(Routes.PLAYLIST, context);
+                            onTap: () async {
+                              await _musicProvider.getPlayListNames();
+                              PageRouter.goBack(context);
+                              _musicProvider.playLists.isEmpty
+                                  ? createPlayListScreen(
+                                      context: context,
+                                      songName:
+                                          _musicProvider.drawerItem.fileName,
+                                      showToastMessage: true)
+                                  : selectPlayListScreen(
+                                      context: context,
+                                      songName:
+                                          _musicProvider.drawerItem.fileName);
                             },
                             leading: Icon(
                               Icons.add_box_outlined,
@@ -207,15 +228,14 @@ class _AppDrawerState extends State<AppDrawer> {
                             ),
                           ),
                         ],
-                    ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
             ),
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
 }

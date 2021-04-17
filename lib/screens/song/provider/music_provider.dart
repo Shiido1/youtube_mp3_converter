@@ -9,7 +9,7 @@ import 'package:mp3_music_converter/database/repository/song_repository.dart';
 
 import '../../../utils/helper/instances.dart';
 
-enum PlayerType {ALL, SHUFFLE, REPEAT}
+enum PlayerType { ALL, SHUFFLE, REPEAT }
 
 class MusicProvider with ChangeNotifier {
   Duration totalDuration = Duration();
@@ -20,7 +20,9 @@ class MusicProvider with ChangeNotifier {
   Song drawerItem;
   List<Song> songs = [];
   List<Song> allSongs = [];
-  List<Song> playLists = [];
+  // List<List> playLists = [];
+  List playLists = [];
+  List playListSongTitle = [];
   List<Song> favoriteSongs = [];
   int _currentSongIndex = -1;
   int get length => songs.length;
@@ -30,29 +32,34 @@ class MusicProvider with ChangeNotifier {
   PlayerControlCommand playerControlCommand;
   PlayerType playerType = PlayerType.ALL;
 
-  initProvider(){
+  initProvider() {
     SongRepository.init();
     initPlayer();
   }
-  
-  getSongs()async{
+
+  getSongs() async {
     allSongs = await SongRepository.getSongs();
     notifyListeners();
   }
 
-  getPlayLists()async{
-    playLists = await SongRepository.getPlayLists();
+  getPlayListNames() async {
+    playLists = await SongRepository.getPlayListNames();
     notifyListeners();
   }
 
-  getFavoriteSongs()async{
+  getPlayListSongTitle(key) async {
+    playListSongTitle = await SongRepository.getPlayListsSongs(key);
+    notifyListeners();
+  }
+
+  getFavoriteSongs() async {
     favoriteSongs = await SongRepository.getFavoriteSongs();
     notifyListeners();
   }
 
-  updateSong(Song song){
+  updateSong(Song song) {
     songs.forEach((element) {
-      if(element.fileName == song.fileName){
+      if (element.fileName == song.fileName) {
         element = song;
       }
     });
@@ -84,8 +91,10 @@ class MusicProvider with ChangeNotifier {
   }
 
   void updateLocal(Song song) {
-    if(audioPlayerState != AudioPlayerState.PLAYING){
-      currentSong = songs.firstWhere((element) => element.fileName == song.fileName, orElse: () => song);
+    if (audioPlayerState != AudioPlayerState.PLAYING) {
+      currentSong = songs.firstWhere(
+          (element) => element.fileName == song.fileName,
+          orElse: () => song);
       notifyListeners();
     }
   }
@@ -99,8 +108,11 @@ class MusicProvider with ChangeNotifier {
     advancedPlayer.seek(newDuration);
   }
 
-  void playAudio(Song song,) async {
-    if(audioPlayerState == AudioPlayerState.PLAYING && currentSong.fileName == song.fileName) return;
+  void playAudio(
+    Song song,
+  ) async {
+    if (audioPlayerState == AudioPlayerState.PLAYING &&
+        currentSong.fileName == song.fileName) return;
     if (advancedPlayer == null) initPlayer();
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
     await advancedPlayer.play(song.file);
@@ -109,11 +121,9 @@ class MusicProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  savePlayingSong(Song song){
+  savePlayingSong(Song song) {
     preferencesHelper.saveValue(
-        key: 'last_play',
-        value: json.encode(song.toJson())
-    );
+        key: 'last_play', value: json.encode(song.toJson()));
   }
 
   void resumeAudio() async {
@@ -134,7 +144,7 @@ class MusicProvider with ChangeNotifier {
 
   void completion() async {
     audioPlayerState = AudioPlayerState.STOPPED;
-    switch(playerType){
+    switch (playerType) {
       case PlayerType.ALL:
         playAudio(nextSong);
         break;
@@ -169,7 +179,6 @@ class MusicProvider with ChangeNotifier {
     playAudio(song);
     notifyListeners();
   }
-
 
   handlePlaying() {
     switch (audioPlayerState) {

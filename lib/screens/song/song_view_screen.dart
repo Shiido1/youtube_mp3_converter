@@ -126,6 +126,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
             ),
           ),
         ),
+        resizeToAvoidBottomInset: false,
       );
     });
   }

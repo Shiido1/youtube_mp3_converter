@@ -58,7 +58,7 @@ class _PlayListViewState extends State<PlayListView> {
         ),
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            PageRouter.goBack(context);
           },
           icon: Icon(
             Icons.arrow_back_ios_sharp,
@@ -115,7 +115,7 @@ class _PlayListViewState extends State<PlayListView> {
                       : null),
               title: GestureDetector(
                 onTap: () async {
-                  _musicProvider.songs = _musicProvider.allSongs;
+                  _musicProvider.songs = _song;
                   _musicProvider.setCurrentIndex(index);
                   PageRouter.gotoWidget(SongViewScreen(_currentSong), context);
                 },

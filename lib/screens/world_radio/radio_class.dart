@@ -373,6 +373,7 @@ class _RadioClassState extends State<RadioClass>
                                       onTap: () {
                                         setState(() {
                                           selectedTab = "favourite";
+                                          tap = !tap;
                                         });
                                       },
                                       child: SvgPicture.asset(
@@ -420,25 +421,49 @@ class _RadioClassState extends State<RadioClass>
                                         size: 50,
                                       ),
                                       onPressed: () {
-                                        if (currentRadioIndex != 0 &&
-                                            currentRadioIndex != null) {
-                                          var _radioLog = radioProvider
-                                              .radioModels
-                                              .radio[currentRadioIndex - 1];
-                                          setState(() {
-                                            radioFile = _radioLog.name;
-                                            radioMp3 = _radioLog.mp3;
-                                            isPlaying = true;
-                                            currentRadioIndex =
-                                                currentRadioIndex - 1;
-                                          });
-                                          preferencesHelper.saveValue(
-                                              key: 'radiomp3', value: radioMp3);
-                                          preferencesHelper.saveValue(
-                                              key: 'radioFile',
-                                              value: radioFile);
-                                          _playProvider.playRadio(radioMp3);
-                                          checkFavourite();
+                                        if (selectedTab == "favourite") {
+                                          int fav = int.parse(
+                                              favourite[currentRadioIndex]);
+                                          if (fav != 0 && fav != null) {
+                                            var _radioLog = radioProvider
+                                                .radioModels.radio[fav - 1];
+                                            setState(() {
+                                              radioFile = _radioLog.name;
+                                              radioMp3 = _radioLog.mp3;
+                                              isPlaying = true;
+                                              currentRadioIndex = fav - 1;
+                                            });
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
+                                        } else {
+                                          if (currentRadioIndex != 0 &&
+                                              currentRadioIndex != null) {
+                                            var _radioLog = radioProvider
+                                                .radioModels
+                                                .radio[currentRadioIndex - 1];
+                                            setState(() {
+                                              radioFile = _radioLog.name;
+                                              radioMp3 = _radioLog.mp3;
+                                              isPlaying = true;
+                                              currentRadioIndex =
+                                                  currentRadioIndex - 1;
+                                            });
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
                                         }
                                       }),
 

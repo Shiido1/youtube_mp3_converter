@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:jaynetwork/jaynetwork.dart';
 import 'package:mp3_music_converter/screens/login/repository/login_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -11,18 +12,20 @@ class LoginProviders extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
   bool isLoading = false;
+  String userToken;
 
   void initialize(BuildContext context) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void loginUser({@required Map map}) async {
+  void loginUser({@required BuildContext context, @required Map map}) async {
     try {
       // _progressIndicator.show();
       isLoading = true;
       notifyListeners();
-      final _response = await _repository.loginUser(data: map);
+      final _response =
+          await _repository.loginUser(context: context, data: map);
       _response.when(success: (success, _, statusMessage) async {
         await _progressIndicator.dismiss();
         isLoading = false;
@@ -40,5 +43,10 @@ class LoginProviders extends ChangeNotifier {
       showToast(_context, message: "Please connect to internet");
       notifyListeners();
     }
+  }
+
+  getUserToken(String token) {
+    userToken = token;
+    notifyListeners();
   }
 }

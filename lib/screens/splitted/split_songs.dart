@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/splitted/split_song_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -12,7 +13,18 @@ class SplittedScreen extends StatefulWidget {
 }
 
 class _SplittedScreenState extends State<SplittedScreen> {
-  bool tap = false;
+  ScrollController _scrollController;
+  List<bool> tap = [];
+  List<Song> splittedSongs = List.generate(59,
+      (index) => Song(fileName: 'Something Fishy${index+1}', image: AppAssets.image1));
+
+  @override
+  void initState() {
+    tap = List.generate(splittedSongs.length, (index) => false);
+    _scrollController = ScrollController();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,76 +48,60 @@ class _SplittedScreenState extends State<SplittedScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              children: [1, 2, 3, 4, 5, 6, 7]
-                  .map((mocked) => Column(
-                        children: [
-                          ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SplitSongScreen()),
-                              );
-                            },
-                            leading: Image.asset(AppAssets.image1),
-                            title: TextViewWidget(
-                              text: 'Something Fishy',
-                              color: AppColor.white,
-                              textSize: 18,
-                            ),
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: splittedSongs.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SplitSongScreen()),
+                        );
+                      },
+                      leading: Image.asset(splittedSongs[index].image),
+                      title: TextViewWidget(
+                        text: splittedSongs[index].fileName,
+                        color: tap[index] ? AppColor.bottomRed : AppColor.white,
+                        textSize: 18,
+                      ),
+                      trailing: IconButton(
+                          icon: tap[index]
+                              ? Icon(Icons.expand_more_rounded)
+                              : Icon(Icons.expand_less_rounded),
+                          color: tap[index] ? AppColor.bottomRed : AppColor.white,
+                          iconSize: 30,
+                          onPressed: () {
+                            setState(() {
+                              for(int i =0; i<tap.length; i++){
+                                if( i!= index)
+                                  tap[i] = false;
+                              }
+                             tap[index] = !tap[index];
+                            });
 
-                            trailing: IconButton(
-                                icon: tap
-                                    ? Icon(Icons.expand_more_rounded)
-                                    : Icon(Icons.expand_less_rounded),
-                                color: AppColor.white,
-                                iconSize: 30,
-                                onPressed: () {setState(() {
-                                      tap = !tap;
-
-                                    });
-                                if (tap = true) {
-                                  DropDownSplit();
-                                } else {
-                                  return;
-                                }}),
-                            // Expanded(
-                            //   child: Row(
-                            //     children: [
-                            //       IconButton(
-                            //           icon: tap
-                            //               ? Icon(Icons.expand_more_rounded)
-                            //               : Icon(Icons.expand_less_rounded),
-                            //           onPressed: () => setState(() {
-                            //                 tap = !tap;
-                            //                 if (tap = true) {
-                            //                   DropDownSplit();
-                            //                 } else {
-                            //                   return;
-                            //                 }
-                            //               })),
-                            //       SvgPicture.asset(
-                            //         AppAssets.dot,
-                            //         color: AppColor.white,
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                          ),
-                          SizedBox(
-                            height: 3,
-                          ),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 70.0, right: 23),
-                            child: Divider(
-                              color: AppColor.white,
-                            ),
-                          )
-                        ],
-                      ))
-                  .toList(),
+                            _scrollController.jumpTo(75.0*index);
+                          }),
+                    ),
+                    SizedBox(
+                      height: 3,
+                    ),
+                    if (index != splittedSongs.length - 1)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 70.0, right: 23),
+                        child: Divider(
+                          color: tap[index]
+                              ? Color.fromRGBO(80, 80, 80, 1)
+                              : AppColor.white,
+                        ),
+                      ),
+                    Visibility(visible: tap[index], child: DropDownSplit()),
+                  ],
+                );
+              },
             ),
           ),
           BottomPlayingIndicator()

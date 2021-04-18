@@ -22,11 +22,29 @@ class PlayList extends StatefulWidget {
 
 class _PlayListState extends State<PlayList> {
   MusicProvider _musicProvider;
+  List playlistImage = [];
+
+  void getPlaylistImage() async {
+    _musicProvider = Provider.of<MusicProvider>(context);
+    _musicProvider.getSongs();
+    _musicProvider.getPlayListNames();
+    List<Song> allSongs = _musicProvider.allSongs;
+    List songImages = [];
+    for (int i = 0; i < _musicProvider.playLists.length; i++) {
+      await _musicProvider.getPlayListSongTitle(_musicProvider.playLists[i]);
+      if (_musicProvider.playListSongTitle.length > 1) {
+        for (Song song in allSongs)
+          if (song.fileName == _musicProvider.playListSongTitle[1])
+            songImages.add(song.image);
+      } else
+        songImages.add(null);
+    }
+    playlistImage = songImages;
+  }
 
   @override
   Widget build(BuildContext context) {
-    _musicProvider = Provider.of<MusicProvider>(context);
-    _musicProvider.getPlayListNames();
+    getPlaylistImage();
     return Scaffold(
       backgroundColor: AppColor.background,
       body: Column(
@@ -44,14 +62,51 @@ class _PlayListState extends State<PlayList> {
             ),
             text: 'Playlist',
           ),
+          InkWell(
+            onTap: () async {
+              createPlayListScreen(
+                  context: context,
+                  showToastMessage: true,
+                  message: 'Playlist created');
+            },
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 28, vertical: 8.0),
+              child: Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    color: Color.fromRGBO(196, 196, 196, 1),
+                    child: Icon(Icons.add, size: 35),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      constraints: BoxConstraints(minHeight: 40),
+                      width: MediaQuery.of(context).size.width,
+                      child: TextViewWidget(
+                          text: 'New Playlist...',
+                          color: AppColor.white,
+                          textSize: 18,
+                          fontFamily: 'Roboto-Regular'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(
+              height: 0,
+              color: AppColor.white,
+            ),
+          ),
           Expanded(child: Consumer<MusicProvider>(
             builder: (_, _provider, __) {
-              if (_provider.playLists.length == 0) {
-                return Center(
-                    child:
-                        TextViewWidget(text: 'No Song', color: AppColor.white));
-              }
               return ListView.builder(
+                padding: EdgeInsets.zero,
                 itemCount: _provider.playLists.length,
                 itemBuilder: (BuildContext context, int index) {
                   List playlist = _provider.playLists;
@@ -64,7 +119,7 @@ class _PlayListState extends State<PlayList> {
                         InkWell(
                           onTap: () async {
                             PageRouter.gotoWidget(
-                                PlayListView(playlist[index]), context);
+                                PlayListView(playListName: playlist[index], playlistImage: playlistImage[index]), context);
                           },
                           onLongPress: () async {
                             await showPlayListOptions(
@@ -75,6 +130,46 @@ class _PlayListState extends State<PlayList> {
                             padding: const EdgeInsets.all(8.0),
                             child: Row(
                               children: [
+                                Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(196, 196, 196, 1),
+                                      borderRadius: BorderRadius.circular(4)),
+                                  child: playlistImage != null && playlistImage.isNotEmpty && playlistImage[index] != null
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                          child: CachedNetworkImage(
+                                            imageUrl: playlistImage[index],
+                                            fit: BoxFit.cover,
+                                            placeholder: (context, index) =>
+                                                Container(
+                                              child: Center(
+                                                  child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator())),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    new Icon(Icons.error),
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Text(
+                                            playlist[index]
+                                                .toString()
+                                                .toUpperCase()
+                                                .substring(0, 1),
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 25),
+                                          ),
+                                        ),
+                                ),
+                                SizedBox(width: 20),
                                 Expanded(
                                   child: Container(
                                     constraints: BoxConstraints(minHeight: 40),

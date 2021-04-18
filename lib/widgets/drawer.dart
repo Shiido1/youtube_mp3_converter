@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,19 +18,41 @@ import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
-
+import 'dart:isolate';
+import 'dart:ui';
+import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
 
-class AppDrawer extends StatefulWidget {
-  AppDrawer({Key key}) : super(key: key);
+const String splitMusicPath = '.split';
+bool debug = true;
+
+class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
+  final TargetPlatform platform;
+  AppDrawer({Key key, this.platform}) : super(key: key);
 
   @override
   _AppDrawerState createState() => _AppDrawerState();
 }
 
 class _AppDrawerState extends State<AppDrawer> {
+  List<String> splitedFileList = [];
+  List<Song> splittedSongList = [];
   MusicProvider _musicProvider;
+  bool loading = false;
+  int _progress = 0;
+  bool downloaded;
+  int id;
+  var val;
+  bool _isLoading;
+  bool _permissionReady;
+  static String _localPath;
+  ReceivePort _port = ReceivePort();
+  String _fileName;
+
+  CustomProgressIndicator _progressIndicator;
 
   Future<List<String>> pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
@@ -174,48 +199,38 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                       ],
                     ),
-                  ListTile(
-                    onTap: () {},
-                    leading: SvgPicture.asset(AppAssets.split),
-                    title: TextViewWidget(
-                      text: 'Split Song',
-                      color: AppColor.white,
-                      textSize: 18,
+                    ListTile(
+                      onTap: () {},
+                      leading: SvgPicture.asset(AppAssets.split),
+                      title: TextViewWidget(
+                        text: 'Split Song',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
                     ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () {},
-                    leading: SvgPicture.asset(AppAssets.record),
-                    title: TextViewWidget(
-                      text: 'Record',
+                    Divider(
                       color: AppColor.white,
-                      textSize: 18,
                     ),
-                  ),
-                  if (!(_musicProvider?.drawerItem?.playList ?? false))
-                    Expanded(
-                      child: Wrap(
+                    ListTile(
+                      onTap: () {},
+                      leading: SvgPicture.asset(AppAssets.record),
+                      title: TextViewWidget(
+                        text: 'Record',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
+                    ),
+                    if(!(_musicProvider?.drawerItem?.playList ?? false))
+                      Expanded(
+                        child: Wrap(
                         children: [
                           Divider(
                             color: AppColor.white,
                           ),
                           ListTile(
-                            onTap: () async {
-                              await _musicProvider.getPlayListNames();
-                              PageRouter.goBack(context);
-                              _musicProvider.playLists.isEmpty
-                                  ? createPlayListScreen(
-                                      context: context,
-                                      songName:
-                                          _musicProvider.drawerItem.fileName,
-                                      showToastMessage: true)
-                                  : selectPlayListScreen(
-                                      context: context,
-                                      songName:
-                                          _musicProvider.drawerItem.fileName);
+                            onTap: () {
+                              _musicProvider.updateSong(_musicProvider.drawerItem..playList = true);
+                              PageRouter.gotoNamed(Routes.PLAYLIST, context);
                             },
                             leading: Icon(
                               Icons.add_box_outlined,

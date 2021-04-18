@@ -1,5 +1,7 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:jaynetwork/jaynetwork.dart';
 import 'package:jaynetwork/network/api_result.dart';
@@ -10,13 +12,16 @@ import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/instance.dart';
 
 class LoginApiRepository {
-  Future<ApiResponse<dynamic>> loginUser({@required Map data}) async {
+  Future<ApiResponse<dynamic>> loginUser(
+      {@required BuildContext context, @required Map data}) async {
     try {
       final _response =
           await jayNetworkClient.makePostRequest("login", data: data);
       final _finalData = LoginModel.fromJson(_response.data);
 
       _saveUsersData(_finalData);
+      Provider.of<LoginProviders>(context, listen: false)
+          .getUserToken(_finalData.token);
       return ApiResponse.success(data: _finalData);
     } catch (e) {
       return handleNetworkException(e);

@@ -345,19 +345,23 @@ class _DownloadAndSaveScreenState extends State<DownloadAndSaveScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                FlatButton(
+                                TextButton(
                                     onPressed: () {
                                       downloadNow();
                                     },
-                                    color: Colors.green,
+                                    style: TextButton.styleFrom(
+                                      primary: AppColor.green,
+                                    ),
                                     child: Text(
                                       'Download',
                                       style: TextStyle(
                                           color: Colors.white, fontSize: 20),
                                     )),
                                 SizedBox(width: 20),
-                                FlatButton(
-                                    color: Colors.red,
+                                TextButton(
+                                    style: TextButton.styleFrom(
+                                      primary: AppColor.bottomRed,
+                                    ),
                                     onPressed: () {},
                                     child: Text(
                                       'Save to lib',

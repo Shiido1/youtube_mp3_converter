@@ -51,8 +51,10 @@ class _ChangePasswordState extends State<ChangePassword> {
               TextField(),
               TextField(),
               Center(
-                child: FlatButton(
-                    color: AppColor.bottomRed,
+                child: TextButton(
+                    style: TextButton.styleFrom(
+                      primary: AppColor.bottomRed,
+                    ),
                     onPressed: () {},
                     child: Text(
                       'Update Password',

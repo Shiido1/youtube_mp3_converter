@@ -164,8 +164,7 @@ class _ConvertState extends State<Convert> {
           playList: false,
           favorite: false,
           lastPlayDate: DateTime.now(),
-        )
-        );
+        ));
       }
     });
   }
@@ -352,7 +351,7 @@ class _ConvertState extends State<Convert> {
                                                         MainAxisAlignment
                                                             .center,
                                                     children: [
-                                                      RaisedButton(
+                                                      ElevatedButton(
                                                         onPressed: () {
                                                           _requestDownload(
                                                               link: base_url +
@@ -365,7 +364,11 @@ class _ConvertState extends State<Convert> {
                                                             downloaded = true;
                                                           });
                                                         },
-                                                        color: AppColor.green,
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          primary:
+                                                              AppColor.green,
+                                                        ),
                                                         child: TextViewWidget(
                                                           text: 'Download',
                                                           color: AppColor.white,
@@ -375,7 +378,7 @@ class _ConvertState extends State<Convert> {
                                                       SizedBox(
                                                         width: 16,
                                                       ),
-                                                      RaisedButton(
+                                                      ElevatedButton(
                                                         onPressed: () {
                                                           _requestDownload(
                                                               link: base_url +
@@ -386,7 +389,11 @@ class _ConvertState extends State<Convert> {
                                                             downloaded = false;
                                                           }); // todo: replace with ur actuall link to download
                                                         },
-                                                        color: AppColor.red,
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          primary: AppColor
+                                                              .bottomRed,
+                                                        ),
                                                         child: TextViewWidget(
                                                           text: 'Save to Lib',
                                                           color: AppColor.white,
@@ -435,7 +442,7 @@ class _ConvertState extends State<Convert> {
               SizedBox(
                 height: 32.0,
               ),
-              FlatButton(
+              TextButton(
                   onPressed: () {
                     _checkPermission().then((hasGranted) {
                       setState(() {

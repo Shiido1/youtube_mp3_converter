@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:toast/toast.dart';
 
@@ -16,22 +15,22 @@ double getWidth(BuildContext context) {
   return MediaQuery.of(context).size.width;
 }
 
-void showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String msg,
-    {double height = 30, Color color = AppColor.blue}) {
-  if (_scaffoldKey == null || _scaffoldKey.currentState == null) {
-    return;
-  }
-  _scaffoldKey.currentState.hideCurrentSnackBar();
-  final snackBar = SnackBar(
-      backgroundColor: color,
-      content: Text(
-        msg,
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ));
-  _scaffoldKey.currentState.showSnackBar(snackBar);
-}
+// void showSnackBar(GlobalKey<ScaffoldState> _scaffoldKey, String msg,
+//     {double height = 30, Color color = AppColor.blue}) {
+//   if (_scaffoldKey == null || _scaffoldKey.currentState == null) {
+//     return;
+//   }
+//   _scaffoldKey.currentState.;
+//   final snackBar = SnackBar(
+//       backgroundColor: color,
+//       content: Text(
+//         msg,
+//         style: TextStyle(
+//           color: Colors.white,
+//         ),
+//       ));
+//   _scaffoldKey.currentState.showSnackBar(snackBar);
+// }
 
 /// @ validate email
 bool validateEmail(String email) {

@@ -172,8 +172,10 @@ class _SettingState extends State<Setting> {
               height: 30,
             ),
             Center(
-              child: FlatButton(
-                  color: AppColor.bottomRed,
+              child: TextButton(
+                  style: TextButton.styleFrom(
+                    primary: AppColor.bottomRed,
+                  ),
                   onPressed: () {},
                   child: Text(
                     'Log Out',

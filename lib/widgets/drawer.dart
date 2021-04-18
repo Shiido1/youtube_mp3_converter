@@ -179,72 +179,61 @@ class _AppDrawerState extends State<AppDrawer> {
                   Divider(
                     color: AppColor.white,
                   ),
-                  if (_musicProvider?.drawerItem?.playList ?? false)
-                    Wrap(
+                  ListTile(
+                    onTap: () {},
+                    leading: SvgPicture.asset(AppAssets.split),
+                    title: TextViewWidget(
+                      text: 'Split Song',
+                      color: AppColor.white,
+                      textSize: 18,
+                    ),
+                  ),
+                  Divider(
+                    color: AppColor.white,
+                  ),
+                  ListTile(
+                    onTap: () {},
+                    leading: SvgPicture.asset(AppAssets.record),
+                    title: TextViewWidget(
+                      text: 'Record',
+                      color: AppColor.white,
+                      textSize: 18,
+                    ),
+                  ),
+                  Expanded(
+                    child: Wrap(
                       children: [
+                        Divider(
+                          color: AppColor.white,
+                        ),
                         ListTile(
-                          onTap: () {
-                            _musicProvider.updateSong(
-                                _musicProvider.drawerItem..playList = false);
+                          onTap: () async {
+                            await _musicProvider.getPlayListNames();
+                            PageRouter.goBack(context);
+                            _musicProvider.playLists.isEmpty
+                                ? createPlayListScreen(
+                                    context: context,
+                                    songName:
+                                        _musicProvider.drawerItem.fileName,
+                                    showToastMessage: true)
+                                : selectPlayListScreen(
+                                    context: context,
+                                    songName:
+                                        _musicProvider.drawerItem.fileName);
                           },
-                          leading: SvgPicture.asset(AppAssets.rubbish),
+                          leading: Icon(
+                            Icons.add_box_outlined,
+                            color: AppColor.white,
+                          ),
                           title: TextViewWidget(
-                            text: 'Remove from Playlist',
+                            text: 'Add to Playlist',
                             color: AppColor.white,
                             textSize: 18,
                           ),
                         ),
-                        Divider(
-                          color: AppColor.white,
-                        ),
                       ],
                     ),
-                    ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.split),
-                      title: TextViewWidget(
-                        text: 'Split Song',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
-                    ),
-                    Divider(
-                      color: AppColor.white,
-                    ),
-                    ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.record),
-                      title: TextViewWidget(
-                        text: 'Record',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
-                    ),
-                    if(!(_musicProvider?.drawerItem?.playList ?? false))
-                      Expanded(
-                        child: Wrap(
-                        children: [
-                          Divider(
-                            color: AppColor.white,
-                          ),
-                          ListTile(
-                            onTap: () {
-                              _musicProvider.updateSong(_musicProvider.drawerItem..playList = true);
-                              PageRouter.gotoNamed(Routes.PLAYLIST, context);
-                            },
-                            leading: Icon(
-                              Icons.add_box_outlined,
-                              color: AppColor.white,
-                            ),
-                            title: TextViewWidget(
-                              text: 'Add to Playlist',
-                              color: AppColor.white,
-                              textSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),

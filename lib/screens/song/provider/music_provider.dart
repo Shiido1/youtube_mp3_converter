@@ -20,7 +20,6 @@ class MusicProvider with ChangeNotifier {
   Song drawerItem;
   List<Song> songs = [];
   List<Song> allSongs = [];
-  // List<List> playLists = [];
   List playLists = [];
   List playListSongTitle = [];
   List<Song> favoriteSongs = [];
@@ -218,7 +217,9 @@ class MusicProvider with ChangeNotifier {
 
   Song get randomSong {
     Random r = new Random();
-    return songs[r.nextInt(songs.length)];
+    int songIndex = r.nextInt(songs.length);
+    setCurrentIndex(songIndex);
+    return songs[songIndex];
   }
 
   Song get prevSong {

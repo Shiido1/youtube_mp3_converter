@@ -178,6 +178,8 @@ class _PlayListViewState extends State<PlayListView> {
             InkWell(
               onTap: () {
                 _musicProvider.shuffle();
+                PageRouter.gotoWidget(SongViewScreen(_song[_musicProvider.currentIndex]), context);
+
               },
               child: Column(
                 children: [

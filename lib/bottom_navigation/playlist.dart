@@ -32,12 +32,25 @@ class _PlayListState extends State<PlayList> {
     List songImages = [];
     for (int i = 0; i < _musicProvider.playLists.length; i++) {
       await _musicProvider.getPlayListSongTitle(_musicProvider.playLists[i]);
-      if (_musicProvider.playListSongTitle.length > 1) {
+      _musicProvider.playListSongTitle.sort((a, b) {
+        return a.toString().toLowerCase().compareTo(b.toString().toLowerCase());
+      });
+      if (_musicProvider.playListSongTitle.length > 1 &&
+          _musicProvider.playListSongTitle[0] == null) {
         for (Song song in allSongs)
           if (song.fileName == _musicProvider.playListSongTitle[1])
             songImages.add(song.image);
-      } else
+      }
+      if (_musicProvider.playListSongTitle.length > 0 &&
+          _musicProvider.playListSongTitle[0] != null) {
+        for (Song song in allSongs)
+          if (song.fileName == _musicProvider.playListSongTitle[0])
+            songImages.add(song.image);
+      }
+      if (_musicProvider.playListSongTitle.length == 1 &&
+          _musicProvider.playListSongTitle[0] == null) {
         songImages.add(null);
+      }
     }
     playlistImage = songImages;
   }
@@ -119,7 +132,10 @@ class _PlayListState extends State<PlayList> {
                         InkWell(
                           onTap: () async {
                             PageRouter.gotoWidget(
-                                PlayListView(playListName: playlist[index], playlistImage: playlistImage[index]), context);
+                                PlayListView(
+                                    playListName: playlist[index],
+                                    playlistImage: playlistImage[index]),
+                                context);
                           },
                           onLongPress: () async {
                             await showPlayListOptions(
@@ -136,7 +152,9 @@ class _PlayListState extends State<PlayList> {
                                   decoration: BoxDecoration(
                                       color: Color.fromRGBO(196, 196, 196, 1),
                                       borderRadius: BorderRadius.circular(4)),
-                                  child: playlistImage != null && playlistImage.isNotEmpty && playlistImage[index] != null
+                                  child: playlistImage != null &&
+                                          playlistImage.isNotEmpty &&
+                                          playlistImage[index] != null
                                       ? ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(4),

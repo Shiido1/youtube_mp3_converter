@@ -1,11 +1,14 @@
 import 'dart:io';
 
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -63,6 +66,143 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+
+    _bindBackgroundIsolate(); //
+    FlutterDownloader.registerCallback(
+        downloadCallback); // register our callbacks
+    _isLoading = true;
+    _permissionReady = false;
+    _prepare();
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  void _bindBackgroundIsolate() {
+    bool isSuccess = IsolateNameServer.registerPortWithName(
+        _port.sendPort, 'downloader_send_port');
+    if (!isSuccess) {
+      _unbindBackgroundIsolate();
+      _bindBackgroundIsolate();
+      return;
+    }
+    _port.listen((dynamic data) async {
+      if (debug) {
+        print('UI Isolate Callback: $data');
+      }
+
+      // ignore: unused_local_variable
+      String id = data[0];
+      DownloadTaskStatus status = data[1];
+
+      int progress = data[2];
+      setState(() {
+        _progress = progress;
+        loading = true;
+      });
+      if (_progress == 100) {
+        // _showDialog(context);
+        setState(() {
+          loading = false;
+        });
+      }
+      if (status == DownloadTaskStatus.complete) {
+        splittedSongList.add(Song(
+          fileName: _fileName,
+          filePath: _localPath,
+          image: _musicProvider?.drawerItem?.image ?? '',
+          splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+        ));
+      }
+    });
+
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  static void downloadCallback(
+      String id, DownloadTaskStatus status, int progress) async {
+    if (debug) {
+      print(
+          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
+    }
+
+    final SendPort send =
+    IsolateNameServer.lookupPortByName('downloader_send_port');
+    send.send([id, status, progress]);
+  }
+
+  Future<void> _requestDownload(
+      {@required String link, bool saveToDownload = false}) async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      if (saveToDownload) {
+        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
+        _localPath = downloadPath.path;
+      }
+
+      _fileName = getStringPathName(link);
+      // setState(() {
+      //   downloaded = false;
+      // });
+      await FlutterDownloader.enqueue(
+          url: link,
+          headers: {"auth": "test_for_sql_encoding"},
+          savedDir: _localPath,
+          fileName: _fileName,
+          showNotification: true,
+          openFileFromNotification: false);
+    }
+  }
+
+  Future<bool> _checkPermission() async {
+    if (widget.platform == TargetPlatform.android) {
+      final status = await Permission.storage.status;
+      if (status != PermissionStatus.granted) {
+        final result = await Permission.storage.request();
+        if (result == PermissionStatus.granted) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    return false;
+  }
+
+//* prepares the items we wish to download
+  Future<Null> _prepare() async {
+    _permissionReady = await _checkPermission(); // checks for users permission
+
+    _localPath = (await _findLocalPath()) +
+        Platform.pathSeparator +
+        splitMusicPath; // gets users
+
+    final savedDir = Directory(_localPath);
+    bool hasExisted = await savedDir.exists();
+    if (!hasExisted) {
+      savedDir.create();
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+//* finds available space for storage on users device
+  Future<String> _findLocalPath() async {
+    final directory = widget.platform == TargetPlatform.android
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    return directory.path;
   }
 
   @override
@@ -180,7 +320,48 @@ class _AppDrawerState extends State<AppDrawer> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () {},
+                    onTap: () async {
+                      // _progressIndicator.show();
+                      FilePickerResult result = await FilePicker.platform
+                          .pickFiles(type: FileType.audio);
+                      var splitedFiles = await SplitAssistant.splitFile(
+                          result.files.single.path, context);
+                      if (splitedFiles != "Failed") {
+                        bool isSaved = await SplitAssistant.saveSplitFiles(
+                            splitedFiles, context);
+                        if (isSaved && _permissionReady) {
+                          String drumsUrl = splitedFiles["files"]["drums"];
+                          String voiceUrl = splitedFiles["files"]["voice"];
+
+                          splitedFileList.add(drumsUrl);
+                          splitedFileList.add(voiceUrl);
+
+                          print('splitedFileList.length is ${splitedFileList.length}');
+
+                          for (int i = 0; i < splitedFileList.length; i++) {
+                            print('i is ****************** $i');
+                            await _requestDownload(
+                                link: splitedFileList[i], saveToDownload: true);
+                          }
+                          print('finished downloading  splitted file');
+                          print(splittedSongList);
+                          // SplittedSongRepository.addSong(splittedSongList);
+                          // // await _progressIndicator.dismiss();
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (_) => SplittedScreen()));
+                        }
+                        else if(!_permissionReady){
+                          _buildNoPermissionWarning();
+                        }
+                        else {
+                          // await _progressIndicator.dismiss();
+                          showToast(context,
+                              message: "error occurred, please try again");
+                        }
+                      }
+                    },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
                       text: 'Split Song',
@@ -242,4 +423,41 @@ class _AppDrawerState extends State<AppDrawer> {
       );
     });
   }
+  Widget _buildNoPermissionWarning() => Container(
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Text(
+              'Please grant accessing storage permission to continue -_-',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+            ),
+          ),
+          SizedBox(
+            height: 32.0,
+          ),
+          TextButton(
+              onPressed: () {
+                _checkPermission().then((hasGranted) {
+                  setState(() {
+                    _permissionReady = hasGranted;
+                  });
+                });
+              },
+              child: Text(
+                'Retry',
+                style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0),
+              ))
+        ],
+      ),
+    ),
+  );
+
 }

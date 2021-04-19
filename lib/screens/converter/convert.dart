@@ -10,6 +10,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -27,10 +28,12 @@ bool debug = true;
 
 class Convert extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
+  final String sharedLinkText;
 
   Convert({
     Key key,
     this.platform,
+    this.sharedLinkText,
   }) : super(key: key);
   @override
   _ConvertState createState() => _ConvertState();
@@ -66,6 +69,7 @@ class _ConvertState extends State<Convert> {
     _isLoading = true;
     _permissionReady = false;
     _prepare();
+    _setControllerText();
   }
 
   @override
@@ -73,6 +77,12 @@ class _ConvertState extends State<Convert> {
     controller.dispose();
     _unbindBackgroundIsolate();
     super.dispose();
+  }
+
+  void _setControllerText(){
+    setState(() {
+      controller.text = widget.sharedLinkText ?? null;
+    });
   }
 
   void _download() {
@@ -151,7 +161,9 @@ class _ConvertState extends State<Convert> {
         loading = true;
       });
       if (_progress == 100 && downloaded == true) {
-        _showDialog(context);
+        // _showDialog(context);
+        Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
+
         setState(() {
           loading = false;
         });
@@ -165,7 +177,7 @@ class _ConvertState extends State<Convert> {
           favorite: false,
           lastPlayDate: DateTime.now(),
         ));
-      }
+              }
     });
   }
 
@@ -245,7 +257,7 @@ class _ConvertState extends State<Convert> {
                                   borderRadius: BorderRadius.circular(16.0),
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
-                                labelText: 'Enter Youtube Url',
+                                labelText: widget.sharedLinkText ?? 'Enter Youtube Url',
                                 labelStyle: TextStyle(color: Colors.white),
                               ),
                               cursorColor: AppColor.white,

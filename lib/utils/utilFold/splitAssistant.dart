@@ -15,7 +15,7 @@ class SplitAssistant {
       var postUri = Uri.parse(baseUrl);
       var request = new http.MultipartRequest("POST", postUri);
       // request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
-      // request.headers['Content-Type'] = 'multipart/form-data';
+      request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] =
           'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI';
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
@@ -29,6 +29,8 @@ class SplitAssistant {
         return decodedData;
       } else {
         print('failed');
+        print(response.statusCode);
+        print(await response.stream.bytesToString());
         return "Failed";
       }
     } catch (e) {

@@ -23,7 +23,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 
-const String musicPath = '.music';
+const String musicPath = 'music';
 bool debug = true;
 
 class Convert extends StatefulWidget with WidgetsBindingObserver {

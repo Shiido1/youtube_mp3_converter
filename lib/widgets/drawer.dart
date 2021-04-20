@@ -4,7 +4,6 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
-import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -29,7 +28,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
 
-const String splitMusicPath = '.split';
+const String splitMusicPath = 'split';
 bool debug = true;
 
 class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
@@ -41,7 +40,7 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  List<String> splitedFileList = [];
+  List<String> splittedFileList = [];
   List<Song> splittedSongList = [];
   MusicProvider _musicProvider;
   bool loading = false;
@@ -223,20 +222,20 @@ class _AppDrawerState extends State<AppDrawer> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        _musicProvider?.drawerItem?.image?.isNotEmpty ?? false
+                        _provider?.drawerItem?.image?.isNotEmpty ?? false
                             ? Expanded(
                                 child: Container(
                                     height: 60,
                                     width: 50,
                                     child: CachedNetworkImage(
                                         imageUrl:
-                                            _musicProvider?.drawerItem?.image)))
+                                            _provider?.drawerItem?.image)))
                             : Container(),
-                        _musicProvider?.drawerItem?.fileName?.isNotEmpty ??
+                        _provider?.drawerItem?.fileName?.isNotEmpty ??
                                 false
                             ? Expanded(
                                 child: TextViewWidget(
-                                text: _musicProvider?.drawerItem?.fileName,
+                                text: _provider?.drawerItem?.fileName,
                                 color: AppColor.white,
                                 textSize: 16.5,
                                 fontWeight: FontWeight.w500,
@@ -252,9 +251,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       InkWell(
-                        onTap: () => _musicProvider.updateSong(
-                            _musicProvider.drawerItem
-                              ..favorite = _musicProvider.drawerItem.favorite
+                        onTap: () => _provider.updateSong(
+                            _provider.drawerItem
+                              ..favorite = _provider.drawerItem.favorite
                                   ? false
                                   : true),
                         child: Column(
@@ -262,7 +261,7 @@ class _AppDrawerState extends State<AppDrawer> {
                             SvgPicture.asset(
                               AppAssets.favorite,
                               height: 20.8,
-                              color: _musicProvider.drawerItem.favorite
+                              color: _provider.drawerItem.favorite
                                   ? AppColor.red
                                   : AppColor.white,
                             ),
@@ -275,7 +274,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _musicProvider.shuffle();
+                          _provider.shuffle();
                           PageRouter.goBack(context);
                         },
                         child: Column(
@@ -288,7 +287,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _musicProvider.repeat(_musicProvider.drawerItem);
+                          _provider.repeat(_provider.drawerItem);
                           PageRouter.goBack(context);
                         },
                         child: Column(
@@ -302,7 +301,7 @@ class _AppDrawerState extends State<AppDrawer> {
                       InkWell(
                         onTap: () async {
                           Share.shareFiles([
-                            File('${_musicProvider.drawerItem.filePath}/${_musicProvider.drawerItem.fileName}')
+                            File('${_provider.drawerItem.filePath}/${_provider.drawerItem.fileName}')
                                 .path
                           ]);
                           PageRouter.goBack(context);
@@ -324,34 +323,31 @@ class _AppDrawerState extends State<AppDrawer> {
                       // _progressIndicator.show();
                       FilePickerResult result = await FilePicker.platform
                           .pickFiles(type: FileType.audio);
-                      var splitedFiles = await SplitAssistant.splitFile(
+                      var splittedFiles = await SplitAssistant.splitFile(
                           result.files.single.path, context);
-                      if (splitedFiles != "Failed") {
+                      if (splittedFiles != "Failed") {
                         bool isSaved = await SplitAssistant.saveSplitFiles(
-                            splitedFiles, context);
+                            splittedFiles, context);
                         if (isSaved && _permissionReady) {
-                          String drumsUrl = splitedFiles["files"]["drums"];
-                          String voiceUrl = splitedFiles["files"]["voice"];
+                          String drumsUrl = splittedFiles["files"]["drums"];
+                          String voiceUrl = splittedFiles["files"]["voice"];
 
-                          splitedFileList.add(drumsUrl);
-                          splitedFileList.add(voiceUrl);
+                          splittedFileList.add(drumsUrl);
+                          splittedFileList.add(voiceUrl);
 
-                          print('splitedFileList.length is ${splitedFileList.length}');
+                          print('splitedFileList.length is ${splittedFileList.length}');
 
-                          for (int i = 0; i < splitedFileList.length; i++) {
+                           for (int i = 0; i < splittedFileList.length; i++) {
                             print('i is ****************** $i');
                             await _requestDownload(
-                                link: splitedFileList[i], saveToDownload: true);
+                                link: splittedFileList[i]);
+                            SplittedSongRepository.addSong(splittedSongList);
                           }
-                          print('finished downloading  splitted file');
+                          print('finished downloading splitted file');
                           print(splittedSongList);
-                          // SplittedSongRepository.addSong(splittedSongList);
-                          // // await _progressIndicator.dismiss();
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (_) => SplittedScreen()));
-                        }
+
+                      }
+
                         else if(!_permissionReady){
                           _buildNoPermissionWarning();
                         }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hive/hive.dart';
+import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/splash_sreen.dart';
@@ -30,6 +31,32 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+  String _sharedText = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Create the share service
+    LinkShareAssistant()
+    // Register a callback so that we handle shared data if it arrives while the
+    // app is running
+      ..onDataReceived = _handleSharedData
+
+    // Check to see if there is any shared data already, meaning that the app
+    // was launched via sharing.
+      ..getSharedData().then(_handleSharedData);
+  }
+
+  /// Handles any shared data we may receive.
+  void _handleSharedData(String sharedData) {
+    setState(() {
+      _sharedText = sharedData;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -40,7 +67,7 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         debugShowCheckedModeBanner: false,
-        home: SplashScreenPage(),
+        home: _sharedText.length > 1 && _sharedText != null ? Convert(sharedLinkText: _sharedText) : SplashScreenPage(),
         routes: Routes.getRoutes,
       ),
     );

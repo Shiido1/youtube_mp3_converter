@@ -134,21 +134,3 @@ class SongServices implements SongInterface {
     }
   }
 
-  // @override
-  // deleteSong(String key) async {
-  //   if (!(_box?.isOpen ?? false)) _box = await openBox();
-  //   await _box.delete(key);
-  // }
-
-//   @override
-//   Future<List<Song>> getFavoriteSongs() async{
-//     if (!(_box?.isOpen ?? false)) _box = await openBox();
-//     return _box.values
-//         .where((e) => e['favorite'] == true)
-//         .map((e) => Song.fromMap(e))
-//         .toList();
-//   }
-//
-//   @override
-//   Stream<BoxEvent> watchSongs() => _box.watch();
-// }

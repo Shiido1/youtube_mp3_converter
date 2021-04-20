@@ -46,11 +46,13 @@ class _AppDrawerState extends State<AppDrawer> {
   bool downloaded;
   int id;
   var val;
+  bool shuffle;
   bool _isLoading;
   bool _permissionReady;
   static String _localPath;
   ReceivePort _port = ReceivePort();
   String _fileName;
+  bool repeat;
 
   CustomProgressIndicator _progressIndicator;
 
@@ -63,6 +65,8 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    shuffle = _musicProvider.shuffleSong;
+    repeat = _musicProvider.repeatSong;
   }
 
   @override
@@ -135,12 +139,17 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _musicProvider.shuffle();
+                          shuffle
+                              ? _musicProvider.stopShuffle()
+                              : _musicProvider.shuffle(false);
                           PageRouter.goBack(context);
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(AppAssets.shuffle),
+                            SvgPicture.asset(
+                              AppAssets.shuffle,
+                              color: shuffle ? AppColor.red : AppColor.white,
+                            ),
                             TextViewWidget(
                                 text: 'Shuffle', color: AppColor.white)
                           ],
@@ -148,12 +157,18 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _musicProvider.repeat(_musicProvider.drawerItem);
+                          repeat
+                              ? _musicProvider.undoRepeat()
+                              : _musicProvider
+                                  .repeat(_musicProvider.drawerItem);
                           PageRouter.goBack(context);
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(AppAssets.repeat),
+                            SvgPicture.asset(
+                              AppAssets.repeat,
+                              color: repeat ? AppColor.red : AppColor.white,
+                            ),
                             TextViewWidget(
                                 text: 'Repeat', color: AppColor.white)
                           ],
@@ -180,7 +195,12 @@ class _AppDrawerState extends State<AppDrawer> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () {},
+                    onTap: () {
+                      SplitAssistant().splitFile(
+                          '${_musicProvider.drawerItem.filePath}/${_musicProvider.drawerItem.fileName}',
+                          context);
+                      // SplitAssistant().getUserLibrary();
+                    },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
                       text: 'Split Song',

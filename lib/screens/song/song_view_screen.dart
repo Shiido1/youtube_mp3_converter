@@ -27,6 +27,7 @@ class SongViewScreen extends StatefulWidget {
 
 class _SongViewScreenState extends State<SongViewScreen> {
   MusicProvider _musicProvider;
+  bool repeat;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
     _musicProvider.playerType = PlayerType.ALL;
     _musicProvider.playAudio(widget.song);
     _musicProvider.updateDrawer(widget.song);
+    repeat = _musicProvider.repeatSong;
     super.initState();
   }
 
@@ -100,8 +102,14 @@ class _SongViewScreenState extends State<SongViewScreen> {
                   children: [
                     IconButton(
                       icon: Icon(Icons.skip_previous_outlined),
-                      onPressed: () =>
-                          !_provider.canPrevSong ? _musicProvider.prev() : null,
+                      onPressed: !_provider.canPrevSong
+                          ? () {
+                              _musicProvider.prev();
+                              if (repeat)
+                                _musicProvider
+                                    .repeat(_musicProvider.drawerItem);
+                            }
+                          : null,
                       iconSize: 56,
                       color: !_provider.canPrevSong
                           ? AppColor.white
@@ -116,8 +124,14 @@ class _SongViewScreenState extends State<SongViewScreen> {
                     ),
                     IconButton(
                       icon: Icon(Icons.skip_next_outlined),
-                      onPressed: () =>
-                          !_provider.canNextSong ? _musicProvider.next() : null,
+                      onPressed: !_provider.canNextSong
+                          ? () {
+                              _musicProvider.next();
+                              if (repeat)
+                                _musicProvider
+                                    .repeat(_musicProvider.drawerItem);
+                            }
+                          : null,
                       iconSize: 56,
                       color: !_provider.canNextSong
                           ? AppColor.white

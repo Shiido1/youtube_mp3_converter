@@ -112,10 +112,11 @@ class Radio {
     return data;
   }
 
-  static Map<String, dynamic> mapToJson({@required String token, String name}) {
+  static Map<String, dynamic> mapToJson(
+      {@required String token, String searchData}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['token'] = token;
-    data['name'] = name;
+    data['search'] = searchData;
     return data;
   }
 }

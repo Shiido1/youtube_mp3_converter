@@ -207,11 +207,7 @@ class _ConvertState extends State<Convert> {
                             Icons.arrow_back_ios_outlined,
                             color: AppColor.white,
                           ),
-                          onPressed: () => Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MainDashBoard()),
-                          ),
+                          onPressed: () => Navigator.pop(context),
                         ),
                         text: 'Converter',
                       ),

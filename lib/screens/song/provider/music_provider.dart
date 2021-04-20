@@ -23,6 +23,8 @@ class MusicProvider with ChangeNotifier {
   List playLists = [];
   List playListSongTitle = [];
   List<Song> favoriteSongs = [];
+  bool shuffleSong = false;
+  bool repeatSong = false;
   int _currentSongIndex = -1;
   int get length => songs.length;
   int get songNumber => _currentSongIndex + 1;
@@ -148,7 +150,7 @@ class MusicProvider with ChangeNotifier {
         playAudio(nextSong);
         break;
       case PlayerType.SHUFFLE:
-        shuffle();
+        shuffle(false);
         break;
       case PlayerType.REPEAT:
         playAudio(currentSong);
@@ -167,17 +169,41 @@ class MusicProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future shuffle() async {
+  Future shuffle(bool force) async {
+    shuffleSong = true;
     playerType = PlayerType.SHUFFLE;
-    playAudio(randomSong);
+    if (force) playAudio(randomSong);
+    if (audioPlayerState == AudioPlayerState.STOPPED) playAudio(randomSong);
+    notifyListeners();
+  }
+
+  Future stopShuffle() async {
+    shuffleSong = false;
+    playerType = PlayerType.ALL;
     notifyListeners();
   }
 
   Future repeat(Song song) async {
     playerType = PlayerType.REPEAT;
+    repeatSong = true;
     playAudio(song);
     notifyListeners();
   }
+
+  Future undoRepeat () async {
+    repeatSong = false;
+    playerType = PlayerType.ALL;
+    notifyListeners();
+  }
+
+  // Future repeatAll() async {
+  //   playerType = PlayerType.ALL;
+  //   if (nextSong == null) {
+  //     setCurrentIndex(0);
+  //     playAudio(songs[0]);
+  //   }
+  //   notifyListeners();
+  // }
 
   handlePlaying() {
     switch (audioPlayerState) {

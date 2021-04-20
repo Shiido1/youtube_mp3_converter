@@ -1,12 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_switch/flutter_switch.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/constant.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
@@ -22,25 +29,32 @@ class _RadioClassState extends State<RadioClass>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   RadioProvider _radioProvider;
+  TextEditingController _textController;
   bool tap;
+  bool showChannels = false;
   bool favRadio = false;
   String radioFile = '', radioMp3 = '';
   String placeName;
   bool isPlaying = false;
-  bool isVisible = true;
+  bool showFaves = false;
   RadioPlayProvider _playProvider;
   int currentRadioIndex;
   List favourite = [];
   bool isFavourite = false;
   String selectedTab = "radio";
+  FocusNode _textFocusNode;
+  final _formKey = GlobalKey<FormState>();
+  Position location;
+  bool showAllChannels = true;
 
   @override
   void initState() {
     _radioProvider = Provider.of<RadioProvider>(context, listen: false);
-    _radioProvider.init(context);
+    _radioProvider.init(context: context, search: false, searchData: '');
     _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
     _playProvider.initPlayer();
-    tap = false;
+    _textController = TextEditingController()..addListener(() {});
+    _textFocusNode = FocusNode();
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2))
@@ -55,6 +69,57 @@ class _RadioClassState extends State<RadioClass>
     super.initState();
   }
 
+  // getUserLocation() async {
+  //   bool serviceEnabled;
+  //   LocationPermission permission;
+  //   print('started');
+
+  //   serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  //   if (!serviceEnabled) {
+  //     showLocationMessage(
+  //         message:
+  //             'This function requires your location to be turned on. Do you want to turn it on?',
+  //         type: 'location');
+  //   }
+  //   permission = await Geolocator.checkPermission();
+  //   if (permission == LocationPermission.denied) {
+  //     permission = await Geolocator.requestPermission();
+  //   }
+  //   if (permission == LocationPermission.deniedForever) {
+  //     showLocationMessage(
+  //         message:
+  //             'This function requires permission to access your location. Grant permission?',
+  //         type: 'permission');
+  //   }
+  //   if (permission == LocationPermission.always ||
+  //       permission == LocationPermission.whileInUse) {
+  //     location = await Geolocator.getCurrentPosition(
+  //         desiredAccuracy: LocationAccuracy.best,
+  //         timeLimit: Duration(seconds: 60),
+  //         forceAndroidLocationManager: true);
+  //   }
+
+  //   if (location != null) {
+  //     try {
+  //       final response = await get(Uri.parse(
+  //           'https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${location.latitude}&longitude=${location.longitude}&localityLanguage=es'));
+  //       if (response.statusCode == 200) {
+  //         var body = jsonDecode(response.body);
+  //         String place = body['city'] != null && body['city'] != ''
+  //             ? body['city']
+  //             : body['principalSubdivision'] != null &&
+  //                     body['principalSubdivision'] != ''
+  //                 ? body['principalSubdivision']
+  //                 : body['countryName'];
+  //         _radioProvider.init(
+  //             context: context, search: true, searchData: place);
+  //       }
+  //     } catch (_) {
+  //       print(_);
+  //     }
+  //   }
+  // }
+
   init() async {
     radioMp3 = await preferencesHelper.getStringValues(key: 'radiomp3');
     radioFile = await preferencesHelper.getStringValues(key: 'radioFile');
@@ -66,12 +131,43 @@ class _RadioClassState extends State<RadioClass>
   void dispose() {
     _controller.dispose();
     super.dispose();
+    if (isPlaying) _playProvider.playRadio(radioMp3);
   }
+
+  // showLocationMessage({String message, String type}) {
+  //   showDialog(
+  //       barrierDismissible: false,
+  //       context: context,
+  //       builder: (context) {
+  //         return AlertDialog(
+  //           content: Text(
+  //             message,
+  //             style: TextStyle(fontSize: 15),
+  //           ),
+  //           actions: [
+  //             TextButton(
+  //               child: Text('NO'),
+  //               onPressed: () {
+  //                 Navigator.pop(context);
+  //               },
+  //             ),
+  //             TextButton(
+  //               onPressed: () async {
+  //                 Navigator.pop(context);
+  //                 if (type == 'permission') await Geolocator.openAppSettings();
+  //                 if (type == 'location')
+  //                   await Geolocator.openLocationSettings();
+  //               },
+  //               child: Text('YES'),
+  //             ),
+  //           ],
+  //         );
+  //       });
+  // }
 
   getFavourites() async {
     var box = await Hive.openBox('testBox');
     var _favourite = await box.get('fav');
-    print(_favourite);
     if (_favourite != null) {
       setState(() {
         favourite = _favourite;
@@ -108,12 +204,10 @@ class _RadioClassState extends State<RadioClass>
 
     if (currentRadioIndex != null) {
       if (_favourite != null) {
-        print(_favourite);
         if (_favourite.contains(json.encode({
           'name': _radioLog.name,
           'mp3': _radioLog.mp3,
         }))) {
-          print("already added to favourite, removing...");
           for (var map in _favourite) {
             if (json.decode(map)["name"] == radioFile) {
               // file already added to favourite
@@ -124,13 +218,11 @@ class _RadioClassState extends State<RadioClass>
                 favourite = _favourite;
                 isFavourite = false;
               });
-              print("Removed from in fav..");
               break;
             }
             // print(json.decode(map));
           }
         } else {
-          print("Adding to favourite");
           setState(() {
             favourite = _favourite;
             favourite.add(json.encode({
@@ -163,297 +255,459 @@ class _RadioClassState extends State<RadioClass>
     return Consumer<RadioProvider>(builder: (_, radioProvider, __) {
       return Scaffold(
           backgroundColor: AppColor.background1,
-          body: Stack(children: [
-            Center(
-              child: Column(children: [
-                RedBackground(
-                  iconButton: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_outlined,
-                      color: AppColor.white,
-                    ),
-                    onPressed: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainDashBoard()),
-                    ),
-                  ),
-                  text: 'Radio World Wide',
-                ),
-                Expanded(
-                  child: Stack(
+          resizeToAvoidBottomInset: false,
+          body: GestureDetector(
+            onTap: () {
+              _textFocusNode.unfocus();
+            },
+            child: Stack(children: [
+              Center(
+                child: Column(children: [
+                  Stack(
                     children: [
-                      Center(
-                        child: AnimatedBuilder(
-                            animation: _controller,
-                            builder: (_, child) {
-                              return Transform.rotate(
-                                angle: _controller.value * 2 * 3.145,
-                                child: child,
-                              );
-                            },
-                            child: Image.asset(
-                              AppAssets.globe,
-                              height: 350,
-                              width: 350,
-                            )),
+                      RedBackground(
+                        iconButton: IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_outlined,
+                            color: AppColor.white,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                        text: 'Radio World Wide',
                       ),
                       Positioned(
-                        bottom: 0,
-                        right: 0,
-                        left: 0,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        bottom: 5,
+                        left: 10,
+                        child: Row(
                           children: [
-                            Container(
-                              height: 45,
-                              width: 230,
-                              color: Colors.red[200],
-                              child: Center(
-                                child: TextViewWidget(
-                                  color: AppColor.white,
-                                  text: '$placeName',
-                                  textSize: 20,
-                                ),
-                              ),
+                            FlutterSwitch(
+                              inactiveTextFontWeight: FontWeight.normal,
+                              activeTextFontWeight: FontWeight.normal,
+                              activeColor: Colors.red[300],
+                              activeToggleColor: AppColor.bottomRed,
+                              activeTextColor: Colors.black,
+                              showOnOff: true,
+                              value: showAllChannels,
+                              inactiveToggleColor: Colors.black,
+                              onToggle: (value) {
+                                if (showAllChannels == false) {
+                                  radioProvider.init(
+                                      context: context,
+                                      search: false,
+                                      searchData: '');
+                                  _textController.clear();
+                                  _textFocusNode.unfocus();
+                                  setState(() {
+                                    showAllChannels = value;
+                                  });
+                                }
+                              },
+                              valueFontSize: 16,
+                              height: 25,
+                              width: 55,
                             ),
-                            tap == false
-                                ? Container()
-                                : selectedTab == 'radio' && tap == true
-                                    ? Container(
-                                        height: 340,
-                                        width: 230,
-                                        color: AppColor.black2,
-                                        child: (radioProvider?.radioModels
-                                                        ?.radio?.length ??
-                                                    0) >
-                                                0
-                                            ? ListView.builder(
-                                                itemCount: radioProvider
-                                                        ?.radioModels
-                                                        ?.radio
-                                                        ?.length ??
-                                                    0,
-                                                itemBuilder: (context, index) {
-                                                  var _radioLog = radioProvider
-                                                      .radioModels.radio[index];
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        currentRadioIndex =
-                                                            index;
-                                                        radioFile =
-                                                            _radioLog.name;
-                                                        radioMp3 =
-                                                            _radioLog.mp3;
-                                                        placeName =
-                                                            _radioLog.placeName;
-                                                        isPlaying = true;
-                                                      });
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radiomp3',
-                                                              value: radioMp3);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radioFile',
-                                                              value: radioFile);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'placename',
-                                                              value: placeName);
-                                                      checkFavourite();
-                                                      _playProvider
-                                                          .playRadio(radioMp3);
-                                                    },
-                                                    child: Column(
-                                                      children: [
-                                                        TextViewWidget(
-                                                          text: _radioLog.name,
-                                                          color: AppColor.white,
-                                                          textSize: 16,
-                                                        ),
-                                                        Divider(
-                                                            thickness: 1,
-                                                            color:
-                                                                AppColor.white)
-                                                      ],
-                                                    ),
-                                                  );
-                                                })
-                                            : Center(
-                                                child: Text(
-                                                  'No Station',
-                                                  style: TextStyle(
-                                                      color: AppColor.white),
-                                                ),
-                                              ),
-                                      )
-                                    : Container(
-                                        height: 340,
-                                        width: 230,
-                                        color: AppColor.black2,
-                                        child: favourite.length > 0
-                                            ? ListView.builder(
-                                                itemCount:
-                                                    favourite.length ?? 0,
-                                                itemBuilder: (context, index) {
-                                                  var _radioLog = json
-                                                      .decode(favourite[index]);
-                                                  print(_radioLog);
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        currentRadioIndex =
-                                                            index;
-                                                        radioFile =
-                                                            _radioLog["name"];
-                                                        radioMp3 =
-                                                            _radioLog["mp3"];
-                                                        isPlaying = true;
-                                                      });
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radiomp3',
-                                                              value: radioMp3);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radioFile',
-                                                              value: radioFile);
-                                                      checkFavourite();
-                                                      _playProvider
-                                                          .playRadio(radioMp3);
-                                                    },
-                                                    child: Column(
-                                                      children: [
-                                                        TextViewWidget(
-                                                          text:
-                                                              _radioLog["name"],
-                                                          color: AppColor.white,
-                                                          textSize: 16,
-                                                        ),
-                                                        Divider(
-                                                            thickness: 1,
-                                                            color:
-                                                                AppColor.white)
-                                                      ],
-                                                    ),
-                                                  );
-                                                })
-                                            : Center(
-                                                child: Text(
-                                                  'No favourite added.',
-                                                  style: TextStyle(
-                                                      color: AppColor.white),
-                                                ),
-                                              ),
-                                      ),
-                            Container(
-                              width: 230,
-                              height: 50,
-                              color: Colors.red[400],
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        selectedTab = "radio";
-                                        tap = !tap;
-                                      });
-                                    },
-                                    child: SvgPicture.asset(
-                                      AppAssets.bookmark,
-                                      height: 25,
-                                      width: 25,
-                                    ),
-                                  ),
-                                  InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          selectedTab = "favourite";
-                                          tap = !tap;
-                                        });
-                                      },
-                                      child: SvgPicture.asset(
-                                        AppAssets.favourite,
-                                        height: 25,
-                                        width: 25,
-                                      ))
-                                ],
-                              ),
-                            )
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text('Show all channels',
+                                style: TextStyle(
+                                    fontSize: 15, fontWeight: FontWeight.bold))
                           ],
                         ),
                       ),
                     ],
                   ),
-                ),
-                Container(
-                  alignment: Alignment.bottomCenter,
-                  decoration: BoxDecoration(color: AppColor.black2),
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.only(left: 15.0, top: 10, bottom: 10),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: TextViewWidget(
-                                text: '$radioFile',
-                                color: AppColor.white,
-                                textSize: 16,
-                                fontWeight: FontWeight.w600),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 5,
+                          left: 40,
+                          right: 40,
+                          height: 50,
+                          child: Form(
+                            key: _formKey,
+                            child: TextFormField(
+                              onFieldSubmitted: (value) {
+                                if (_formKey.currentState.validate()) {
+                                  radioProvider.init(
+                                      context: context,
+                                      search: true,
+                                      searchData: _textController.text);
+                                }
+
+                                setState(() {
+                                  showAllChannels = false;
+                                  showChannels = true;
+                                  showFaves = false;
+                                });
+                              },
+                              cursorColor: AppColor.bottomRed,
+                              validator: (val) {
+                                return val.trim().length > 2 ? null : '';
+                              },
+                              style: TextStyle(
+                                  height: 1.5,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600),
+                              cursorHeight: 25,
+                              focusNode: _textFocusNode,
+                              textInputAction: TextInputAction.search,
+                              scrollPadding: EdgeInsets.zero,
+                              controller: _textController,
+                              decoration: InputDecoration(
+                                hintText: 'Enter location or channel name',
+                                suffixIcon: IconButton(
+                                    color: AppColor.bottomRed,
+                                    icon: Icon(
+                                      Icons.search,
+                                      size: 30,
+                                    ),
+                                    onPressed: () {
+                                      if (_formKey.currentState.validate()) {
+                                        _textFocusNode.unfocus();
+                                        radioProvider.init(
+                                            context: context,
+                                            search: true,
+                                            searchData: _textController.text);
+                                        setState(() {
+                                          showAllChannels = false;
+                                          showChannels = true;
+                                          showFaves = false;
+                                        });
+                                      }
+                                    }),
+                                contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 12),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      color: Colors.red[300], width: 2),
+                                ),
+                                errorStyle: TextStyle(fontSize: 0),
+                                errorText: '',
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      color: AppColor.bottomRed, width: 2),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(
+                                      color: Colors.red[300], width: 2),
+                                ),
+                              ),
+                            ),
                           ),
-                          SizedBox(
-                            width: 2,
-                          ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                      icon: Icon(
-                                        Icons.skip_previous_outlined,
-                                        color: AppColor.white,
-                                        size: 50,
-                                      ),
-                                      onPressed: () {
-                                        if (selectedTab == "favourite") {
-                                          int fav = int.parse(
-                                              favourite[currentRadioIndex]);
-                                          if (fav != 0 && fav != null) {
+                        ),
+                        Center(
+                          child: AnimatedBuilder(
+                              animation: _controller,
+                              builder: (_, child) {
+                                return Transform.rotate(
+                                  angle: _controller.value * 2 * 3.145,
+                                  child: child,
+                                );
+                              },
+                              child: Image.asset(
+                                AppAssets.globe,
+                                height: 350,
+                                width: 350,
+                              )),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          left: 0,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                height: 45,
+                                width: 230,
+                                color: Colors.red[200],
+                                child: Center(
+                                  child: TextViewWidget(
+                                    color: AppColor.white,
+                                    text: '$placeName',
+                                    textSize: 20,
+                                  ),
+                                ),
+                              ),
+                              if (showChannels == false && showFaves == false)
+                                Container(),
+                              if (showChannels)
+                                Container(
+                                  height: 340,
+                                  width: 230,
+                                  color: AppColor.black2,
+                                  child: (radioProvider?.radioModels?.radio
+                                                  ?.length ??
+                                              0) >
+                                          0
+                                      ? ListView.builder(
+                                          itemCount: radioProvider?.radioModels
+                                                  ?.radio?.length ??
+                                              0,
+                                          itemBuilder: (context, index) {
                                             var _radioLog = radioProvider
-                                                .radioModels.radio[fav - 1];
-                                            setState(() {
-                                              radioFile = _radioLog.name;
-                                              radioMp3 = _radioLog.mp3;
-                                              isPlaying = true;
-                                              currentRadioIndex = fav - 1;
-                                            });
-                                            preferencesHelper.saveValue(
-                                                key: 'radiomp3',
-                                                value: radioMp3);
-                                            preferencesHelper.saveValue(
-                                                key: 'radioFile',
-                                                value: radioFile);
-                                            _playProvider.playRadio(radioMp3);
-                                            checkFavourite();
+                                                .radioModels.radio[index];
+                                            return InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  currentRadioIndex = index;
+                                                  radioFile = _radioLog.name;
+                                                  radioMp3 = _radioLog.mp3;
+                                                  placeName =
+                                                      _radioLog.placeName;
+                                                  isPlaying = true;
+                                                });
+                                                preferencesHelper.saveValue(
+                                                    key: 'radiomp3',
+                                                    value: radioMp3);
+                                                preferencesHelper.saveValue(
+                                                    key: 'radioFile',
+                                                    value: radioFile);
+                                                preferencesHelper.saveValue(
+                                                    key: 'placename',
+                                                    value: placeName);
+                                                checkFavourite();
+                                                _playProvider
+                                                    .playRadio(radioMp3);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  TextViewWidget(
+                                                    text: _radioLog.name,
+                                                    color: AppColor.white,
+                                                    textSize: 16,
+                                                  ),
+                                                  Divider(
+                                                      thickness: 1,
+                                                      color: AppColor.white)
+                                                ],
+                                              ),
+                                            );
+                                          })
+                                      : Center(
+                                          child: Text(
+                                            'No Station',
+                                            style: TextStyle(
+                                                color: AppColor.white),
+                                          ),
+                                        ),
+                                ),
+                              if (showFaves)
+                                Container(
+                                  height: 340,
+                                  width: 230,
+                                  color: AppColor.black2,
+                                  child: favourite.length > 0
+                                      ? ListView.builder(
+                                          itemCount: favourite.length ?? 0,
+                                          itemBuilder: (context, index) {
+                                            var _radioLog =
+                                                json.decode(favourite[index]);
+                                            print(_radioLog);
+                                            return InkWell(
+                                              onTap: () {
+                                                setState(() {
+                                                  currentRadioIndex = index;
+                                                  radioFile = _radioLog["name"];
+                                                  radioMp3 = _radioLog["mp3"];
+                                                  isPlaying = true;
+                                                });
+                                                preferencesHelper.saveValue(
+                                                    key: 'radiomp3',
+                                                    value: radioMp3);
+                                                preferencesHelper.saveValue(
+                                                    key: 'radioFile',
+                                                    value: radioFile);
+                                                checkFavourite();
+                                                _playProvider
+                                                    .playRadio(radioMp3);
+                                              },
+                                              child: Column(
+                                                children: [
+                                                  TextViewWidget(
+                                                    text: _radioLog["name"],
+                                                    color: AppColor.white,
+                                                    textSize: 16,
+                                                  ),
+                                                  Divider(
+                                                      thickness: 1,
+                                                      color: AppColor.white)
+                                                ],
+                                              ),
+                                            );
+                                          })
+                                      : Center(
+                                          child: Text(
+                                            'No favourite added.',
+                                            style: TextStyle(
+                                                color: AppColor.white),
+                                          ),
+                                        ),
+                                ),
+                              Container(
+                                width: 230,
+                                height: 50,
+                                color: Colors.red[400],
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          showChannels = !showChannels;
+                                          showFaves = false;
+                                        });
+                                      },
+                                      child: SvgPicture.asset(
+                                        AppAssets.bookmark,
+                                        height: 25,
+                                        width: 25,
+                                      ),
+                                    ),
+                                    InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            showFaves = !showFaves;
+                                            showChannels = false;
+                                          });
+                                        },
+                                        child: SvgPicture.asset(
+                                          AppAssets.favourite,
+                                          height: 25,
+                                          width: 25,
+                                        ))
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    decoration: BoxDecoration(color: AppColor.black2),
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                          left: 15.0, top: 10, bottom: 10),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: TextViewWidget(
+                                  text: '$radioFile',
+                                  color: AppColor.white,
+                                  textSize: 16,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                            SizedBox(
+                              width: 2,
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                        icon: Icon(
+                                          Icons.skip_previous_outlined,
+                                          color: AppColor.white,
+                                          size: 50,
+                                        ),
+                                        onPressed: () {
+                                          if (selectedTab == "favourite") {
+                                            int fav = int.parse(
+                                                favourite[currentRadioIndex]);
+                                            if (fav != 0 && fav != null) {
+                                              var _radioLog = radioProvider
+                                                  .radioModels.radio[fav - 1];
+                                              setState(() {
+                                                radioFile = _radioLog.name;
+                                                radioMp3 = _radioLog.mp3;
+                                                isPlaying = true;
+                                                currentRadioIndex = fav - 1;
+                                              });
+                                              preferencesHelper.saveValue(
+                                                  key: 'radiomp3',
+                                                  value: radioMp3);
+                                              preferencesHelper.saveValue(
+                                                  key: 'radioFile',
+                                                  value: radioFile);
+                                              _playProvider.playRadio(radioMp3);
+                                              checkFavourite();
+                                            }
+                                          } else {
+                                            if (currentRadioIndex != 0 &&
+                                                currentRadioIndex != null) {
+                                              var _radioLog = radioProvider
+                                                  .radioModels
+                                                  .radio[currentRadioIndex - 1];
+                                              setState(() {
+                                                radioFile = _radioLog.name;
+                                                radioMp3 = _radioLog.mp3;
+                                                isPlaying = true;
+                                                currentRadioIndex =
+                                                    currentRadioIndex - 1;
+                                              });
+                                              preferencesHelper.saveValue(
+                                                  key: 'radiomp3',
+                                                  value: radioMp3);
+                                              preferencesHelper.saveValue(
+                                                  key: 'radioFile',
+                                                  value: radioFile);
+                                              _playProvider.playRadio(radioMp3);
+                                              checkFavourite();
+                                            }
                                           }
-                                        } else {
-                                          if (currentRadioIndex != 0 &&
+                                        }),
+
+                                    IconButton(
+                                      icon: isPlaying
+                                          ? Icon(
+                                              Icons.pause_circle_outline,
+                                              size: 50,
+                                              color: AppColor.white,
+                                            )
+                                          : Icon(
+                                              Icons.play_circle_outline,
+                                              color: AppColor.white,
+                                              size: 50,
+                                            ),
+                                      onPressed: () {
+                                        setState(() {
+                                          isPlaying = !isPlaying;
+                                        });
+                                        _playProvider.playRadio(radioMp3);
+                                      },
+                                    ),
+                                    IconButton(
+                                        icon: Icon(
+                                          Icons.skip_next_outlined,
+                                          size: 48,
+                                          color: AppColor.white,
+                                        ),
+                                        onPressed: () {
+                                          if (currentRadioIndex !=
+                                                  radioProvider.radioModels
+                                                      .radio.length &&
                                               currentRadioIndex != null) {
                                             var _radioLog = radioProvider
                                                 .radioModels
-                                                .radio[currentRadioIndex - 1];
+                                                .radio[currentRadioIndex + 1];
                                             setState(() {
                                               radioFile = _radioLog.name;
                                               radioMp3 = _radioLog.mp3;
                                               isPlaying = true;
                                               currentRadioIndex =
-                                                  currentRadioIndex - 1;
+                                                  currentRadioIndex + 1;
                                             });
                                             preferencesHelper.saveValue(
                                                 key: 'radiomp3',
@@ -464,81 +718,32 @@ class _RadioClassState extends State<RadioClass>
                                             _playProvider.playRadio(radioMp3);
                                             checkFavourite();
                                           }
-                                        }
-                                      }),
-
-                                  IconButton(
-                                    icon: isPlaying
-                                        ? Icon(
-                                            Icons.pause_circle_outline,
-                                            size: 50,
-                                            color: AppColor.white,
-                                          )
-                                        : Icon(
-                                            Icons.play_circle_outline,
-                                            color: AppColor.white,
-                                            size: 50,
-                                          ),
-                                    onPressed: () {
-                                      setState(() {
-                                        isPlaying = !isPlaying;
-                                      });
-                                      _playProvider.playRadio(radioMp3);
-                                    },
-                                  ),
-                                  IconButton(
-                                      icon: Icon(
-                                        Icons.skip_next_outlined,
-                                        size: 48,
-                                        color: AppColor.white,
-                                      ),
-                                      onPressed: () {
-                                        if (currentRadioIndex !=
-                                                radioProvider
-                                                    .radioModels.radio.length &&
-                                            currentRadioIndex != null) {
-                                          var _radioLog = radioProvider
-                                              .radioModels
-                                              .radio[currentRadioIndex + 1];
-                                          setState(() {
-                                            radioFile = _radioLog.name;
-                                            radioMp3 = _radioLog.mp3;
-                                            isPlaying = true;
-                                            currentRadioIndex =
-                                                currentRadioIndex + 1;
-                                          });
-                                          preferencesHelper.saveValue(
-                                              key: 'radiomp3', value: radioMp3);
-                                          preferencesHelper.saveValue(
-                                              key: 'radioFile',
-                                              value: radioFile);
-                                          _playProvider.playRadio(radioMp3);
-                                          checkFavourite();
-                                        }
-                                      }),
-                                  // }),
-                                ],
+                                        }),
+                                    // }),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.favorite,
-                                size: 34,
-                                color:
-                                    isFavourite ? Colors.red : AppColor.white),
-                            onPressed: () {
-                              addFavourite();
-                            },
-                          ),
-                          SizedBox(
-                            width: 3,
-                          ),
-                        ]),
-                  ),
-                )
-              ]),
-            ),
-          ]));
+                            IconButton(
+                              icon: Icon(Icons.favorite,
+                                  size: 34,
+                                  color: isFavourite
+                                      ? Colors.red
+                                      : AppColor.white),
+                              onPressed: () {
+                                addFavourite();
+                              },
+                            ),
+                            SizedBox(
+                              width: 3,
+                            ),
+                          ]),
+                    ),
+                  )
+                ]),
+              ),
+            ]),
+          ));
     });
   }
 }

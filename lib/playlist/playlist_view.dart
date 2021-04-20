@@ -32,13 +32,15 @@ class _PlayListViewState extends State<PlayListView> {
   List<Song> _song = [];
   Song _currentlyPlayingSong;
   bool isFavorite = false;
+  bool shuffle;
+  bool repeat;
 
-  checkFavorite () {
+  checkFavorite() {
     List fave = [];
-   _song.forEach((element) {
-     fave.add(element.favorite);
-   });
-   isFavorite = !fave.contains(false);
+    _song.forEach((element) {
+      fave.add(element.favorite);
+    });
+    isFavorite = !fave.contains(false);
   }
 
   void getPlaylistSongDetails() async {
@@ -55,6 +57,8 @@ class _PlayListViewState extends State<PlayListView> {
     }
     _song = localSong;
     _currentlyPlayingSong = _musicProvider.currentSong;
+    shuffle = _musicProvider.shuffleSong;
+    repeat = _musicProvider.repeatSong;
     checkFavorite();
     setState(() {});
   }
@@ -86,7 +90,9 @@ class _PlayListViewState extends State<PlayListView> {
           data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
           child: AppDrawer()),
       body: Theme(
-        data: Theme.of(context).copyWith(highlightColor: Colors.transparent, splashColor: Colors.transparent),
+        data: Theme.of(context).copyWith(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent),
         child: Center(
           child: Column(
             children: [
@@ -163,9 +169,7 @@ class _PlayListViewState extends State<PlayListView> {
                   SvgPicture.asset(
                     AppAssets.favorite,
                     height: 20.8,
-                    color: isFavorite
-                        ? AppColor.red
-                        : AppColor.white,
+                    color: isFavorite ? AppColor.red : AppColor.white,
                   ),
                   TextViewWidget(
                     text: 'Favorite',
@@ -177,13 +181,15 @@ class _PlayListViewState extends State<PlayListView> {
             SizedBox(width: 15),
             InkWell(
               onTap: () {
-                _musicProvider.shuffle();
-                PageRouter.gotoWidget(SongViewScreen(_song[_musicProvider.currentIndex]), context);
-
+                shuffle
+                    ? _musicProvider.stopShuffle()
+                    : _musicProvider.shuffle(false);
+                // PageRouter.gotoWidget(SongViewScreen(_song[_musicProvider.currentIndex]), context);
               },
               child: Column(
                 children: [
-                  SvgPicture.asset(AppAssets.shuffle),
+                  SvgPicture.asset(AppAssets.shuffle,
+                      color: shuffle ? AppColor.red : AppColor.white),
                   TextViewWidget(text: 'Shuffle', color: AppColor.white)
                 ],
               ),
@@ -191,11 +197,17 @@ class _PlayListViewState extends State<PlayListView> {
             SizedBox(width: 15),
             InkWell(
               onTap: () {
-                // _musicProvider.repeat(_musicProvider.drawerItem);
+                repeat
+                    ? _musicProvider.undoRepeat()
+                    : _musicProvider.repeat(_musicProvider.drawerItem);
+                // _musicProvider.repeatAll();
               },
               child: Column(
                 children: [
-                  SvgPicture.asset(AppAssets.repeat),
+                  SvgPicture.asset(
+                    AppAssets.repeat,
+                    color: repeat ? AppColor.red : AppColor.white,
+                  ),
                   TextViewWidget(text: 'Repeat', color: AppColor.white)
                 ],
               ),
@@ -224,6 +236,7 @@ class _PlayListViewState extends State<PlayListView> {
           children: [
             InkWell(
               onTap: () {
+                _musicProvider.stopShuffle();
                 _musicProvider.setCurrentIndex(0);
                 PageRouter.gotoWidget(SongViewScreen(_song[0]), context);
               },
@@ -246,7 +259,7 @@ class _PlayListViewState extends State<PlayListView> {
             SizedBox(width: 30),
             InkWell(
               onTap: () {
-                _musicProvider.shuffle();
+                _musicProvider.shuffle(true);
               },
               child: Container(
                 height: 40,

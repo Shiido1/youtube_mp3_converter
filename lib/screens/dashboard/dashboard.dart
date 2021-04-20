@@ -90,7 +90,7 @@ class _DashBoardState extends State<DashBoard> {
         setState(() {
           _homeButtonItem = item;
         });
-        Navigator.pushReplacement(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => screen),
         );

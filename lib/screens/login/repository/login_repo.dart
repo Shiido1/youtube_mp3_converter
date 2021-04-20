@@ -14,14 +14,17 @@ import 'package:mp3_music_converter/utils/instance.dart';
 class LoginApiRepository {
   Future<ApiResponse<dynamic>> loginUser(
       {@required BuildContext context, @required Map data}) async {
+    LoginProviders _provider =
+        Provider.of<LoginProviders>(context, listen: false);
     try {
       final _response =
           await jayNetworkClient.makePostRequest("login", data: data);
       final _finalData = LoginModel.fromJson(_response.data);
 
       _saveUsersData(_finalData);
-      Provider.of<LoginProviders>(context, listen: false)
-          .getUserToken(_finalData.token);
+
+      _provider.getUserToken(_finalData.token);
+      await _provider.saveUserToken(_finalData.token);
       return ApiResponse.success(data: _finalData);
     } catch (e) {
       return handleNetworkException(e);

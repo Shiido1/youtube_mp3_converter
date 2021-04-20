@@ -12,29 +12,44 @@ class RadioProvider extends ChangeNotifier {
   bool problem = false;
   RadioModel radioModels;
 
-  void init(BuildContext context) {
+  void init({BuildContext context, @required bool search, String searchData}) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
-    getRadio();
+    getRadio(search: search, searchData: searchData, context: context);
   }
 
-  getRadio() async {
-    if (radioModels == null) radioX();
+  getRadio(
+      {@required bool search,
+      String searchData,
+      @required BuildContext context}) async {
+    if (search) radioX(search: true, searchData: searchData, context: context);
+    if (search == false || radioModels == null)
+      radioX(search: search, searchData: searchData, context: context);
   }
 
-  void radioX() async {
+  void radioX(
+      {@required bool search,
+      String searchData,
+      @required BuildContext context}) async {
     try {
       _progressIndicator.show();
-      radioModels = await _repository.radiox(
-          map: Radio.mapToJson(
-        token: token,
-      ));
+      radioModels = search
+          ? await _repository.radiox(
+              map: Radio.mapToJson(token: token, searchData: searchData),
+              search: true,
+              context: context)
+          : await _repository.radiox(
+              map: Radio.mapToJson(
+                token: token,
+              ),
+              search: false,
+              context: context);
       await _progressIndicator.dismiss();
     } catch (e) {
       await _progressIndicator.dismiss();
       problem = false;
       print("error $e");
-      notifyListeners();
     }
+    notifyListeners();
   }
 }

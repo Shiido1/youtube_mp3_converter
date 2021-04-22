@@ -35,4 +35,7 @@ class AppAssets {
   static final String rubbish = 'assets/svg/rubbish.svg';
   static final String bookmark = 'assets/svg/bookmark.svg';
   static final String favourite = 'assets/svg/favourite-heart.svg';
+  static final String advance = 'assets/svg/advance_plan.svg';
+  static final String medium = 'assets/svg/medium_plan.svg';
+  static final String basic = 'assets/svg/basic_plan.svg';
 }

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/create_music/create_music_screen.dart';
+import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 
 // ignore: must_be_immutable
 class DashBoard extends StatefulWidget {
@@ -20,9 +22,37 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
 
+  String _sharedText = "";
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Create the share service
+    LinkShareAssistant()
+    // Register a callback so that we handle shared data if it arrives while the
+    // app is running
+      ..onDataReceived = _handleSharedData
+
+    // Check to see if there is any shared data already, meaning that the app
+    // was launched via sharing.
+      ..getSharedData().then(_handleSharedData);
+  }
+
+  /// Handles any shared data we may receive.
+  void _handleSharedData(String sharedData) {
+    setState(() {
+      _sharedText = sharedData;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+
+    if (_sharedText.length>1)
+      return Convert(sharedLinkText: _sharedText);
+    else
+      return Scaffold(
       backgroundColor: AppColor.background,
       body: Column(
         children: [
@@ -71,7 +101,7 @@ class _DashBoardState extends State<DashBoard> {
                 _buttonItem(
                     title: "Plan",
                     item: HomeButtonItem.PLAN,
-                    screen: RadioClass(),
+                    screen: PaymentScreen(),
                     assets: AppAssets.plan),
                 SizedBox(height: 15),
               ],

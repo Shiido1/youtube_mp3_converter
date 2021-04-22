@@ -26,6 +26,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     _musicProvider.getSongs();
+
     super.initState();
   }
 

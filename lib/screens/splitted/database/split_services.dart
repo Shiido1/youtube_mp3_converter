@@ -9,22 +9,19 @@ class SplittedSongServices implements SplittedSongInterface {
   Box<Map> _box;
 
   Future<Box<Map>> openBox() {
-    return PgHiveBoxes.openBox<Map>(PgHiveBoxes.songs);
+    return SplitHiveBoxes.openBox<Map>(SplitHiveBoxes.songs);
   }
 
   @override
-  addSong(List<Song> song) async {
+  addSong(Song song) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    Map drum = song.first.toJson();
-    Map voice = song.last.toJson();
-    var splittedSongMap = {"drum": drum, "voice": voice};
-    return _box.putAll(splittedSongMap);
+    return _box.put(song.fileName, song.toJson());
   }
 
   @override
-  Future<List<dynamic>> getSongs() async {
+  Future<List<Song>> getSongs() async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    return _box.values.map((e) => e).toList();
+    return _box.values.map((e) => e).map((e) => Song.fromMap(e)).toList();
   }
 
   @override

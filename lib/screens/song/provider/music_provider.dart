@@ -116,7 +116,7 @@ class MusicProvider with ChangeNotifier {
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
     await advancedPlayer.play(song.file);
     currentSong = song;
-    savePlayingSong(song);
+    // savePlayingSong(song);
     notifyListeners();
   }
 

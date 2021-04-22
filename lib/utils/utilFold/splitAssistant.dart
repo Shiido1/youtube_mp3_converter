@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-// import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
-// import 'package:provider/provider.dart';
 
 class SplitAssistant {
 
@@ -20,7 +17,7 @@ class SplitAssistant {
       // request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] =
-          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6ImdrYmtAbW5vZGUubWUifQ.5Erp07PiSuxqYN7gD6DBka4ZlJt3YdiSi7Bb3X9Y4Nk';
+          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI';
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       var response = await request.send();
@@ -29,7 +26,11 @@ class SplitAssistant {
         print(jsonData);
         var decodedData = jsonDecode(jsonData);
         print(decodedData);
-        return decodedData;
+        String errorMessage = decodedData["message"] ?? null;
+        if(errorMessage == null)
+          return decodedData;
+        else
+          return "Failed";
       } else {
         print('failed');
         print(response.statusCode);
@@ -50,14 +51,12 @@ class SplitAssistant {
       // "token2": Provider.of<LoginProviders>(context, listen: false).userToken,
       "token":
           "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI",
-      "id": decodedData['id'],
+      "bass": decodedData['files']['bass'],
+      "voice": decodedData['files']['voice'],
+      "drum": decodedData['files']['drums'],
+      "others": decodedData['files']['other'],
       "title": decodedData['title'],
-      "files": {
-        "bass": decodedData['files']['bass'],
-        "voice": decodedData['files']['voice'],
-        "drums": decodedData['files']['drums'],
-        "other": decodedData['files']['other']
-      }
+      "id": decodedData['id'],
     });
 
     try {

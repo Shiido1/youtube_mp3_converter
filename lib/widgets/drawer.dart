@@ -42,6 +42,7 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 class _AppDrawerState extends State<AppDrawer> {
   List<String> splittedFileList = [];
   List<Song> splittedSongList = [];
+  List<String> splittedSongIDList = [];
   MusicProvider _musicProvider;
   bool loading = false;
   int _progress = 0;
@@ -115,6 +116,10 @@ class _AppDrawerState extends State<AppDrawer> {
           image: _musicProvider?.drawerItem?.image ?? '',
           splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
         ));
+        // SplittedSongRepository.addSong(splittedSongList.last);
+        print('finished downloading splitted file');
+        print(splittedSongList);
+        print(splittedSongList.last);
       }
     });
 
@@ -156,7 +161,7 @@ class _AppDrawerState extends State<AppDrawer> {
           savedDir: _localPath,
           fileName: _fileName,
           showNotification: true,
-          openFileFromNotification: false);
+          openFileFromNotification: false).then((value) => splittedSongIDList.add(value));
     }
   }
 
@@ -331,21 +336,22 @@ class _AppDrawerState extends State<AppDrawer> {
                         if (isSaved && _permissionReady) {
                           String drumsUrl = splittedFiles["files"]["drums"];
                           String voiceUrl = splittedFiles["files"]["voice"];
+                          String bassUrl = splittedFiles["files"]["bass"];
+                          String otherUrl = splittedFiles["files"]["other"];
 
                           splittedFileList.add(drumsUrl);
                           splittedFileList.add(voiceUrl);
+                          splittedFileList.add(bassUrl);
+                          splittedFileList.add(otherUrl);
 
                           print('splitedFileList.length is ${splittedFileList.length}');
 
                            for (int i = 0; i < splittedFileList.length; i++) {
                             print('i is ****************** $i');
                             await _requestDownload(
-                                link: splittedFileList[i]);
-                            SplittedSongRepository.addSong(splittedSongList);
+                                link: splittedFileList[i],
+                                saveToDownload: true);
                           }
-                          print('finished downloading splitted file');
-                          print(splittedSongList);
-
                       }
 
                         else if(!_permissionReady){

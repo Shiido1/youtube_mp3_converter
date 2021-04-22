@@ -75,7 +75,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(18.0),
                   child: CachedNetworkImage(
-                    imageUrl: _provider.currentSong.image,
+                    imageUrl: _provider?.currentSong?.image??'',
                     height: 400,
                     width: 280,
                     fit: BoxFit.contain,
@@ -83,7 +83,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
                 ),
                 Center(
                   child: TextViewWidget(
-                    text: _provider.currentSong.fileName,
+                    text: _provider?.currentSong?.fileName??'',
                     color: AppColor.white,
                     textSize: 18,
                     fontWeight: FontWeight.w700,

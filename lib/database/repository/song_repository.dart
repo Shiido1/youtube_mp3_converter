@@ -38,7 +38,7 @@ class SplittedSongRepository {
     _services = SplittedSongServices();
   }
 
-  static addSong(List<Song> song) async {
+  static addSong(Song song) async {
     await _services.addSong(song);
   }
 

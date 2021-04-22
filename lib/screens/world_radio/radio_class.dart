@@ -212,7 +212,7 @@ class _RadioClassState extends State<RadioClass>
                               child: Center(
                                 child: TextViewWidget(
                                   color: AppColor.white,
-                                  text: '$placeName',
+                                  text: '$placeName'??'',
                                   textSize: 20,
                                 ),
                               ),
@@ -220,7 +220,7 @@ class _RadioClassState extends State<RadioClass>
                             tap == false
                                 ? Container()
                                 : selectedTab == 'radio' && tap == true
-                                    ? Container(
+                            ? Container(
                                         height: 340,
                                         width: 230,
                                         color: AppColor.black2,
@@ -228,125 +228,17 @@ class _RadioClassState extends State<RadioClass>
                                                         ?.radio?.length ??
                                                     0) >
                                                 0
-                                            ? ListView.builder(
-                                                itemCount: radioProvider
-                                                        ?.radioModels
-                                                        ?.radio
-                                                        ?.length ??
-                                                    0,
-                                                itemBuilder: (context, index) {
-                                                  var _radioLog = radioProvider
-                                                      .radioModels.radio[index];
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        currentRadioIndex =
-                                                            index;
-                                                        radioFile =
-                                                            _radioLog.name;
-                                                        radioMp3 =
-                                                            _radioLog.mp3;
-                                                        placeName =
-                                                            _radioLog.placeName;
-                                                        isPlaying = true;
-                                                      });
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radiomp3',
-                                                              value: radioMp3);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radioFile',
-                                                              value: radioFile);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'placename',
-                                                              value: placeName);
-                                                      checkFavourite();
-                                                      _playProvider
-                                                          .playRadio(radioMp3);
-                                                    },
-                                                    child: Column(
-                                                      children: [
-                                                        TextViewWidget(
-                                                          text: _radioLog.name,
-                                                          color: AppColor.white,
-                                                          textSize: 16,
-                                                        ),
-                                                        Divider(
-                                                            thickness: 1,
-                                                            color:
-                                                                AppColor.white)
-                                                      ],
-                                                    ),
-                                                  );
-                                                })
-                                            : Center(
-                                                child: Text(
-                                                  'No Station',
-                                                  style: TextStyle(
-                                                      color: AppColor.white),
-                                                ),
-                                              ),
+                                            ?
+                                        radioContainer(false, null, radioProvider)
+                                            : buildCenter('No Station')
                                       )
                                     : Container(
                                         height: 340,
                                         width: 230,
                                         color: AppColor.black2,
-                                        child: favourite.length > 0
-                                            ? ListView.builder(
-                                                itemCount:
-                                                    favourite.length ?? 0,
-                                                itemBuilder: (context, index) {
-                                                  var _radioLog = json
-                                                      .decode(favourite[index]);
-                                                  print(_radioLog);
-                                                  return InkWell(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        currentRadioIndex =
-                                                            index;
-                                                        radioFile =
-                                                            _radioLog["name"];
-                                                        radioMp3 =
-                                                            _radioLog["mp3"];
-                                                        isPlaying = true;
-                                                      });
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radiomp3',
-                                                              value: radioMp3);
-                                                      preferencesHelper
-                                                          .saveValue(
-                                                              key: 'radioFile',
-                                                              value: radioFile);
-                                                      checkFavourite();
-                                                      _playProvider
-                                                          .playRadio(radioMp3);
-                                                    },
-                                                    child: Column(
-                                                      children: [
-                                                        TextViewWidget(
-                                                          text:
-                                                              _radioLog["name"],
-                                                          color: AppColor.white,
-                                                          textSize: 16,
-                                                        ),
-                                                        Divider(
-                                                            thickness: 1,
-                                                            color:
-                                                                AppColor.white)
-                                                      ],
-                                                    ),
-                                                  );
-                                                })
-                                            : Center(
-                                                child: Text(
-                                                  'No favourite added.',
-                                                  style: TextStyle(
-                                                      color: AppColor.white),
-                                                ),
-                                              ),
+                                        child: favourite.length > 0 ?
+                                        radioContainer(true, favourite, null)
+                                            : buildCenter('No favourite added.')
                                       ),
                             Container(
                               width: 230,
@@ -401,7 +293,7 @@ class _RadioClassState extends State<RadioClass>
                         children: [
                           Expanded(
                             child: TextViewWidget(
-                                text: '$radioFile',
+                                text:'$radioFile'??'',
                                 color: AppColor.white,
                                 textSize: 16,
                                 fontWeight: FontWeight.w600),
@@ -541,4 +433,67 @@ class _RadioClassState extends State<RadioClass>
           ]));
     });
   }
+
+  Widget radioContainer(bool isFavorite, List radioList, RadioProvider radioProvider )=> ListView.builder(
+      itemCount: !isFavorite ? radioProvider
+          ?.radioModels
+          ?.radio
+          ?.length ??
+          0 : radioList.length ?? 0,
+      itemBuilder: (context, index) {
+        var _radioLog = isFavorite ? jsonDecode(radioList[index])
+            : radioProvider
+                .radioModels.radio[index];
+        return InkWell(
+          onTap: () {
+            setState(() {
+              currentRadioIndex =
+                  index;
+              radioFile =
+                 isFavorite ? _radioLog["name"] : _radioLog.name;
+              radioMp3 =
+                  !isFavorite?_radioLog.mp3:_radioLog["mp3"];
+              placeName =
+                  !isFavorite?_radioLog.placeName:_radioLog["placeName"];
+              isPlaying = true;
+            });
+            preferencesHelper
+                .saveValue(
+                key: 'radiomp3',
+                value: radioMp3);
+            preferencesHelper
+                .saveValue(
+                key: 'radioFile',
+                value: radioFile);
+            preferencesHelper
+                .saveValue(
+                key: 'placename',
+                value: placeName);
+            checkFavourite();
+            _playProvider
+                .playRadio(radioMp3);
+          },
+          child: Column(
+            children: [
+              TextViewWidget(
+                text: !isFavorite ? _radioLog.name : _radioLog["name"],
+                color: AppColor.white,
+                textSize: 16,
+              ),
+              Divider(
+                  thickness: 1,
+                  color:
+                  AppColor.white)
+            ],
+          ),
+        );
+      });
+
+  buildCenter(String text) => Center(
+    child: Text(
+      text,
+      style: TextStyle(
+          color: AppColor.white),
+    ),
+  );
 }

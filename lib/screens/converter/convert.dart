@@ -120,13 +120,15 @@ class _ConvertState extends State<Convert> {
                             height: 11.5,
                           ),
                           Center(
-                            child: Text(
-                              'Successfully Downloaded',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColor.black),
+                            child: Flexible(
+                              child: Text(
+                                'Successfully Downloaded',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 23,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColor.black),
+                              ),
                             ),
                           ),
                         ],
@@ -161,7 +163,7 @@ class _ConvertState extends State<Convert> {
         loading = true;
       });
       if (_progress == 100 && downloaded == true) {
-        // _showDialog(context);
+        await _showDialog(context);
         Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
 
         setState(() {

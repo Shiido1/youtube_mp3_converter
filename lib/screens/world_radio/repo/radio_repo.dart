@@ -8,11 +8,12 @@ class RadioRepo {
   Future<RadioModel> radiox(
       {@required Map map,
       @required bool search,
-      @required BuildContext context}) async {
+      @required BuildContext context,
+      @required bool add}) async {
     try {
       final res = await jayNetworkClient
           .makePostRequest(search ? "searchradio" : "radiox", data: map);
-      return RadioModel.fromJson(res.data);
+      return RadioModel.fromJson(res.data, add);
     } catch (e) {
       showToast(context, message: 'An error occurred. Try again');
       return throw e;

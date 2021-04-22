@@ -16,7 +16,8 @@ class SplittedSongProvider with ChangeNotifier {
   Song drawerItem;
   List<Song> songs = [];
   List<dynamic> allSongs = [];
-  List<Song> playLists = [];
+  List splittedSongName = [];
+  List splittedSongItems = [];
   List<Song> favoriteSongs = [];
   int _currentSongIndex = -1;
   int get length => songs.length;
@@ -30,10 +31,19 @@ class SplittedSongProvider with ChangeNotifier {
     initPlayer();
   }
 
-  getSongs() async {
-    allSongs = await SplittedSongRepository.getSongs();
+  getSplittedSongName() async {
+    splittedSongName = await SplittedSongRepository.getSplittedSongName();
     notifyListeners();
   }
+
+  getSplit(String key) async {
+    splittedSongItems = await SplittedSongRepository.getSplit(key);
+  }
+
+  // getSongs() async {
+  //   allSongs = await SplittedSongRepository.getSongs();
+  //   notifyListeners();
+  // }
 
   void initPlayer() {
     if (advancedPlayer != null) return;

@@ -18,7 +18,8 @@ abstract class SongInterface {
 }
 
 abstract class SplittedSongInterface {
-  addSong(List<Song> log);
-  Future<List<dynamic>> getSongs();
+  addSong({String songName, List<Song> splittedSongs});
+  Future<List> getSplittedSongName();
+  Future<List> getSplit(String key);
   deleteSong(String key);
 }

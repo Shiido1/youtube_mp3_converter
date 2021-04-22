@@ -6,25 +6,38 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/interface/song_interface.dart';
 
 class SplittedSongServices implements SplittedSongInterface {
-  Box<Map> _box;
+  Box<List> _box;
 
-  Future<Box<Map>> openBox() {
-    return PgHiveBoxes.openBox<Map>(PgHiveBoxes.songs);
+  Future<Box<List>> openBox() {
+    return PgHiveBoxes.openBox<List>(PgHiveBoxes.split);
   }
 
   @override
-  addSong(List<Song> song) async {
+  addSong({String songName, List<Song> splittedSongs}) async {
+    List split;
+    splittedSongs.forEach((element) {
+      if (element.fileName != 'failed') split.add(element.toJson());
+    });
+
+    // if (!(_box?.isOpen ?? false)) _box = await openBox();
+    // Map drum = song.first.toJson();
+    // Map voice = song.last.toJson();
+    // var splittedSongMap = {"drum": drum, "voice": voice};
+    // return _box.putAll(splittedSongMap);
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    Map drum = song.first.toJson();
-    Map voice = song.last.toJson();
-    var splittedSongMap = {"drum": drum, "voice": voice};
-    return _box.putAll(splittedSongMap);
+    return _box.put(songName, splittedSongs);
   }
 
   @override
-  Future<List<dynamic>> getSongs() async {
+  Future<List> getSplittedSongName() async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    return _box.values.map((e) => e).toList();
+    return _box.keys.toList();
+  }
+
+  @override
+  Future<List> getSplit(String key) async {
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    return _box.get(key);
   }
 
   @override

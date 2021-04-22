@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:geocoder/geocoder.dart';
@@ -9,6 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart'
+    as radioModel;
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -30,22 +31,23 @@ class _RadioClassState extends State<RadioClass>
   AnimationController _controller;
   RadioProvider _radioProvider;
   TextEditingController _textController;
-  bool tap;
+  bool tap = true;
   bool showChannels = false;
   bool favRadio = false;
   String radioFile = '', radioMp3 = '';
   String placeName;
+  String placeId;
   bool isPlaying = false;
   bool showFaves = false;
   RadioPlayProvider _playProvider;
   int currentRadioIndex;
   List favourite = [];
   bool isFavourite = false;
-  String selectedTab = "radio";
   FocusNode _textFocusNode;
   final _formKey = GlobalKey<FormState>();
   Position location;
   bool showAllChannels = true;
+  bool search = false;
 
   @override
   void initState() {
@@ -124,14 +126,17 @@ class _RadioClassState extends State<RadioClass>
     radioMp3 = await preferencesHelper.getStringValues(key: 'radiomp3');
     radioFile = await preferencesHelper.getStringValues(key: 'radioFile');
     placeName = await preferencesHelper.getStringValues(key: 'placename');
+    placeId = await preferencesHelper.getStringValues(key: 'placeId');
     setState(() {});
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    super.dispose();
     if (isPlaying) _playProvider.playRadio(radioMp3);
+    _controller.dispose();
+    _textController.dispose();
+    _textFocusNode.dispose();
+    super.dispose();
   }
 
   // showLocationMessage({String message, String type}) {
@@ -178,12 +183,29 @@ class _RadioClassState extends State<RadioClass>
     }
   }
 
+  checkStation() {
+    if (!(_radioProvider.radioModels.radio
+        .any((element) => element.id == placeId))) {
+      _radioProvider.init(
+          search: true, add: true, context: context, searchData: radioFile);
+    }
+    if (tap && !search) {
+      int index = _radioProvider.radioModels.radio
+          .indexWhere((element) => element.id == placeId);
+      if (index == null)
+        checkStation();
+      else
+        currentRadioIndex = index;
+
+      setState(() {});
+    }
+  }
+
   checkFavourite() async {
     if (favourite.length > 0) {
       for (var map in favourite) {
-        if (json.decode(map)["name"] == radioFile) {
-          // file already added to favourite
-          // remove file
+        if (json.decode(map)["name"] == radioFile &&
+            json.decode(map)["placeId"] == placeId) {
           setState(() {
             isFavourite = true;
           });
@@ -200,16 +222,37 @@ class _RadioClassState extends State<RadioClass>
   addFavourite() async {
     var box = await Hive.openBox('testBox');
     var _favourite = box.get('fav');
-    var _radioLog = _radioProvider.radioModels.radio[currentRadioIndex];
+    var _radioLog;
+    // if (favourite == null || favourite.isEmpty) tap = true;
+    if (search)
+      for (radioModel.Radio item in _radioProvider.radioModelsItems.radio) {
+        if (item.name == radioFile && item.id == placeId) {
+          _radioLog = item;
+          break;
+        }
+      }
+    else
+      for (radioModel.Radio item in _radioProvider.radioModels.radio) {
+        if (item.name == radioFile && item.id == placeId) {
+          _radioLog = item;
+          break;
+        }
+      }
+    // var _radioLog = tap
+    //     ? _radioProvider.radioModels.radio[currentRadioIndex]
+    //     : json.decode(favourite[currentRadioIndex]);
 
     if (currentRadioIndex != null) {
       if (_favourite != null) {
         if (_favourite.contains(json.encode({
           'name': _radioLog.name,
           'mp3': _radioLog.mp3,
+          'placeId': _radioLog.id,
+          'placename': _radioLog.placeName,
         }))) {
           for (var map in _favourite) {
-            if (json.decode(map)["name"] == radioFile) {
+            if (json.decode(map)["name"] == radioFile &&
+                json.decode(map)["placeId"] == placeId) {
               // file already added to favourite
               // remove file
               _favourite.remove(map);
@@ -228,15 +271,17 @@ class _RadioClassState extends State<RadioClass>
             favourite.add(json.encode({
               'name': _radioLog.name,
               'mp3': _radioLog.mp3,
+              'placeId': _radioLog.id,
+              'placename': _radioLog.placeName,
             }));
           });
           box.put('fav', favourite);
           checkFavourite();
 
-          print(json.encode({
-            'name': _radioLog.name,
-            'mp3': _radioLog.mp3,
-          }));
+          // print(json.encode({
+          //   'name': _radioLog.name,
+          //   'mp3': _radioLog.mp3,
+          // }));
         }
       } else {
         setState(() {
@@ -252,6 +297,7 @@ class _RadioClassState extends State<RadioClass>
 
   @override
   Widget build(BuildContext context) {
+    if (_radioProvider.radioModels != null && search == false) checkStation();
     return Consumer<RadioProvider>(builder: (_, radioProvider, __) {
       return Scaffold(
           backgroundColor: AppColor.background1,
@@ -340,6 +386,7 @@ class _RadioClassState extends State<RadioClass>
                                   showAllChannels = false;
                                   showChannels = true;
                                   showFaves = false;
+                                  search = true;
                                 });
                               },
                               cursorColor: AppColor.bottomRed,
@@ -370,10 +417,12 @@ class _RadioClassState extends State<RadioClass>
                                             context: context,
                                             search: true,
                                             searchData: _textController.text);
+
                                         setState(() {
                                           showAllChannels = false;
                                           showChannels = true;
                                           showFaves = false;
+                                          search = true;
                                         });
                                       }
                                     }),
@@ -453,14 +502,21 @@ class _RadioClassState extends State<RadioClass>
                                           itemBuilder: (context, index) {
                                             var _radioLog = radioProvider
                                                 .radioModels.radio[index];
+                                            bool currentStation =
+                                                _radioLog.id == placeId
+                                                    ? true
+                                                    : false;
                                             return InkWell(
                                               onTap: () {
                                                 setState(() {
                                                   currentRadioIndex = index;
+                                                  tap = true;
+                                                  search = false;
                                                   radioFile = _radioLog.name;
                                                   radioMp3 = _radioLog.mp3;
                                                   placeName =
                                                       _radioLog.placeName;
+                                                  placeId = _radioLog.id;
                                                   isPlaying = true;
                                                 });
                                                 preferencesHelper.saveValue(
@@ -472,6 +528,9 @@ class _RadioClassState extends State<RadioClass>
                                                 preferencesHelper.saveValue(
                                                     key: 'placename',
                                                     value: placeName);
+                                                preferencesHelper.saveValue(
+                                                    key: 'placeId',
+                                                    value: placeId);
                                                 checkFavourite();
                                                 _playProvider
                                                     .playRadio(radioMp3);
@@ -480,7 +539,9 @@ class _RadioClassState extends State<RadioClass>
                                                 children: [
                                                   TextViewWidget(
                                                     text: _radioLog.name,
-                                                    color: AppColor.white,
+                                                    color: currentStation
+                                                        ? AppColor.bottomRed
+                                                        : AppColor.white,
                                                     textSize: 16,
                                                   ),
                                                   Divider(
@@ -509,13 +570,22 @@ class _RadioClassState extends State<RadioClass>
                                           itemBuilder: (context, index) {
                                             var _radioLog =
                                                 json.decode(favourite[index]);
-                                            print(_radioLog);
+                                            bool currentStation =
+                                                _radioLog['placeId'] == placeId
+                                                    ? true
+                                                    : false;
+
                                             return InkWell(
                                               onTap: () {
                                                 setState(() {
                                                   currentRadioIndex = index;
+                                                  tap = false;
                                                   radioFile = _radioLog["name"];
                                                   radioMp3 = _radioLog["mp3"];
+                                                  placeName =
+                                                      _radioLog["placename"];
+                                                  placeId =
+                                                      _radioLog["placeId"];
                                                   isPlaying = true;
                                                 });
                                                 preferencesHelper.saveValue(
@@ -524,6 +594,12 @@ class _RadioClassState extends State<RadioClass>
                                                 preferencesHelper.saveValue(
                                                     key: 'radioFile',
                                                     value: radioFile);
+                                                preferencesHelper.saveValue(
+                                                    key: 'placename',
+                                                    value: placeName);
+                                                preferencesHelper.saveValue(
+                                                    key: 'placeId',
+                                                    value: placeId);
                                                 checkFavourite();
                                                 _playProvider
                                                     .playRadio(radioMp3);
@@ -532,7 +608,9 @@ class _RadioClassState extends State<RadioClass>
                                                 children: [
                                                   TextViewWidget(
                                                     text: _radioLog["name"],
-                                                    color: AppColor.white,
+                                                    color: currentStation
+                                                        ? AppColor.bottomRed
+                                                        : AppColor.white,
                                                     textSize: 16,
                                                   ),
                                                   Divider(
@@ -569,6 +647,9 @@ class _RadioClassState extends State<RadioClass>
                                         AppAssets.bookmark,
                                         height: 25,
                                         width: 25,
+                                        color: showChannels
+                                            ? AppColor.white
+                                            : AppColor.black,
                                       ),
                                     ),
                                     InkWell(
@@ -582,6 +663,9 @@ class _RadioClassState extends State<RadioClass>
                                           AppAssets.favourite,
                                           height: 25,
                                           width: 25,
+                                          color: showFaves
+                                              ? AppColor.white
+                                              : AppColor.black,
                                         ))
                                   ],
                                 ),
@@ -617,58 +701,79 @@ class _RadioClassState extends State<RadioClass>
                                 child: Row(
                                   children: [
                                     IconButton(
-                                        icon: Icon(
-                                          Icons.skip_previous_outlined,
-                                          color: AppColor.white,
-                                          size: 50,
-                                        ),
-                                        onPressed: () {
-                                          if (selectedTab == "favourite") {
-                                            int fav = int.parse(
-                                                favourite[currentRadioIndex]);
-                                            if (fav != 0 && fav != null) {
-                                              var _radioLog = radioProvider
-                                                  .radioModels.radio[fav - 1];
-                                              setState(() {
-                                                radioFile = _radioLog.name;
-                                                radioMp3 = _radioLog.mp3;
-                                                isPlaying = true;
-                                                currentRadioIndex = fav - 1;
-                                              });
-                                              preferencesHelper.saveValue(
-                                                  key: 'radiomp3',
-                                                  value: radioMp3);
-                                              preferencesHelper.saveValue(
-                                                  key: 'radioFile',
-                                                  value: radioFile);
-                                              _playProvider.playRadio(radioMp3);
-                                              checkFavourite();
-                                            }
-                                          } else {
-                                            if (currentRadioIndex != 0 &&
-                                                currentRadioIndex != null) {
-                                              var _radioLog = radioProvider
-                                                  .radioModels
-                                                  .radio[currentRadioIndex - 1];
-                                              setState(() {
-                                                radioFile = _radioLog.name;
-                                                radioMp3 = _radioLog.mp3;
-                                                isPlaying = true;
-                                                currentRadioIndex =
-                                                    currentRadioIndex - 1;
-                                              });
-                                              preferencesHelper.saveValue(
-                                                  key: 'radiomp3',
-                                                  value: radioMp3);
-                                              preferencesHelper.saveValue(
-                                                  key: 'radioFile',
-                                                  value: radioFile);
-                                              _playProvider.playRadio(radioMp3);
-                                              checkFavourite();
-                                            }
+                                      icon: Icon(
+                                        Icons.skip_previous_outlined,
+                                        color: AppColor.white,
+                                        size: 50,
+                                      ),
+                                      onPressed: () {
+                                        if (!tap) {
+                                          if (currentRadioIndex != null &&
+                                              currentRadioIndex > 0) {
+                                            var _radioLog = json.decode(
+                                                favourite[
+                                                    currentRadioIndex - 1]);
+                                            setState(() {
+                                              radioFile = _radioLog["name"];
+                                              radioMp3 = _radioLog["mp3"];
+                                              placeName =
+                                                  _radioLog["placename"];
+                                              placeId = _radioLog["placeId"];
+                                              isPlaying = true;
+                                              currentRadioIndex =
+                                                  currentRadioIndex - 1;
+                                            });
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
                                           }
-                                        }),
+                                        } else {
+                                          if (currentRadioIndex != null &&
+                                              currentRadioIndex > 0) {
+                                            var _radioLog = search
+                                                ? radioProvider
+                                                        .radioModelsItems.radio[
+                                                    currentRadioIndex - 1]
+                                                : radioProvider
+                                                        .radioModels.radio[
+                                                    currentRadioIndex - 1];
 
+                                            setState(() {
+                                              radioFile = _radioLog.name;
+                                              radioMp3 = _radioLog.mp3;
+                                              placeName = _radioLog.placeName;
+                                              placeId = _radioLog.id;
+                                              isPlaying = true;
+                                              currentRadioIndex =
+                                                  currentRadioIndex - 1;
+                                            });
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
+                                        }
+                                      },
+                                    ),
                                     IconButton(
                                       icon: isPlaying
                                           ? Icon(
@@ -689,22 +794,25 @@ class _RadioClassState extends State<RadioClass>
                                       },
                                     ),
                                     IconButton(
-                                        icon: Icon(
-                                          Icons.skip_next_outlined,
-                                          size: 48,
-                                          color: AppColor.white,
-                                        ),
-                                        onPressed: () {
-                                          if (currentRadioIndex !=
-                                                  radioProvider.radioModels
-                                                      .radio.length &&
-                                              currentRadioIndex != null) {
-                                            var _radioLog = radioProvider
-                                                .radioModels
-                                                .radio[currentRadioIndex + 1];
+                                      icon: Icon(
+                                        Icons.skip_next_outlined,
+                                        size: 48,
+                                        color: AppColor.white,
+                                      ),
+                                      onPressed: () {
+                                        if (!tap) {
+                                          if (currentRadioIndex != null &&
+                                              currentRadioIndex <
+                                                  favourite.length - 1) {
+                                            var _radioLog = json.decode(
+                                                favourite[
+                                                    currentRadioIndex + 1]);
                                             setState(() {
-                                              radioFile = _radioLog.name;
-                                              radioMp3 = _radioLog.mp3;
+                                              radioFile = _radioLog["name"];
+                                              radioMp3 = _radioLog["mp3"];
+                                              placeName =
+                                                  _radioLog["placename"];
+                                              placeId = _radioLog['placeId'];
                                               isPlaying = true;
                                               currentRadioIndex =
                                                   currentRadioIndex + 1;
@@ -715,11 +823,63 @@ class _RadioClassState extends State<RadioClass>
                                             preferencesHelper.saveValue(
                                                 key: 'radioFile',
                                                 value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
                                             _playProvider.playRadio(radioMp3);
                                             checkFavourite();
                                           }
-                                        }),
-                                    // }),
+                                        } else {
+                                          var _radioLog;
+                                          if (search) {
+                                            if (currentRadioIndex != null &&
+                                                currentRadioIndex <
+                                                    radioProvider
+                                                            .radioModelsItems
+                                                            .radio
+                                                            .length -
+                                                        1) {
+                                              _radioLog = radioProvider
+                                                  .radioModelsItems
+                                                  .radio[currentRadioIndex + 1];
+                                            }
+                                          } else {
+                                            if (currentRadioIndex != null &&
+                                                currentRadioIndex <
+                                                    radioProvider.radioModels
+                                                            .radio.length -
+                                                        1) {
+                                              _radioLog = radioProvider
+                                                  .radioModels
+                                                  .radio[currentRadioIndex + 1];
+                                            }
+                                          }
+                                          setState(() {
+                                            radioFile = _radioLog.name;
+                                            radioMp3 = _radioLog.mp3;
+                                            placeName = _radioLog.placeName;
+                                            placeId = _radioLog.id;
+                                            isPlaying = true;
+                                            currentRadioIndex =
+                                                currentRadioIndex + 1;
+                                          });
+                                          preferencesHelper.saveValue(
+                                              key: 'radiomp3', value: radioMp3);
+                                          preferencesHelper.saveValue(
+                                              key: 'radioFile',
+                                              value: radioFile);
+                                          preferencesHelper.saveValue(
+                                              key: 'placename',
+                                              value: placeName);
+                                          preferencesHelper.saveValue(
+                                              key: 'placeId', value: placeId);
+                                          _playProvider.playRadio(radioMp3);
+                                          checkFavourite();
+                                        }
+                                      },
+                                    ),
                                   ],
                                 ),
                               ),

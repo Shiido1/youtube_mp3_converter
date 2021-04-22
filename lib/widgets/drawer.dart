@@ -4,6 +4,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -40,8 +41,9 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
+  SplittedSongProvider _repository;
   List<String> splittedFileList = [];
-  List<Song> splittedSongList = [];
+  List splittedSongList = [];
   MusicProvider _musicProvider;
   bool loading = false;
   int _progress = 0;
@@ -67,10 +69,9 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-<<<<<<< HEAD
+    _repository = Provider.of<SplittedSongProvider>(context, listen: false);
     shuffle = _musicProvider.shuffleSong;
     repeat = _musicProvider.repeatSong;
-=======
 
     _bindBackgroundIsolate(); //
     FlutterDownloader.registerCallback(
@@ -115,15 +116,30 @@ class _AppDrawerState extends State<AppDrawer> {
         });
       }
       if (status == DownloadTaskStatus.complete) {
-        splittedSongList.add(Song(
-          fileName: _fileName,
-          filePath: _localPath,
-          image: _musicProvider?.drawerItem?.image ?? '',
-          splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
-        ));
+        splittedSongList.add(
+          Song(
+            fileName: _fileName,
+            filePath: _localPath,
+            image: _musicProvider?.drawerItem?.image ?? '',
+            splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+          ),
+        );
+
+        // await SplittedSongRepository.addSong(
+        // songName: _musicProvider?.drawerItem?.fileName,
+        // splittedSong: Song(
+        //   fileName: _fileName,
+        //   filePath: _localPath,
+        //   image: _musicProvider?.drawerItem?.image ?? '',
+        //   splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+        //   ),
+        // );
+
+      }
+      if (status == DownloadTaskStatus.failed) {
+        splittedSongList.add('failed');
       }
     });
-
   }
 
   void _unbindBackgroundIsolate() {
@@ -138,7 +154,7 @@ class _AppDrawerState extends State<AppDrawer> {
     }
 
     final SendPort send =
-    IsolateNameServer.lookupPortByName('downloader_send_port');
+        IsolateNameServer.lookupPortByName('downloader_send_port');
     send.send([id, status, progress]);
   }
 
@@ -189,12 +205,14 @@ class _AppDrawerState extends State<AppDrawer> {
 
     _localPath = (await _findLocalPath()) +
         Platform.pathSeparator +
-        splitMusicPath; // gets users
+        splitMusicPath +
+        Platform.pathSeparator +
+        _musicProvider?.drawerItem?.fileName; // gets users
 
     final savedDir = Directory(_localPath);
     bool hasExisted = await savedDir.exists();
     if (!hasExisted) {
-      savedDir.create();
+      await savedDir.create(recursive: true);
     }
 
     setState(() {
@@ -208,11 +226,31 @@ class _AppDrawerState extends State<AppDrawer> {
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
     return directory.path;
->>>>>>> ba1fa2bd3142c26fc1e61e497999d8a608869a56
+  }
+
+  delete() async {
+    final dir = await _findLocalPath() +
+        Platform.pathSeparator +
+        'split' +
+        Platform.pathSeparator +
+        _musicProvider?.drawerItem?.fileName;
+
+    final direct = Directory(dir);
+    if (!(await direct.exists())) direct.delete(recursive: true);
+  }
+
+  showFiles() async {
+    var dir = Directory(_localPath);
+    print('localPath: $dir');
+    await for (var file in dir.list(recursive: true, followLinks: false)) {
+      print('files: ${file.path}');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // delete();
+    showFiles();
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),
@@ -238,8 +276,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                         imageUrl:
                                             _provider?.drawerItem?.image)))
                             : Container(),
-                        _provider?.drawerItem?.fileName?.isNotEmpty ??
-                                false
+                        _provider?.drawerItem?.fileName?.isNotEmpty ?? false
                             ? Expanded(
                                 child: TextViewWidget(
                                 text: _provider?.drawerItem?.fileName,
@@ -258,11 +295,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       InkWell(
-                        onTap: () => _provider.updateSong(
-                            _provider.drawerItem
-                              ..favorite = _provider.drawerItem.favorite
-                                  ? false
-                                  : true),
+                        onTap: () => _provider.updateSong(_provider.drawerItem
+                          ..favorite =
+                              _provider.drawerItem.favorite ? false : true),
                         child: Column(
                           children: [
                             SvgPicture.asset(
@@ -281,13 +316,9 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-<<<<<<< HEAD
                           shuffle
                               ? _musicProvider.stopShuffle()
                               : _musicProvider.shuffle(false);
-=======
-                          _provider.shuffle();
->>>>>>> ba1fa2bd3142c26fc1e61e497999d8a608869a56
                           PageRouter.goBack(context);
                         },
                         child: Column(
@@ -303,14 +334,10 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-<<<<<<< HEAD
                           repeat
                               ? _musicProvider.undoRepeat()
                               : _musicProvider
                                   .repeat(_musicProvider.drawerItem);
-=======
-                          _provider.repeat(_provider.drawerItem);
->>>>>>> ba1fa2bd3142c26fc1e61e497999d8a608869a56
                           PageRouter.goBack(context);
                         },
                         child: Column(
@@ -345,52 +372,47 @@ class _AppDrawerState extends State<AppDrawer> {
                     color: AppColor.white,
                   ),
                   ListTile(
-<<<<<<< HEAD
-                    onTap: () {
-                      SplitAssistant().splitFile(
-                          '${_musicProvider.drawerItem.filePath}/${_musicProvider.drawerItem.fileName}',
-                          context);
-                      // SplitAssistant().getUserLibrary();
-=======
                     onTap: () async {
                       // _progressIndicator.show();
-                      FilePickerResult result = await FilePicker.platform
-                          .pickFiles(type: FileType.audio);
-                      var splittedFiles = await SplitAssistant.splitFile(
-                          result.files.single.path, context);
+                      // FilePickerResult result = await FilePicker.platform
+                      //     .pickFiles(type: FileType.audio);
+                      // var splittedFiles = await SplitAssistant.splitFile(
+                      //     result.files.single.path, context);
+                      var splittedFiles = await SplitAssistant().splitFile(
+                          '${_musicProvider?.drawerItem?.filePath}/${_musicProvider?.drawerItem?.fileName}',
+                          context);
                       if (splittedFiles != "Failed") {
-                        bool isSaved = await SplitAssistant.saveSplitFiles(
-                            splittedFiles, context);
-                        if (isSaved && _permissionReady) {
+                        // bool isSaved = await SplitAssistant.saveSplitFiles(
+                        //     splittedFiles, context);
+                        if (/*isSaved &&*/ _permissionReady) {
                           String drumsUrl = splittedFiles["files"]["drums"];
-                          String voiceUrl = splittedFiles["files"]["voice"];
+                          // String voiceUrl = splittedFiles["files"]["voice"];
+                          // String bassUrl = splittedFiles["files"]["bass"];
+                          // String othersUrl = splittedFiles["files"]["other"];
 
                           splittedFileList.add(drumsUrl);
-                          splittedFileList.add(voiceUrl);
+                          // splittedFileList.add(voiceUrl);
+                          // splittedFileList.add(bassUrl);
+                          // splittedFileList.add(othersUrl);
 
-                          print('splitedFileList.length is ${splittedFileList.length}');
+                          print(
+                              'splitedFileList.length is ${splittedFileList.length}');
 
-                           for (int i = 0; i < splittedFileList.length; i++) {
+                          for (int i = 0; i < splittedFileList.length; i++) {
                             print('i is ****************** $i');
-                            await _requestDownload(
-                                link: splittedFileList[i]);
-                            SplittedSongRepository.addSong(splittedSongList);
+                            await _requestDownload(link: splittedFileList[i]);
+                            // SplittedSongRepository.addSong(splittedSongList);
                           }
                           print('finished downloading splitted file');
                           print(splittedSongList);
-
-                      }
-
-                        else if(!_permissionReady){
+                        } else if (/*isSaved &&*/ !_permissionReady) {
                           _buildNoPermissionWarning();
-                        }
-                        else {
+                        } else {
                           // await _progressIndicator.dismiss();
                           showToast(context,
                               message: "error occurred, please try again");
                         }
                       }
->>>>>>> ba1fa2bd3142c26fc1e61e497999d8a608869a56
                     },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
@@ -403,7 +425,10 @@ class _AppDrawerState extends State<AppDrawer> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () {},
+                    onTap: () async {
+                      await _repository.getSplittedSongName();
+                      print(_repository.splittedSongName);
+                    },
                     leading: SvgPicture.asset(AppAssets.record),
                     title: TextViewWidget(
                       text: 'Record',
@@ -453,41 +478,41 @@ class _AppDrawerState extends State<AppDrawer> {
       );
     });
   }
-  Widget _buildNoPermissionWarning() => Container(
-    child: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'Please grant accessing storage permission to continue -_-',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
-            ),
-          ),
-          SizedBox(
-            height: 32.0,
-          ),
-          TextButton(
-              onPressed: () {
-                _checkPermission().then((hasGranted) {
-                  setState(() {
-                    _permissionReady = hasGranted;
-                  });
-                });
-              },
-              child: Text(
-                'Retry',
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0),
-              ))
-        ],
-      ),
-    ),
-  );
 
+  Widget _buildNoPermissionWarning() => Container(
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Please grant accessing storage permission to continue -_-',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+                ),
+              ),
+              SizedBox(
+                height: 32.0,
+              ),
+              TextButton(
+                  onPressed: () {
+                    _checkPermission().then((hasGranted) {
+                      setState(() {
+                        _permissionReady = hasGranted;
+                      });
+                    });
+                  },
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ))
+            ],
+          ),
+        ),
+      );
 }

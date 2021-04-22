@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 class PgHiveBoxes {
   static final songs = 'songs';
   static final playList = 'playList';
+  static final split = 'splitted';
 
   static init() async {
     Directory dir = await getApplicationDocumentsDirectory();
@@ -51,4 +52,3 @@ class PgHiveBoxes {
     }
   }
 }
-

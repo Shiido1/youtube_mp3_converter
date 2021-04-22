@@ -38,15 +38,19 @@ class SplittedSongRepository {
     _services = SplittedSongServices();
   }
 
-  static addSong(List<Song> song) async {
-    await _services.addSong(song);
+  static addSong({String songName, List<Song> splittedSongs}) async {
+    await _services.addSong(songName: songName, splittedSongs: splittedSongs);
   }
 
   static deleteSong(String key) async {
     await _services.deleteSong(key);
   }
 
-  static getSongs() async {
-    _services.getSongs();
+  static getSplit(String key) async {
+    await _services.getSplit(key);
+  }
+
+  static getSplittedSongName() async {
+    await _services.getSplittedSongName();
   }
 }

@@ -127,12 +127,9 @@ class _RedBackgroundState extends State<RedBackground> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   widget.iconButton != null
-                      ? Padding(
-                          padding: const EdgeInsets.only(right: 3.0),
-                          child: IconButton(
-                              icon: widget.iconButton,
-                              onPressed: widget.callback),
-                        )
+                      ? IconButton(
+                          icon: widget.iconButton,
+                          onPressed: widget.callback)
                       : TextViewWidget(text: '', color: AppColor.transparent),
                   widget.text != null
                       ? TextViewWidget(

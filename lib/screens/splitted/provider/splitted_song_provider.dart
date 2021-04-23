@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +13,8 @@ class SplittedSongProvider with ChangeNotifier {
   Song drawerItem;
   List<Song> songs = [];
   List<dynamic> allSongs = [];
-  List<Song> playLists = [];
+  List splittedSongName = [];
+  List splittedSongItems = [];
   List<Song> favoriteSongs = [];
   int _currentSongIndex = -1;
   int get length => songs.length;
@@ -29,6 +27,15 @@ class SplittedSongProvider with ChangeNotifier {
     SplittedSongRepository.init();
     initPlayer();
   }
+
+  // getSplittedSongName() async {
+  //   splittedSongName = await SplittedSongRepository.getSplittedSongName();
+  //   notifyListeners();
+  // }
+  //
+  // getSplit(String key) async {
+  //   splittedSongItems = await SplittedSongRepository.getSplit(key);
+  // }
 
   getSongs() async {
     allSongs = await SplittedSongRepository.getSongs();

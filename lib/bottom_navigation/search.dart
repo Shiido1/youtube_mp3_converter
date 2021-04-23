@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -67,41 +69,18 @@ class _SearchState extends State<Search> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Stack(
-                  children: [
-                    Image.asset(AppAssets.rect),
-                    Column(
-                      children: [
-                        SizedBox(height: 65),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset(AppAssets.logo),
-                            SizedBox(
-                              width: 20,
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                ClipOval(
-                                  child: Image.asset('assets/burna.png'),
-                                ),
-                                Padding(
-                                    padding: const EdgeInsets.only(top: 5.0),
-                                    child: TextViewWidget(
-                                        color: AppColor.white,
-                                        text: 'Profile',
-                                        textSize: 17,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Montserrat-Thin')),
-                              ],
-                            )
-                          ],
-                        ),
-                      ],
+                RedBackground(
+                  iconButton: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_outlined,
+                      color: AppColor.white,
                     ),
-                  ],
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainDashBoard()),
+                    ),
+                  ),
+                  text: 'Search',
                 ),
                 Column(
                   children: [

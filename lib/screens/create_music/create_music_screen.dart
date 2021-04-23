@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
@@ -32,11 +31,7 @@ class _CreateMusicScreenState extends State<CreateMusicScreen> {
                           Icons.arrow_back_ios_outlined,
                           color: AppColor.white,
                         ),
-                        onPressed: () => Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MainDashBoard()),
-                        ),
+                        onPressed: () => Navigator.pop(context),
                       ),
                       text: 'Create Your Music',
                     ),

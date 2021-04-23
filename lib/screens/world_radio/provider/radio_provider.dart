@@ -11,30 +11,78 @@ class RadioProvider extends ChangeNotifier {
   CustomProgressIndicator _progressIndicator;
   bool problem = false;
   RadioModel radioModels;
+  RadioModel radioModelsItems;
 
-  void init(BuildContext context) {
+  void init(
+      {BuildContext context,
+      @required bool search,
+      String searchData,
+      bool add = false}) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
-    getRadio();
+    getRadio(
+        search: search, searchData: searchData, context: context, add: add);
   }
 
-  getRadio() async {
-    if (radioModels == null) radioX();
+  getRadio(
+      {@required bool search,
+      String searchData,
+      @required BuildContext context,
+      bool add}) async {
+    if (search)
+      radioX(search: true, searchData: searchData, context: context, add: add);
+    if (search == false || radioModels == null)
+      radioX(
+          search: search, searchData: searchData, context: context, add: add);
   }
 
-  void radioX() async {
+  void radioX(
+      {@required bool search,
+      String searchData,
+      @required BuildContext context,
+      @required bool add}) async {
     try {
-      _progressIndicator.show();
-      radioModels = await _repository.radiox(
-          map: Radio.mapToJson(
-        token: token,
-      ));
-      await _progressIndicator.dismiss();
-    } catch (e) {
-      await _progressIndicator.dismiss();
-      problem = false;
-      print("error $e");
+      if (!add) _progressIndicator.show();
+      if (add) {
+        RadioModel myModel = await _repository.radiox(
+            map: Radio.mapToJson(token: token, searchData: searchData),
+            search: true,
+            context: context,
+            add: true);
+        if (radioModels == null)
+          radioModels = myModel;
+        else
+          radioModels.radio.addAll(myModel.radio);
+      } else {
+        if (search) {
+          if (radioModels != null) radioModelsItems = radioModels;
+          radioModels = await _repository.radiox(
+              map: Radio.mapToJson(token: token, searchData: searchData),
+              search: true,
+              context: context,
+              add: false);
+        } else {
+          RadioModel myModel = await _repository.radiox(
+              map: Radio.mapToJson(
+                token: token,
+              ),
+              search: false,
+              add: false,
+              context: context);
+          if (radioModels == null)
+            radioModels = myModel;
+          else
+            radioModels.radio.addAll(myModel.radio);
+        }
+      }
+
+      if (!add) await _progressIndicator.dismiss();
       notifyListeners();
+    } catch (e) {
+      if (!add) await _progressIndicator.dismiss();
+      if (!add) problem = false;
+      print("error $e");
     }
+    notifyListeners();
   }
 }

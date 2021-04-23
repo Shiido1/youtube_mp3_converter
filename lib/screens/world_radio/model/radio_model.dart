@@ -8,12 +8,12 @@ class RadioModel {
 
   RadioModel({this.message, this.radio, this.favourite, this.token});
 
-  RadioModel.fromJson(Map<String, dynamic> json) {
+  RadioModel.fromJson(Map<String, dynamic> json, bool add) {
     message = json['message'] == null ? "" : json['message'];
     token = json['token'] == null ? "" : json['token'];
 
     if (json['radio'] != null) {
-      radio = new List<Radio>();
+      radio = <Radio>[];
       json['radio'].forEach((v) {
         try {
           radio.add(new Radio.fromJson(v));
@@ -21,7 +21,7 @@ class RadioModel {
       });
     }
     if (json['favourite'] != null) {
-      favourite = new List<Favourite>();
+      favourite = <Favourite>[];
       json['favourite'].forEach((v) {
         try {
           favourite.add(new Favourite.fromJson(v));
@@ -112,10 +112,11 @@ class Radio {
     return data;
   }
 
-  static Map<String, dynamic> mapToJson({@required String token, String name}) {
+  static Map<String, dynamic> mapToJson(
+      {@required String token, String searchData}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['token'] = token;
-    data['name'] = name;
+    data['search'] = searchData;
     return data;
   }
 }

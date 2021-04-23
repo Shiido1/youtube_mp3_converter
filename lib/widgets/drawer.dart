@@ -1,11 +1,9 @@
 import 'dart:io';
 
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
@@ -43,6 +41,7 @@ class _AppDrawerState extends State<AppDrawer> {
   List<String> splittedFileList = [];
   List<Song> splittedSongList = [];
   List<String> splittedSongIDList = [];
+  List<dynamic> dataList = [];
   MusicProvider _musicProvider;
   bool loading = false;
   int _progress = 0;
@@ -54,8 +53,10 @@ class _AppDrawerState extends State<AppDrawer> {
   static String _localPath;
   ReceivePort _port = ReceivePort();
   String _fileName;
+  bool shuffle;
+  bool repeat;
 
-  CustomProgressIndicator _progressIndicator;
+  // CustomProgressIndicator _progressIndicator;
 
   Future<List<String>> pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
@@ -73,6 +74,8 @@ class _AppDrawerState extends State<AppDrawer> {
     _isLoading = true;
     _permissionReady = false;
     _prepare();
+    shuffle=_musicProvider.shuffleSong;
+    repeat=_musicProvider.repeatSong;
   }
 
   @override
@@ -82,6 +85,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _bindBackgroundIsolate() {
+    List<bool> isAllDownloaded = [];
     bool isSuccess = IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     if (!isSuccess) {
@@ -92,6 +96,7 @@ class _AppDrawerState extends State<AppDrawer> {
     _port.listen((dynamic data) async {
       if (debug) {
         print('UI Isolate Callback: $data');
+        dataList.add(data);
       }
 
       // ignore: unused_local_variable
@@ -116,10 +121,23 @@ class _AppDrawerState extends State<AppDrawer> {
           image: _musicProvider?.drawerItem?.image ?? '',
           splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
         ));
-        // SplittedSongRepository.addSong(splittedSongList.last);
-        print('finished downloading splitted file');
-        print(splittedSongList);
-        print(splittedSongList.last);
+        for(int i = 0; i < splittedSongIDList.length; i++){
+          if(splittedSongIDList[i].toString() == dataList.reversed.toList()[i][0].toString()){
+            if(dataList[i][1] == DownloadTaskStatus.complete && dataList[i][2] == 100){
+              isAllDownloaded.add(true);
+              splittedSongIDList.removeAt(i);
+            }
+          }
+        }
+        if(isAllDownloaded.length!=4){
+          print('Not done downloading all');
+          print('is All Downloaded $isAllDownloaded');}
+        else{
+          // SplittedSongRepository.addSong(splittedSongList.last);
+          print('finished downloading splitted file');
+          print(splittedSongList);
+          print(splittedSongList.last);
+        }
       }
     });
 
@@ -161,7 +179,7 @@ class _AppDrawerState extends State<AppDrawer> {
           savedDir: _localPath,
           fileName: _fileName,
           showNotification: true,
-          openFileFromNotification: false).then((value) => splittedSongIDList.add(value));
+          openFileFromNotification: true).then((value) => splittedSongIDList.add(value));
     }
   }
 
@@ -279,12 +297,15 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _provider.shuffle();
+
+                          shuffle
+                              ? _musicProvider.stopShuffle()
+                              : _musicProvider.shuffle(false);
                           PageRouter.goBack(context);
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(AppAssets.shuffle),
+                            SvgPicture.asset(AppAssets.shuffle,color: shuffle?AppColor.bottomRed:AppColor.white,),
                             TextViewWidget(
                                 text: 'Shuffle', color: AppColor.white)
                           ],
@@ -292,12 +313,16 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          _provider.repeat(_provider.drawerItem);
+                          repeat?
+                          _provider.undoRepeat()
+                          :_provider.repeat(_provider.drawerItem);
                           PageRouter.goBack(context);
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(AppAssets.repeat),
+                            SvgPicture.asset(
+                                AppAssets.repeat,
+                                color: repeat?AppColor.bottomRed: AppColor.white),
                             TextViewWidget(
                                 text: 'Repeat', color: AppColor.white)
                           ],

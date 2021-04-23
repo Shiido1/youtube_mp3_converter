@@ -9,6 +9,7 @@ import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 // import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -26,6 +27,7 @@ class MainDashBoard extends StatefulWidget {
 class _MainDashBoardState extends State<MainDashBoard> {
   int _currentIndex = 0;
   MusicProvider _musicProvider;
+  SplittedSongProvider _repository;
   // RadioPlayProvider _playProvider;
 
   List<Widget> _screens = [
@@ -40,6 +42,9 @@ class _MainDashBoardState extends State<MainDashBoard> {
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     _musicProvider.initProvider();
+
+    _repository = Provider.of<SplittedSongProvider>(context, listen: false);
+    _repository.initProvider();
     preferencesHelper.getStringValues(key: "last_play").then((value) {
       if (value != null) {
         _musicProvider.updateLocal(Song.fromMap(json.decode(value)));

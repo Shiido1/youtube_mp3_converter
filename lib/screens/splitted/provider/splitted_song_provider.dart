@@ -12,10 +12,10 @@ class SplittedSongProvider with ChangeNotifier {
   Song currentSong;
   Song drawerItem;
   List<Song> songs = [];
-  List<dynamic> allSongs = [];
+  List<Song> allSongs = [];
   List splittedSongName = [];
   List splittedSongItems = [];
-  List<Song> favoriteSongs = [];
+  // List<Song> favoriteSongs = [];
   int _currentSongIndex = -1;
   int get length => songs.length;
   int get songNumber => _currentSongIndex + 1;

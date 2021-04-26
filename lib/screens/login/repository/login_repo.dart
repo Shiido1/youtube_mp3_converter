@@ -24,7 +24,10 @@ class LoginApiRepository {
       _saveUsersData(_finalData);
 
       _provider.getUserToken(_finalData.token);
+      _provider.getUserEmail(_finalData.email);
+      _provider.getUserName(_finalData.name);
       await _provider.saveUserToken(_finalData.token);
+      await _provider.saveUserEmail(_finalData.email);
       return ApiResponse.success(data: _finalData);
     } catch (e) {
       return handleNetworkException(e);
@@ -34,5 +37,6 @@ class LoginApiRepository {
   void _saveUsersData(LoginModel finalData) async {
     /// cache users data here
     preferencesHelper.saveValue(key: usersPrefkey, value: finalData.name);
+    preferencesHelper.saveValue(key: usersPrefkey, value: finalData.email);
   }
 }

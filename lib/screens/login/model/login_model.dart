@@ -7,6 +7,7 @@ class LoginModel {
   int totalsplitsongs;
   String storage;
   String token;
+  String email;
   String name;
   String background;
   String color;
@@ -30,7 +31,8 @@ class LoginModel {
       this.about,
       this.totalplayed,
       this.followers,
-      this.following});
+      this.following,
+      this.email});
 
   LoginModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
@@ -52,6 +54,7 @@ class LoginModel {
     totalplayed = json['totalplayed'];
     followers = json['followers'];
     following = json['following'];
+    email = json['email'];
   }
 
   static Map<String, dynamic> toJson(

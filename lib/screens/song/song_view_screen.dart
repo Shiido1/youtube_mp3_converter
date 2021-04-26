@@ -73,15 +73,25 @@ class _SongViewScreenState extends State<SongViewScreen> {
           child: Padding(
             padding: const EdgeInsets.all(35.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(12)),
-                  child: CachedNetworkImage(
-                    imageUrl: _provider?.currentSong?.image??'',
-                    height: 500,
-                    width: 280,
-                    fit: BoxFit.contain,
+                CachedNetworkImage(
+                  imageUrl:  _provider?.currentSong?.image??'',
+                  imageBuilder: (context, imageProvider) => Container(
+                    width: 280.0,
+                    height: 320.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      image: DecorationImage(
+                          image: imageProvider, fit: BoxFit.cover),
+                    ),
                   ),
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+                SizedBox(
+                  height: 30,
                 ),
                 Center(
                   child: TextViewWidget(
@@ -93,7 +103,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: 35,
+                  height: 30,
                 ),
                 SliderClass2(),
                 Row(
@@ -120,7 +130,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
                       child: IconButt(),
                     ),
                     SizedBox(
-                      width: 23,
+                      width: 28,
                     ),
                     IconButton(
                       icon: Icon(Icons.skip_next_outlined),

@@ -1,10 +1,12 @@
 import 'dart:io';
 
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
+import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -38,8 +40,7 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  List<String> splittedFileList = [];
-  List<Song> splittedSongList = [];
+  List<String> _apiSplittedList = [];
   List<String> splittedSongIDList = [];
   List<dynamic> dataList = [];
   MusicProvider _musicProvider;
@@ -56,7 +57,7 @@ class _AppDrawerState extends State<AppDrawer> {
   bool shuffle;
   bool repeat;
 
-  // CustomProgressIndicator _progressIndicator;
+  CustomProgressIndicator _progressIndicator;
 
   Future<List<String>> pickFile() async {
     final result = await FilePicker.platform.pickFiles(allowMultiple: true);
@@ -67,6 +68,8 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     super.initState();
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    this._progressIndicator = CustomProgressIndicator(this.context);
+
 
     _bindBackgroundIsolate(); //
     FlutterDownloader.registerCallback(
@@ -85,7 +88,6 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   void _bindBackgroundIsolate() {
-    List<bool> isAllDownloaded = [];
     bool isSuccess = IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     if (!isSuccess) {
@@ -115,28 +117,17 @@ class _AppDrawerState extends State<AppDrawer> {
         });
       }
       if (status == DownloadTaskStatus.complete) {
-        splittedSongList.add(Song(
-          fileName: _fileName,
-          filePath: _localPath,
-          image: _musicProvider?.drawerItem?.image ?? '',
-          splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
-        ));
-        for(int i = 0; i < splittedSongIDList.length; i++){
-          if(splittedSongIDList[i].toString() == dataList.reversed.toList()[i][0].toString()){
-            if(dataList[i][1] == DownloadTaskStatus.complete && dataList[i][2] == 100){
-              isAllDownloaded.add(true);
-              splittedSongIDList.removeAt(i);
-            }
-          }
-        }
-        if(isAllDownloaded.length!=4){
-          print('Not done downloading all');
-          print('is All Downloaded $isAllDownloaded');}
-        else{
-          // SplittedSongRepository.addSong(splittedSongList.last);
-          print('finished downloading splitted file');
-          print(splittedSongList);
-          print(splittedSongList.last);
+        if(data[0].toString() == splittedSongIDList.first.toString()){
+          print('Data at index 0 is ${data[0].toString()}');
+          print('SplittedSongIDList at index 0 is ${splittedSongIDList.first.toString()}');
+          SplittedSongRepository.addSong(Song(
+            fileName: _fileName,
+            filePath: _localPath,
+            image: _musicProvider?.drawerItem?.image ?? '',
+            splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+          ));
+
+          //Todo: delay a bit and then show a dialog or navigate to the
         }
       }
     });
@@ -350,11 +341,14 @@ class _AppDrawerState extends State<AppDrawer> {
                   ),
                   ListTile(
                     onTap: () async {
-                      // _progressIndicator.show();
-                      FilePickerResult result = await FilePicker.platform
-                          .pickFiles(type: FileType.audio);
+                      _progressIndicator.show();
+                      // FilePickerResult result = await FilePicker.platform
+                      //     .pickFiles(type: FileType.audio);
+                       String result =
+                           '${_provider.drawerItem.filePath}/'
+                           '${_provider.drawerItem.fileName}';
                       var splittedFiles = await SplitAssistant.splitFile(
-                          result.files.single.path, context);
+                          result, context);
                       if (splittedFiles != "Failed") {
                         bool isSaved = await SplitAssistant.saveSplitFiles(
                             splittedFiles, context);
@@ -364,29 +358,33 @@ class _AppDrawerState extends State<AppDrawer> {
                           String bassUrl = splittedFiles["files"]["bass"];
                           String otherUrl = splittedFiles["files"]["other"];
 
-                          splittedFileList.add(drumsUrl);
-                          splittedFileList.add(voiceUrl);
-                          splittedFileList.add(bassUrl);
-                          splittedFileList.add(otherUrl);
+                          _apiSplittedList.clear();
+                          splittedSongIDList.clear();
+                          _apiSplittedList.add(otherUrl);
+                          _apiSplittedList.add(drumsUrl);
+                          _apiSplittedList.add(voiceUrl);
+                          _apiSplittedList.add(bassUrl);
 
-                          print('splitedFileList.length is ${splittedFileList.length}');
+                          print('splitedFileList.length is ${_apiSplittedList.length}');
 
-                           for (int i = 0; i < splittedFileList.length; i++) {
+                           for (int i = 0; i < _apiSplittedList.length; i++) {
                             print('i is ****************** $i');
                             await _requestDownload(
-                                link: splittedFileList[i],
+                                link: _apiSplittedList[i],
                                 saveToDownload: true);
-                          }
+                           }
                       }
 
                         else if(!_permissionReady){
                           _buildNoPermissionWarning();
                         }
                         else {
-                          // await _progressIndicator.dismiss();
+                           await _progressIndicator.dismiss();
                           showToast(context,
                               message: "error occurred, please try again");
                         }
+                         await _progressIndicator.dismiss();
+
                       }
                     },
                     leading: SvgPicture.asset(AppAssets.split),

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -53,7 +52,7 @@ class PgHiveBoxes {
 }
 
 class SplitHiveBoxes {
-  static final songs = 'songs';
+  static final songs = 'splittedSongs';
 
   static init() async {
     Directory dir = await getApplicationDocumentsDirectory();

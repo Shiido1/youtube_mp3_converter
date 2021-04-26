@@ -25,14 +25,14 @@ class _SignInScreenState extends State<SignInScreen> {
   SharedPreferences loginPref;
   bool newUser;
 
-  void checkLogin() async {
-    loginPref = await SharedPreferences.getInstance();
-    newUser = (loginPref.getBool('login') ?? true);
-
-    if (newUser == false) {
-      PageRouter.gotoNamed(Routes.DASHBOARD, context);
-    }
-  }
+  // void checkLogin() async {
+  //   loginPref = await SharedPreferences.getInstance();
+  //   newUser = (loginPref.getBool('login') ?? true);
+  //
+  //   if (newUser == false) {
+  //     PageRouter.gotoNamed(Routes.DASHBOARD, context);
+  //   }
+  // }
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
@@ -63,6 +63,13 @@ class _SignInScreenState extends State<SignInScreen> {
     _loginProviders = Provider.of<LoginProviders>(context, listen: false);
     _loginProviders.initialize(context);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -163,10 +170,12 @@ class _SignInScreenState extends State<SignInScreen> {
                             color: AppColor.white,
                             size: 50.0,
                           )
-                        : FlatButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            color: AppColor.bottomRed,
+                        : TextButton(
+                        style: TextButton
+                            .styleFrom(
+                          backgroundColor: AppColor
+                              .bottomRed,
+                        ),
                             onPressed: () {
                               signIn(context, _emailController.text.trim(),
                                   _passwordController.text.trim());

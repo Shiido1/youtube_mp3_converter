@@ -6,6 +6,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/splash_sreen.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';

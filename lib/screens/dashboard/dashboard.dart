@@ -19,6 +19,7 @@ import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
@@ -55,13 +56,15 @@ class _DashBoardState extends State<DashBoard> {
   String _fileName;
   int _progress = 0;
   bool loading = false;
-  VoidCallback _callback;
 
   MusicProvider _musicProvider;
+  CustomProgressIndicator _progressIndicator;
 
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    this._progressIndicator = CustomProgressIndicator(this.context);
+
 
     LinkShareAssistant()
       ..onDataReceived = _handleSharedData
@@ -262,18 +265,6 @@ class _DashBoardState extends State<DashBoard> {
                 _buttonItem(
                   title: "Split your Music",
                   item: HomeButtonItem.CREATE_MUSIC,
-                  screen: Scaffold(
-                    backgroundColor: AppColor.background,
-                    appBar: AppBar(backgroundColor: AppColor.bottomRed,
-                      leading: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.arrow_back_ios_sharp,
-                          color: AppColor.white,
-                        ),
-                      ),
-                    ),
-                  ),
                   assets: AppAssets.radioWave,
                 ),
                 SizedBox(
@@ -337,7 +328,7 @@ class _DashBoardState extends State<DashBoard> {
         setState(() {
           _homeButtonItem = item;
         });
-        Navigator.push(
+        screen == null?splitMethod():Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => screen),
         );
@@ -382,10 +373,12 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 
+
   Future splitMethod() async {
-    // _progressIndicator.show();
     FilePickerResult result = await FilePicker.platform
         .pickFiles(type: FileType.audio);
+    _progressIndicator.show();
+
     var splittedFiles = await SplitAssistant.splitFile(
         result.files.single.path, context);
     if (splittedFiles != "Failed") {
@@ -416,10 +409,12 @@ class _DashBoardState extends State<DashBoard> {
         _buildNoPermissionWarning();
       }
       else {
-        // await _progressIndicator.dismiss();
+        await _progressIndicator.dismiss();
         showToast(context,
             message: "error occurred, please try again");
       }
+      await _progressIndicator.dismiss();
+
     }
   }
 

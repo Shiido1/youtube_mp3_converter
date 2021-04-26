@@ -14,9 +14,11 @@ class LoginProviders extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
   bool isLoading = false;
-  String userToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6InByZWJhZDUwQGdtYWlsLmNvbSJ9.QNDikltIgKrfOnO6NWxCWDSw5kDmYUrN9WYez24GvsU';
+  String userToken='';
+      // 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6InByZWJhZDUwQGdtYWlsLmNvbSJ9.QNDikltIgKrfOnO6NWxCWDSw5kDmYUrN9WYez24GvsU';
   Box<String> _box;
+  String email='';
+  String name='';
 
   void initialize(BuildContext context) {
     this._context = context;
@@ -31,14 +33,13 @@ class LoginProviders extends ChangeNotifier {
       final _response =
           await _repository.loginUser(context: context, data: map);
       _response.when(success: (success, _, statusMessage) async {
-        await _progressIndicator.dismiss();
+        showToast(this._context, message: 'Successfully Logged in..');
         isLoading = false;
-        PageRouter.gotoNamed(Routes.DASHBOARD, _context);
+        await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        await _progressIndicator.dismiss();
+        showToast(this._context, message: 'Please try again');
         isLoading = false;
-        showToast(this._context, message: statusMessage);
         notifyListeners();
       });
     } catch (e) {
@@ -54,6 +55,16 @@ class LoginProviders extends ChangeNotifier {
     notifyListeners();
   }
 
+  getUserEmail(String _email) {
+    email = _email;
+    notifyListeners();
+  }
+
+  getUserName(String _name) {
+    name = _name;
+    notifyListeners();
+  }
+
   saveUserToken(String token) async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('userToken');
@@ -65,6 +76,20 @@ class LoginProviders extends ChangeNotifier {
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');
     userToken = token;
+    notifyListeners();
+  }
+
+  saveUserEmail(String email) async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('userEmail');
+    _box.put('email', email);
+  }
+
+  getSavedUserEmail() async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('userEmail');
+    String email = _box.get('email');
+    userToken = email;
     notifyListeners();
   }
 }

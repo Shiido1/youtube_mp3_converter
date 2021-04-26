@@ -23,7 +23,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 
-const String musicPath = 'music';
+const String musicPath = '.music';
 bool debug = true;
 
 class Convert extends StatefulWidget with WidgetsBindingObserver {
@@ -119,8 +119,8 @@ class _ConvertState extends State<Convert> {
                           SizedBox(
                             height: 11.5,
                           ),
-                          Center(
-                            child: Flexible(
+                          Expanded(
+                            child: Center(
                               child: Text(
                                 'Successfully Downloaded',
                                 textAlign: TextAlign.center,
@@ -376,8 +376,8 @@ class _ConvertState extends State<Convert> {
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
-                                                          primary:
-                                                              AppColor.green,
+                                                            backgroundColor: AppColor
+                                                                .green,
                                                         ),
                                                         child: TextViewWidget(
                                                           text: 'Download',
@@ -401,8 +401,8 @@ class _ConvertState extends State<Convert> {
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
-                                                          primary: AppColor
-                                                              .bottomRed,
+                                                          backgroundColor: AppColor
+                                                              .green,
                                                         ),
                                                         child: TextViewWidget(
                                                           text: 'Save to Lib',

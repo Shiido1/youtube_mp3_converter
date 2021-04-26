@@ -2,11 +2,13 @@ import 'package:dots_indicator/dots_indicator.dart';
 import'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/paymentAssistant.dart';
 import 'package:mp3_music_converter/widgets/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   @override
@@ -17,11 +19,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   int currentIndexPage;
   int pageLength;
+  double amount;
+  var email='';
+  var name='';
 
   @override
   void initState() {
     currentIndexPage = 0;
     pageLength = 3;
+    email = Provider.of<LoginProviders>(context,listen: false).email;
+    // email = 'uwahsheedo@gmail.com';
+    name =  Provider.of<LoginProviders>(context,listen: false).name;
     super.initState();
   }
 
@@ -47,78 +55,95 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               text: 'Plan',
             ),
-            Container(
-              margin: EdgeInsets.only(left: 50, right: 50,top: 45),
-              height: 400,
-              child: PageView(
-                onPageChanged: (value) {
-                  setState(() => currentIndexPage = value);
-                },
-                children: <Widget>[
-                  paymentContainer(
-                    picture: SvgPicture.asset(
-                        AppAssets.basic,
-                        height: 60,
-                        width: 60),
-                    text1: 'UNLIMITED BASIC',
-                    text2: '150MB DISK SPACE (MONTHLY)',
-                    text3: r'$0.99',
-                    subWidgetButton: () async{
-                      //TODO: Show loading widget
-                      print('About to pay');
-                      var trxResponse = await PaymentAssistant.processTransaction(context);
-                      if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
-                        print(trxResponse);
-                        print('Transaction successful');
-                      }else if(trxResponse == 'Failed'){
-                        print('Transaction Failed. Try again later');
-                      }
-                      else
-                        print('Transaction Cancelled');
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.only(left: 50, right: 50,top: 45),
+                height: 400,
+                child: PageView(
+                  onPageChanged: (value) {
+                    setState(() => currentIndexPage = value);
+                  },
+                  children: <Widget>[
+                    paymentContainer(
+                      picture: SvgPicture.asset(
+                          AppAssets.basic,
+                          height: 60,
+                          width: 60),
+                      text1: 'UNLIMITED BASIC',
+                      text2: '150MB DISK SPACE (MONTHLY)',
+                      text3: r'$0.99',
+                      amount: amount,
+                      subWidgetButton: () async{
+                        //TODO: Show loading widget
+                        print('About to pay mr $name with email $email');
+                        var trxResponse =
+                        await PaymentAssistant.processTransaction(
+                            context,1.0,
+                            email, name,                          // 'jhjkjkkj','jhjkhjkh'
+                        );
+                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                          print(trxResponse);
+                          print('Transaction successful');
+                        }else if(trxResponse == 'Failed'){
+                          print('Transaction Failed. Try again later');
+                        }
+                        else
+                          print('Transaction Cancelled');
 
-                    },
-                  ),
-                  paymentContainer(
-                    picture: SvgPicture.asset(
-                        AppAssets.medium,
-                        height: 60,
-                        width: 60),
-                    text1: 'UNLIMITED MEDIUM',
-                    text2: '1.5 GB DISK SPACE (MONTHLY)',
-                    text3: r'$3.99',
-                    subWidgetButton: () async{
-                      var trxResponse = await PaymentAssistant.processTransaction(context);
-                      if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
-                        print(trxResponse);
-                        print('Transaction successful');
-                      }else if(trxResponse == 'Failed'){
-                        print('Transaction Failed. Try again later');
-                      }
-                      else
-                        print('Transaction Cancelled');
-                    },
-                  ),
-                  paymentContainer(
-                    picture: SvgPicture.asset(
-                        AppAssets.advance,
-                        height: 60,
-                        width: 60),
-                    text1: 'UNLIMITED ADVANCE',
-                    text2: '10GB DISK SPACE (6 MONTHLY)',
-                    text3: r'$20',
-                    subWidgetButton: ()async{
-                      var trxResponse = await PaymentAssistant.processTransaction(context);
-                      if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
-                        print(trxResponse);
-                        print('Transaction successful');
-                      }else if(trxResponse == 'Failed'){
-                        print('Transaction Failed. Try again later');
-                      }
-                      else
-                        print('Transaction Cancelled');
-                    },
-                  ),
-                ],
+                      },
+                    ),
+                    paymentContainer(
+                      picture: SvgPicture.asset(
+                          AppAssets.medium,
+                          height: 60,
+                          width: 60),
+                      text1: 'UNLIMITED MEDIUM',
+                      text2: '1.5 GB DISK SPACE (MONTHLY)',
+                      text3: r'$3.99',
+                      amount: amount,
+                      subWidgetButton: () async{
+                        var trxResponse =
+                        await PaymentAssistant.processTransaction(
+                            context,3.99,
+                          email, name,
+                        );
+                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                          print(trxResponse);
+                          print('Transaction successful');
+                        }else if(trxResponse == 'Failed'){
+                          print('Transaction Failed. Try again later');
+                        }
+                        else
+                          print('Transaction Cancelled');
+                      },
+                    ),
+                    paymentContainer(
+                      picture: SvgPicture.asset(
+                          AppAssets.advance,
+                          height: 60,
+                          width: 60),
+                      text1: 'UNLIMITED ADVANCE',
+                      text2: '10GB DISK SPACE (6 MONTHLY)',
+                      text3: r'$20',
+                      amount: amount,
+                      subWidgetButton: ()async{
+                        var trxResponse =
+                        await PaymentAssistant.processTransaction(
+                            context,20.0,
+                          email, name,
+                        );
+                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                          print(trxResponse);
+                          print('Transaction successful');
+                        }else if(trxResponse == 'Failed'){
+                          print('Transaction Failed. Try again later');
+                        }
+                        else
+                          print('Transaction Cancelled');
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(
@@ -146,7 +171,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String text1,
     String text2,
     String text3,
-    VoidCallback subWidgetButton
+    VoidCallback subWidgetButton,
+    // , double amount, String customerEmailAddress, String customerFName, String customerLName, String narration, String txRef
+    double amount,
+    String customerEmailAddress,
+    String customerFName,
+    // String narration,
+    // String txRef,
   })=> Container(
     margin: EdgeInsets.all(10),
     decoration: BoxDecoration(

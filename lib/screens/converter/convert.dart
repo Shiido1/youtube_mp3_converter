@@ -98,44 +98,46 @@ class _ConvertState extends State<Convert> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
-            child: AlertDialog(
-                backgroundColor: AppColor.white.withOpacity(0.6),
-                content: Container(
-                  decoration: new BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius:
-                        new BorderRadius.all(new Radius.circular(32.0)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 50, bottom: 70),
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(AppAssets.check),
-                          SizedBox(
-                            height: 11.5,
-                          ),
-                          Expanded(
-                            child: Center(
-                              child: Text(
-                                'Successfully Downloaded',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 23,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColor.black),
+          return Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+              child: AlertDialog(
+                  backgroundColor: AppColor.white.withOpacity(0.6),
+                  content: Container(
+                    decoration: new BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius:
+                          new BorderRadius.all(new Radius.circular(32.0)),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20, bottom: 50),
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SvgPicture.asset(AppAssets.check),
+                            SizedBox(
+                              height: 11.5,
+                            ),
+                            Flexible(
+                              child: Center(
+                                child: Text(
+                                  'Successfully Downloaded',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 23,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColor.black),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                )),
+                  )),
+            ),
           );
         });
   }

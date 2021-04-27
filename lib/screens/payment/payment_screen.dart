@@ -22,6 +22,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   double amount;
   var email='';
   var name='';
+  String userToken='';
 
   @override
   void initState() {
@@ -30,6 +31,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     email = Provider.of<LoginProviders>(context,listen: false).email;
     // email = 'uwahsheedo@gmail.com';
     name =  Provider.of<LoginProviders>(context,listen: false).name;
+    userToken =  Provider.of<LoginProviders>(context,listen: false).userToken;
     super.initState();
   }
 
@@ -79,10 +81,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         var trxResponse =
                         await PaymentAssistant.processTransaction(
                             context,1.0,
-                            email, name,                          // 'jhjkjkkj','jhjkhjkh'
+                            email, name,
                         );
                         if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
                           print(trxResponse);
+                          bool storePayment =
+                          await PaymentAssistant.storePayment(context, 'txRef',
+                              1, 'txId', 150000000, userToken);
+                          if(storePayment)
+                            print('payment saved');
+                          else
+                            print('could not save payment');
                           print('Transaction successful');
                         }else if(trxResponse == 'Failed'){
                           print('Transaction Failed. Try again later');

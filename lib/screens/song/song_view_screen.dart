@@ -75,20 +75,22 @@ class _SongViewScreenState extends State<SongViewScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CachedNetworkImage(
-                  imageUrl:  _provider?.currentSong?.image??'',
-                  imageBuilder: (context, imageProvider) => Container(
-                    width: 280.0,
-                    height: 320.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      image: DecorationImage(
-                          image: imageProvider, fit: BoxFit.cover),
+                Expanded(
+                  child: CachedNetworkImage(
+                    imageUrl:  _provider?.currentSong?.image??'',
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: 280.0,
+                      height: 320.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        image: DecorationImage(
+                            image: imageProvider, fit: BoxFit.cover),
+                      ),
                     ),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
-                  placeholder: (context, url) => CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
                 SizedBox(
                   height: 30,

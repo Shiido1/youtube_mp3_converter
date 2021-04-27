@@ -126,7 +126,7 @@ class _PlayListViewState extends State<PlayListView> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: CachedNetworkImage(
-                      imageUrl: _song[0].image,
+                      imageUrl: _song[0]?.image??'',
                       fit: BoxFit.cover,
                       placeholder: (context, index) => Container(
                         child: Center(
@@ -304,7 +304,7 @@ class _PlayListViewState extends State<PlayListView> {
                       child: _currentSong?.image != null &&
                               _currentSong.image.isNotEmpty
                           ? CachedNetworkImage(
-                              imageUrl: _currentSong.image,
+                              imageUrl: _currentSong?.image??'',
                               placeholder: (context, index) => Container(
                                 child: Center(
                                     child: SizedBox(

@@ -1,10 +1,43 @@
+import 'dart:convert';
+
+import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:rave_flutter/rave_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 
 
 class PaymentAssistant{
-  // , double amount, String customerEmailAddress, String customerFName, String customerLName, String narration, String txRef
+
+  static Future<bool> storePayment(BuildContext context, String txRef, int amount, String txId, int storage, String userToken) async{
+    String baseUrl = "http://67.205.165.56/api/storepayment";
+    var body = jsonEncode({
+        "tx_ref": txRef,
+        "amount":amount,
+        "transaction_id":txId,
+        "storage":storage,
+        "token":userToken
+    });
+
+    try {
+      final _response = await http.post(baseUrl,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: body);
+
+      if (_response.statusCode == 200) {
+        return Future.value(true);
+      } else {
+        return Future.value(false);
+      }
+    } catch (e) {
+      return Future.value(false);
+    }
+  }
+
+
   static Future<dynamic>processTransaction(
       BuildContext context,
       double _amount,

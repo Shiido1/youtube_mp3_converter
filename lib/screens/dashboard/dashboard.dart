@@ -359,13 +359,15 @@ class _DashBoardState extends State<DashBoard> {
                   width: 25,
                 ),
                 SizedBox(width: 10),
-                TextViewWidget(
-                  color:
-                      _homeButtonItem != item ? AppColor.white : AppColor.black,
-                  text: '$title',
-                  textSize: 18,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Montserrat',
+                Expanded(
+                  child: TextViewWidget(
+                    color:
+                        _homeButtonItem != item ? AppColor.white : AppColor.black,
+                    text: '$title',
+                    textSize: 18,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Montserrat',
+                  ),
                 ),
               ],
             ),

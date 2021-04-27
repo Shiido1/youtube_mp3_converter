@@ -12,8 +12,10 @@ class RedBackground extends StatefulWidget {
   final String text;
   final IconButton iconButton;
   final VoidCallback callback;
+  final Widget widgetContainer;
 
-  RedBackground({this.text, this.iconButton, this.callback});
+
+  RedBackground({this.text, this.iconButton, this.callback, this.widgetContainer});
 
   @override
   _RedBackgroundState createState() => _RedBackgroundState();
@@ -141,42 +143,45 @@ class _RedBackgroundState extends State<RedBackground> {
                       : Image.asset(AppAssets.logo),
                 ],
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  img == false
-                      ? ClipOval(
-                          child: Image.asset('assets/burna.png'),
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                  image: FileImage(image), // picked file
-                                  fit: BoxFit.cover)),
-                        ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5.0),
-                    child: InkWell(
-                      onTap: () => _showDialog(context),
-                      child: Text(
-                        'Profile',
-                        style: TextStyle(
-                            fontSize: 17,
-                            color: AppColor.white,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Montserrat-Thin'),
-                      ),
-                    ),
-                  ),
-                ],
-              )
+              widget.widgetContainer !=null
+                  ? _widgetContainer():
+                  Container()
             ],
           ),
         ),
       ],
     );
   }
+  Widget _widgetContainer()=>Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      img == false
+          ? ClipOval(
+        child: Image.asset('assets/burna.png'),
+      )
+          : Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(
+                image: FileImage(image), // picked file
+                fit: BoxFit.cover)),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(top: 5.0),
+        child: InkWell(
+          onTap: () => _showDialog(context),
+          child: Text(
+            'Profile',
+            style: TextStyle(
+                fontSize: 17,
+                color: AppColor.white,
+                fontWeight: FontWeight.w500,
+                fontFamily: 'Montserrat-Thin'),
+          ),
+        ),
+      ),
+    ],
+  );
 }

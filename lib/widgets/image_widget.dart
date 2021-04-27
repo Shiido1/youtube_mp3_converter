@@ -24,7 +24,7 @@ class _ImageFileState extends State<ImageFile> {
         ? Padding(
             padding: const EdgeInsets.all(5.0),
             child: CachedNetworkImage(
-              imageUrl: _musicProvider?.currentSong?.image,
+              imageUrl: _musicProvider?.currentSong?.image??'',
               fit: BoxFit.fitHeight,
             ),
           )

@@ -112,44 +112,48 @@ class _RedBackgroundState extends State<RedBackground> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Image.asset(
-          'assets/rect.png',
-          width: MediaQuery.of(context).size.width,
-          fit: BoxFit.fitWidth,
-        ),
-        Container(
-          margin: const EdgeInsets.only(left: 16, right: 16, top: 50),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+    return Container(
+      child: Expanded(
+        child: Stack(
+          children: [
+            Image.asset(
+              'assets/rect.png',
+              width: MediaQuery.of(context).size.width,
+              fit: BoxFit.fitWidth,
+            ),
+            Container(
+              margin: const EdgeInsets.only(left: 16, right: 16, top: 50),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  widget.iconButton != null
-                      ? IconButton(
-                          icon: widget.iconButton,
-                          onPressed: widget.callback)
-                      : TextViewWidget(text: '', color: AppColor.transparent),
-                  widget.text != null
-                      ? TextViewWidget(
-                          color: AppColor.white,
-                          text: widget.text,
-                          textSize: 22,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Montserrat')
-                      : Image.asset(AppAssets.logo),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      widget.iconButton != null
+                          ? IconButton(
+                              icon: widget.iconButton,
+                              onPressed: widget.callback)
+                          : TextViewWidget(text: '', color: AppColor.transparent),
+                      widget.text != null
+                          ? TextViewWidget(
+                              color: AppColor.white,
+                              text: widget.text,
+                              textSize: 22,
+                              fontWeight: FontWeight.w700,
+                              fontFamily: 'Montserrat')
+                          : Image.asset(AppAssets.logo),
+                    ],
+                  ),
+                  widget.widgetContainer !=null
+                      ? _widgetContainer():
+                      Container()
                 ],
               ),
-              widget.widgetContainer !=null
-                  ? _widgetContainer():
-                  Container()
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
   Widget _widgetContainer()=>Column(

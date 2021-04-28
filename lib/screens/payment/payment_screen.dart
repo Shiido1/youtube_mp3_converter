@@ -20,8 +20,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   int currentIndexPage;
   int pageLength;
   double amount;
-  var email='';
-  var name='';
+  String email='';
+  String name='';
   String userToken='';
 
   @override
@@ -29,7 +29,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     currentIndexPage = 0;
     pageLength = 3;
     email = Provider.of<LoginProviders>(context,listen: false).email;
-    // email = 'uwahsheedo@gmail.com';
     name =  Provider.of<LoginProviders>(context,listen: false).name;
     userToken =  Provider.of<LoginProviders>(context,listen: false).userToken;
     super.initState();
@@ -59,7 +58,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(left: 50, right: 50,top: 45),
+                margin: EdgeInsets.only(left: 50, right: 50,),
                 height: 400,
                 child: PageView(
                   onPageChanged: (value) {
@@ -81,7 +80,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         var trxResponse =
                         await PaymentAssistant.processTransaction(
                             context,1.0,
-                            email, name,
+                            email, name,                          // 'jhjkjkkj','jhjkhjkh'
                         );
                         if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
                           print(trxResponse);
@@ -195,61 +194,63 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
       color: AppColor.white,
     ),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        picture,
-        SizedBox(
-          height: 26,
-        ),
-        TextViewWidget(
-          text: text1 ?? '',
-          textSize: 23,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.bold,
-          color: AppColor.bottomRed,
-        ),
-        SizedBox(height: 15,),
-        TextViewWidget(
-          text: text2 ?? '',
-          textSize: 17,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.w500,
-          color: AppColor.black,
-        ),
-        TextViewWidget(
-          text: text3 ?? '',
-          textSize: 22,
-          textAlign: TextAlign.center,
-          fontWeight: FontWeight.bold,
-          color: AppColor.bottomRed,
-        ),
-        InkWell(
-          onTap: subWidgetButton,
-          child: Container(
-            width: 70,
-            height: 40,
-            decoration: BoxDecoration(
-              color: AppColor.transparent,
-              border: Border.all(
-                  width: 1,color: AppColor.bottomRed
-              ),
-              borderRadius: BorderRadius.all(
-                  Radius.circular(5.0) //                 <--- border radius here
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            picture,
+            SizedBox(
+              height: 26,
+            ),
+            TextViewWidget(
+              text: text1 ?? '',
+              textSize: 23,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.bold,
+              color: AppColor.bottomRed,
+            ),
+            SizedBox(height: 15,),
+            TextViewWidget(
+              text: text2 ?? '',
+              textSize: 17,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.w500,
+              color: AppColor.black,
+            ),
+            TextViewWidget(
+              text: text3 ?? '',
+              textSize: 22,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.bold,
+              color: AppColor.bottomRed,
+            ),
+            InkWell(
+              onTap: subWidgetButton,
+              child: Container(
+                width: 70,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColor.transparent,
+                  border: Border.all(
+                      width: 1,color: AppColor.bottomRed
+                  ),
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(5.0) //                 <--- border radius here
+                  ),
+                ),
+                child: Center(
+                  child: TextViewWidget(
+                      color: AppColor.black,
+                      text: 'BUY',
+                      textSize: 25,
+                      textAlign: TextAlign.center),
+                ),
               ),
             ),
-            child: Center(
-              child: TextViewWidget(
-                  color: AppColor.black,
-                  text: 'BUY',
-                  textSize: 25,
-                  textAlign: TextAlign.center),
-            ),
-          ),
-        ),
-        SizedBox(height: 15,)
+            SizedBox(height: 15,)
 
-      ],
+          ],
     ),
+      ),
   );
 }

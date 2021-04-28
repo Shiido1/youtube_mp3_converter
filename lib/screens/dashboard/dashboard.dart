@@ -246,75 +246,76 @@ class _DashBoardState extends State<DashBoard> {
       return Scaffold(
       backgroundColor: AppColor.background,
       body: Column(
-        children: [
-          RedBackground(),
-          Expanded(
-              child: Container(
-            margin: EdgeInsets.only(left: 16, right: 90),
-            child: ListView(
-              children: [
-                _buttonItem(
-                  title: "Converter",
-                  item: HomeButtonItem.CONVERTER,
-                  screen: Convert(),
-                  assets: AppAssets.mpFile,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buttonItem(
-                  title: "Split your Music",
-                  item: HomeButtonItem.CREATE_MUSIC,
-                  assets: AppAssets.radioWave,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buttonItem(
-                  title: "Radio World Wide",
-                  item: HomeButtonItem.RADIO,
-                  screen: RadioClass(),
-                  assets: AppAssets.radio,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buttonItem(
-                  title: "Disk Jockey",
-                  item: HomeButtonItem.DJ,
-                  screen: Scaffold(
-                    backgroundColor: AppColor.background,
-                    appBar: AppBar(backgroundColor: AppColor.bottomRed,
-                      leading: IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: Icon(
-                          Icons.arrow_back_ios_sharp,
-                          color: AppColor.white,
-                        ),
-                      ),
+        mainAxisSize: MainAxisSize.min,
+          children: [
+            RedBackground(),
+            Expanded(
+                child: Container(
+              margin: EdgeInsets.only(left: 16, right: 90),
+              child: ListView(
+                children: [
+                  _buttonItem(
+                    title: "Converter",
+                    item: HomeButtonItem.CONVERTER,
+                    screen: Convert(),
+                    assets: AppAssets.mpFile,
                   ),
-                  body: Center(
-                      child: TextViewWidget(
-                        text:'Coming Soon...!',
-                        color: AppColor.white,
-                        textSize: 18,)),),
-                  assets: AppAssets.djMixer,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                _buttonItem(
-                    title: "Plan",
-                    item: HomeButtonItem.PLAN,
-                    screen: PaymentScreen(),
-                    assets: AppAssets.plan),
-                SizedBox(height: 15),
-              ],
-            ),
-          )),
-          BottomPlayingIndicator()
-        ],
-      ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Split your Music",
+                    item: HomeButtonItem.CREATE_MUSIC,
+                    assets: AppAssets.radioWave,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Radio World Wide",
+                    item: HomeButtonItem.RADIO,
+                    screen: RadioClass(),
+                    assets: AppAssets.radio,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Disk Jockey",
+                    item: HomeButtonItem.DJ,
+                    screen: Scaffold(
+                      backgroundColor: AppColor.background,
+                      appBar: AppBar(backgroundColor: AppColor.bottomRed,
+                        leading: IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            Icons.arrow_back_ios_sharp,
+                            color: AppColor.white,
+                          ),
+                        ),
+                    ),
+                    body: Center(
+                        child: TextViewWidget(
+                          text:'Coming Soon...!',
+                          color: AppColor.white,
+                          textSize: 18,)),),
+                    assets: AppAssets.djMixer,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                      title: "Plan",
+                      item: HomeButtonItem.PLAN,
+                      screen: PaymentScreen(),
+                      assets: AppAssets.plan),
+                  SizedBox(height: 15),
+                ],
+              ),
+            )),
+            BottomPlayingIndicator()
+          ],
+        ),
     );
   }
 

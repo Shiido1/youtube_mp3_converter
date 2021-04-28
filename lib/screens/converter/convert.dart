@@ -206,229 +206,230 @@ class _ConvertState extends State<Convert> {
     return Scaffold(
       body: Consumer<ConverterProvider>(builder: (_, model, __) {
         return Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+          // height: MediaQuery.of(context).size.height,
           color: AppColor.background,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RedBackground(
-                        iconButton: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_outlined,
-                            color: AppColor.white,
+              RedBackground(
+                iconButton: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: AppColor.white,
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                text: 'Converter',
+              ),
+              SizedBox(height: 45,),
+              SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+
+                    Padding(
+                      padding:
+                          const EdgeInsets.only(top: 6, bottom: 6, left: 30),
+                      child: TextViewWidget(
+                          color: AppColor.white,
+                          text: 'Enter Youtube Url',
+                          textSize: 23,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Montserrat'),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Stack(children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 58.0),
+                          child: TextFormField(
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              labelText: widget.sharedLinkText ?? 'Enter Youtube Url',
+                              labelStyle: TextStyle(color: Colors.white),
+                            ),
+                            cursorColor: AppColor.white,
+                            controller: controller,
                           ),
-                          onPressed: () => Navigator.pop(context),
                         ),
-                        text: 'Converter',
-                      ),
-                      Padding(
-                        padding:
-                            const EdgeInsets.only(top: 6, bottom: 6, left: 30),
-                        child: TextViewWidget(
-                            color: AppColor.white,
-                            text: 'Enter Youtube Url',
-                            textSize: 23,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Montserrat'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20.0),
-                        child: Stack(children: [
-                          Padding(
-                            padding: const EdgeInsets.only(right: 58.0),
-                            child: TextFormField(
-                              style: TextStyle(color: AppColor.white),
-                              decoration: new InputDecoration(
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                border: new OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                  borderSide: BorderSide(color: Colors.white),
-                                ),
-                                labelText: widget.sharedLinkText ?? 'Enter Youtube Url',
-                                labelStyle: TextStyle(color: Colors.white),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(23.0),
+                              border: Border.all(color: AppColor.white),
+                            ),
+                            child: ClipOval(
+                              child: InkWell(
+                                splashColor: Colors.white, // inkwell color
+                                child: Container(
+                                    height: 55,
+                                    width: 54,
+                                    child: Icon(
+                                      Icons.check,
+                                      color: AppColor.white,
+                                      size: 35,
+                                    )),
+                                onTap: () {
+                                  _download();
+                                },
                               ),
-                              cursorColor: AppColor.white,
-                              controller: controller,
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(23.0),
-                                border: Border.all(color: AppColor.white),
-                              ),
-                              child: ClipOval(
-                                child: InkWell(
-                                  splashColor: Colors.white, // inkwell color
-                                  child: Container(
-                                      height: 55,
-                                      width: 54,
-                                      child: Icon(
-                                        Icons.check,
-                                        color: AppColor.white,
-                                        size: 35,
-                                      )),
-                                  onTap: () {
-                                    _download();
-                                  },
-                                ),
-                              ),
-                            ),
-                          )
-                        ]),
-                      ),
-                      _converterProvider.problem == true
-                          ? Container(
-                              child: Column(
-                                children: [
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.withOpacity(0.4),
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.all(2),
-                                              child: Image.network(
-                                                model?.youtubeModel?.image ??
-                                                    '',
-                                                width: 115,
-                                                height: 120,
-                                                fit: BoxFit.cover,
+                        )
+                      ]),
+                    ),
+                    _converterProvider.problem == true
+                        ? Container(
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey.withOpacity(0.4),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(2),
+                                            child: Image.network(
+                                              model?.youtubeModel?.image ??
+                                                  '',
+                                              width: 115,
+                                              height: 120,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      model?.youtubeModel
+                                                              ?.title ??
+                                                          '',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 18,
+                                                      )),
+                                                  SizedBox(height: 10),
+                                                  Text(
+                                                      'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 16,
+                                                      )),
+                                                  SizedBox(height: 30),
+                                                ],
                                               ),
                                             ),
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                        model?.youtubeModel
-                                                                ?.title ??
-                                                            '',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 18,
-                                                        )),
-                                                    SizedBox(height: 10),
-                                                    Text(
-                                                        'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
-                                                        style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 16,
-                                                        )),
-                                                    SizedBox(height: 30),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
-                                  SizedBox(height: 50),
-                                  Builder(
-                                      builder: (context) => _isLoading
-                                          ? new Center(
-                                              child:
-                                                  new CircularProgressIndicator(),
-                                            )
-                                          : _permissionReady
-                                              ? Center(
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          _requestDownload(
-                                                              link: base_url +
-                                                                  _converterProvider
-                                                                      ?.youtubeModel
-                                                                      ?.url,
-                                                              saveToDownload:
-                                                                  true);
-                                                          setState(() {
-                                                            downloaded = true;
-                                                          });
-                                                        },
-                                                        style: TextButton
-                                                            .styleFrom(
-                                                            backgroundColor: AppColor
-                                                                .green,
-                                                        ),
-                                                        child: TextViewWidget(
-                                                          text: 'Download',
-                                                          color: AppColor.white,
-                                                          textSize: 20,
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        width: 16,
-                                                      ),
-                                                      ElevatedButton(
-                                                        onPressed: () {
-                                                          _requestDownload(
-                                                              link: base_url +
-                                                                  _converterProvider
-                                                                      ?.youtubeModel
-                                                                      ?.url);
-                                                          setState(() {
-                                                            downloaded = false;
-                                                          }); // todo: replace with ur actuall link to download
-                                                        },
-                                                        style: TextButton
-                                                            .styleFrom(
+                                ),
+                                SizedBox(height: 50),
+                                Builder(
+                                    builder: (context) => _isLoading
+                                        ? new Center(
+                                            child:
+                                                new CircularProgressIndicator(),
+                                          )
+                                        : _permissionReady
+                                            ? Center(
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .center,
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        _requestDownload(
+                                                            link: base_url +
+                                                                _converterProvider
+                                                                    ?.youtubeModel
+                                                                    ?.url,
+                                                            saveToDownload:
+                                                                true);
+                                                        setState(() {
+                                                          downloaded = true;
+                                                        });
+                                                      },
+                                                      style: TextButton
+                                                          .styleFrom(
                                                           backgroundColor: AppColor
                                                               .green,
-                                                        ),
-                                                        child: TextViewWidget(
-                                                          text: 'Save to Lib',
-                                                          color: AppColor.white,
-                                                          textSize: 20,
-                                                        ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                )
-                                              : _buildNoPermissionWarning()),
-                                ],
-                              ),
-                            )
-                          : Container(),
-                      SizedBox(height: 60),
-                      loading == false
-                          ? Container()
-                          : Center(child: downloadProgress()),
-                      SizedBox(height: 60)
-                    ],
-                  ),
+                                                      child: TextViewWidget(
+                                                        text: 'Download',
+                                                        color: AppColor.white,
+                                                        textSize: 20,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 16,
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        _requestDownload(
+                                                            link: base_url +
+                                                                _converterProvider
+                                                                    ?.youtubeModel
+                                                                    ?.url);
+                                                        setState(() {
+                                                          downloaded = false;
+                                                        }); // todo: replace with ur actuall link to download
+                                                      },
+                                                      style: TextButton
+                                                          .styleFrom(
+                                                        backgroundColor: AppColor
+                                                            .green,
+                                                      ),
+                                                      child: TextViewWidget(
+                                                        text: 'Save to Lib',
+                                                        color: AppColor.white,
+                                                        textSize: 20,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            : _buildNoPermissionWarning()),
+                              ],
+                            ),
+                          )
+                        : Container(),
+                    SizedBox(height: 60),
+                    loading == false
+                        ? Container()
+                        : Center(child: downloadProgress()),
+                    SizedBox(height: 60)
+                  ],
                 ),
               ),
+
               BottomPlayingIndicator(),
             ],
           ),

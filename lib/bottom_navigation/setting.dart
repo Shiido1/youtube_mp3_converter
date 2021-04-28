@@ -15,31 +15,29 @@ class _SettingState extends State<Setting> {
     return Scaffold(
       body: Container(
         color: AppColor.background,
-        child: SingleChildScrollView(
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                RedBackground(
-                  iconButton: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_outlined,
-                      color: AppColor.white,
-                    ),
-                    onPressed: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainDashBoard()),
-                    ),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              RedBackground(
+                iconButton: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: AppColor.white,
                   ),
-                  text: 'Setting',
+                  onPressed: () => Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => MainDashBoard()),
+                  ),
                 ),
-                bodyContainer('Change Theme'),
-                bodyContainer('Change Password'),
-                bodyContainer('Help'),
-                bodyContainer('Notification'),
-                bodyContainer('Privacy'),
+                text: 'Setting',
+              ),
+              bodyContainer('Change Theme'),
+              bodyContainer('Change Password'),
+              bodyContainer('Help'),
+              bodyContainer('Notification'),
+              bodyContainer('Privacy'),
 
 
-          ]),
-        ),
+        ]),
       ),
     );
   }

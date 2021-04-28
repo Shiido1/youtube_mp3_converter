@@ -246,13 +246,12 @@ class _DashBoardState extends State<DashBoard> {
       return Scaffold(
       backgroundColor: AppColor.background,
       body: Column(
-        mainAxisSize: MainAxisSize.min,
           children: [
             RedBackground(),
-            Expanded(
-                child: Container(
-              margin: EdgeInsets.only(left: 16, right: 90),
-              child: ListView(
+             Expanded(
+               child: Container(
+                  margin: EdgeInsets.only(left: 16, right: 90),
+                  child: ListView(
                 children: [
                   _buttonItem(
                     title: "Converter",
@@ -311,8 +310,9 @@ class _DashBoardState extends State<DashBoard> {
                       assets: AppAssets.plan),
                   SizedBox(height: 15),
                 ],
-              ),
-            )),
+                  ),
+                ),
+             ),
             BottomPlayingIndicator()
           ],
         ),

@@ -58,7 +58,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(left: 50, right: 50,),
+                margin: EdgeInsets.only(left: 50, right: 50,top: 45),
                 height: 400,
                 child: PageView(
                   onPageChanged: (value) {
@@ -79,8 +79,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         print('About to pay mr $name with email $email');
                         var trxResponse =
                         await PaymentAssistant.processTransaction(
-                            context,1.0,
-                            email, name,                          // 'jhjkjkkj','jhjkhjkh'
+                          context,1.0,
+                          email, name,
                         );
                         if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
                           print(trxResponse);
@@ -112,7 +112,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       subWidgetButton: () async{
                         var trxResponse =
                         await PaymentAssistant.processTransaction(
-                            context,3.99,
+                          context,3.99,
                           email, name,
                         );
                         if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
@@ -137,7 +137,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       subWidgetButton: ()async{
                         var trxResponse =
                         await PaymentAssistant.processTransaction(
-                            context,20.0,
+                          context,20.0,
                           email, name,
                         );
                         if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
@@ -168,6 +168,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     activeSize: Size.square(8.0)),
               ),
             ),
+            SizedBox(
+              height: 21,
+            ),
           ],
         ),
       ),
@@ -194,63 +197,61 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
       color: AppColor.white,
     ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            picture,
-            SizedBox(
-              height: 26,
-            ),
-            TextViewWidget(
-              text: text1 ?? '',
-              textSize: 23,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.bold,
-              color: AppColor.bottomRed,
-            ),
-            SizedBox(height: 15,),
-            TextViewWidget(
-              text: text2 ?? '',
-              textSize: 17,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.w500,
-              color: AppColor.black,
-            ),
-            TextViewWidget(
-              text: text3 ?? '',
-              textSize: 22,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.bold,
-              color: AppColor.bottomRed,
-            ),
-            InkWell(
-              onTap: subWidgetButton,
-              child: Container(
-                width: 70,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColor.transparent,
-                  border: Border.all(
-                      width: 1,color: AppColor.bottomRed
-                  ),
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(5.0) //                 <--- border radius here
-                  ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          picture,
+          SizedBox(
+            height: 26,
+          ),
+          TextViewWidget(
+            text: text1 ?? '',
+            textSize: 23,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.bold,
+            color: AppColor.bottomRed,
+          ),
+          SizedBox(height: 15,),
+          TextViewWidget(
+            text: text2 ?? '',
+            textSize: 17,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.w500,
+            color: AppColor.black,
+          ),
+          TextViewWidget(
+            text: text3 ?? '',
+            textSize: 22,
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.bold,
+            color: AppColor.bottomRed,
+          ),
+          InkWell(
+            onTap: subWidgetButton,
+            child: Container(
+              width: 70,
+              height: 40,
+              decoration: BoxDecoration(
+                color: AppColor.transparent,
+                border: Border.all(
+                    width: 1,color: AppColor.bottomRed
                 ),
-                child: Center(
-                  child: TextViewWidget(
-                      color: AppColor.black,
-                      text: 'BUY',
-                      textSize: 25,
-                      textAlign: TextAlign.center),
+                borderRadius: BorderRadius.all(
+                    Radius.circular(5.0) //                 <--- border radius here
                 ),
               ),
+              child: Center(
+                child: TextViewWidget(
+                    color: AppColor.black,
+                    text: 'BUY',
+                    textSize: 25,
+                    textAlign: TextAlign.center),
+              ),
             ),
-            SizedBox(height: 15,)
+          ),
+          SizedBox(height: 15,)
 
-          ],
+        ],
     ),
-      ),
   );
 }

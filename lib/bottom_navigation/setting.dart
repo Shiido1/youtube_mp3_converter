@@ -16,28 +16,30 @@ class _SettingState extends State<Setting> {
       body: Container(
         color: AppColor.background,
         child:
-            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              RedBackground(
-                iconButton: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_outlined,
-                    color: AppColor.white,
+        SingleChildScrollView(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                RedBackground(
+                  iconButton: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_outlined,
+                      color: AppColor.white,
+                    ),
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainDashBoard()),
+                    ),
                   ),
-                  onPressed: () => Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => MainDashBoard()),
-                  ),
+                  text: 'Setting',
                 ),
-                text: 'Setting',
-              ),
-              bodyContainer('Change Theme'),
-              bodyContainer('Change Password'),
-              bodyContainer('Help'),
-              bodyContainer('Notification'),
-              bodyContainer('Privacy'),
+                bodyContainer('Change Theme'),
+                bodyContainer('Change Password'),
+                bodyContainer('Help'),
+                bodyContainer('Notification'),
+                bodyContainer('Privacy'),
 
 
         ]),
+            ),
       ),
     );
   }

@@ -113,7 +113,6 @@ class _RedBackgroundState extends State<RedBackground> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Expanded(
         child: Stack(
           children: [
             Image.asset(
@@ -153,7 +152,6 @@ class _RedBackgroundState extends State<RedBackground> {
             ),
           ],
         ),
-      ),
     );
   }
   Widget _widgetContainer()=>Column(

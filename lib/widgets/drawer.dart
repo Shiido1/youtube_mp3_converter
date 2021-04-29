@@ -66,7 +66,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   void initState() {
-    super.initState();
+
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
 
@@ -79,6 +79,8 @@ class _AppDrawerState extends State<AppDrawer> {
     _prepare();
     shuffle=_musicProvider.shuffleSong;
     repeat=_musicProvider.repeatSong;
+
+    super.initState();
   }
 
   @override

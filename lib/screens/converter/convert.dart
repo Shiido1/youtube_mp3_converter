@@ -97,46 +97,51 @@ class _ConvertState extends State<Convert> {
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
-              child: AlertDialog(
-                  backgroundColor: AppColor.white.withOpacity(0.6),
-                  content: Container(
-                    decoration: new BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      borderRadius:
-                          new BorderRadius.all(new Radius.circular(32.0)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 20, bottom: 50),
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SvgPicture.asset(AppAssets.check),
-                            SizedBox(
-                              height: 11.5,
-                            ),
-                            Flexible(
-                              child: Center(
-                                child: Text(
-                                  'Successfully Downloaded',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 23,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColor.black),
-                                ),
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+            child: AlertDialog(
+                backgroundColor: AppColor.white.withOpacity(0.6),
+                content: Container(
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius:
+                        new BorderRadius.all(new Radius.circular(32.0)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 50),
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(AppAssets.check),
+                          SizedBox(
+                            height: 11.5,
+                          ),
+                          Center(
+                              child: TextViewWidget(
+                                color: AppColor.black,
+                                fontWeight: FontWeight.w500,
+                                textSize: 21,
+                                text: downloaded==true ?
+                                'Successfully Downloaded':
+                                'Successfully Saved to Library',
+                                textAlign: TextAlign.center,
                               ),
                             ),
-                          ],
-                        ),
+                            // Text(
+                            //   'Successfully Downloaded',
+                            //   textAlign: TextAlign.center,
+                            //   style: TextStyle(
+                            //       fontSize: 23,
+                            //       fontWeight: FontWeight.w600,
+                            //       color: AppColor.black),
+                            // ),
+                        ],
                       ),
                     ),
-                  )),
-            ),
+                  ),
+                )),
           );
         });
   }
@@ -163,16 +168,16 @@ class _ConvertState extends State<Convert> {
         _progress = progress;
         loading = true;
       });
-      if (_progress == 100 && downloaded == true) {
+      if (_progress == 100) {
         await _showDialog(context);
-        Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
+        // Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
 
         setState(() {
           loading = false;
         });
       }
       if (status == DownloadTaskStatus.complete) {
-        SongRepository.addSong(Song(
+        await SongRepository.addSong(Song(
           fileName: _fileName,
           filePath: _localPath,
           image: _converterProvider?.youtubeModel?.image ?? '',
@@ -180,7 +185,9 @@ class _ConvertState extends State<Convert> {
           favorite: false,
           lastPlayDate: DateTime.now(),
         ));
-              }
+        Navigator.pop(context);
+        Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
+      }
     });
   }
 
@@ -398,7 +405,8 @@ class _ConvertState extends State<Convert> {
                                                       ?.url);
                                           setState(() {
                                             downloaded = false;
-                                          }); // todo: replace with ur actuall link to download
+                                          });
+                                          // todo: replace with ur actuall link to download
                                         },
                                         style: TextButton
                                             .styleFrom(

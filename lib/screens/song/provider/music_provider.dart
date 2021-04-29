@@ -30,7 +30,7 @@ class MusicProvider with ChangeNotifier {
   int get songNumber => _currentSongIndex + 1;
 
   AudioPlayerState audioPlayerState;
-  PlayerControlCommand playerControlCommand;
+  // PlayerControlCommand playerControlCommand;
   PlayerType playerType = PlayerType.ALL;
 
   initProvider() {

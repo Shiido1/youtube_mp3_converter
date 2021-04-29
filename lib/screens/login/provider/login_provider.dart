@@ -5,8 +5,10 @@ import 'package:jaynetwork/jaynetwork.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/login/repository/login_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final LoginApiRepository _repository = LoginApiRepository();
 
@@ -19,6 +21,8 @@ class LoginProviders extends ChangeNotifier {
   Box<String> _box;
   String email='';
   String name='';
+  SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper();
+
 
   void initialize(BuildContext context) {
     this._context = context;
@@ -35,6 +39,8 @@ class LoginProviders extends ChangeNotifier {
       _response.when(success: (success, _, statusMessage) async {
         showToast(this._context, message: 'Successfully Logged in..');
         isLoading = false;
+        preferencesHelper.saveValue(key: 'email', value: map['email']);
+        print(map['password']);
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {

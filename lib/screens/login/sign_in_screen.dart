@@ -6,10 +6,11 @@ import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/utils/page_router/navigator.dart';
+import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -22,23 +23,17 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isEmail = false;
   bool _isPassword = false;
   LoginProviders _loginProviders;
-  SharedPreferences loginPref;
+  SharedPreferencesHelper preferencesHelper;
   bool newUser;
+  String email,password;
 
-  // void checkLogin() async {
-  //   loginPref = await SharedPreferences.getInstance();
-  //   newUser = (loginPref.getBool('login') ?? true);
-  //
-  //   if (newUser == false) {
-  //     PageRouter.gotoNamed(Routes.DASHBOARD, context);
-  //   }
-  // }
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
       _loginProviders.loginUser(
           map: LoginModel.toJson(email: email, password: password),
           context: context);
+
   }
 
   bool _validateInputs() {
@@ -59,7 +54,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void initState() {
-    // checkLogin();
     _loginProviders = Provider.of<LoginProviders>(context, listen: false);
     _loginProviders.initialize(context);
     super.initState();
@@ -157,7 +151,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           labelText: 'Password',
                           labelStyle: TextStyle(color: AppColor.white),
                           errorText: _isPassword
-                              ? 'Please enter correct password'
+                              ? 'Please enter a correct 8 alphanumeric password'
                               : null,
                         ),
                         autofocus: false,
@@ -179,10 +173,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             onPressed: () {
                               signIn(context, _emailController.text.trim(),
                                   _passwordController.text.trim());
-                              // if (_emailController.text != '' &&
-                              //     _passwordController.text != '') {
-                              //   loginPref.setBool('login', false);
-                              // }
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(

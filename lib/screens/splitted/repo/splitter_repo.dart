@@ -1,6 +1,5 @@
 import 'package:jaynetwork/network/api_result.dart';
 import 'package:mp3_music_converter/error_handler/handler.dart';
-import 'package:mp3_music_converter/screens/splitted/model/splitter_model.dart';
 import 'package:mp3_music_converter/utils/instance.dart';
 
 class SplitterRepo {

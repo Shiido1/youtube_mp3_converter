@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+
+enum PlayerType { ALL, SHUFFLE, REPEAT }
 
 class SplittedSongProvider with ChangeNotifier {
   Duration totalDuration = Duration();
@@ -15,27 +19,19 @@ class SplittedSongProvider with ChangeNotifier {
   List<Song> allSongs = [];
   List splittedSongName = [];
   List splittedSongItems = [];
-  // List<Song> favoriteSongs = [];
+  bool shuffleSong = false;
+  bool repeatSong = false;
   int _currentSongIndex = -1;
   int get length => songs.length;
   int get songNumber => _currentSongIndex + 1;
 
   AudioPlayerState audioPlayerState;
-  PlayerControlCommand playerControlCommand;
+  PlayerType playerType = PlayerType.ALL;
 
   initProvider() {
     SplittedSongRepository.init();
     initPlayer();
   }
-
-  // getSplittedSongName() async {
-  //   splittedSongName = await SplittedSongRepository.getSplittedSongName();
-  //   notifyListeners();
-  // }
-  //
-  // getSplit(String key) async {
-  //   splittedSongItems = await SplittedSongRepository.getSplit(key);
-  // }
 
   getSongs() async {
     allSongs = await SplittedSongRepository.getSongs();
@@ -119,43 +115,58 @@ class SplittedSongProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // void completion() async {
-  //   audioPlayerState = AudioPlayerState.STOPPED;
-  //   switch(playerType){
-  //     case PlayerType.ALL:
-  //       playAudio(nextSong);
-  //       break;
-  //     case PlayerType.SHUFFLE:
-  //       shuffle();
-  //       break;
-  //     case PlayerType.REPEAT:
-  //       playAudio(currentSong);
-  //       break;
-  //   }
-  //   notifyListeners();
-  // }
+  void completion() async {
+    audioPlayerState = AudioPlayerState.STOPPED;
+    switch (playerType) {
+      case PlayerType.ALL:
+        playAudio(nextSong);
+        break;
+      case PlayerType.SHUFFLE:
+        shuffle(false);
+        break;
+      case PlayerType.REPEAT:
+        playAudio(currentSong);
+        break;
+    }
+    notifyListeners();
+  }
 
-  // Future next() async {
-  //   playAudio(nextSong);
-  //   notifyListeners();
-  // }
+  Future next() async {
+    playAudio(nextSong);
+    notifyListeners();
+  }
 
-  // Future prev() async {
-  //   playAudio(prevSong);
-  //   notifyListeners();
-  // }
+  Future prev() async {
+    playAudio(prevSong);
+    notifyListeners();
+  }
 
-  // Future shuffle() async {
-  //   playerType = PlayerType.SHUFFLE;
-  //   playAudio(randomSong);
-  //   notifyListeners();
-  // }
+  Future shuffle(bool force) async {
+    shuffleSong = true;
+    playerType = PlayerType.SHUFFLE;
+    if (force) playAudio(randomSong);
+    if (audioPlayerState == AudioPlayerState.STOPPED) playAudio(randomSong);
+    notifyListeners();
+  }
 
-  // Future repeat(Song song) async {
-  //   playerType = PlayerType.REPEAT;
-  //   playAudio(song);
-  //   notifyListeners();
-  // }
+  Future stopShuffle() async {
+    shuffleSong = false;
+    playerType = PlayerType.ALL;
+    notifyListeners();
+  }
+
+  Future repeat(Song song) async {
+    playerType = PlayerType.REPEAT;
+    repeatSong = true;
+    playAudio(song);
+    notifyListeners();
+  }
+
+  Future undoRepeat () async {
+    repeatSong = false;
+    playerType = PlayerType.ALL;
+    notifyListeners();
+  }
 
   handlePlaying() {
     switch (audioPlayerState) {
@@ -176,33 +187,35 @@ class SplittedSongProvider with ChangeNotifier {
     }
   }
 
-  // setCurrentIndex(int index) {
-  //   _currentSongIndex = index;
-  // }
+  setCurrentIndex(int index) {
+    _currentSongIndex = index;
+  }
 
-  // int get currentIndex => _currentSongIndex;
+  int get currentIndex => _currentSongIndex;
 
-  // bool get canNextSong => _currentSongIndex == length - 1;
-  // bool get canPrevSong => _currentSongIndex == 0;
+  bool get canNextSong => _currentSongIndex == length - 1;
+  bool get canPrevSong => _currentSongIndex == 0;
 
-  // Song get nextSong {
-  //   if (_currentSongIndex < length) {
-  //     _currentSongIndex++;
-  //   }
-  //   if (_currentSongIndex >= length) return null;
-  //   return songs[_currentSongIndex];
-  // }
+  Song get nextSong {
+    if (_currentSongIndex < length) {
+      _currentSongIndex++;
+    }
+    if (_currentSongIndex >= length) return null;
+    return songs[_currentSongIndex];
+  }
 
-  // Song get randomSong {
-  //   Random r = new Random();
-  //   return songs[r.nextInt(songs.length)];
-  // }
+  Song get randomSong {
+    Random r = new Random();
+    int songIndex = r.nextInt(songs.length);
+    setCurrentIndex(songIndex);
+    return songs[songIndex];
+  }
 
-  // Song get prevSong {
-  //   if (_currentSongIndex > 0) {
-  //     _currentSongIndex--;
-  //   }
-  //   if (_currentSongIndex < 0) return null;
-  //   return songs[_currentSongIndex];
-  // }
+  Song get prevSong {
+    if (_currentSongIndex > 0) {
+      _currentSongIndex--;
+    }
+    if (_currentSongIndex < 0) return null;
+    return songs[_currentSongIndex];
+  }
 }

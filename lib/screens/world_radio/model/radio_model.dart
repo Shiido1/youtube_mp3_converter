@@ -83,7 +83,7 @@ class Radio {
     slug = json['slug'] == null ? null : json['slug'];
     website = json['website'] == null ? null : json['website'];
     placeName = json['place_name'] == null ? null : json['place_name'];
-    placeLat = json['place_lat'] == null ? null : json['plate_lat'];
+    placeLat = json['place_lat'] == null ? null : json['place_lat'];
     placeLong = json['place_long'] == null ? null : json['place_long'];
     functioning = json['functioning'] == null ? null : json['functioning'];
     secure = json['secure'] == null ? null : json['secure'];

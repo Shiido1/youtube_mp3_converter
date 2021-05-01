@@ -78,7 +78,7 @@ class _ConvertState extends State<Convert> {
     super.dispose();
   }
 
-  void _setControllerText(){
+  void _setControllerText() {
     setState(() {
       controller.text = widget.sharedLinkText ?? null;
     });
@@ -119,24 +119,24 @@ class _ConvertState extends State<Convert> {
                             height: 11.5,
                           ),
                           Center(
-                              child: TextViewWidget(
-                                color: AppColor.black,
-                                fontWeight: FontWeight.w500,
-                                textSize: 21,
-                                text: downloaded==true ?
-                                'Successfully Downloaded':
-                                'Successfully Saved to Library',
-                                textAlign: TextAlign.center,
-                              ),
+                            child: TextViewWidget(
+                              color: AppColor.black,
+                              fontWeight: FontWeight.w500,
+                              textSize: 21,
+                              text: downloaded == true
+                                  ? 'Successfully Downloaded'
+                                  : 'Successfully Saved to Library',
+                              textAlign: TextAlign.center,
                             ),
-                            // Text(
-                            //   'Successfully Downloaded',
-                            //   textAlign: TextAlign.center,
-                            //   style: TextStyle(
-                            //       fontSize: 23,
-                            //       fontWeight: FontWeight.w600,
-                            //       color: AppColor.black),
-                            // ),
+                          ),
+                          // Text(
+                          //   'Successfully Downloaded',
+                          //   textAlign: TextAlign.center,
+                          //   style: TextStyle(
+                          //       fontSize: 23,
+                          //       fontWeight: FontWeight.w600,
+                          //       color: AppColor.black),
+                          // ),
                         ],
                       ),
                     ),
@@ -186,7 +186,8 @@ class _ConvertState extends State<Convert> {
           lastPlayDate: DateTime.now(),
         ));
         Navigator.pop(context);
-        Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (_) => SongViewCLass()));
       }
     });
   }
@@ -235,7 +236,7 @@ class _ConvertState extends State<Convert> {
                       ),
                       Padding(
                         padding:
-                        const EdgeInsets.only(top: 6, bottom: 6, left: 30),
+                            const EdgeInsets.only(top: 6, bottom: 6, left: 30),
                         child: TextViewWidget(
                             color: AppColor.white,
                             text: 'Enter Youtube Url',
@@ -263,7 +264,8 @@ class _ConvertState extends State<Convert> {
                                   borderRadius: BorderRadius.circular(16.0),
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
-                                labelText: widget.sharedLinkText ?? 'Enter Youtube Url',
+                                labelText: widget.sharedLinkText ??
+                                    'Enter Youtube Url',
                                 labelStyle: TextStyle(color: Colors.white),
                               ),
                               cursorColor: AppColor.white,
@@ -299,133 +301,133 @@ class _ConvertState extends State<Convert> {
                       ),
                       _converterProvider.problem == true
                           ? Container(
-                        child: Column(
-                          children: [
-                            Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(20.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.withOpacity(0.4),
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(2),
-                                        child: Image.network(
-                                          model?.youtubeModel?.image ??
-                                              '',
-                                          width: 115,
-                                          height: 120,
-                                          fit: BoxFit.cover,
+                              child: Column(
+                                children: [
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(20.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey.withOpacity(0.4),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.all(2),
+                                              child: Image.network(
+                                                model?.youtubeModel?.image ??
+                                                    '',
+                                                width: 115,
+                                                height: 120,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                        model?.youtubeModel
+                                                                ?.title ??
+                                                            '',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 18,
+                                                        )),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                        'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 16,
+                                                        )),
+                                                    SizedBox(height: 30),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                      Expanded(
-                                        child: Padding(
-                                          padding:
-                                          const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  model?.youtubeModel
-                                                      ?.title ??
-                                                      '',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 18,
-                                                  )),
-                                              SizedBox(height: 10),
-                                              Text(
-                                                  'File Size: ${model?.youtubeModel?.filesize ?? '0'}',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 16,
-                                                  )),
-                                              SizedBox(height: 30),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  SizedBox(height: 50),
+                                  Builder(
+                                      builder: (context) => _isLoading
+                                          ? new Center(
+                                              child:
+                                                  new CircularProgressIndicator(),
+                                            )
+                                          : _permissionReady
+                                              ? Center(
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          _requestDownload(
+                                                              link: base_url +
+                                                                  _converterProvider
+                                                                      ?.youtubeModel
+                                                                      ?.url,
+                                                              saveToDownload:
+                                                                  true);
+                                                          setState(() {
+                                                            downloaded = true;
+                                                          });
+                                                        },
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              AppColor.green,
+                                                        ),
+                                                        child: TextViewWidget(
+                                                          text: 'Download',
+                                                          color: AppColor.white,
+                                                          textSize: 20,
+                                                        ),
+                                                      ),
+                                                      SizedBox(
+                                                        width: 16,
+                                                      ),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          _requestDownload(
+                                                              link: base_url +
+                                                                  _converterProvider
+                                                                      ?.youtubeModel
+                                                                      ?.url);
+                                                          setState(() {
+                                                            downloaded = false;
+                                                          });
+                                                          // todo: replace with ur actuall link to download
+                                                        },
+                                                        style: TextButton
+                                                            .styleFrom(
+                                                          backgroundColor:
+                                                              AppColor.green,
+                                                        ),
+                                                        child: TextViewWidget(
+                                                          text: 'Save to Lib',
+                                                          color: AppColor.white,
+                                                          textSize: 20,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                )
+                                              : _buildNoPermissionWarning()),
+                                ],
                               ),
-                            ),
-                            SizedBox(height: 50),
-                            Builder(
-                                builder: (context) => _isLoading
-                                    ? new Center(
-                                  child:
-                                  new CircularProgressIndicator(),
-                                )
-                                    : _permissionReady
-                                    ? Center(
-                                  child: Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment
-                                        .center,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _requestDownload(
-                                              link: base_url +
-                                                  _converterProvider
-                                                      ?.youtubeModel
-                                                      ?.url,
-                                              saveToDownload:
-                                              true);
-                                          setState(() {
-                                            downloaded = true;
-                                          });
-                                        },
-                                        style: TextButton
-                                            .styleFrom(
-                                          backgroundColor: AppColor
-                                              .green,
-                                        ),
-                                        child: TextViewWidget(
-                                          text: 'Download',
-                                          color: AppColor.white,
-                                          textSize: 20,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 16,
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          _requestDownload(
-                                              link: base_url +
-                                                  _converterProvider
-                                                      ?.youtubeModel
-                                                      ?.url);
-                                          setState(() {
-                                            downloaded = false;
-                                          });
-                                          // todo: replace with ur actuall link to download
-                                        },
-                                        style: TextButton
-                                            .styleFrom(
-                                          backgroundColor: AppColor
-                                              .green,
-                                        ),
-                                        child: TextViewWidget(
-                                          text: 'Save to Lib',
-                                          color: AppColor.white,
-                                          textSize: 20,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                                    : _buildNoPermissionWarning()),
-                          ],
-                        ),
-                      )
+                            )
                           : Container(),
                       SizedBox(height: 60),
                       loading == false
@@ -501,7 +503,7 @@ class _ConvertState extends State<Convert> {
           savedDir: _localPath,
           fileName: _fileName,
           showNotification: true,
-          openFileFromNotification: true);
+          openFileFromNotification: false);
     }
   }
 
@@ -553,6 +555,7 @@ class _ConvertState extends State<Convert> {
     if (!hasExisted) {
       savedDir.create();
     }
+    print('path is: $_localPath');
 
     setState(() {
       _isLoading = false;

@@ -20,6 +20,9 @@
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true">
 
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyDbnaH3z7dOOvfEHrJWEET_BXH_zrOlNhs"/>
+
         <provider
             android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"
             android:authorities="${applicationId}.flutter_downloader.provider"

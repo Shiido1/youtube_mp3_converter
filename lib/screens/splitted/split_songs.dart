@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/split.dart';
 import 'package:mp3_music_converter/screens/splitted/split_song_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -156,7 +157,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => SplitSongScreen()),
+                          builder: (context) => Split(song: _song)),
                     );
                   },
                   child: TextViewWidget(

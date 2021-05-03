@@ -77,7 +77,7 @@ class _SplitSongScreenState extends State<SplitSongScreen> {
               SizedBox(
                 height: 40,
               ),
-              SliderClass2(),
+              SliderClass3(),
               SizedBox(
                 height: 40,
               ),

@@ -118,6 +118,8 @@ class _AppDrawerState extends State<AppDrawer> {
       }
       if (status == DownloadTaskStatus.complete) {
         if(data[0].toString() == splittedSongIDList.first.toString()){
+          print(data);
+          print(splittedSongIDList);
           print('Data at index 0 is ${data[0].toString()}');
           print('SplittedSongIDList at index 0 is ${splittedSongIDList.first.toString()}');
           SplittedSongRepository.addSong(Song(
@@ -151,7 +153,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future<void> _requestDownload(
-      {@required String link, bool saveToDownload = false}) async {
+      {@required String link, bool saveToDownload = false, String fileName}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -160,7 +162,8 @@ class _AppDrawerState extends State<AppDrawer> {
         _localPath = downloadPath.path;
       }
 
-      _fileName = getStringPathName(link);
+      // _fileName = getStringPathName(link);
+      _fileName = fileName + "-" + getStringPathName(link);
       // setState(() {
       //   downloaded = false;
       // });
@@ -170,7 +173,10 @@ class _AppDrawerState extends State<AppDrawer> {
           savedDir: _localPath,
           fileName: _fileName,
           showNotification: true,
-          openFileFromNotification: true).then((value) => splittedSongIDList.add(value));
+          openFileFromNotification: true).then((value) {
+            splittedSongIDList.add(value);
+            print(splittedSongIDList);
+      });
     }
   }
 
@@ -360,19 +366,28 @@ class _AppDrawerState extends State<AppDrawer> {
 
                           _apiSplittedList.clear();
                           splittedSongIDList.clear();
+
                           _apiSplittedList.add(otherUrl);
-                          _apiSplittedList.add(drumsUrl);
-                          _apiSplittedList.add(voiceUrl);
-                          _apiSplittedList.add(bassUrl);
+                          print('api splitted List is $_apiSplittedList');
+                          // _apiSplittedList.add(drumsUrl);
+                          // _apiSplittedList.add(voiceUrl);
+                          // _apiSplittedList.add(bassUrl);
 
                           print('splitedFileList.length is ${_apiSplittedList.length}');
 
-                           for (int i = 0; i < _apiSplittedList.length; i++) {
-                            print('i is ****************** $i');
-                            await _requestDownload(
-                                link: _apiSplittedList[i],
-                                saveToDownload: true);
-                           }
+                          await _requestDownload(
+                              link: _apiSplittedList[0],
+                              saveToDownload: true,
+                              fileName: _provider.drawerItem.fileName
+                          );
+
+                           // for (int i = 0; i < _apiSplittedList.length; i++) {
+                           //  await _requestDownload(
+                           //      link: _apiSplittedList[i],
+                           //      saveToDownload: true,
+                           //    fileName: _provider.drawerItem.fileName
+                           //  );
+                           // }
                       }
 
                         else if(!_permissionReady){

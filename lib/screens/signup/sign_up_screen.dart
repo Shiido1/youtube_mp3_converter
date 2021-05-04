@@ -239,7 +239,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
-                            top: 10.0, bottom: 10.0, right: 23, left: 23),
+                            top: 8, bottom: 8, right: 20, left: 20),
                         child: Text(
                           'Sign Up',
                           style: TextStyle(

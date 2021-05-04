@@ -35,7 +35,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -75,25 +74,24 @@ class _WrapperState extends State<Wrapper> {
 
   getEmail() async {
     newUser = await preferencesHelper.doesExists(key: 'email');
-    email = !newUser? "" :await preferencesHelper.getStringValues(key: 'email');
+    email =
+        !newUser ? "" : await preferencesHelper.getStringValues(key: 'email');
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     if (email == null)
-    return SpinKitCircle(
-      itemBuilder: (BuildContext context, int index) {
-        return DecoratedBox(
-          decoration: BoxDecoration(
-              color: index.isEven ? AppColor.white : AppColor.background,
-              shape: BoxShape.circle),
-        );
-      },
-    );
-    if (email == "")
-    return SignInScreen();
-     return MainDashBoard();
+      return SpinKitCircle(
+        itemBuilder: (BuildContext context, int index) {
+          return DecoratedBox(
+            decoration: BoxDecoration(
+                color: index.isEven ? AppColor.white : AppColor.background,
+                shape: BoxShape.circle),
+          );
+        },
+      );
+    if (email == "") return SignInScreen();
+    return MainDashBoard();
   }
 }
-

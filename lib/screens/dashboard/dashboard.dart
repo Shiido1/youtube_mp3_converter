@@ -30,7 +30,7 @@ const String splitMusicPath = 'split';
 bool debug = true;
 
 // ignore: must_be_immutable
-class DashBoard extends StatefulWidget with WidgetsBindingObserver{
+class DashBoard extends StatefulWidget with WidgetsBindingObserver {
   int index;
   final TargetPlatform platform;
 
@@ -63,7 +63,6 @@ class _DashBoardState extends State<DashBoard> {
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
-
 
     LinkShareAssistant()
       ..onDataReceived = _handleSharedData
@@ -121,20 +120,20 @@ class _DashBoardState extends State<DashBoard> {
           image: _musicProvider?.drawerItem?.image ?? '',
           splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
         ));
-        for(int i = 0; i < splittedSongIDList.length; i++){
-          if(splittedSongIDList[i].toString() == dataList.reversed.toList()[i][0].toString()){
-            if(dataList[i][1] == DownloadTaskStatus.complete && dataList[i][2] == 100){
+        for (int i = 0; i < splittedSongIDList.length; i++) {
+          if (splittedSongIDList[i].toString() ==
+              dataList.reversed.toList()[i][0].toString()) {
+            if (dataList[i][1] == DownloadTaskStatus.complete &&
+                dataList[i][2] == 100) {
               isAllDownloaded.add(true);
               splittedSongIDList.removeAt(i);
-            }
-
-            else
+            } else
               isAllDownloaded.add(false);
           }
         }
-        if(isAllDownloaded.contains(false))
+        if (isAllDownloaded.contains(false))
           print('Not done downloading all');
-        else{
+        else {
           // SplittedSongRepository.addSong(splittedSongList.last);
           print('finished downloading splitted file');
           print(splittedSongList);
@@ -142,7 +141,6 @@ class _DashBoardState extends State<DashBoard> {
         }
       }
     });
-
   }
 
   void _unbindBackgroundIsolate() {
@@ -157,7 +155,7 @@ class _DashBoardState extends State<DashBoard> {
     }
 
     final SendPort send =
-    IsolateNameServer.lookupPortByName('downloader_send_port');
+        IsolateNameServer.lookupPortByName('downloader_send_port');
     send.send([id, status, progress]);
   }
 
@@ -176,12 +174,13 @@ class _DashBoardState extends State<DashBoard> {
       //   downloaded = false;
       // });
       await FlutterDownloader.enqueue(
-          url: link,
-          headers: {"auth": "test_for_sql_encoding"},
-          savedDir: _localPath,
-          fileName: _fileName,
-          showNotification: true,
-          openFileFromNotification: true).then((value) => splittedSongIDList.add(value));
+              url: link,
+              headers: {"auth": "test_for_sql_encoding"},
+              savedDir: _localPath,
+              fileName: _fileName,
+              showNotification: true,
+              openFileFromNotification: true)
+          .then((value) => splittedSongIDList.add(value));
     }
   }
 
@@ -238,101 +237,105 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
-
-    if (_sharedText.length>1)
+    if (_sharedText.length > 1)
       return Convert(sharedLinkText: _sharedText);
     else
       return Scaffold(
-      backgroundColor: AppColor.background,
-      body: Column(
+        backgroundColor: AppColor.background,
+        body: Column(
           children: [
             RedBackground(),
-             Expanded(
-               child: Container(
-                  margin: EdgeInsets.only(left: 16, right: 90),
-                  child: ListView(
-                children: [
-                  _buttonItem(
-                    title: "Converter",
-                    item: HomeButtonItem.CONVERTER,
-                    screen: Convert(),
-                    assets: AppAssets.mpFile,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buttonItem(
-                    title: "Split your Music",
-                    item: HomeButtonItem.CREATE_MUSIC,
-                    assets: AppAssets.radioWave,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buttonItem(
-                    title: "Radio World Wide",
-                    item: HomeButtonItem.RADIO,
-                    screen: RadioClass(),
-                    assets: AppAssets.radio,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buttonItem(
-                    title: "Disk Jockey",
-                    item: HomeButtonItem.DJ,
-                    screen: Scaffold(
-                      backgroundColor: AppColor.background,
-                      appBar: AppBar(backgroundColor: AppColor.bottomRed,
-                        leading: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: Icon(
-                            Icons.arrow_back_ios_sharp,
-                            color: AppColor.white,
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.only(left: 16, right: 90),
+                child: ListView(
+                  children: [
+                    _buttonItem(
+                      title: "Converter",
+                      item: HomeButtonItem.CONVERTER,
+                      screen: Convert(),
+                      assets: AppAssets.mpFile,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buttonItem(
+                      title: "Split your Music",
+                      item: HomeButtonItem.CREATE_MUSIC,
+                      assets: AppAssets.radioWave,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buttonItem(
+                      title: "Radio World Wide",
+                      item: HomeButtonItem.RADIO,
+                      screen: RadioClass(),
+                      assets: AppAssets.radio,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buttonItem(
+                      title: "Disk Jockey",
+                      item: HomeButtonItem.DJ,
+                      screen: Scaffold(
+                        backgroundColor: AppColor.background,
+                        appBar: AppBar(
+                          backgroundColor: AppColor.bottomRed,
+                          leading: IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(
+                              Icons.arrow_back_ios_sharp,
+                              color: AppColor.white,
+                            ),
                           ),
                         ),
-                    ),
-                    body: Center(
-                        child: TextViewWidget(
-                          text:'Coming Soon...!',
+                        body: Center(
+                            child: TextViewWidget(
+                          text: 'Coming Soon...!',
                           color: AppColor.white,
-                          textSize: 18,)),),
-                    assets: AppAssets.djMixer,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  _buttonItem(
-                      title: "Plan",
-                      item: HomeButtonItem.PLAN,
-                      screen: PaymentScreen(),
-                      assets: AppAssets.plan),
-                  SizedBox(height: 15),
-                ],
-                  ),
+                          textSize: 18,
+                        )),
+                      ),
+                      assets: AppAssets.djMixer,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buttonItem(
+                        title: "Plan",
+                        item: HomeButtonItem.PLAN,
+                        screen: PaymentScreen(),
+                        assets: AppAssets.plan),
+                    SizedBox(height: 15),
+                  ],
                 ),
-             ),
+              ),
+            ),
             BottomPlayingIndicator()
           ],
         ),
-    );
+      );
   }
 
-  Widget _buttonItem(
-  {String title,
+  Widget _buttonItem({
+    String title,
     String assets,
     Widget screen,
-    HomeButtonItem item,}) {
+    HomeButtonItem item,
+  }) {
     return InkWell(
       onTap: () {
         setState(() {
           _homeButtonItem = item;
         });
-        screen == null?splitMethod():Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => screen),
-        );
-
+        screen == null
+            ? splitMethod()
+            : Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => screen),
+              );
       },
       child: Container(
           decoration: BoxDecoration(
@@ -361,8 +364,9 @@ class _DashBoardState extends State<DashBoard> {
                 SizedBox(width: 10),
                 Expanded(
                   child: TextViewWidget(
-                    color:
-                        _homeButtonItem != item ? AppColor.white : AppColor.black,
+                    color: _homeButtonItem != item
+                        ? AppColor.white
+                        : AppColor.black,
                     text: '$title',
                     textSize: 18,
                     fontWeight: FontWeight.w500,
@@ -375,87 +379,82 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 
-
   Future splitMethod() async {
-    FilePickerResult result = await FilePicker.platform
-        .pickFiles(type: FileType.audio);
-    _progressIndicator.show();
+    FilePickerResult result =
+        await FilePicker.platform.pickFiles(type: FileType.audio);
+    if (result != null && result.files.isNotEmpty) {
+      _progressIndicator.show();
 
-    var splittedFiles = await SplitAssistant.splitFile(
-        result.files.single.path, context);
-    if (splittedFiles != "Failed") {
-      bool isSaved = await SplitAssistant.saveSplitFiles(
-          splittedFiles, context);
-      if (isSaved && _permissionReady) {
-        String drumsUrl = splittedFiles["files"]["drums"];
-        String voiceUrl = splittedFiles["files"]["voice"];
-        String bassUrl = splittedFiles["files"]["bass"];
-        String otherUrl = splittedFiles["files"]["other"];
+      var splittedFiles =
+          await SplitAssistant.splitFile(result.files.single.path, context);
+      if (splittedFiles != "Failed") {
+        bool isSaved =
+            await SplitAssistant.saveSplitFiles(splittedFiles, context);
+        if (isSaved && _permissionReady) {
+          String drumsUrl = splittedFiles["files"]["drums"];
+          String voiceUrl = splittedFiles["files"]["voice"];
+          String bassUrl = splittedFiles["files"]["bass"];
+          String otherUrl = splittedFiles["files"]["other"];
 
-        splittedFileList.add(drumsUrl);
-        splittedFileList.add(voiceUrl);
-        splittedFileList.add(bassUrl);
-        splittedFileList.add(otherUrl);
+          splittedFileList.add(drumsUrl);
+          splittedFileList.add(voiceUrl);
+          splittedFileList.add(bassUrl);
+          splittedFileList.add(otherUrl);
 
-        print('splitedFileList.length is ${splittedFileList.length}');
+          print('splitedFileList.length is ${splittedFileList.length}');
 
-        for (int i = 0; i < splittedFileList.length; i++) {
-          print('i is ****************** $i');
-          await _requestDownload(
-              link: splittedFileList[i],
-              saveToDownload: true);
+          for (int i = 0; i < splittedFileList.length; i++) {
+            print('i is ****************** $i');
+            await _requestDownload(
+                link: splittedFileList[i], saveToDownload: true);
+          }
+        } else if (!_permissionReady) {
+          _buildNoPermissionWarning();
+        } else {
+          await _progressIndicator.dismiss();
+          showToast(context, message: "error occurred, please try again");
         }
       }
-
-      else if(!_permissionReady){
-        _buildNoPermissionWarning();
-      }
-      else {
-        await _progressIndicator.dismiss();
-        showToast(context,
-            message: "error occurred, please try again");
-      }
       await _progressIndicator.dismiss();
-
     }
   }
 
   Widget _buildNoPermissionWarning() => Container(
-    child: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'Please grant accessing storage permission to continue -_-',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
-            ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Please grant accessing storage permission to continue -_-',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+                ),
+              ),
+              SizedBox(
+                height: 32.0,
+              ),
+              TextButton(
+                  onPressed: () {
+                    _checkPermission().then((hasGranted) {
+                      setState(() {
+                        _permissionReady = hasGranted;
+                      });
+                    });
+                  },
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ))
+            ],
           ),
-          SizedBox(
-            height: 32.0,
-          ),
-          TextButton(
-              onPressed: () {
-                _checkPermission().then((hasGranted) {
-                  setState(() {
-                    _permissionReady = hasGranted;
-                  });
-                });
-              },
-              child: Text(
-                'Retry',
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0),
-              ))
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 }
 
 enum HomeButtonItem { NON, CONVERTER, CREATE_MUSIC, RADIO, DJ, PLAN }

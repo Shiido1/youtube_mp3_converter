@@ -12,37 +12,58 @@ class RadioProvider extends ChangeNotifier {
   bool problem = false;
   RadioModel radioModels;
   RadioModel radioModelsItems;
+  bool showAllChannels = false;
+
+  updateShowAllChannels(bool value) {
+    this.showAllChannels = value;
+    notifyListeners();
+  }
 
   void init(
       {BuildContext context,
       @required bool search,
       String searchData,
-      bool add = false}) {
+      bool add = false,
+      bool firstSearch = false}) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
     getRadio(
-        search: search, searchData: searchData, context: context, add: add);
+        search: search,
+        searchData: searchData,
+        context: context,
+        add: add,
+        firstSearch: firstSearch);
   }
 
   getRadio(
       {@required bool search,
       String searchData,
       @required BuildContext context,
-      bool add}) async {
+      bool add,
+      bool firstSearch}) async {
     if (search)
-      radioX(search: true, searchData: searchData, context: context, add: add);
+      radioX(
+          search: true,
+          searchData: searchData,
+          context: context,
+          add: add,
+          firstSearch: firstSearch);
     if (search == false || radioModels == null)
       radioX(
-          search: search, searchData: searchData, context: context, add: add);
+          search: search,
+          searchData: searchData,
+          context: context,
+          add: add,
+          firstSearch: firstSearch);
   }
 
   void radioX(
       {@required bool search,
       String searchData,
       @required BuildContext context,
-      @required bool add}) async {
+      @required bool add,
+      bool firstSearch}) async {
     try {
-      if (!add) _progressIndicator.show();
       if (add) {
         RadioModel myModel = await _repository.radiox(
             map: Radio.mapToJson(token: token, searchData: searchData),
@@ -55,13 +76,17 @@ class RadioProvider extends ChangeNotifier {
           radioModels.radio.addAll(myModel.radio);
       } else {
         if (search) {
+          _progressIndicator.show();
           if (radioModels != null) radioModelsItems = radioModels;
           radioModels = await _repository.radiox(
               map: Radio.mapToJson(token: token, searchData: searchData),
               search: true,
               context: context,
               add: false);
+          _progressIndicator.dismiss();
+          notifyListeners();
         } else {
+          _progressIndicator.show();
           RadioModel myModel = await _repository.radiox(
               map: Radio.mapToJson(
                 token: token,
@@ -73,13 +98,12 @@ class RadioProvider extends ChangeNotifier {
             radioModels = myModel;
           else
             radioModels.radio.addAll(myModel.radio);
+          _progressIndicator.dismiss();
+          notifyListeners();
         }
       }
-
-      if (!add) await _progressIndicator.dismiss();
-      notifyListeners();
     } catch (e) {
-      if (!add) await _progressIndicator.dismiss();
+      if (!add) _progressIndicator.dismiss();
       if (!add) problem = false;
       print("error $e");
     }

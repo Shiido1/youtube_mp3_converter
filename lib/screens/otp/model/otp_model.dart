@@ -37,7 +37,7 @@ class OtpModel {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {
-      invoices = new List<Null>();
+      invoices = [];
       json['invoices'].forEach((v) {
         invoices.add((v));
       });

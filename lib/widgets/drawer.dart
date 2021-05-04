@@ -343,52 +343,54 @@ class _AppDrawerState extends State<AppDrawer> {
                     ),
                     Expanded(
                       child: ListTile(
-                        onTap: () async {
-                          _progressIndicator.show();
-                          // FilePickerResult result = await FilePicker.platform
-                          //     .pickFiles(type: FileType.audio);
-                           String result =
-                               '${_provider.drawerItem.filePath}/'
-                               '${_provider.drawerItem.fileName}';
-                          var splittedFiles = await SplitAssistant.splitFile(
-                              result, context);
-                          if (splittedFiles != "Failed") {
-                            bool isSaved = await SplitAssistant.saveSplitFiles(
-                                splittedFiles, context);
-                            if (isSaved && _permissionReady) {
-                              String drumsUrl = splittedFiles["files"]["drums"];
-                              String voiceUrl = splittedFiles["files"]["voice"];
-                              String bassUrl = splittedFiles["files"]["bass"];
-                              String otherUrl = splittedFiles["files"]["other"];
-
-                              _apiSplittedList.clear();
-                              splittedSongIDList.clear();
-                              _apiSplittedList.add(otherUrl);
-                              _apiSplittedList.add(drumsUrl);
-                              _apiSplittedList.add(voiceUrl);
-                              _apiSplittedList.add(bassUrl);
-
-                              print('splitedFileList.length is ${_apiSplittedList.length}');
-
-                               for (int i = 0; i < _apiSplittedList.length; i++) {
-                                print('i is ****************** $i');
-                                await _requestDownload(
-                                    link: _apiSplittedList[i],
-                                    saveToDownload: true);
-                               }
-                          }
-
-                            else if(!_permissionReady){
-                              _buildNoPermissionWarning();
-                            }
-                            else {
-                                _progressIndicator.dismiss();
-                              showToast(context,
-                                  message: "error occurred, please try again");
-                            }
-                              _progressIndicator.dismiss();
-
-                          }
+                        onTap: () {
+                          splitMethod();
+                          // _progressIndicator.show();
+                          // // FilePickerResult result = await FilePicker.platform
+                          // //     .pickFiles(type: FileType.audio);
+                          //  String result =
+                          //      '${_provider.drawerItem.filePath}/'
+                          //      '${_provider.drawerItem.fileName}';
+                          // var splittedFiles = await SplitAssistant.splitFile(
+                          //     result, context);
+                          // if (splittedFiles != "Failed") {
+                          //   _progressIndicator.dismiss();
+                          //   bool isSaved = await SplitAssistant.saveSplitFiles(
+                          //       splittedFiles, context);
+                          //   if (isSaved && _permissionReady) {
+                          //     String drumsUrl = splittedFiles["files"]["drums"];
+                          //     String voiceUrl = splittedFiles["files"]["voice"];
+                          //     String bassUrl = splittedFiles["files"]["bass"];
+                          //     String otherUrl = splittedFiles["files"]["other"];
+                          //
+                          //     _apiSplittedList.clear();
+                          //     splittedSongIDList.clear();
+                          //     _apiSplittedList.add(otherUrl);
+                          //     _apiSplittedList.add(drumsUrl);
+                          //     _apiSplittedList.add(voiceUrl);
+                          //     _apiSplittedList.add(bassUrl);
+                          //
+                          //     print('splitedFileList.length is ${_apiSplittedList.length}');
+                          //
+                          //      for (int i = 0; i < _apiSplittedList.length; i++) {
+                          //       print('i is ****************** $i');
+                          //       await _requestDownload(
+                          //           link: _apiSplittedList[i],
+                          //           saveToDownload: true);
+                          //      }
+                          // }
+                          //
+                          //   else if(!_permissionReady){
+                          //     _buildNoPermissionWarning();
+                          //   }
+                          //   else {
+                          //       _progressIndicator.dismiss();
+                          //     showToast(context,
+                          //         message: "error occurred, please try again");
+                          //   }
+                          //     _progressIndicator.dismiss();
+                          //
+                          // }
                         },
                         leading: SvgPicture.asset(AppAssets.split),
                         title: TextViewWidget(
@@ -401,43 +403,72 @@ class _AppDrawerState extends State<AppDrawer> {
                     Divider(
                       color: AppColor.white,
                     ),
-                    Expanded(child:ListTile(
-                      onTap: () {},
-                      leading: SvgPicture.asset(AppAssets.record),
-                      title: TextViewWidget(
-                        text: 'Record',
-                        color: AppColor.white,
-                        textSize: 18,
+                    // Expanded(child:ListTile(
+                    //   onTap: () {},
+                    //   leading: SvgPicture.asset(AppAssets.record),
+                    //   title: TextViewWidget(
+                    //     text: 'Record',
+                    //     color: AppColor.white,
+                    //     textSize: 18,
+                    //   ),
+                    // )),
+
+                    if(_musicProvider?.drawerItem?.playList ?? false)
+                      Wrap(
+                        children: [
+                          ListTile(
+                            onTap: () {
+                              _musicProvider.updateSong(_musicProvider.drawerItem..playList = false);
+                            },
+                            leading: SvgPicture.asset(AppAssets.rubbish),
+                            title: TextViewWidget(
+                              text: 'Remove from Playlist',
+                              color: AppColor.white,
+                              textSize: 18,
+                            ),
+                          ),
+                          Divider(
+                            color: AppColor.white,
+                          ),
+                        ],
                       ),
-                    )),
-                    Divider(
-                      color: AppColor.white,
+                    if(!(_musicProvider?.drawerItem?.playList ?? false))
+
+                      Expanded(
+                        child: Wrap(
+                          children: [
+                            Divider(
+                              color: AppColor.white,
+                            ),
+
+                            ListTile(
+                            onTap: () async {
+                              await _musicProvider.getPlayListNames();
+                              PageRouter.goBack(context);
+                              _musicProvider.playLists.isEmpty
+                                  ? createPlayListScreen(
+                                      context: context,
+                                      songName:
+                                          _musicProvider.drawerItem.fileName,
+                                      showToastMessage: true)
+                                  : selectPlayListScreen(
+                                      context: context,
+                                      songName:
+                                          _musicProvider.drawerItem.fileName);
+                            },
+                            leading: Icon(
+                              Icons.add_box_outlined,
+                              color: AppColor.white,
+                            ),
+                            title: TextViewWidget(
+                              text: 'Add to Playlist',
+                              color: AppColor.white,
+                              textSize: 18,
+                            ),
                     ),
-                    ListTile(
-                      onTap: () async {
-                        await _musicProvider.getPlayListNames();
-                        PageRouter.goBack(context);
-                        _musicProvider.playLists.isEmpty
-                            ? createPlayListScreen(
-                                context: context,
-                                songName:
-                                    _musicProvider.drawerItem.fileName,
-                                showToastMessage: true)
-                            : selectPlayListScreen(
-                                context: context,
-                                songName:
-                                    _musicProvider.drawerItem.fileName);
-                      },
-                      leading: Icon(
-                        Icons.add_box_outlined,
-                        color: AppColor.white,
+                          ],
+                        ),
                       ),
-                      title: TextViewWidget(
-                        text: 'Add to Playlist',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -446,6 +477,57 @@ class _AppDrawerState extends State<AppDrawer> {
       );
     });
   }
+
+  splitMethod() async{
+    _progressIndicator.show();
+    // FilePickerResult result = await FilePicker.platform
+    //     .pickFiles(type: FileType.audio);
+    String result =
+        '${_musicProvider.drawerItem.filePath}/'
+        '${_musicProvider.drawerItem.fileName}';
+    var splittedFiles = await SplitAssistant.splitFile(
+        result, context);
+    if (splittedFiles != "Failed") {
+      _progressIndicator.dismiss();
+      bool isSaved = await SplitAssistant.saveSplitFiles(
+          splittedFiles, context);
+      if (isSaved && _permissionReady) {
+        String drumsUrl = splittedFiles["files"]["drums"];
+        String voiceUrl = splittedFiles["files"]["voice"];
+        String bassUrl = splittedFiles["files"]["bass"];
+        String otherUrl = splittedFiles["files"]["other"];
+
+        _apiSplittedList.clear();
+        splittedSongIDList.clear();
+        _apiSplittedList.add(otherUrl);
+        _apiSplittedList.add(drumsUrl);
+        _apiSplittedList.add(voiceUrl);
+        _apiSplittedList.add(bassUrl);
+
+        print('splitedFileList.length is ${_apiSplittedList.length}');
+
+        for (int i = 0; i < _apiSplittedList.length; i++) {
+          print('i is ****************** $i');
+          await _requestDownload(
+              link: _apiSplittedList[i],
+              saveToDownload: true);
+        }
+      }
+
+      else if(!_permissionReady){
+        _buildNoPermissionWarning();
+      }
+      else {
+        _progressIndicator.dismiss();
+        showToast(context,
+            message: "error occurred, please try again");
+      }
+      _progressIndicator.dismiss();
+
+    }
+  }
+
+
   Widget _buildNoPermissionWarning() => Container(
     child: Center(
       child: Column(

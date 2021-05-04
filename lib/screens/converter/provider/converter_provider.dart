@@ -9,9 +9,10 @@ final ConverterRepo _repository = ConverterRepo();
 
 class ConverterProvider extends ChangeNotifier {
   BuildContext _context;
-  CustomProgressIndicator _progressIndicator;
   YoutubeModel youtubeModel = YoutubeModel();
   bool problem = false;
+  CustomProgressIndicator _progressIndicator;
+
 
   void init(BuildContext context) {
     this._context = context;
@@ -25,18 +26,18 @@ class ConverterProvider extends ChangeNotifier {
         url: url,
       ));
       _response.when(success: (success, _, statusMessage) async {
-        await _progressIndicator.dismiss();
+         _progressIndicator.dismiss();
         youtubeModel = success;
         problem = true;
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        await _progressIndicator.dismiss();
+        _progressIndicator.dismiss();
         problem = false;
         showToast(this._context, message: statusMessage);
         notifyListeners();
       });
     } catch (e) {
-      await _progressIndicator.dismiss();
+       _progressIndicator.dismiss();
       showToast(_context,
           message: "please check your url or internet connection");
       notifyListeners();

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
+import 'package:mp3_music_converter/screens/change_password/change_password.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
@@ -14,6 +15,7 @@ class Routes {
   static const String SIGNUP = '/signup';
   static const String PLAYLIST = '/playlist';
   static const String SONGSCREEN = '/song_screen';
+  static const String CHANGEPASSWORD = '/change_password';
 
   static Map<String, Widget Function(BuildContext mainContext)> get getRoutes =>
       {
@@ -32,6 +34,10 @@ class Routes {
         SIGNUP: (BuildContext context) {
           globalContext = context;
           return SignUpScreen();
+        },
+        CHANGEPASSWORD: (BuildContext context) {
+          globalContext = context;
+          return ChangePassword();
         },
       };
 }

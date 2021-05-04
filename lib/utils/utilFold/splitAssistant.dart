@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 
 class SplitAssistant {
 
-
   static Future<dynamic> splitFile(
       String filePath, BuildContext context) async {
     print('In the split function');

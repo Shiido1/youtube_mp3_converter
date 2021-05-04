@@ -38,7 +38,7 @@ class LoginModel {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {
-      invoices = new List<Invoices>();
+      invoices = [];
       json['invoices'].forEach((v) {
         invoices.add(new Invoices.fromJson(v));
       });

@@ -20,7 +20,6 @@ class LoginApiRepository {
       final _response =
           await jayNetworkClient.makePostRequest("login", data: data);
       final _finalData = LoginModel.fromJson(_response.data);
-
       _saveUsersData(_finalData);
 
       _provider.getUserToken(_finalData.token);

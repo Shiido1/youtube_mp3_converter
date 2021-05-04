@@ -175,7 +175,7 @@ class _OtpPageState extends State<OtpPage> {
       _otpProviders.verifyOtp(
           map: OtpModel.toJson(otp: int.parse(pin), email: email));
     }else{
-      // _otpProviders.resendOtp(map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
+      _otpProviders.resendOtp(map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
     }
   }
 }

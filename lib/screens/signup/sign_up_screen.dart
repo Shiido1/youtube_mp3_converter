@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dar
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -110,7 +111,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 children: [
                   SizedBox(height: 65),
                   Image.asset(
-                    'assets/youtubelogo.png',
+                    AppAssets.logo,
                   ),
                   SizedBox(height: 35),
                   Text(
@@ -228,21 +229,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   SizedBox(height: 15),
-                  // isloading
-                  //     ? SpinKitCircle(
-                  //         color: AppColor.white,
-                  //         size: 50.0,
-                  //       )
-                  //     :
-                  FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      color: Colors.redAccent,
+                  TextButton(
+                      style: TextButton
+                          .styleFrom(
+                        backgroundColor:AppColor.bottomRed,
+                      ),
                       onPressed: () {
                         _signUpUser();
-                        // setState(() {
-                        //   isloading = true;
-                        // });
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(

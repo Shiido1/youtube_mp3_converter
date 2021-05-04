@@ -116,7 +116,7 @@ class _RedBackgroundState extends State<RedBackground> {
         child: Stack(
           children: [
             Image.asset(
-              'assets/rect.png',
+              AppAssets.background,
               width: MediaQuery.of(context).size.width,
               fit: BoxFit.fitWidth,
             ),
@@ -154,6 +154,7 @@ class _RedBackgroundState extends State<RedBackground> {
         ),
     );
   }
+
   Widget _widgetContainer()=>Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [

@@ -7,17 +7,13 @@ import 'package:mp3_music_converter/screens/login/repository/login_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
-import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final LoginApiRepository _repository = LoginApiRepository();
 
 class LoginProviders extends ChangeNotifier {
   BuildContext _context;
-  CustomProgressIndicator _progressIndicator;
   bool isLoading = false;
   String userToken='';
-      // 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6InByZWJhZDUwQGdtYWlsLmNvbSJ9.QNDikltIgKrfOnO6NWxCWDSw5kDmYUrN9WYez24GvsU';
   Box<String> _box;
   String email='';
   String name='';
@@ -26,12 +22,10 @@ class LoginProviders extends ChangeNotifier {
 
   void initialize(BuildContext context) {
     this._context = context;
-    this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
   void loginUser({@required BuildContext context, @required Map map}) async {
     try {
-      // _progressIndicator.show();
       isLoading = true;
       notifyListeners();
       final _response =
@@ -49,7 +43,6 @@ class LoginProviders extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-      await _progressIndicator.dismiss();
       isLoading = false;
       showToast(_context, message: "Please connect to internet");
       notifyListeners();
@@ -91,11 +84,11 @@ class LoginProviders extends ChangeNotifier {
     _box.put('email', email);
   }
 
-  getSavedUserEmail() async {
-    if (!(_box?.isOpen ?? false))
-      _box = await PgHiveBoxes.openBox<String>('userEmail');
-    String email = _box.get('email');
-    userToken = email;
-    notifyListeners();
-  }
+  // getSavedUserEmail() async {
+  //   if (!(_box?.isOpen ?? false))
+  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
+  //   String email = _box.get('email');
+  //   userToken = email;
+  //   notifyListeners();
+  // }
 }

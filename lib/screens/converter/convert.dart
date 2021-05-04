@@ -57,8 +57,7 @@ class _ConvertState extends State<Convert> {
   @override
   void initState() {
     super.initState();
-    _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
-    _converterProvider.init(context);
+
 
     musicProvider = Provider.of<MusicProvider>(context, listen: false);
 

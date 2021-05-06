@@ -154,22 +154,9 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                       : Container(),
                   trailing: ElevatedButton(
                     onPressed: (){
-                      if(searchProvider.isFollow)
-                        searchProvider.follow(
-                          {
-                          "token":
-                          Provider.of<LoginProviders>(context,listen:false).userToken,
-                          "id":searchValue.id
-                          }
-                        );
-                      if(!searchProvider.isFollow)
-                        searchProvider.unFollow(
-                        {
-                          "token":
-                          Provider.of<LoginProviders>(context,listen:false).userToken,
-                          "id":searchValue.id
-                        }
-                        );
+                      // searchProvider.isFollow?
+                        searchProvider.unFollow(searchValue.id);
+                        // :searchProvider.unFollow();
                     },
                     style: TextButton
                         .styleFrom(

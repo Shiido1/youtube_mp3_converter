@@ -410,6 +410,7 @@ class _DashBoardState extends State<DashBoard> {
         }
       }
       await _progressIndicator.dismiss();
+      showToast(context, message: 'Please try again later');
     }
   }
 

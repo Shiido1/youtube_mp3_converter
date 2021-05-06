@@ -418,7 +418,7 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
-  Future splitSongMethod()async{
+  Future splitSongMethod() async {
     _progressIndicator.show();
     String result =
         '${_musicProvider.drawerItem.filePath}/'
@@ -465,6 +465,9 @@ class _AppDrawerState extends State<AppDrawer> {
       await _progressIndicator.dismiss();
 
     }
+    else{
+      _progressIndicator.dismiss();
+      showToast(context, message: 'Please try again later');}
   }
 
   Widget _buildNoPermissionWarning() => Container(

@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/search_follow/model.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_repository.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:provider/provider.dart';
 
 final SearchRepository searchRepository = SearchRepository();
 
@@ -35,7 +37,12 @@ class SearchProvider extends ChangeNotifier{
 
   }
 
-  Future<void> follow(Map map) async {
+  Future<void> follow(int id) async {
+
+    final map ={
+      "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
+      "id":id
+    };
     try{
       _progressIndicator.show();
       if(isFollow=false)
@@ -48,7 +55,13 @@ class SearchProvider extends ChangeNotifier{
     }
   }
 
-  Future<void> unFollow(Map map) async {
+  Future<void> unFollow(int id) async {
+
+    final map ={
+      "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
+      "id":id
+    };
+
     try{
       _progressIndicator.show();
       if(isFollow=true)

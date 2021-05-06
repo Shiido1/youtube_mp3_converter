@@ -1,4 +1,3 @@
-// import 'dart:html';
 import 'dart:isolate';
 import 'dart:io';
 import 'dart:ui';
@@ -9,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -42,7 +43,7 @@ class DashBoard extends StatefulWidget with WidgetsBindingObserver {
 
 class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
-
+  List<String> _apiSplittedList = [];
   String _sharedText = "";
   List<String> splittedFileList = [];
   List<Song> splittedSongList = [];
@@ -55,6 +56,7 @@ class _DashBoardState extends State<DashBoard> {
   String _fileName;
   int _progress = 0;
   bool loading = false;
+  String secondResult;
 
   MusicProvider _musicProvider;
   CustomProgressIndicator _progressIndicator;
@@ -84,7 +86,6 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   void _bindBackgroundIsolate() {
-    List<bool> isAllDownloaded = [];
     bool isSuccess = IsolateNameServer.registerPortWithName(
         _port.sendPort, 'downloader_send_port');
     if (!isSuccess) {
@@ -107,37 +108,28 @@ class _DashBoardState extends State<DashBoard> {
         _progress = progress;
         loading = true;
       });
+      showToast(
+          context,message:
+      'Downloading Splitted files ' + _progress.toString() + '%');
       if (_progress == 100) {
-        // _showDialog(context);
+        showToast(
+            context,message:
+        'Downloaded Splitted file');
         setState(() {
           loading = false;
         });
       }
       if (status == DownloadTaskStatus.complete) {
-        splittedSongList.add(Song(
-          fileName: _fileName,
-          filePath: _localPath,
-          image: _musicProvider?.drawerItem?.image ?? '',
-          splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
-        ));
-        for (int i = 0; i < splittedSongIDList.length; i++) {
-          if (splittedSongIDList[i].toString() ==
-              dataList.reversed.toList()[i][0].toString()) {
-            if (dataList[i][1] == DownloadTaskStatus.complete &&
-                dataList[i][2] == 100) {
-              isAllDownloaded.add(true);
-              splittedSongIDList.removeAt(i);
-            } else
-              isAllDownloaded.add(false);
-          }
-        }
-        if (isAllDownloaded.contains(false))
-          print('Not done downloading all');
-        else {
-          // SplittedSongRepository.addSong(splittedSongList.last);
-          print('finished downloading splitted file');
-          print(splittedSongList);
-          print(splittedSongList.last);
+        if(data[0].toString() == splittedSongIDList.first.toString()){
+          SplittedSongRepository.addSong(Song(
+            fileName: _fileName,
+            filePath: _localPath,
+            image: _musicProvider?.drawerItem?.image ?? '',
+            splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+          ));
+          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => SplittedScreen()));
         }
       }
     });
@@ -160,7 +152,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   Future<void> _requestDownload(
-      {@required String link, bool saveToDownload = false}) async {
+      {@required String link, bool saveToDownload = false,String fileName}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -169,10 +161,7 @@ class _DashBoardState extends State<DashBoard> {
         _localPath = downloadPath.path;
       }
 
-      _fileName = getStringPathName(link);
-      // setState(() {
-      //   downloaded = false;
-      // });
+      _fileName = fileName+'_'+getStringPathName(link);
       await FlutterDownloader.enqueue(
               url: link,
               headers: {"auth": "test_for_sql_encoding"},
@@ -215,9 +204,9 @@ class _DashBoardState extends State<DashBoard> {
       savedDir.create();
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 
 //* finds available space for storage on users device
@@ -382,32 +371,37 @@ class _DashBoardState extends State<DashBoard> {
   Future splitMethod() async {
     FilePickerResult result =
         await FilePicker.platform.pickFiles(type: FileType.audio);
+    _progressIndicator.show();
     if (result != null && result.files.isNotEmpty) {
-      _progressIndicator.show();
-
       var splittedFiles =
           await SplitAssistant.splitFile(result.files.single.path, context);
       if (splittedFiles != "Failed") {
+         _progressIndicator.dismiss();
         bool isSaved =
             await SplitAssistant.saveSplitFiles(splittedFiles, context);
         if (isSaved && _permissionReady) {
-          String drumsUrl = splittedFiles["files"]["drums"];
-          String voiceUrl = splittedFiles["files"]["voice"];
-          String bassUrl = splittedFiles["files"]["bass"];
+          // String drumsUrl = splittedFiles["files"]["drums"];
+          // String voiceUrl = splittedFiles["files"]["voice"];
+          // String bassUrl = splittedFiles["files"]["bass"];
           String otherUrl = splittedFiles["files"]["other"];
 
-          splittedFileList.add(drumsUrl);
-          splittedFileList.add(voiceUrl);
-          splittedFileList.add(bassUrl);
-          splittedFileList.add(otherUrl);
-
-          print('splitedFileList.length is ${splittedFileList.length}');
-
-          for (int i = 0; i < splittedFileList.length; i++) {
-            print('i is ****************** $i');
-            await _requestDownload(
-                link: splittedFileList[i], saveToDownload: true);
-          }
+          // splittedFileList.add(drumsUrl);
+          // splittedFileList.add(voiceUrl);
+          // splittedFileList.add(bassUrl);
+          _apiSplittedList.clear();
+          splittedSongIDList.clear();
+          _apiSplittedList.add(otherUrl);
+          // for (int i = 0; i < splittedFileList.length; i++) {
+          //   print('i is ****************** $i');
+          //   await _requestDownload(
+          //       link: splittedFileList[i], saveToDownload: true);
+          // }
+          secondResult = getStringPathName(result.files.single.path);
+          await _requestDownload(
+              link: _apiSplittedList[0],
+              saveToDownload: true,
+              fileName: secondResult,
+          );
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
         } else {

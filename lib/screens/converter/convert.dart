@@ -56,9 +56,8 @@ class _ConvertState extends State<Convert> {
 
   @override
   void initState() {
-    super.initState();
-
-
+    _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
+    _converterProvider.init(context);
     musicProvider = Provider.of<MusicProvider>(context, listen: false);
 
     _bindBackgroundIsolate(); //
@@ -68,6 +67,7 @@ class _ConvertState extends State<Convert> {
     _permissionReady = false;
     _prepare();
     _setControllerText();
+    super.initState();
   }
 
   @override
@@ -83,11 +83,10 @@ class _ConvertState extends State<Convert> {
     });
   }
 
-  void _download() {
+  void _download(String text){
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
-    } else {
-      _converterProvider.convert('${controller.text}');
+    } else {_converterProvider.convert(text);
     }
   }
 
@@ -169,8 +168,6 @@ class _ConvertState extends State<Convert> {
       });
       if (_progress == 100) {
         await _showDialog(context);
-        // Navigator.push(context, MaterialPageRoute(builder: (_)=>SongViewCLass()));
-
         setState(() {
           loading = false;
         });
@@ -212,8 +209,6 @@ class _ConvertState extends State<Convert> {
     return Scaffold(
       body: Consumer<ConverterProvider>(builder: (_, model, __) {
         return Container(
-          // width: MediaQuery.of(context).size.width,
-          // height: MediaQuery.of(context).size.height,
           color: AppColor.background,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -290,7 +285,7 @@ class _ConvertState extends State<Convert> {
                                         size: 35,
                                       )),
                                   onTap: () {
-                                    _download();
+                                    _download('${controller.text}');
                                   },
                                 ),
                               ),
@@ -298,7 +293,7 @@ class _ConvertState extends State<Convert> {
                           )
                         ]),
                       ),
-                      _converterProvider.problem == true
+                      model.problem == true
                           ? Container(
                               child: Column(
                                 children: [
@@ -493,9 +488,6 @@ class _ConvertState extends State<Convert> {
       }
 
       _fileName = getStringPathName(link);
-      // setState(() {
-      //   downloaded = false;
-      // });
       await FlutterDownloader.enqueue(
           url: link,
           headers: {"auth": "test_for_sql_encoding"},

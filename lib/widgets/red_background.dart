@@ -141,7 +141,7 @@ class _RedBackgroundState extends State<RedBackground> {
                               textSize: 22,
                               fontWeight: FontWeight.w700,
                               fontFamily: 'Montserrat')
-                          : Image.asset(AppAssets.logo),
+                          : Image.asset(AppAssets.dashlogo,height: 63,),
                     ],
                   ),
                   widget.widgetContainer !=null

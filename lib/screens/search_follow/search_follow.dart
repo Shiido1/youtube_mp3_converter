@@ -18,14 +18,23 @@ class SearchFollow extends StatefulWidget {
 
 class _SearchFollowState extends State<SearchFollow> {
   SearchProvider searchProvider;
+  TextEditingController controller = new TextEditingController();
 
     @override
   void initState() {
     searchProvider = Provider.of<SearchProvider>(context, listen: false);
     searchProvider.init(context);
-    searchProvider.search('c');
     super.initState();
   }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  search(String searchText)=> searchProvider.search(searchText);
+
 
   @override
 Widget build(BuildContext context) {
@@ -76,10 +85,13 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                     // onChanged: (s) {
                     //   searchSong(s);
                     // },
+                    controller: controller,
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      border: InputBorder.none,
                       hintText: "Search",
+                      labelText: 'type the full name of user you want to follow',
+                      labelStyle: TextStyle(
+                          color: AppColor.background1,fontWeight: FontWeight.w400),
                       hintStyle: TextStyle(color: AppColor.white),
                       contentPadding: EdgeInsets.symmetric(
                           vertical: 12, horizontal: 12),
@@ -106,7 +118,7 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                               color: AppColor.white,
                               size: 20,
                             )),
-                        onTap: () {},
+                        onTap: ()=>search('${controller.text}'),
                       ),
                     ),
                   ),
@@ -129,12 +141,12 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                   Container(
                       height: 60,
                       width: 50,
-                      child: CachedNetworkImage(
+                      child:CachedNetworkImage(
                           imageUrl:
-                          searchValue.profilePic)):Container(),
+                          searchValue?.profilePic??'')):Container(),
                   title: isNotEmpty
                       ? TextViewWidget(
-                        text: searchValue?.name,
+                        text: searchValue?.name??'',
                         color: AppColor.white,
                         textSize: 16.5,
                         fontWeight: FontWeight.w500,
@@ -142,14 +154,15 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                       : Container(),
                   trailing: ElevatedButton(
                     onPressed: (){
-                      searchProvider.isFollow==false?
+                      if(searchProvider.isFollow)
                         searchProvider.follow(
                           {
                           "token":
                           Provider.of<LoginProviders>(context,listen:false).userToken,
                           "id":searchValue.id
                           }
-                        ):
+                        );
+                      if(!searchProvider.isFollow)
                         searchProvider.unFollow(
                         {
                           "token":

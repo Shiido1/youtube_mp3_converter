@@ -19,19 +19,19 @@ class ConverterProvider extends ChangeNotifier {
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void convert(String url) async {
+  Future convert(String url) async {
     try {
       _progressIndicator.show();
-      final _response = await _repository.convert(YoutubeModel.mapToJson(
+      var _response = await _repository.convert(YoutubeModel.mapToJson(
         url: url,
       ));
       _response.when(success: (success, _, statusMessage) async {
-         _progressIndicator.dismiss();
+        await _progressIndicator.dismiss();
         youtubeModel = success;
         problem = true;
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        _progressIndicator.dismiss();
+        await _progressIndicator.dismiss();
         problem = false;
         showToast(this._context, message: statusMessage);
         notifyListeners();

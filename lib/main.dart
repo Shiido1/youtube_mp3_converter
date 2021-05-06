@@ -17,8 +17,6 @@ import 'utils/color_assets/color.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // SharedPreferences prefs = await SharedPreferences.getInstance();
-  // isLoggedIn = (prefs.getBool('isLoggedIn') == null) ? false : prefs.getBool('isLoggedIn');
   await FlutterDownloader.initialize(debug: debug);
   var path = Directory.current.path;
   Hive.init(path);

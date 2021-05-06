@@ -2,7 +2,7 @@ class AppAssets {
   AppAssets();
   static final String otpSuccessfulIcon = 'assets/images/successful_otp.png';
   static final String bgImage1 = 'assets/background.png';
-  // static final String logo = 'assets/youtubelogo.png';
+  static final String dashlogo = 'assets/youtubemp3logo.png';
   // static final String logo = 'assets/logogo.png';
   static final String logo = 'assets/log.png';
   static final String background = 'assets/rectangle.png';

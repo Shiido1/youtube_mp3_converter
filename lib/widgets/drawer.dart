@@ -4,6 +4,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
@@ -66,11 +67,8 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   void initState() {
-
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
-
-
     _bindBackgroundIsolate(); //
     FlutterDownloader.registerCallback(
         downloadCallback); // register our callbacks
@@ -112,24 +110,28 @@ class _AppDrawerState extends State<AppDrawer> {
         _progress = progress;
         loading = true;
       });
+      showToast(
+          context,message:
+      'Downloading Splitted files ' + _progress.toString() + '%');
       if (_progress == 100) {
-        // _showDialog(context);
+        showToast(
+            context,message:
+        'Downloaded Splitted file');
         setState(() {
           loading = false;
         });
       }
       if (status == DownloadTaskStatus.complete) {
         if(data[0].toString() == splittedSongIDList.first.toString()){
-          print('Data at index 0 is ${data[0].toString()}');
-          print('SplittedSongIDList at index 0 is ${splittedSongIDList.first.toString()}');
           SplittedSongRepository.addSong(Song(
             fileName: _fileName,
             filePath: _localPath,
             image: _musicProvider?.drawerItem?.image ?? '',
             splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
           ));
-
-          //Todo: delay a bit and then show a dialog or navigate to the
+          Navigator.pop(context);
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => SplittedScreen()));
         }
       }
     });
@@ -153,7 +155,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future<void> _requestDownload(
-      {@required String link, bool saveToDownload = false}) async {
+      {@required String link, bool saveToDownload = false, String fileName}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -162,17 +164,15 @@ class _AppDrawerState extends State<AppDrawer> {
         _localPath = downloadPath.path;
       }
 
-      _fileName = getStringPathName(link);
-      // setState(() {
-      //   downloaded = false;
-      // });
+      _fileName = fileName + "-" + getStringPathName(link);
       await FlutterDownloader.enqueue(
           url: link,
           headers: {"auth": "test_for_sql_encoding"},
           savedDir: _localPath,
           fileName: _fileName,
           showNotification: true,
-          openFileFromNotification: true).then((value) => splittedSongIDList.add(value));
+          openFileFromNotification: true).then((value) =>
+          splittedSongIDList.add(value));
     }
   }
 
@@ -224,7 +224,7 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget build(BuildContext context) {
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Padding(
-        padding: const EdgeInsets.only(top: 120, bottom: 90),
+        padding: const EdgeInsets.only(top: 150, bottom: 120),
         child: Drawer(
           child: Container(
             decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
@@ -240,22 +240,22 @@ class _AppDrawerState extends State<AppDrawer> {
                       children: [
                         _provider?.drawerItem?.image?.isNotEmpty ?? false
                             ? Expanded(
-                            child: Container(
-                                height: 60,
-                                width: 50,
-                                child: CachedNetworkImage(
-                                    imageUrl:
-                                    _provider?.drawerItem?.image)))
+                                child: Container(
+                                    height: 60,
+                                    width: 50,
+                                    child: CachedNetworkImage(
+                                        imageUrl:
+                                            _provider?.drawerItem?.image)))
                             : Container(),
                         _provider?.drawerItem?.fileName?.isNotEmpty ??
-                            false
+                                false
                             ? Expanded(
-                            child: TextViewWidget(
-                              text: _provider?.drawerItem?.fileName,
-                              color: AppColor.white,
-                              textSize: 16.5,
-                              fontWeight: FontWeight.w500,
-                            ))
+                                child: TextViewWidget(
+                                text: _provider?.drawerItem?.fileName,
+                                color: AppColor.white,
+                                textSize: 16.5,
+                                fontWeight: FontWeight.w500,
+                              ))
                             : Container()
                       ],
                     ),
@@ -308,7 +308,7 @@ class _AppDrawerState extends State<AppDrawer> {
                         onTap: () {
                           repeat?
                           _provider.undoRepeat()
-                              :_provider.repeat(_provider.drawerItem);
+                          :_provider.repeat(_provider.drawerItem);
                           PageRouter.goBack(context);
                         },
                         child: Column(
@@ -341,32 +341,18 @@ class _AppDrawerState extends State<AppDrawer> {
                   Divider(
                     color: AppColor.white,
                   ),
-                  Expanded(
-                    child: ListTile(
-                      onTap: () {
-                        splitMethod();
-                      },
-                      leading: SvgPicture.asset(AppAssets.split),
-                      title: TextViewWidget(
-                        text: 'Split Song',
-                        color: AppColor.white,
-                        textSize: 18,
-                      ),
+                  ListTile(
+                    onTap: ()=> splitSongMethod(),
+                    leading: SvgPicture.asset(AppAssets.split),
+                    title: TextViewWidget(
+                      text: 'Split Song',
+                      color: AppColor.white,
+                      textSize: 18,
                     ),
                   ),
                   Divider(
                     color: AppColor.white,
                   ),
-                  // Expanded(child:ListTile(
-                  //   onTap: () {},
-                  //   leading: SvgPicture.asset(AppAssets.record),
-                  //   title: TextViewWidget(
-                  //     text: 'Record',
-                  //     color: AppColor.white,
-                  //     textSize: 18,
-                  //   ),
-                  // )),
-
                   if(_musicProvider?.drawerItem?.playList ?? false)
                     Wrap(
                       children: [
@@ -432,10 +418,8 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
-  splitMethod() async{
+  Future splitSongMethod()async{
     _progressIndicator.show();
-    // FilePickerResult result = await FilePicker.platform
-    //     .pickFiles(type: FileType.audio);
     String result =
         '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
@@ -446,41 +430,42 @@ class _AppDrawerState extends State<AppDrawer> {
       bool isSaved = await SplitAssistant.saveSplitFiles(
           splittedFiles, context);
       if (isSaved && _permissionReady) {
-        String drumsUrl = splittedFiles["files"]["drums"];
-        String voiceUrl = splittedFiles["files"]["voice"];
-        String bassUrl = splittedFiles["files"]["bass"];
+        // String drumsUrl = splittedFiles["files"]["drums"];
+        // String voiceUrl = splittedFiles["files"]["voice"];
+        // String bassUrl = splittedFiles["files"]["bass"];
         String otherUrl = splittedFiles["files"]["other"];
-
         _apiSplittedList.clear();
         splittedSongIDList.clear();
         _apiSplittedList.add(otherUrl);
-        _apiSplittedList.add(drumsUrl);
-        _apiSplittedList.add(voiceUrl);
-        _apiSplittedList.add(bassUrl);
+        // _apiSplittedList.add(drumsUrl);
+        // _apiSplittedList.add(voiceUrl);
+        // _apiSplittedList.add(bassUrl);
 
-        print('splitedFileList.length is ${_apiSplittedList.length}');
-
-        for (int i = 0; i < _apiSplittedList.length; i++) {
-          print('i is ****************** $i');
-          await _requestDownload(
-              link: _apiSplittedList[i],
-              saveToDownload: true);
-        }
+        await _requestDownload(
+            link: _apiSplittedList[0],
+            saveToDownload: true,
+            fileName: _musicProvider.drawerItem.fileName
+        );
+        // for (int i = 0; i < _apiSplittedList.length; i++) {
+        //  print('i is ****************** $i');
+        //  await _requestDownload(
+        //      link: _apiSplittedList[i],
+        //      saveToDownload: true);
+        // }
       }
 
       else if(!_permissionReady){
         _buildNoPermissionWarning();
       }
       else {
-        _progressIndicator.dismiss();
+        await _progressIndicator.dismiss();
         showToast(context,
             message: "error occurred, please try again");
       }
-      _progressIndicator.dismiss();
+      await _progressIndicator.dismiss();
 
     }
   }
-
 
   Widget _buildNoPermissionWarning() => Container(
     child: Center(

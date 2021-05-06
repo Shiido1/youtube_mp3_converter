@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
@@ -53,21 +54,29 @@ class _SplitSongScreenState extends State<SplitSongScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Container(
-                  height: 250,
-                  width: 250,
-                  decoration: new BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
-                      image: new DecorationImage(
-                        image: new AssetImage(AppAssets.image1),
-                        fit: BoxFit.contain,
-                      ))),
+              Expanded(
+                child: CachedNetworkImage(
+                  imageUrl:  _provider?.currentSong?.image??'',
+                  imageBuilder: (context, imageProvider) => Container(
+                    width: 280.0,
+                    height: 320.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      image: DecorationImage(
+                          image: imageProvider, fit: BoxFit.cover),
+                    ),
+                  ),
+                  placeholder: (context, url) => CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                ),
+              ),
               SizedBox(
                 height: 20,
               ),
               Center(
                 child: TextViewWidget(
-                  text: _provider?.currentSong?.fileName ?? 'Something Fishy',
+                  text: _provider?.currentSong?.fileName ?? '',
                   color: AppColor.white,
                   textSize: 18,
                   fontWeight: FontWeight.w700,
@@ -77,7 +86,7 @@ class _SplitSongScreenState extends State<SplitSongScreen> {
               SizedBox(
                 height: 40,
               ),
-              SliderClass2(),
+              SliderClass3(),
               SizedBox(
                 height: 40,
               ),

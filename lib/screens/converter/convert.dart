@@ -83,10 +83,11 @@ class _ConvertState extends State<Convert> {
     });
   }
 
-  void _download(String text){
+  void _download(String text) {
     if (controller.text.isEmpty) {
       showToast(context, message: "Please input Url");
-    } else {_converterProvider.convert(text);
+    } else {
+      _converterProvider.convert(text);
     }
   }
 

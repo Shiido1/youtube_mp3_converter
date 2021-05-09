@@ -12,19 +12,18 @@ import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/splitted/mute_vocal_song_screen.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 
-class SplittedScreen extends StatefulWidget {
+class SingAlong extends StatefulWidget {
   @override
-  _SplittedScreenState createState() => _SplittedScreenState();
+  _SingAlongState createState() => _SingAlongState();
 }
 
-class _SplittedScreenState extends State<SplittedScreen> {
-  SplittedSongProvider _splitSongProvider;
+class _SingAlongState extends State<SingAlong> {
+  SplittedSongProvider _songProvider;
 
   @override
   void initState() {
-    _splitSongProvider =
-        Provider.of<SplittedSongProvider>(context, listen: false);
-    _splitSongProvider.getSongs();
+    _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
+    _songProvider.getSongs();
     super.initState();
   }
 
@@ -35,7 +34,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Splitted Songs',
+          text: 'Sing Along',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(
@@ -63,15 +62,14 @@ class _SplittedScreenState extends State<SplittedScreen> {
 
   Widget buildSongList() {
     return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
-      if (_provider.allSongs.length < 1) {
+      if (_provider.vocalSongs.length < 1) {
         return Center(
-            child: TextViewWidget(
-                text: 'No Splitted Song', color: AppColor.white));
+            child: TextViewWidget(text: 'No Song', color: AppColor.white));
       }
       return ListView.builder(
-        itemCount: _provider.allSongs.length,
+        itemCount: _provider.vocalSongs.length,
         itemBuilder: (BuildContext context, int index) {
-          Song _song = _provider.allSongs[index];
+          Song _song = _provider.vocalSongs[index];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -80,8 +78,10 @@ class _SplittedScreenState extends State<SplittedScreen> {
                   DeleteSongs(context).showDeleteDialog(song: _song);
                 },
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => Split(song: _song)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => MuteVocalsScreen(song: _song)));
                 },
                 child: ListTile(
                   leading: SizedBox(
@@ -102,7 +102,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
                             )
                           : null),
                   title: TextViewWidget(
-                    text: _song?.fileName ?? '',
+                    text: _song?.splittedFileName ?? '',
                     color: AppColor.white,
                     textSize: 15,
                     fontFamily: 'Roboto-Regular',
@@ -110,13 +110,14 @@ class _SplittedScreenState extends State<SplittedScreen> {
                   trailing: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SvgPicture.asset(
-                      AppAssets.record,
+                      AppAssets.mpFile,
                       color: AppColor.white,
+                      height: 27,
                     ),
                   ),
                 ),
               ),
-              if (_provider.allSongs.length - 1 != index)
+              if (_provider.vocalSongs.length - 1 != index)
                 Padding(
                   padding: const EdgeInsets.only(left: 115.0, right: 15),
                   child: Divider(

@@ -98,6 +98,7 @@ class SongServices implements SongInterface {
   Future<List> getPlayListsSongs(key) async {
     if (!(_boxList?.isOpen ?? false))
       _boxList = await PgHiveBoxes.openBox<List>('playLists');
+
     return _boxList.get(key);
   }
 
@@ -107,13 +108,6 @@ class SongServices implements SongInterface {
       _boxList = await PgHiveBoxes.openBox<List>('playLists');
     return _boxList.keys.toList();
   }
-  // Future<List<Song>> getPlayLists() async {
-  //   if (!(_box?.isOpen ?? false)) _box = await openBox();
-  //   return _box.values
-  //       .where((e) => e['playList'] == true)
-  //       .map((e) => Song.fromMap(e))
-  //       .toList();
-  // }
 
   @override
   Future<List<Song>> getFavoriteSongs() async {
@@ -131,5 +125,21 @@ class SongServices implements SongInterface {
   deleteSong(String key) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     await _box.delete(key);
+  }
+
+  removeSongsFromPlaylistAterDelete(String songName) async {
+    if (!(_boxList?.isOpen ?? false))
+      _boxList = await PgHiveBoxes.openBox<List>('playLists');
+    List playlist = [];
+    _boxList.keys.forEach((element) {
+      if (_boxList.get(element).contains(songName)) playlist.add(element);
+    });
+    if (playlist.isNotEmpty) {
+      playlist.forEach((element) async {
+        List songs = _boxList.get(element);
+        songs.remove(songName);
+        await _boxList.put(element, songs);
+      });
+    }
   }
 }

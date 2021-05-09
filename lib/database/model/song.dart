@@ -2,14 +2,17 @@ import 'dart:io';
 
 class Song {
   String filePath;
-  String fileName;
+  String fileName = '';
   String image;
+  String vocalName;
   bool playList = false;
   bool favorite = false;
   DateTime lastPlayDate;
   String splittedFileName;
 
-  String get file => File('$filePath/$fileName').uri.toString();
+  String get file => fileName == null || fileName == ''
+      ? ''
+      : File('$filePath/$fileName').uri.toString();
 
   Song(
       {this.filePath,
@@ -18,7 +21,8 @@ class Song {
       this.playList,
       this.favorite,
       this.lastPlayDate,
-      this.splittedFileName});
+      this.splittedFileName,
+      this.vocalName});
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> songMap = Map();
@@ -30,6 +34,7 @@ class Song {
     songMap["favorite"] = favorite;
     songMap["lastPlayDate"] = lastPlayDate;
     songMap["splittedFileName"] = splittedFileName;
+    songMap["vocalName"] = vocalName;
     return songMap;
   }
 
@@ -44,5 +49,6 @@ class Song {
     this.splittedFileName = songMap["splittedFileName"] == null
         ? null
         : songMap["splittedFileName"];
+    this.vocalName = songMap["vocalName"] == null ? null : songMap["vocalName"];
   }
 }

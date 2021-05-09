@@ -1,13 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
+import 'package:provider/provider.dart';
 
 Future<Widget> createPlayListScreen(
     {BuildContext context,
     String songName,
     @required bool showToastMessage,
+    bool renameRecord = false,
     bool renamePlayList = false,
     String oldPlayListName,
     String message = 'Song added'}) {
@@ -33,7 +37,11 @@ Future<Widget> createPlayListScreen(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        renamePlayList ? 'Rename playlist' : 'Name of playlist',
+                        renamePlayList
+                            ? 'Rename playlist'
+                            : renameRecord
+                                ? 'Rename Recording'
+                                : 'Name of playlist',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -44,7 +52,7 @@ Future<Widget> createPlayListScreen(
                         autofocus: true,
                         cursorHeight: 20,
                         onChanged: (val) {
-                          playListName = val;
+                          playListName = val.trim();
                           setState(() {
                             showOkButton = val.trim().length > 0 ? true : false;
                           });
@@ -56,7 +64,9 @@ Future<Widget> createPlayListScreen(
                           isDense: true,
                           hintText: renamePlayList
                               ? 'Rename playlist'
-                              : 'Name of playlist',
+                              : renameRecord
+                                  ? 'Rename record'
+                                  : 'Name of playlist',
                           hintStyle: TextStyle(color: Colors.white70),
                         ),
                       ),
@@ -85,14 +95,24 @@ Future<Widget> createPlayListScreen(
                                         ? await SongRepository.renamePlayList(
                                             newName: playListName,
                                             oldName: oldPlayListName)
-                                        : await SongRepository.createPlayList(
-                                            playListName, songs);
+                                        : renameRecord
+                                            ? await RecorderServices()
+                                                .renameRecording(
+                                                    oldName: oldPlayListName,
+                                                    newName: playListName)
+                                            : await SongRepository
+                                                .createPlayList(
+                                                    playListName, songs);
                                     showToastMessage
                                         ? PageRouter.goBack(context)
                                         : Navigator.pop(
                                             context, Text(playListName));
                                     if (showToastMessage)
                                       showToast(context, message: message);
+                                    if (renameRecord)
+                                      Provider.of<RecordProvider>(context,
+                                              listen: false)
+                                          .getRecords();
                                     // SongServices().createPlayList(playListName: playListName, songName: songs);
                                   }
                                 : null,

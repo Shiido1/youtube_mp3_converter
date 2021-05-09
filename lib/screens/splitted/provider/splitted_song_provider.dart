@@ -17,8 +17,11 @@ class SplittedSongProvider with ChangeNotifier {
   Song drawerItem;
   List<Song> songs = [];
   List<Song> allSongs = [];
+  List<Song> vocalSongs = [];
   List splittedSongName = [];
   List splittedSongItems = [];
+  List emptyNames = [];
+  List noVocals = [];
   bool shuffleSong = false;
   bool repeatSong = false;
   int _currentSongIndex = -1;
@@ -35,6 +38,15 @@ class SplittedSongProvider with ChangeNotifier {
 
   getSongs() async {
     allSongs = await SplittedSongRepository.getSongs();
+    for (Song song in allSongs)
+      if (song.fileName == '' || song.fileName == null) emptyNames.add(song);
+    if (emptyNames.isNotEmpty)
+      for (Song song in emptyNames) allSongs.remove(song);
+    vocalSongs = allSongs;
+    for (Song song in vocalSongs)
+      if (song.vocalName == '' || song.vocalName == null) noVocals.add(song);
+    if (noVocals.isNotEmpty)
+      for (Song song in noVocals) vocalSongs.remove(song);
     notifyListeners();
   }
 
@@ -162,7 +174,7 @@ class SplittedSongProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future undoRepeat () async {
+  Future undoRepeat() async {
     repeatSong = false;
     playerType = PlayerType.ALL;
     notifyListeners();

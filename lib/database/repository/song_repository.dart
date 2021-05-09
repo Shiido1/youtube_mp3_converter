@@ -27,6 +27,8 @@ class SongRepository {
   static getPlayListNames() => _services.getPlayListNames();
   static getFavoriteSongs() => _services.getFavoriteSongs();
   static Stream<List<Song>> streamAllSongs() => _services.streamAllSongs();
+  static removeSongsFromPlaylistAterDelete(String songName) =>
+      _services.removeSongsFromPlaylistAterDelete(songName);
 }
 
 class SplittedSongRepository {

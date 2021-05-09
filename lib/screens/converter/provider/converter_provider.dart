@@ -13,7 +13,6 @@ class ConverterProvider extends ChangeNotifier {
   bool problem = false;
   CustomProgressIndicator _progressIndicator;
 
-
   void init(BuildContext context) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
@@ -37,7 +36,7 @@ class ConverterProvider extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-       _progressIndicator.dismiss();
+      _progressIndicator.dismiss();
       showToast(_context,
           message: "please check your url or internet connection");
       notifyListeners();

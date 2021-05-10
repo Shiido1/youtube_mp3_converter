@@ -31,17 +31,22 @@ class _RedBackgroundState extends State<RedBackground> {
   RedBackgroundProvider redBackgroundProvider;
 
 
-  // Future imageUploadAndDownload() async {
-  //   StorageReference reference = FirebaseStorage.instance.ref().child('profile_image.jpg').child("Image_path");
-  //   StorageUploadTask uploadTask = reference.putFile(image);
-  //   await uploadTask.onComplete;
-  //   String downloadAddress = await reference.getDownloadUrl();
-  //   setState(() {
-  //     downloadUrl = downloadAddress;
-  //   });
-  //   preferencesHelper.saveValue(key: 'profile_image', value: downloadUrl);
-  //   redBackgroundProvider.image(downloadUrl);
-  // }
+  Future imageUploadAndDownload() async {
+    final reference = FirebaseStorage.instance.ref().child('profile_image.jpg').child("Image_path");
+    UploadTask uploadTask = reference.putFile(image);
+    await uploadTask.timeout(Duration(seconds: 40));
+    TaskSnapshot snapshot = await uploadTask;
+    if(snapshot!=null){
+      if (snapshot.state == TaskState.success){
+        String downloadAddress = await snapshot.ref.getDownloadURL();
+        setState(() {
+          downloadUrl = downloadAddress;
+        });
+      }
+    }
+    preferencesHelper.saveValue(key: 'profile_image', value: downloadUrl);
+    redBackgroundProvider.image(downloadUrl);
+  }
 
   Future getImage(BuildContext context,bool isCamera) async {
     if (isCamera) {
@@ -96,22 +101,22 @@ class _RedBackgroundState extends State<RedBackground> {
 
   @override
   void initState() {
-    init();
+    // init();
     super.initState();
   }
 
-  init() async {
-  String _imageString;
-  if (image != null) {
-    _imageString = await preferencesHelper.getStringValues(key: 'profile_image');
-    image = File(_imageString);
-    setState(() {});
-  }
-}
+//   init() async {
+//   String _imageString;
+//   if (image != null) {
+//     _imageString = await preferencesHelper.getStringValues(key: 'profile_image');
+//     image = File(_imageString);
+//     setState(() {});
+//   }
+// }
 
   @override
   Widget build(BuildContext context) {
-    init();
+    // init();
     return Container(
         child: Stack(
           children: [
@@ -176,7 +181,7 @@ class _RedBackgroundState extends State<RedBackground> {
         child: InkWell(
           onTap: ()async{
             await _showDialog(context);
-            // imageUploadAndDownload();
+            imageUploadAndDownload();
             },
           child: Text(
             'Profile',

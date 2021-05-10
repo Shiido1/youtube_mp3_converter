@@ -4,14 +4,12 @@ import 'dart:async';
 import 'package:file/local.dart';
 import 'package:file/file.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
-import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 

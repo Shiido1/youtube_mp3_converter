@@ -140,13 +140,12 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                   onTap: ()=> Navigator.push(context, MaterialPageRoute(
                       builder: (_) => SearchUserProfileClass(
                         userId: searchValue.id.toString()))),
-                  leading: isNotEmpty ?
-                  Container(
+                  leading: Container(
                       height: 60,
                       width: 50,
                       child:CachedNetworkImage(
                           imageUrl:
-                          searchValue?.profilePic??'')):Container(),
+                          searchValue?.profilePic??'')),
                   title: isNotEmpty
                       ? TextViewWidget(
                         text: searchValue?.name??'',
@@ -155,25 +154,6 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                         fontWeight: FontWeight.w500,
                       )
                       : Container(),
-                  // trailing: ElevatedButton(
-                  //   onPressed: (){
-                  //     // searchProvider.isFollow?
-                  //       searchProvider.unFollow(searchValue.id);
-                  //       // :searchProvider.unFollow();
-                  //   },
-                  //   style: TextButton
-                  //       .styleFrom(
-                  //     backgroundColor:
-                  //     searchProvider.isFollow == true?AppColor
-                  //         .background1:AppColor.bottomRed,
-                  //   ),
-                  //   child: TextViewWidget(
-                  //     text: searchProvider.isFollow == true?
-                  //     'Following':'Follow',
-                  //     color: AppColor.white,
-                  //     textSize: 18.5,
-                  //   ),
-                  // ),
                 );
               },
             ),

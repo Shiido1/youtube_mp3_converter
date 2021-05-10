@@ -12,8 +12,8 @@ class SearchProvider extends ChangeNotifier{
   BuildContext _context;
   List<Users> users;
   CustomProgressIndicator _progressIndicator;
-  var value;
-  bool isFollow=false;
+  // var value;
+  // bool isFollow=false;
   Users user = Users();
 
 
@@ -37,35 +37,35 @@ class SearchProvider extends ChangeNotifier{
 
   }
 
-  Future<void> follow(int id) async {
-    final map ={
-      "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
-      "id":id
-    };
-    try{
-      _progressIndicator.show();
-      if(isFollow=false) value = await searchRepository.follow(map);
-      await _progressIndicator.dismiss();
-      isFollow = true;
-      notifyListeners();
-    }catch(e) {
-      return throw e;
-    }
-  }
-
-  Future<void> unFollow(int id) async {
-    final map ={
-      "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
-      "id":id
-    };
-    try{
-      _progressIndicator.show();
-      if(isFollow=true) value = await searchRepository.unFollow(map);
-      await _progressIndicator.dismiss();
-      isFollow = false;
-      notifyListeners();
-    }catch(e) {
-      return throw e;
-    }
-  }
+  // Future<void> follow(int id) async {
+  //   final map ={
+  //     "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
+  //     "id":id
+  //   };
+  //   try{
+  //     _progressIndicator.show();
+  //     if(isFollow=false) value = await searchRepository.follow(map);
+  //     await _progressIndicator.dismiss();
+  //     isFollow = true;
+  //     notifyListeners();
+  //   }catch(e) {
+  //     return throw e;
+  //   }
+  // }
+  //
+  // Future<void> unFollow(int id) async {
+  //   final map ={
+  //     "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
+  //     "id":id
+  //   };
+  //   try{
+  //     _progressIndicator.show();
+  //     if(isFollow=true) value = await searchRepository.unFollow(map);
+  //     await _progressIndicator.dismiss();
+  //     isFollow = false;
+  //     notifyListeners();
+  //   }catch(e) {
+  //     return throw e;
+  //   }
+  // }
 }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/icon_button.dart';
 import 'package:mp3_music_converter/widgets/slider2_widget.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';

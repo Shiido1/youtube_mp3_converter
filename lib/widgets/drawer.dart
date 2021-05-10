@@ -190,13 +190,14 @@ class _AppDrawerState extends State<AppDrawer> {
         _fileName[0] = fileName + "-" + getStringPathName(link);
 
       bool splitVoc =
-          await File(_localPath + Platform.pathSeparator + _fileName[0])
+          await File(_localPath + Platform.pathSeparator + _fileName[1])
               .exists();
       bool splitAcm =
           await File(_localPath + Platform.pathSeparator + _fileName[0])
               .exists();
 
       if (!splitVoc && !splitAcm) {
+        await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
                 url: link,
                 headers: {"auth": "test_for_sql_encoding"},
@@ -208,8 +209,8 @@ class _AppDrawerState extends State<AppDrawer> {
                 openFileFromNotification: true)
             .then((value) => splittedSongIDList.insert(
                 getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
-        FlutterDownloader.registerCallback(downloadCallback);
       } else if (splitVoc && !splitAcm) {
+        await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
                 url: link,
                 headers: {"auth": "test_for_sql_encoding"},
@@ -218,8 +219,8 @@ class _AppDrawerState extends State<AppDrawer> {
                 showNotification: true,
                 openFileFromNotification: true)
             .then((value) => splittedSongIDList.insert(0, value));
-        FlutterDownloader.registerCallback(downloadCallback);
       } else if (!splitVoc && splitAcm) {
+        await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
                 url: link,
                 headers: {"auth": "test_for_sql_encoding"},
@@ -228,7 +229,6 @@ class _AppDrawerState extends State<AppDrawer> {
                 showNotification: true,
                 openFileFromNotification: true)
             .then((value) => splittedSongIDList.insert(1, value));
-        FlutterDownloader.registerCallback(downloadCallback);
       } else
         showToast(context, message: 'File already exists');
       //   if (!(await File(_localPath + Platform.pathSeparator + _fileName[0])
@@ -311,6 +311,7 @@ class _AppDrawerState extends State<AppDrawer> {
     //     vocalName: 'Nizatreasure.mp3-vocals.wav'));
 
     // print(_musicProvider.drawerItem.file);
+    // FlutterDownloader.cancelAll();
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       // print(_provider?.drawerItem?.file);
       return Padding(

@@ -70,8 +70,6 @@ class _DashBoardState extends State<DashBoard> {
       ..getSharedData().then(_handleSharedData);
 
     _bindBackgroundIsolate(); //
-    FlutterDownloader.registerCallback(
-        downloadCallback); // register our callbacks
     _isLoading = true;
     _permissionReady = false;
     _prepare();
@@ -121,7 +119,10 @@ class _DashBoardState extends State<DashBoard> {
           loading = false;
         });
       }
-      if (status == DownloadTaskStatus.complete) {
+      // if (status == DownloadTaskStatus.failed)
+      //   await FlutterDownloader.retry(taskId: data[0]);
+      if (status == DownloadTaskStatus.complete ||
+          (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
         if (data[0].toString() == splittedSongIDList[0].toString()) {
           SplittedSongRepository.addSong(Song(
             fileName: _fileName[0],
@@ -129,7 +130,6 @@ class _DashBoardState extends State<DashBoard> {
             image: '',
             splittedFileName: splitFileNameHere(_fileName[0]),
           ));
-          Navigator.pop(context);
           Navigator.push(
               context, MaterialPageRoute(builder: (_) => SplittedScreen()));
         }
@@ -177,17 +177,48 @@ class _DashBoardState extends State<DashBoard> {
       else
         _fileName[0] = fileName + "-" + getStringPathName(link);
 
-      await FlutterDownloader.enqueue(
-              url: link,
-              headers: {"auth": "test_for_sql_encoding"},
-              savedDir: _localPath,
-              fileName: getStringPathName(link) == 'vocals.wav'
-                  ? _fileName[1]
-                  : _fileName[0],
-              showNotification: true,
-              openFileFromNotification: true)
-          .then((value) => splittedSongIDList.insert(
-              getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
+      bool splitVoc =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+      bool splitAcm =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+
+      if (!splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: getStringPathName(link) == 'vocals.wav'
+                    ? _fileName[1]
+                    : _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(
+                getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (!splitVoc && splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[1],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(1, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else
+        showToast(context, message: 'File already exists');
     }
   }
 
@@ -393,7 +424,7 @@ class _DashBoardState extends State<DashBoard> {
     if (result != null && result.files.isNotEmpty) {
       _progressIndicator.show();
 
-      String nameOfFile = result.files.single.name;
+      String nameOfFile = result.files.single.name.split(' ').join('_');
 
       var splittedFiles =
           await SplitAssistant.splitFile(result.files.single.path, context);
@@ -405,6 +436,7 @@ class _DashBoardState extends State<DashBoard> {
         if (isSaved && _permissionReady) {
           String voiceUrl = splittedFiles["files"]["voice"];
           String otherUrl = splittedFiles["files"]["other"];
+
           _apiSplittedList = ['', ''];
           splittedSongIDList = ['', ''];
           _fileName = ['', ''];

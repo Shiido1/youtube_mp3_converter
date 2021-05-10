@@ -20,7 +20,7 @@ import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'package:mp3_music_converter/widgets/red_background.dart';
+import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:path_provider/path_provider.dart';

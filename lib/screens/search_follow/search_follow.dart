@@ -2,9 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
+import 'package:mp3_music_converter/screens/search_follow/search_user_profile/search_user_profile.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/widgets/red_background.dart';
+import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_provider.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
@@ -137,6 +137,9 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                 var searchValue = provider.users[index];
                 bool isNotEmpty =  provider.users.isNotEmpty;
                 return ListTile(
+                  onTap: ()=> Navigator.push(context, MaterialPageRoute(
+                      builder: (_) => SearchUserProfileClass(
+                        userId: searchValue.id.toString()))),
                   leading: isNotEmpty ?
                   Container(
                       height: 60,
@@ -152,25 +155,25 @@ body: Consumer<SearchProvider>(builder: (_,provider,__){
                         fontWeight: FontWeight.w500,
                       )
                       : Container(),
-                  trailing: ElevatedButton(
-                    onPressed: (){
-                      // searchProvider.isFollow?
-                        searchProvider.unFollow(searchValue.id);
-                        // :searchProvider.unFollow();
-                    },
-                    style: TextButton
-                        .styleFrom(
-                      backgroundColor:
-                      searchProvider.isFollow == true?AppColor
-                          .background1:AppColor.bottomRed,
-                    ),
-                    child: TextViewWidget(
-                      text: searchProvider.isFollow == true?
-                      'Following':'Follow',
-                      color: AppColor.white,
-                      textSize: 18.5,
-                    ),
-                  ),
+                  // trailing: ElevatedButton(
+                  //   onPressed: (){
+                  //     // searchProvider.isFollow?
+                  //       searchProvider.unFollow(searchValue.id);
+                  //       // :searchProvider.unFollow();
+                  //   },
+                  //   style: TextButton
+                  //       .styleFrom(
+                  //     backgroundColor:
+                  //     searchProvider.isFollow == true?AppColor
+                  //         .background1:AppColor.bottomRed,
+                  //   ),
+                  //   child: TextViewWidget(
+                  //     text: searchProvider.isFollow == true?
+                  //     'Following':'Follow',
+                  //     color: AppColor.white,
+                  //     textSize: 18.5,
+                  //   ),
+                  // ),
                 );
               },
             ),

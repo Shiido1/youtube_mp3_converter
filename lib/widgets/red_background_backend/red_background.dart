@@ -1,12 +1,14 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
-import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
 
 class RedBackground extends StatefulWidget {
   final String text;
@@ -25,38 +27,40 @@ class _RedBackgroundState extends State<RedBackground> {
   File image;
   bool img = false;
   SharedPreferences sharedPreferences;
-  bool newUser;
-  bool logOut = false;
+  String downloadUrl;
+  RedBackgroundProvider redBackgroundProvider;
 
-  _checkLoginState() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    if (sharedPreferences.getString('token') == null) {
-      PageRouter.gotoNamed(Routes.LOGIN, context);
+
+  // Future imageUploadAndDownload() async {
+  //   StorageReference reference = FirebaseStorage.instance.ref().child('profile_image.jpg').child("Image_path");
+  //   StorageUploadTask uploadTask = reference.putFile(image);
+  //   await uploadTask.onComplete;
+  //   String downloadAddress = await reference.getDownloadUrl();
+  //   setState(() {
+  //     downloadUrl = downloadAddress;
+  //   });
+  //   preferencesHelper.saveValue(key: 'profile_image', value: downloadUrl);
+  //   redBackgroundProvider.image(downloadUrl);
+  // }
+
+  Future getImage(BuildContext context,bool isCamera) async {
+    if (isCamera) {
+      var picture = await ImagePicker.pickImage(source: ImageSource.camera);
+      setState(() {
+        image = picture;
+        img = true;
+      });
+      Navigator.of(context).pop();
+      preferencesHelper.saveValue(key: 'profileimage', value: image);
+    }else{
+      var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        image = picture;
+        img = true;
+      });
+      Navigator.of(context).pop();
+      preferencesHelper.saveValue(key: 'profileimage', value: image);
     }
-  }
-
-  void checkLogin() async {
-    sharedPreferences = await SharedPreferences.getInstance();
-    newUser = (sharedPreferences.getBool('login') ?? true);
-    PageRouter.gotoNamed(Routes.LOGIN, context);
-    setState(() {
-      logOut = true;
-    });
-
-    if (newUser == false) {
-      PageRouter.gotoNamed(Routes.DASHBOARD, context);
-    }
-  }
-
-  getGallery(BuildContext context) async {
-    // ignore: deprecated_member_use
-    var picture = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      image = picture;
-      img = true;
-    });
-    Navigator.of(context).pop();
-    preferencesHelper.saveValue(key: 'profileimage', value: image);
   }
 
   Future<void> _showDialog(BuildContext context) {
@@ -68,21 +72,19 @@ class _RedBackgroundState extends State<RedBackground> {
               child: ListBody(
                 children: [
                   GestureDetector(
-                    child: Text(
-                      'Logout',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: TextViewWidget(text:'Camera',color: AppColor.black,),
                     onTap: () {
-                      _checkLoginState();
+                      getImage(context,true);
                     },
                   ),
                   Padding(
                     padding: EdgeInsets.all(8.0),
+
                   ),
                   GestureDetector(
-                    child: Text('Gallery'),
+                    child: TextViewWidget(text:'Gallery',color: AppColor.black,),
                     onTap: () {
-                      getGallery(context);
+                      getImage(context,false);
                     },
                   ),
                 ],
@@ -94,24 +96,22 @@ class _RedBackgroundState extends State<RedBackground> {
 
   @override
   void initState() {
-    // init();
-
+    init();
     super.initState();
   }
 
-  init() {
-    if (image == null) {
-      preferencesHelper
-          .getCachedData(key: 'profileimage')
-          .then((value) => setState(() {
-                image = value;
-              }));
-      return image;
-    }
+  init() async {
+  String _imageString;
+  if (image != null) {
+    _imageString = await preferencesHelper.getStringValues(key: 'profile_image');
+    image = File(_imageString);
+    setState(() {});
   }
+}
 
   @override
   Widget build(BuildContext context) {
+    init();
     return Container(
         child: Stack(
           children: [
@@ -144,9 +144,7 @@ class _RedBackgroundState extends State<RedBackground> {
                           : Image.asset(AppAssets.dashlogo,height: 63,),
                     ],
                   ),
-                  widget.widgetContainer !=null
-                      ? _widgetContainer():
-                      Container()
+                  _widgetContainer()
                 ],
               ),
             ),
@@ -160,11 +158,13 @@ class _RedBackgroundState extends State<RedBackground> {
     children: [
       img == false
           ? ClipOval(
-        child: Image.asset('assets/burna.png'),
-      )
+        child: SizedBox(
+          height: 50,
+            width: 50,
+            child: CachedNetworkImage(imageUrl:'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')),)
           : Container(
-        width: 80,
-        height: 80,
+        width: 65,
+        height: 75,
         decoration: BoxDecoration(
             shape: BoxShape.circle,
             image: DecorationImage(
@@ -174,7 +174,10 @@ class _RedBackgroundState extends State<RedBackground> {
       Padding(
         padding: const EdgeInsets.only(top: 5.0),
         child: InkWell(
-          onTap: () => _showDialog(context),
+          onTap: ()async{
+            await _showDialog(context);
+            // imageUploadAndDownload();
+            },
           child: Text(
             'Profile',
             style: TextStyle(
@@ -187,4 +190,5 @@ class _RedBackgroundState extends State<RedBackground> {
       ),
     ],
   );
+
 }

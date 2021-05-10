@@ -38,15 +38,13 @@ class SearchProvider extends ChangeNotifier{
   }
 
   Future<void> follow(int id) async {
-
     final map ={
       "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
       "id":id
     };
     try{
       _progressIndicator.show();
-      if(isFollow=false)
-        value = await searchRepository.follow(map);
+      if(isFollow=false) value = await searchRepository.follow(map);
       await _progressIndicator.dismiss();
       isFollow = true;
       notifyListeners();
@@ -56,16 +54,13 @@ class SearchProvider extends ChangeNotifier{
   }
 
   Future<void> unFollow(int id) async {
-
     final map ={
       "token":Provider.of<LoginProviders>(_context,listen:false).userToken,
       "id":id
     };
-
     try{
       _progressIndicator.show();
-      if(isFollow=true)
-        value = await searchRepository.unFollow(map);
+      if(isFollow=true) value = await searchRepository.unFollow(map);
       await _progressIndicator.dismiss();
       isFollow = false;
       notifyListeners();

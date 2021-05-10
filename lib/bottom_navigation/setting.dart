@@ -3,7 +3,7 @@ import 'package:mp3_music_converter/screens/change_password/forgot_password_emai
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_follow.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/widgets/red_background.dart';
+import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class Setting extends StatefulWidget {

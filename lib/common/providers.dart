@@ -12,6 +12,8 @@ import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:mp3_music_converter/screens/search_follow/search_user_profile/provider.dart';
+
 
 class Providers {
   static List<SingleChildWidget> getProviders = [
@@ -29,5 +31,6 @@ class Providers {
     ChangeNotifierProvider<RecordProvider>(create: (_)=> RecordProvider()),
     ChangeNotifierProvider<SearchProvider>(create: (_)=> SearchProvider()),
     ChangeNotifierProvider<ChangePasswordProvider>(create: (_)=> ChangePasswordProvider()),
+    ChangeNotifierProvider<SearchUserProfileProvider>(create: (_)=> SearchUserProfileProvider()),
   ];
 }

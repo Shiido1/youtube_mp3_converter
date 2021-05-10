@@ -49,28 +49,23 @@ class _DashBoardState extends State<DashBoard> {
   List<Song> splittedSongList = [];
   List<String> splittedSongIDList = ['', ''];
   List<dynamic> dataList = [];
-  bool _isLoading;
   bool _permissionReady;
   static String _localPath;
   ReceivePort _port = ReceivePort();
   List<String> _fileName = ['', ''];
   int _progress = 0;
   bool loading = false;
-
-  MusicProvider _musicProvider;
   CustomProgressIndicator _progressIndicator;
 
   @override
   void initState() {
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     _progressIndicator = CustomProgressIndicator(this.context);
 
     LinkShareAssistant()
       ..onDataReceived = _handleSharedData
       ..getSharedData().then(_handleSharedData);
 
-    _bindBackgroundIsolate(); //
-    _isLoading = true;
+    _bindBackgroundIsolate();
     _permissionReady = false;
     _prepare();
     super.initState();
@@ -252,10 +247,6 @@ class _DashBoardState extends State<DashBoard> {
     if (!hasExisted) {
       savedDir.create();
     }
-
-    // setState(() {
-    //   _isLoading = false;
-    // });
   }
 
 //* finds available space for storage on users device
@@ -457,9 +448,10 @@ class _DashBoardState extends State<DashBoard> {
           await _progressIndicator.dismiss();
           showToast(context, message: "error occurred, please try again");
         }
+      } else {
+        await _progressIndicator.dismiss();
+        showToast(context, message: 'Please try again later');
       }
-      await _progressIndicator.dismiss();
-      showToast(context, message: 'Please try again later');
     }
   }
 

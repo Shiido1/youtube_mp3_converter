@@ -17,7 +17,7 @@ import 'utils/color_assets/color.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await FlutterDownloader.initialize(debug: debug);
+  await FlutterDownloader.initialize(debug: true);
   var path = Directory.current.path;
   Hive.init(path);
   await PgHiveBoxes.init();

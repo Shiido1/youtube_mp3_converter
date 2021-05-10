@@ -2,7 +2,8 @@ import 'dart:math';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
 
@@ -11,9 +12,9 @@ class RecordProvider with ChangeNotifier {
   Duration progress = Duration();
   AudioPlayer recordPlayer;
   AudioCache audioCache;
-  String currentRecord;
-  List<String> records = [];
-  List<String> allRecords = [];
+  RecorderModel currentRecord;
+  List<RecorderModel> records = [];
+  List<RecorderModel> allRecords = [];
   bool shuffleRecord = false;
   bool repeatRecord = false;
   int _currentRecordIndex = -1;
@@ -28,14 +29,16 @@ class RecordProvider with ChangeNotifier {
     initPlayer();
   }
 
-  getRecords(List<String> records) async {
-    allRecords = records;
+  getRecords() async {
+    allRecords = await RecorderServices().getRecordings();
     notifyListeners();
   }
 
-  updateRecord(String record) {
+  updateRecord(RecorderModel recorded) {
     records.forEach((element) {
-      element = record;
+      if (element.name == recorded.name) {
+        element = recorded;
+      }
     });
     notifyListeners();
   }
@@ -63,15 +66,14 @@ class RecordProvider with ChangeNotifier {
     });
   }
 
-  void updateLocal(String record) {
+  void updateLocal(RecorderModel record) {
     if (audioPlayerState != AudioPlayerState.PLAYING) {
       currentRecord = records.firstWhere(
-              (element) => element == record,
+          (element) => element.name == record.name,
           orElse: () => record);
       notifyListeners();
     }
   }
-
 
   void seekToSecond(int second) {
     Duration newDuration = Duration(seconds: second);
@@ -79,17 +81,16 @@ class RecordProvider with ChangeNotifier {
   }
 
   void playAudio(
-      String record,
-      ) async {
+    RecorderModel record,
+  ) async {
     if (audioPlayerState == AudioPlayerState.PLAYING &&
-        currentRecord == record) return;
+        currentRecord.name == record.name) return;
     if (recordPlayer == null) initPlayer();
     if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
-    await recordPlayer.play(record);
+    await recordPlayer.play(record.path);
     currentRecord = record;
     notifyListeners();
   }
-
 
   void resumeAudio() async {
     await recordPlayer.resume();
@@ -147,19 +148,18 @@ class RecordProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future repeat(String record) async {
+  Future repeat(RecorderModel record) async {
     playerType = PlayerType.REPEAT;
     repeatRecord = true;
     playAudio(record);
     notifyListeners();
   }
 
-  Future undoRepeat () async {
+  Future undoRepeat() async {
     repeatRecord = false;
     playerType = PlayerType.ALL;
     notifyListeners();
   }
-
 
   handlePlaying() {
     switch (audioPlayerState) {
@@ -189,7 +189,7 @@ class RecordProvider with ChangeNotifier {
   bool get canNextRecord => _currentRecordIndex == length - 1;
   bool get canPrevRecord => _currentRecordIndex == 0;
 
-  String get nextRecord {
+  RecorderModel get nextRecord {
     if (_currentRecordIndex < length) {
       _currentRecordIndex++;
     }
@@ -197,14 +197,14 @@ class RecordProvider with ChangeNotifier {
     return records[_currentRecordIndex];
   }
 
-  String get randomRecord {
+  RecorderModel get randomRecord {
     Random r = new Random();
     int recordIndex = r.nextInt(records.length);
     setCurrentIndex(recordIndex);
     return records[recordIndex];
   }
 
-  String get prevRecord {
+  RecorderModel get prevRecord {
     if (_currentRecordIndex > 0) {
       _currentRecordIndex--;
     }

@@ -15,7 +15,31 @@ class SplittedSongServices implements SplittedSongInterface {
   @override
   addSong(Song song) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    return _box.put(song.fileName, song.toJson());
+    if (_box.containsKey(song.splittedFileName)) {
+      Map savedSong = _box.get(song.splittedFileName);
+
+      print(savedSong);
+      String fileName = savedSong['fileName'];
+      // String filePath = savedSong['filePath'];
+      // String image = savedSong['image'];
+      // String splittedFileName = savedSong['splittedFileName'];
+      String vocalName = savedSong['vocalName'];
+
+      song.fileName =
+          fileName != null && fileName != '' ? fileName : song.fileName;
+      song.vocalName =
+          vocalName != null && fileName != '' ? vocalName : song.vocalName;
+
+      print(song.vocalName);
+
+      return _box.put(song.splittedFileName, song.toJson());
+
+      // song.fileName = fileName != null ? fileName : song.fileName;
+      // song.fileName = fileName != null ? fileName : song.fileName;
+      // song.fileName = fileName != null ? fileName : song.fileName;
+
+    }
+    return _box.put(song.splittedFileName, song.toJson());
   }
 
   @override
@@ -28,5 +52,10 @@ class SplittedSongServices implements SplittedSongInterface {
   deleteSong(String key) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     await _box.delete(key);
+  }
+
+  getKeys() async {
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    print(_box.keys);
   }
 }

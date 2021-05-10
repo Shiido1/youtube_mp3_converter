@@ -9,12 +9,11 @@ import 'package:mp3_music_converter/widgets/icon_button.dart';
 import 'package:mp3_music_converter/widgets/slider2_widget.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 
 class RecordedScreen extends StatefulWidget {
-
-  String record;
-  String recordName;
-  RecordedScreen({@required this.record, @required this.recordName});
+  final RecorderModel record;
+  RecordedScreen({@required this.record});
   @override
   _RecordedScreenState createState() => _RecordedScreenState();
 }
@@ -32,11 +31,9 @@ class _RecordedScreenState extends State<RecordedScreen> {
     super.initState();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return Consumer<RecordProvider>(builder: (_, _provider, __){
+    return Consumer<RecordProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.grey,
@@ -48,9 +45,6 @@ class _RecordedScreenState extends State<RecordedScreen> {
             ),
           ),
         ),
-        endDrawer: Theme(
-            data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-            child: AppDrawer()),
         body: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
@@ -71,7 +65,8 @@ class _RecordedScreenState extends State<RecordedScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 CachedNetworkImage(
-                  imageUrl:  "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
+                  imageUrl:
+                      "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
                   imageBuilder: (context, imageProvider) => Container(
                     width: 280.0,
                     height: 320.0,
@@ -88,11 +83,9 @@ class _RecordedScreenState extends State<RecordedScreen> {
                 SizedBox(
                   height: 30,
                 ),
-
-
                 Center(
                   child: TextViewWidget(
-                    text: widget.recordName,
+                    text: _provider?.currentRecord?.name ?? 'unknown',
                     color: AppColor.white,
                     textSize: 18,
                     fontWeight: FontWeight.w700,
@@ -102,9 +95,7 @@ class _RecordedScreenState extends State<RecordedScreen> {
                 SizedBox(
                   height: 30,
                 ),
-
                 SliderClass3(),
-
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -113,11 +104,11 @@ class _RecordedScreenState extends State<RecordedScreen> {
                       icon: Icon(Icons.skip_previous_outlined),
                       onPressed: !_provider.canPrevRecord
                           ? () {
-                        _recordProvider.prev();
-                        if (repeat)
-                          _recordProvider
-                              .repeat(_recordProvider.currentRecord);
-                      }
+                              _recordProvider.prev();
+                              if (repeat)
+                                _recordProvider
+                                    .repeat(_recordProvider.currentRecord);
+                            }
                           : null,
                       iconSize: 56,
                       color: !_provider.canPrevRecord
@@ -135,11 +126,11 @@ class _RecordedScreenState extends State<RecordedScreen> {
                       icon: Icon(Icons.skip_next_outlined),
                       onPressed: !_provider.canNextRecord
                           ? () {
-                        _recordProvider.next();
-                        if (repeat)
-                          _recordProvider
-                              .repeat(_recordProvider.currentRecord);
-                      }
+                              _recordProvider.next();
+                              if (repeat)
+                                _recordProvider
+                                    .repeat(_recordProvider.currentRecord);
+                            }
                           : null,
                       iconSize: 56,
                       color: !_provider.canNextRecord
@@ -157,4 +148,3 @@ class _RecordedScreenState extends State<RecordedScreen> {
     });
   }
 }
-

@@ -2,8 +2,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_screen.dart';
+import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -11,10 +13,10 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 
 class Recorded extends StatefulWidget {
-
   @override
   _RecordedState createState() => _RecordedState();
 }
@@ -26,28 +28,21 @@ class _RecordedState extends State<Recorded> {
 
   @override
   void initState() {
-
-    records = [];
+    // records = [];
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
-    getExternalStorageDirectory().then((value) {
-      appDir = value.parent.parent.parent.parent;
-      Directory appDirectory = Directory("${appDir.path}/YoutubeMusicRecords/");
-      appDir = appDirectory;
-      appDir.list().listen((onData) {
-        records.add(onData.path);
-      }).onDone(() {
-        records = records.reversed.toList();
-        _recordProvider.getRecords(records);
-      });
-    });
+    _recordProvider.getRecords();
+    // getExternalStorageDirectory().then((value) {
+    //   appDir = value.parent.parent.parent.parent;
+    //   Directory appDirectory = Directory("${appDir.path}/YoutubeMusicRecords/");
+    // appDir = appDirectory;
+    //   appDir.list().listen((onData) {
+    //     records.add(onData.path);
+    //   }).onDone(() {
+    //     records = records.reversed.toList();
+    //     _recordProvider.getRecords();
+    //   });
+    // });
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    appDir = null;
-    records = null;
-    super.dispose();
   }
 
   @override
@@ -73,10 +68,12 @@ class _RecordedState extends State<Recorded> {
       body: Center(
         child: Column(
           children: [
-            Expanded(child: buildSongList(),
-
+            Expanded(
+              child: buildSongList(),
             ),
-            BottomPlayingIndicator(isMusic: false,)
+            BottomPlayingIndicator(
+              isMusic: false,
+            )
           ],
         ),
       ),
@@ -85,27 +82,47 @@ class _RecordedState extends State<Recorded> {
 
   Widget buildSongList() {
     return Consumer<RecordProvider>(builder: (_, _provider, __) {
-      if (records.length < 1) {
+      if (_provider.allRecords.length < 1) {
         return Center(
-            child: TextViewWidget(text: 'No Recorded Song', color: AppColor.white));
+            child: TextViewWidget(
+                text: 'No Recorded Song', color: AppColor.white));
       }
       return ListView.separated(
-        itemCount: records.length,
-        itemBuilder: (_, int index){
+        itemCount: _provider.allRecords.length,
+        itemBuilder: (_, int index) {
+          List<RecorderModel> recordList = _provider.allRecords;
+          recordList.sort((b, a) {
+            return a.path
+                .split('/')
+                .last
+                .split('.')
+                .first
+                .compareTo(b.path.split('/').last.split('.').first);
+          });
+          RecorderModel record = recordList[index];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () async{
-                  _recordProvider.records = _recordProvider.allRecords;
+                onLongPress: () {
+                  showOptions(record);
+                },
+                onTap: () async {
+                  _recordProvider.records = recordList;
                   _recordProvider.setCurrentIndex(index);
-                  PageRouter.gotoWidget(RecordedScreen(record: records[index], recordName: "Record ${records.length - index}",), context);},
+                  PageRouter.gotoWidget(
+                      RecordedScreen(
+                        record: record,
+                      ),
+                      context);
+                },
                 child: ListTile(
                   leading: SizedBox(
                       width: 95,
                       height: 150,
                       child: CachedNetworkImage(
-                        imageUrl: "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
+                        imageUrl:
+                            "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
                         placeholder: (context, index) => Container(
                           child: Center(
                               child: SizedBox(
@@ -114,11 +131,10 @@ class _RecordedState extends State<Recorded> {
                                   child: CircularProgressIndicator())),
                         ),
                         errorWidget: (context, url, error) =>
-                        new Icon(Icons.error),
-                      )
-                  ),
+                            new Icon(Icons.error),
+                      )),
                   title: TextViewWidget(
-                    text: "Record ${records.length - index}",
+                    text: record.name,
                     color: AppColor.white,
                     textSize: 15,
                     fontFamily: 'Roboto-Regular',
@@ -135,14 +151,75 @@ class _RecordedState extends State<Recorded> {
             ],
           );
         },
-        separatorBuilder: (_, int index) =>  Padding(
+        separatorBuilder: (_, int index) => Padding(
             padding: const EdgeInsets.only(left: 115.0, right: 15),
             child: Divider(
               color: AppColor.white,
             )),
       );
     });
+  }
 
-
+  Future<void> showOptions(RecorderModel record) {
+    return showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    createPlayListScreen(
+                        showToastMessage: true,
+                        message: 'Recording renamed successfully',
+                        renameRecord: true,
+                        oldPlayListName: record.name,
+                        context: _);
+                  },
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10),
+                    height: 50,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(0),
+                      leading: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
+                      title: Text(
+                        'Rename Recording',
+                        style: TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(_);
+                    DeleteSongs(context)
+                        .showConfirmDeleteDialog(record: record);
+                  },
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10),
+                    height: 50,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.delete, color: Colors.white),
+                      title: Text(
+                        'Delete Recording',
+                        style: TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        });
   }
 }

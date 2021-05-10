@@ -4,12 +4,16 @@ import 'dart:async';
 import 'package:file/local.dart';
 import 'package:file/file.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 
 class Split extends StatefulWidget {
   final LocalFileSystem localFileSystem;
@@ -32,8 +36,8 @@ class _SplitState extends State<Split> {
   Duration recordingCurrentTime = Duration();
   Duration maxTime = Duration();
   Duration recordingMaxTime = Duration();
-  String splitFileCompleteTime= "00:00";
-  String recordCompleteTime= "00:00";
+  String splitFileCompleteTime = "00:00";
+  String recordCompleteTime = "00:00";
   double val = 0.0;
 
   FlutterAudioRecorder _recorder;
@@ -42,33 +46,30 @@ class _SplitState extends State<Split> {
 
   bool _isRecording = false;
 
-
-
-
   @override
   void initState() {
-    _splitFileAudioPlayer.onAudioPositionChanged.listen((Duration duration){
+    _splitFileAudioPlayer.onAudioPositionChanged.listen((Duration duration) {
       setState(() {
         currentTime = duration;
         splitFileCurrentTime = duration.toString().split(".")[0];
       });
     });
 
-    _splitFileAudioPlayer.onDurationChanged.listen((Duration duration){
+    _splitFileAudioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         maxTime = duration;
         splitFileCompleteTime = duration.toString().split(".")[0];
       });
     });
 
-    _recordingAudioPlayer.onAudioPositionChanged.listen((Duration duration){
+    _recordingAudioPlayer.onAudioPositionChanged.listen((Duration duration) {
       setState(() {
         recordingCurrentTime = duration;
         recordCurrentTime = duration.toString().split(".")[0];
       });
     });
 
-    _recordingAudioPlayer.onDurationChanged.listen((Duration duration){
+    _recordingAudioPlayer.onDurationChanged.listen((Duration duration) {
       setState(() {
         recordingMaxTime = duration;
         recordCompleteTime = duration.toString().split(".")[0];
@@ -86,13 +87,12 @@ class _SplitState extends State<Split> {
     super.dispose();
   }
 
-
-
   _init() async {
     try {
       if (await FlutterAudioRecorder.hasPermissions) {
         String customPath = 'YoutubeMusicRecords';
-        String date = "${DateTime.now()?.millisecondsSinceEpoch?.toString()}.wav";
+        String date =
+            "${DateTime.now()?.millisecondsSinceEpoch?.toString()}.wav";
         io.Directory appDocDirectory;
         if (io.Platform.isIOS) {
           appDocDirectory = await getApplicationDocumentsDirectory();
@@ -100,9 +100,10 @@ class _SplitState extends State<Split> {
           appDocDirectory = await getExternalStorageDirectory();
         }
 
-        io.Directory youtubeRecordDirectory = io.Directory("${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
+        io.Directory youtubeRecordDirectory = io.Directory(
+            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
 
-        if(await youtubeRecordDirectory.exists()){
+        if (await youtubeRecordDirectory.exists()) {
           String alphaPath = "${youtubeRecordDirectory.path}$date";
           _recorder =
               FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
@@ -116,7 +117,7 @@ class _SplitState extends State<Split> {
             _currentStatus = current.status;
             print(_currentStatus);
           });
-        }else{
+        } else {
           youtubeRecordDirectory.create(recursive: true);
           String alphaPath = "${youtubeRecordDirectory.path}$date";
           _recorder =
@@ -132,10 +133,6 @@ class _SplitState extends State<Split> {
             print(_currentStatus);
           });
         }
-
-
-
-
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
             new SnackBar(content: new Text("You must accept permissions")));
@@ -179,6 +176,7 @@ class _SplitState extends State<Split> {
 
   _stop() async {
     var result = await _recorder.stop();
+    RecorderServices().addRecording(RecorderModel(path: result.path));
     print("Stop recording: ${result.path}");
     print("Stop recording: ${result.duration}");
     File file = widget.localFileSystem.file(result.path);
@@ -190,7 +188,6 @@ class _SplitState extends State<Split> {
       //TODO: NEED TO DO SOMETHING ONCE RECORD IS STOPPED for noe pass it to a list
     });
   }
-
 
   IconData _buildIcon(RecordingStatus status) {
     IconData icon;
@@ -262,8 +259,6 @@ class _SplitState extends State<Split> {
             SizedBox(
               height: 20,
             ),
-
-
             Center(
               child: TextViewWidget(
                 text: widget.song.fileName ?? 'Something Fishy',
@@ -276,15 +271,14 @@ class _SplitState extends State<Split> {
             SizedBox(
               height: 40,
             ),
-
-
             Container(
               width: 300,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   TextViewWidget(
-                    text: _isRecording ? recordCurrentTime : splitFileCurrentTime,
+                    text:
+                        _isRecording ? recordCurrentTime : splitFileCurrentTime,
                     textSize: 16,
                     color: AppColor.white,
                     textAlign: TextAlign.center,
@@ -294,13 +288,22 @@ class _SplitState extends State<Split> {
                     child: Slider(
                         activeColor: AppColor.bottomRed,
                         inactiveColor: AppColor.white,
-                        value: isSplitFilePlaying ? currentTime.inSeconds.toDouble() : _isRecording ? recordingCurrentTime.inSeconds.toDouble() : currentTime.inSeconds.toDouble(),
+                        value: isSplitFilePlaying
+                            ? currentTime.inSeconds.toDouble()
+                            : _isRecording
+                                ? recordingCurrentTime.inSeconds.toDouble()
+                                : currentTime.inSeconds.toDouble(),
                         min: 0.0,
-                        max: isSplitFilePlaying ? maxTime.inSeconds.toDouble() : _isRecording ? recordingMaxTime.inSeconds.toDouble() : maxTime.inSeconds.toDouble(),
+                        max: isSplitFilePlaying
+                            ? maxTime.inSeconds.toDouble()
+                            : _isRecording
+                                ? recordingMaxTime.inSeconds.toDouble()
+                                : maxTime.inSeconds.toDouble(),
                         onChanged: (double value) {
-                          Duration newDuration = Duration(seconds: value.toInt());
+                          Duration newDuration =
+                              Duration(seconds: value.toInt());
                           setState(() {
-                            if(isSplitFilePlaying)
+                            if (isSplitFilePlaying)
                               _splitFileAudioPlayer.seek(newDuration);
                             else
                               _recordingAudioPlayer.seek(newDuration);
@@ -310,7 +313,9 @@ class _SplitState extends State<Split> {
                         }),
                   ),
                   TextViewWidget(
-                    text: _isRecording ? recordCompleteTime : splitFileCompleteTime,
+                    text: _isRecording
+                        ? recordCompleteTime
+                        : splitFileCompleteTime,
                     textSize: 16,
                     textAlign: TextAlign.center,
                     color: AppColor.white,
@@ -321,45 +326,46 @@ class _SplitState extends State<Split> {
             SizedBox(
               height: 40,
             ),
-
-
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-
                   IconButton(
-                      icon: Icon(isSplitFilePlaying ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded,
-                          size: 65, color: AppColor.white),
+                      icon: Icon(
+                          isSplitFilePlaying
+                              ? Icons.pause_circle_outline_rounded
+                              : Icons.play_circle_outline_rounded,
+                          size: 65,
+                          color: AppColor.white),
                       onPressed: () {
-                        if(_isRecording)
+                        if (_isRecording)
                           setState(() {
                             _isRecording = false;
                             _recordingAudioPlayer.release();
                           });
 
-                        if(isSplitFilePlaying && _splitAudioStatus){
+                        if (isSplitFilePlaying && _splitAudioStatus) {
                           _splitFileAudioPlayer.pause();
 
                           setState(() {
                             isSplitFilePlaying = false;
                           });
-                        }
-                        else if (!isSplitFilePlaying && _splitAudioStatus){
+                        } else if (!isSplitFilePlaying && _splitAudioStatus) {
                           _splitFileAudioPlayer.resume();
 
                           setState(() {
                             isSplitFilePlaying = true;
                           });
-                        }
-                        else if (!isSplitFilePlaying && !_splitAudioStatus){
-                          _splitFileAudioPlayer.play(widget.song.file, isLocal: true).then((value) {
-                            if(value == 1){
+                        } else if (!isSplitFilePlaying && !_splitAudioStatus) {
+                          _splitFileAudioPlayer
+                              .play(widget.song.file, isLocal: true)
+                              .then((value) {
+                            if (value == 1) {
                               setState(() {
                                 _splitAudioStatus = true;
                                 isSplitFilePlaying = true;
                               });
-                            }else{
+                            } else {
                               print('couldn\'t play file');
                               setState(() {
                                 _splitAudioStatus = false;
@@ -367,21 +373,18 @@ class _SplitState extends State<Split> {
                               });
                             }
                           });
-                        }
-                        else{
+                        } else {
                           print('No Audio Selected');
                         }
                       }),
-
-
                   IconButton(
                       icon: Icon(
                         _buildIcon(_currentStatus),
                         size: 65,
                         color: AppColor.white,
                       ),
-                      onPressed: () async{
-                        if(isSplitFilePlaying)
+                      onPressed: () async {
+                        if (isSplitFilePlaying)
                           setState(() {
                             isSplitFilePlaying = false;
                             _splitFileAudioPlayer.release();
@@ -390,7 +393,8 @@ class _SplitState extends State<Split> {
                         switch (_currentStatus) {
                           case RecordingStatus.Initialized:
                             {
-                              await _recordingAudioPlayer.play(widget.song.file, isLocal: true);
+                              await _recordingAudioPlayer.play(widget.song.file,
+                                  isLocal: true);
                               _start();
                               break;
                             }
@@ -419,8 +423,9 @@ class _SplitState extends State<Split> {
                 ],
               ),
             ),
-            SizedBox(height: 100,),
-
+            SizedBox(
+              height: 100,
+            ),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/splitted/database/split_services.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -28,6 +29,8 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
+import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -41,8 +44,8 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  List<String> _apiSplittedList = [];
-  List<String> splittedSongIDList = [];
+  List<String> _apiSplittedList = ['', ''];
+  List<String> splittedSongIDList = ['', ''];
   List<dynamic> dataList = [];
   MusicProvider _musicProvider;
   bool loading = false;
@@ -54,29 +57,27 @@ class _AppDrawerState extends State<AppDrawer> {
   bool _permissionReady;
   static String _localPath;
   ReceivePort _port = ReceivePort();
-  String _fileName;
+  List<String> _fileName = ['', ''];
   bool shuffle;
   bool repeat;
 
   CustomProgressIndicator _progressIndicator;
 
-  Future<List<String>> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-    return result == null ? <String>[] : result.paths;
-  }
+  // Future<List<String>> pickFile() async {
+  //   final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+  //   return result == null ? <String>[] : result.paths;
+  // }
 
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
-    _bindBackgroundIsolate(); //
-    FlutterDownloader.registerCallback(
-        downloadCallback); // register our callbacks
+    _bindBackgroundIsolate();
     _isLoading = true;
     _permissionReady = false;
     _prepare();
-    shuffle=_musicProvider.shuffleSong;
-    repeat=_musicProvider.repeatSong;
+    shuffle = _musicProvider.shuffleSong;
+    repeat = _musicProvider.repeatSong;
 
     super.initState();
   }
@@ -85,6 +86,12 @@ class _AppDrawerState extends State<AppDrawer> {
   void dispose() {
     _unbindBackgroundIsolate();
     super.dispose();
+  }
+
+  String splitFileNameHere(String fileName) {
+    List name = fileName.split('-');
+    name.removeLast();
+    return name.join('-');
   }
 
   void _bindBackgroundIsolate() {
@@ -110,32 +117,43 @@ class _AppDrawerState extends State<AppDrawer> {
         _progress = progress;
         loading = true;
       });
-      showToast(
-          context,message:
-      'Downloading Splitted files ' + _progress.toString() + '%');
+      showToast(context,
+          message: 'Downloading Splitted files ' + _progress.toString() + '%');
       if (_progress == 100) {
-        showToast(
-            context,message:
-        'Downloaded Splitted file');
+        showToast(context, message: 'Downloaded Splitted file');
         setState(() {
           loading = false;
         });
       }
-      if (status == DownloadTaskStatus.complete) {
-        if(data[0].toString() == splittedSongIDList.first.toString()){
+      // if (status == DownloadTaskStatus.failed) {
+      //   String newId = await FlutterDownloader.retry(taskId: data[0]);
+      //   if (data[0].toString() == splittedSongIDList[0].toString())
+      //     splittedSongIDList[0] = newId;
+      //   if (data[0].toString() == splittedSongIDList[1].toString())
+      //     splittedSongIDList[1] = newId;
+      // }
+      if (status == DownloadTaskStatus.complete ||
+          (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
+        if (data[0].toString() == splittedSongIDList[0].toString()) {
           SplittedSongRepository.addSong(Song(
-            fileName: _fileName,
+            fileName: _fileName[0],
             filePath: _localPath,
             image: _musicProvider?.drawerItem?.image ?? '',
-            splittedFileName: _musicProvider?.drawerItem?.fileName ?? '',
+            splittedFileName: splitFileNameHere(_fileName[0]),
           ));
           Navigator.pop(context);
           Navigator.push(
               context, MaterialPageRoute(builder: (_) => SplittedScreen()));
         }
+        if (data[0].toString() == splittedSongIDList[1].toString()) {
+          SplittedSongRepository.addSong(Song(
+              filePath: _localPath,
+              image: _musicProvider?.drawerItem?.image ?? '',
+              splittedFileName: splitFileNameHere(_fileName[1]),
+              vocalName: _fileName[1]));
+        }
       }
     });
-
   }
 
   void _unbindBackgroundIsolate() {
@@ -150,12 +168,14 @@ class _AppDrawerState extends State<AppDrawer> {
     }
 
     final SendPort send =
-    IsolateNameServer.lookupPortByName('downloader_send_port');
+        IsolateNameServer.lookupPortByName('downloader_send_port');
     send.send([id, status, progress]);
   }
 
   Future<void> _requestDownload(
-      {@required String link, bool saveToDownload = false, String fileName}) async {
+      {@required String link,
+      bool saveToDownload = false,
+      String fileName}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -164,15 +184,59 @@ class _AppDrawerState extends State<AppDrawer> {
         _localPath = downloadPath.path;
       }
 
-      _fileName = fileName + "-" + getStringPathName(link);
-      await FlutterDownloader.enqueue(
-          url: link,
-          headers: {"auth": "test_for_sql_encoding"},
-          savedDir: _localPath,
-          fileName: _fileName,
-          showNotification: true,
-          openFileFromNotification: true).then((value) =>
-          splittedSongIDList.add(value));
+      if (getStringPathName(link) == 'vocals.wav')
+        _fileName[1] = fileName + "-" + getStringPathName(link);
+      else
+        _fileName[0] = fileName + "-" + getStringPathName(link);
+
+      bool splitVoc =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+      bool splitAcm =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+
+      if (!splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: getStringPathName(link) == 'vocals.wav'
+                    ? _fileName[1]
+                    : _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(
+                getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (!splitVoc && splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[1],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(1, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else
+        showToast(context, message: 'File already exists');
+      //   if (!(await File(_localPath + Platform.pathSeparator + _fileName[0])
+      //     .exists()))
+
+      // if (!(await File(_localPath + Platform.pathSeparator + _fileName[1])
+      //     .exists()))
+
     }
   }
 
@@ -220,9 +284,35 @@ class _AppDrawerState extends State<AppDrawer> {
     return directory.path;
   }
 
+  printThis() async {
+    List songss = await SplittedSongServices().getKeys();
+
+    print(songss);
+
+    List<Song> songer = await SplittedSongServices().getSongs();
+    for (Song song in songer) print(song.file);
+  }
+
   @override
   Widget build(BuildContext context) {
+    // SplittedSongServices().deleteSong('him');
+    // printThis();
+    // SplittedSongServices()
+    //     .addSong(Song(splittedFileName: 'him', vocalName: 'this.vocal.wav'));
+    // RecorderServices().clear();
+    // SplittedSongServices().deleteSong('');
+    // SongRepository
+    // SplittedSongServices()
+    // .addSong(Song(
+    //     fileName: 'Nizatreasure.wav',
+    //     filePath: 'storage/emulated/0/Download',
+    //     image: 'http://img.youtube.com/vi/sQR2-Q-k_9Y/mqdefault.jpg',
+    //     splittedFileName: 'Nizatreasure.mp3',
+    //     vocalName: 'Nizatreasure.mp3-vocals.wav'));
+
+    // print(_musicProvider.drawerItem.file);
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
+      // print(_provider?.drawerItem?.file);
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),
         child: Drawer(
@@ -247,8 +337,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                         imageUrl:
                                             _provider?.drawerItem?.image)))
                             : Container(),
-                        _provider?.drawerItem?.fileName?.isNotEmpty ??
-                                false
+                        _provider?.drawerItem?.fileName?.isNotEmpty ?? false
                             ? Expanded(
                                 child: TextViewWidget(
                                 text: _provider?.drawerItem?.fileName,
@@ -267,11 +356,9 @@ class _AppDrawerState extends State<AppDrawer> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       InkWell(
-                        onTap: () => _provider.updateSong(
-                            _provider.drawerItem
-                              ..favorite = _provider.drawerItem.favorite
-                                  ? false
-                                  : true),
+                        onTap: () => _provider.updateSong(_provider.drawerItem
+                          ..favorite =
+                              _provider.drawerItem.favorite ? false : true),
                         child: Column(
                           children: [
                             SvgPicture.asset(
@@ -290,7 +377,6 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-
                           shuffle
                               ? _musicProvider.stopShuffle()
                               : _musicProvider.shuffle(false);
@@ -298,7 +384,11 @@ class _AppDrawerState extends State<AppDrawer> {
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(AppAssets.shuffle,color: shuffle?AppColor.bottomRed:AppColor.white,),
+                            SvgPicture.asset(
+                              AppAssets.shuffle,
+                              color:
+                                  shuffle ? AppColor.bottomRed : AppColor.white,
+                            ),
                             TextViewWidget(
                                 text: 'Shuffle', color: AppColor.white)
                           ],
@@ -306,16 +396,17 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () {
-                          repeat?
-                          _provider.undoRepeat()
-                          :_provider.repeat(_provider.drawerItem);
+                          repeat
+                              ? _provider.undoRepeat()
+                              : _provider.repeat(_provider.drawerItem);
                           PageRouter.goBack(context);
                         },
                         child: Column(
                           children: [
-                            SvgPicture.asset(
-                                AppAssets.repeat,
-                                color: repeat?AppColor.bottomRed: AppColor.white),
+                            SvgPicture.asset(AppAssets.repeat,
+                                color: repeat
+                                    ? AppColor.bottomRed
+                                    : AppColor.white),
                             TextViewWidget(
                                 text: 'Repeat', color: AppColor.white)
                           ],
@@ -342,7 +433,7 @@ class _AppDrawerState extends State<AppDrawer> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: ()=> splitSongMethod(),
+                    onTap: () => splitSongMethod(),
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
                       text: 'Split Song',
@@ -353,62 +444,55 @@ class _AppDrawerState extends State<AppDrawer> {
                   Divider(
                     color: AppColor.white,
                   ),
-                  if(_musicProvider?.drawerItem?.playList ?? false)
-                    Wrap(
+                  Wrap(
+                    children: [
+                      ListTile(
+                        onTap: () async {
+                          await _musicProvider.getPlayListNames();
+                          PageRouter.goBack(context);
+                          _musicProvider.playLists.isEmpty
+                              ? createPlayListScreen(
+                                  context: context,
+                                  songName: _musicProvider.drawerItem.fileName,
+                                  showToastMessage: true)
+                              : selectPlayListScreen(
+                                  context: context,
+                                  songName: _musicProvider.drawerItem.fileName);
+                        },
+                        leading: Icon(
+                          Icons.add_box_outlined,
+                          color: AppColor.white,
+                        ),
+                        title: TextViewWidget(
+                          text: 'Add to Playlist',
+                          color: AppColor.white,
+                          textSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Wrap(
                       children: [
+                        Divider(
+                          color: AppColor.white,
+                        ),
                         ListTile(
-                          onTap: () {
-                            _musicProvider.updateSong(_musicProvider.drawerItem..playList = false);
+                          onTap: () async {
+                            Navigator.pop(context);
+                            DeleteSongs(context).showConfirmDeleteDialog(
+                                song: _provider?.drawerItem);
                           },
                           leading: SvgPicture.asset(AppAssets.rubbish),
                           title: TextViewWidget(
-                            text: 'Remove from Playlist',
+                            text: 'Delete Song',
                             color: AppColor.white,
                             textSize: 18,
                           ),
                         ),
-                        Divider(
-                          color: AppColor.white,
-                        ),
                       ],
                     ),
-                  if(!(_musicProvider?.drawerItem?.playList ?? false))
-
-                    Expanded(
-                      child: Wrap(
-                        children: [
-                          Divider(
-                            color: AppColor.white,
-                          ),
-
-                          ListTile(
-                            onTap: () async {
-                              await _musicProvider.getPlayListNames();
-                              PageRouter.goBack(context);
-                              _musicProvider.playLists.isEmpty
-                                  ? createPlayListScreen(
-                                  context: context,
-                                  songName:
-                                  _musicProvider.drawerItem.fileName,
-                                  showToastMessage: true)
-                                  : selectPlayListScreen(
-                                  context: context,
-                                  songName:
-                                  _musicProvider.drawerItem.fileName);
-                            },
-                            leading: Icon(
-                              Icons.add_box_outlined,
-                              color: AppColor.white,
-                            ),
-                            title: TextViewWidget(
-                              text: 'Add to Playlist',
-                              color: AppColor.white,
-                              textSize: 18,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  )
                 ],
               ),
             ),
@@ -420,91 +504,77 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Future splitSongMethod() async {
     _progressIndicator.show();
-    String result =
-        '${_musicProvider.drawerItem.filePath}/'
+    String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
-    var splittedFiles = await SplitAssistant.splitFile(
-        result, context);
+    var splittedFiles = await SplitAssistant.splitFile(result, context);
     if (splittedFiles != "Failed") {
       _progressIndicator.dismiss();
-      bool isSaved = await SplitAssistant.saveSplitFiles(
-          splittedFiles, context);
+      bool isSaved =
+          await SplitAssistant.saveSplitFiles(splittedFiles, context);
       if (isSaved && _permissionReady) {
-        // String drumsUrl = splittedFiles["files"]["drums"];
-        // String voiceUrl = splittedFiles["files"]["voice"];
-        // String bassUrl = splittedFiles["files"]["bass"];
+        String voiceUrl = splittedFiles["files"]["voice"];
         String otherUrl = splittedFiles["files"]["other"];
-        _apiSplittedList.clear();
-        splittedSongIDList.clear();
-        _apiSplittedList.add(otherUrl);
-        // _apiSplittedList.add(drumsUrl);
-        // _apiSplittedList.add(voiceUrl);
-        // _apiSplittedList.add(bassUrl);
+        _apiSplittedList = ['', ''];
+        splittedSongIDList = ['', ''];
+        _fileName = ['', ''];
+        _apiSplittedList.insert(0, otherUrl);
+        _apiSplittedList.insert(1, voiceUrl);
 
         await _requestDownload(
             link: _apiSplittedList[0],
             saveToDownload: true,
-            fileName: _musicProvider.drawerItem.fileName
-        );
-        // for (int i = 0; i < _apiSplittedList.length; i++) {
-        //  print('i is ****************** $i');
-        //  await _requestDownload(
-        //      link: _apiSplittedList[i],
-        //      saveToDownload: true);
-        // }
-      }
-
-      else if(!_permissionReady){
+            fileName: _musicProvider.drawerItem.fileName);
+        await _requestDownload(
+            link: _apiSplittedList[1],
+            saveToDownload: true,
+            fileName: _musicProvider.drawerItem.fileName);
+      } else if (!_permissionReady) {
         _buildNoPermissionWarning();
-      }
-      else {
+      } else {
         await _progressIndicator.dismiss();
-        showToast(context,
-            message: "error occurred, please try again");
+        showToast(context, message: "error occurred, please try again");
       }
       await _progressIndicator.dismiss();
-
-    }
-    else{
+    } else {
       _progressIndicator.dismiss();
-      showToast(context, message: 'Please try again later');}
+      showToast(context, message: 'Please try again later');
+    }
   }
 
   Widget _buildNoPermissionWarning() => Container(
-    child: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'Please grant accessing storage permission to continue -_-',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
-            ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Text(
+                  'Please grant accessing storage permission to continue -_-',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.blueGrey, fontSize: 18.0),
+                ),
+              ),
+              SizedBox(
+                height: 32.0,
+              ),
+              TextButton(
+                  onPressed: () {
+                    _checkPermission().then((hasGranted) {
+                      setState(() {
+                        _permissionReady = hasGranted;
+                      });
+                    });
+                  },
+                  child: Text(
+                    'Retry',
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0),
+                  ))
+            ],
           ),
-          SizedBox(
-            height: 32.0,
-          ),
-          TextButton(
-              onPressed: () {
-                _checkPermission().then((hasGranted) {
-                  setState(() {
-                    _permissionReady = hasGranted;
-                  });
-                });
-              },
-              child: Text(
-                'Retry',
-                style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20.0),
-              ))
-        ],
-      ),
-    ),
-  );
-
+        ),
+      );
 }

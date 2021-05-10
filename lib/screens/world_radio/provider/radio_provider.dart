@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 import 'package:mp3_music_converter/screens/world_radio/repo/radio_repo.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:provider/provider.dart';
 
 final RadioRepo _repository = RadioRepo();
 
@@ -13,6 +15,7 @@ class RadioProvider extends ChangeNotifier {
   RadioModel radioModels;
   RadioModel radioModelsItems;
   bool showAllChannels = false;
+  LoginProviders login;
 
   updateShowAllChannels(bool value) {
     this.showAllChannels = value;
@@ -66,7 +69,9 @@ class RadioProvider extends ChangeNotifier {
     try {
       if (add) {
         RadioModel myModel = await _repository.radiox(
-            map: Radio.mapToJson(token: token, searchData: searchData),
+            map: Radio.mapToJson(
+                token: Provider.of<LoginProviders>(context, listen: false).userToken,
+                searchData: searchData),
             search: true,
             context: context,
             add: true);
@@ -79,7 +84,9 @@ class RadioProvider extends ChangeNotifier {
           _progressIndicator.show();
           if (radioModels != null) radioModelsItems = radioModels;
           radioModels = await _repository.radiox(
-              map: Radio.mapToJson(token: token, searchData: searchData),
+              map: Radio.mapToJson(
+                  token: Provider.of<LoginProviders>(context, listen: false).userToken,
+                  searchData: searchData),
               search: true,
               context: context,
               add: false);
@@ -89,7 +96,7 @@ class RadioProvider extends ChangeNotifier {
           _progressIndicator.show();
           RadioModel myModel = await _repository.radiox(
               map: Radio.mapToJson(
-                token: token,
+                token: Provider.of<LoginProviders>(context, listen: false).userToken,
               ),
               search: false,
               add: false,

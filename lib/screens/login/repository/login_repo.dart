@@ -37,5 +37,6 @@ class LoginApiRepository {
     /// cache users data here
     preferencesHelper.saveValue(key: usersPrefkey, value: finalData.name);
     preferencesHelper.saveValue(key: usersPrefkey, value: finalData.email);
+    preferencesHelper.saveValue(key: usersPrefkey, value: finalData.token);
   }
 }

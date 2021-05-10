@@ -58,10 +58,11 @@ class LoginModel {
   }
 
   static Map<String, dynamic> toJson(
-      {@required String email, @required String password}) {
+      {@required String email, @required String password, @required String token}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['email'] = email;
     data['password'] = password;
+    data['token'] = token;
     return data;
   }
 }

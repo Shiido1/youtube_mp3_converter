@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
+import 'package:provider/provider.dart';
 
 class SplitAssistant {
 
@@ -13,10 +15,10 @@ class SplitAssistant {
     try {
       var postUri = Uri.parse(baseUrl);
       var request = new http.MultipartRequest("POST", postUri);
-      // request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
+      request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
       request.headers['Content-Type'] = 'multipart/form-data';
-      request.fields['token'] =
-          'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI';
+      // request.fields['token'] =
+      //     'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI';
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       var response = await request.send();

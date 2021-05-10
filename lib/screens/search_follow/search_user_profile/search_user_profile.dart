@@ -18,14 +18,14 @@ class SearchUserProfileClass extends StatefulWidget {
 
 class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
   TextEditingController userIdController = TextEditingController();
-  // SearchProvider searchProvider;
+  SearchProvider searchProvider;
   SearchUserProfileProvider searchUserProfileProvider;
   // int id;
 
 
   @override
   void initState() {
-    // searchProvider = Provider.of<SearchProvider>(context, listen: false);
+    searchProvider = Provider.of<SearchProvider>(context, listen: false);
     searchUserProfileProvider = Provider.of<SearchUserProfileProvider>
       (context, listen: false);
     searchUserProfileProvider.init(context);

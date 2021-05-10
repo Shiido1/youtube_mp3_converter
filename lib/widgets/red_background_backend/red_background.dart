@@ -101,18 +101,18 @@ class _RedBackgroundState extends State<RedBackground> {
 
   @override
   void initState() {
-    // init();
+    init();
     super.initState();
   }
 
-//   init() async {
-//   String _imageString;
-//   if (image != null) {
-//     _imageString = await preferencesHelper.getStringValues(key: 'profile_image');
-//     image = File(_imageString);
-//     setState(() {});
-//   }
-// }
+  init() async {
+  String _imageString;
+  if (image != null) {
+    _imageString = await preferencesHelper.getStringValues(key: 'profile_image');
+    image = File(_imageString);
+    setState(() {});
+  }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -1,23 +1,12 @@
 import 'dart:convert';
+import 'package:jaynetwork/network/api_result.dart';
+import 'package:mp3_music_converter/error_handler/handler.dart';
 import 'package:mp3_music_converter/utils/instance.dart';
 import 'model.dart';
 
 class SearchUserProfileRepo{
 
-  // Future<ApiResponse> searchUserPro(String userId) async {
-  //
-  //   final map = {'userid':'$userId'};
-  //   try {
-  //     final response =
-  //     await jayNetworkClient.makePostRequest("userprofile", data: map);
-  //     return ApiResponse.success(data: response);
-  //   } catch (e) {
-  //     return handleNetworkException(e);
-  //   }
-  // }
-
 Future<User> searchUserProfile(String userId) async {
-
   final map = {'userid':'$userId'};
   try {
     var response =
@@ -34,6 +23,26 @@ Future<User> searchUserProfile(String userId) async {
     return user;
   } catch (e) {
     return throw (e);
+  }
+}
+
+Future<ApiResponse> follow(Map map) async {
+  try {
+    final response =
+    await jayNetworkClient.makePostRequest("follow", data: map);
+    return ApiResponse.success(data: response);
+  } catch (e) {
+    return handleNetworkException(e);
+  }
+}
+
+Future<ApiResponse> unFollow(Map map) async {
+  try {
+    final response =
+    await jayNetworkClient.makePostRequest("unfollow", data: map);
+    return ApiResponse.success(data: response);
+  } catch (e) {
+    return handleNetworkException(e);
   }
 }
 }

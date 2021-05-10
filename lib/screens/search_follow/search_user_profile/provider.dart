@@ -9,8 +9,7 @@ import 'package:provider/provider.dart';
 import 'model.dart';
 
 
-final SearchUserProfileRepo searchUserProfileRepo = SearchUserProfileRepo();
-final SearchRepository searchRepository = SearchRepository();
+SearchUserProfileRepo searchUserProfileRepo = SearchUserProfileRepo();
 
 class SearchUserProfileProvider extends ChangeNotifier{
 
@@ -47,8 +46,8 @@ class SearchUserProfileProvider extends ChangeNotifier{
     };
     try{
       _progressIndicator.show();
-      if(isFollow=false) value = await searchRepository.follow(map);
-      await _progressIndicator.dismiss();
+      await searchUserProfileRepo.follow(map);
+      _progressIndicator.dismiss();
       isFollow = true;
       notifyListeners();
     }catch(e) {
@@ -63,8 +62,8 @@ class SearchUserProfileProvider extends ChangeNotifier{
     };
     try{
       _progressIndicator.show();
-      if(isFollow=true) value = await searchRepository.unFollow(map);
-      await _progressIndicator.dismiss();
+      await searchUserProfileRepo.unFollow(map);
+      _progressIndicator.dismiss();
       isFollow = false;
       notifyListeners();
     }catch(e) {

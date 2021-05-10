@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:jaynetwork/jaynetwork.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
+import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/repository/login_repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 
-final LoginApiRepository _repository = LoginApiRepository();
-
+LoginApiRepository _repository = LoginApiRepository();
 class LoginProviders extends ChangeNotifier {
   BuildContext _context;
   bool isLoading = false;
@@ -17,8 +17,8 @@ class LoginProviders extends ChangeNotifier {
   Box<String> _box;
   String email='';
   String name='';
+  LoginModel loginModel;
   SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper();
-
 
   void initialize(BuildContext context) {
     this._context = context;
@@ -49,7 +49,7 @@ class LoginProviders extends ChangeNotifier {
     }
   }
 
-  getUserToken(String token) {
+  getUserToken(String token){
     userToken = token;
     notifyListeners();
   }
@@ -70,7 +70,7 @@ class LoginProviders extends ChangeNotifier {
     _box.put('token', token);
   }
 
-  getSavedUserToken() async {
+  getSavedUserToken(String token) async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');

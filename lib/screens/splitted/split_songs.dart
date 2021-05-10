@@ -24,7 +24,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
   void initState() {
     _splitSongProvider =
         Provider.of<SplittedSongProvider>(context, listen: false);
-    _splitSongProvider.getSongs();
+    _splitSongProvider.getSongs(true);
     super.initState();
   }
 
@@ -77,7 +77,8 @@ class _SplittedScreenState extends State<SplittedScreen> {
             children: [
               GestureDetector(
                 onLongPress: () {
-                  DeleteSongs(context).showDeleteDialog(song: _song);
+                  DeleteSongs(context).showDeleteDialog(
+                      song: _song, splitted: true, showAll: true);
                 },
                 onTap: () {
                   Navigator.push(context,

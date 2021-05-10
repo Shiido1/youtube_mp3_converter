@@ -63,18 +63,16 @@ class _AppDrawerState extends State<AppDrawer> {
 
   CustomProgressIndicator _progressIndicator;
 
-  Future<List<String>> pickFile() async {
-    final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-    return result == null ? <String>[] : result.paths;
-  }
+  // Future<List<String>> pickFile() async {
+  //   final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+  //   return result == null ? <String>[] : result.paths;
+  // }
 
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
-    _bindBackgroundIsolate(); //
-    FlutterDownloader.registerCallback(
-        downloadCallback); // register our callbacks
+    _bindBackgroundIsolate();
     _isLoading = true;
     _permissionReady = false;
     _prepare();
@@ -127,7 +125,15 @@ class _AppDrawerState extends State<AppDrawer> {
           loading = false;
         });
       }
-      if (status == DownloadTaskStatus.complete) {
+      // if (status == DownloadTaskStatus.failed) {
+      //   String newId = await FlutterDownloader.retry(taskId: data[0]);
+      //   if (data[0].toString() == splittedSongIDList[0].toString())
+      //     splittedSongIDList[0] = newId;
+      //   if (data[0].toString() == splittedSongIDList[1].toString())
+      //     splittedSongIDList[1] = newId;
+      // }
+      if (status == DownloadTaskStatus.complete ||
+          (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
         if (data[0].toString() == splittedSongIDList[0].toString()) {
           SplittedSongRepository.addSong(Song(
             fileName: _fileName[0],
@@ -183,17 +189,54 @@ class _AppDrawerState extends State<AppDrawer> {
       else
         _fileName[0] = fileName + "-" + getStringPathName(link);
 
-      await FlutterDownloader.enqueue(
-              url: link,
-              headers: {"auth": "test_for_sql_encoding"},
-              savedDir: _localPath,
-              fileName: getStringPathName(link) == 'vocals.wav'
-                  ? _fileName[1]
-                  : _fileName[0],
-              showNotification: true,
-              openFileFromNotification: true)
-          .then((value) => splittedSongIDList.insert(
-              getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
+      bool splitVoc =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+      bool splitAcm =
+          await File(_localPath + Platform.pathSeparator + _fileName[0])
+              .exists();
+
+      if (!splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: getStringPathName(link) == 'vocals.wav'
+                    ? _fileName[1]
+                    : _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(
+                getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (splitVoc && !splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[0],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(0, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else if (!splitVoc && splitAcm) {
+        await FlutterDownloader.enqueue(
+                url: link,
+                headers: {"auth": "test_for_sql_encoding"},
+                savedDir: _localPath,
+                fileName: _fileName[1],
+                showNotification: true,
+                openFileFromNotification: true)
+            .then((value) => splittedSongIDList.insert(1, value));
+        FlutterDownloader.registerCallback(downloadCallback);
+      } else
+        showToast(context, message: 'File already exists');
+      //   if (!(await File(_localPath + Platform.pathSeparator + _fileName[0])
+      //     .exists()))
+
+      // if (!(await File(_localPath + Platform.pathSeparator + _fileName[1])
+      //     .exists()))
+
     }
   }
 
@@ -242,10 +285,12 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   printThis() async {
-    List<Song> songss = await SplittedSongServices().getSongs();
-    for (Song song in songss) {
-      print(song.vocalName);
-    }
+    List songss = await SplittedSongServices().getKeys();
+
+    print(songss);
+
+    List<Song> songer = await SplittedSongServices().getSongs();
+    for (Song song in songer) print(song.file);
   }
 
   @override
@@ -255,11 +300,16 @@ class _AppDrawerState extends State<AppDrawer> {
     // SplittedSongServices()
     //     .addSong(Song(splittedFileName: 'him', vocalName: 'this.vocal.wav'));
     // RecorderServices().clear();
-    // SongRepository.addSong(Song(
-    //   fileName: 'JohnnysBeachSessions_-_A_Thousand_Miles.mp3',
-    //   filePath: 'storage/emulated/0/Download',
-    //   image: 'http://img.youtube.com/vi/sQR2-Q-k_9Y/mqdefault.jpg',
-    // ));
+    // SplittedSongServices().deleteSong('');
+    // SongRepository
+    // SplittedSongServices()
+    // .addSong(Song(
+    //     fileName: 'Nizatreasure.wav',
+    //     filePath: 'storage/emulated/0/Download',
+    //     image: 'http://img.youtube.com/vi/sQR2-Q-k_9Y/mqdefault.jpg',
+    //     splittedFileName: 'Nizatreasure.mp3',
+    //     vocalName: 'Nizatreasure.mp3-vocals.wav'));
+
     // print(_musicProvider.drawerItem.file);
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       // print(_provider?.drawerItem?.file);

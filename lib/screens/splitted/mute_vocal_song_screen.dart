@@ -53,7 +53,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
       if (duration >= Duration(milliseconds: 500) &&
           _currentStatus == RecordingStatus.Initialized &&
           _isPlaying == true &&
-          _isRecording == false) _startRecorder();
+          _isRecording == true) _startRecorder();
       setState(() {
         currentTime = duration;
         currentPlayingTime = duration.toString().split(".")[0];
@@ -417,6 +417,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                 );
                                 setState(() {
                                   _isPlaying = true;
+                                  _isRecording = true;
                                 });
                               }
 
@@ -439,10 +440,10 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                               if (_currentStatus ==
                                       RecordingStatus.Initialized &&
                                   _isPlaying) {
+                                await _startRecorder();
                                 if (_playVocals)
                                   await _vocalAudioPlayer.setVolume(0.5);
                                 await _instrumentalAudioPlayer.setVolume(0.5);
-                                _startRecorder();
                               }
                             }),
                       ),

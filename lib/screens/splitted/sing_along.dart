@@ -23,7 +23,7 @@ class _SingAlongState extends State<SingAlong> {
   @override
   void initState() {
     _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
-    _songProvider.getSongs();
+    _songProvider.getSongs(false);
     super.initState();
   }
 
@@ -62,20 +62,21 @@ class _SingAlongState extends State<SingAlong> {
 
   Widget buildSongList() {
     return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
-      if (_provider.vocalSongs.length < 1) {
+      if (_provider.allSongs.length < 1) {
         return Center(
             child: TextViewWidget(text: 'No Song', color: AppColor.white));
       }
       return ListView.builder(
-        itemCount: _provider.vocalSongs.length,
+        itemCount: _provider.allSongs.length,
         itemBuilder: (BuildContext context, int index) {
-          Song _song = _provider.vocalSongs[index];
+          Song _song = _provider.allSongs[index];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
                 onLongPress: () {
-                  DeleteSongs(context).showDeleteDialog(song: _song);
+                  DeleteSongs(context).showDeleteDialog(
+                      song: _song, splitted: true, showAll: false);
                 },
                 onTap: () {
                   Navigator.push(
@@ -117,7 +118,7 @@ class _SingAlongState extends State<SingAlong> {
                   ),
                 ),
               ),
-              if (_provider.vocalSongs.length - 1 != index)
+              if (_provider.allSongs.length - 1 != index)
                 Padding(
                   padding: const EdgeInsets.only(left: 115.0, right: 15),
                   child: Divider(

@@ -7,13 +7,18 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:provider/provider.dart';
 
 class DeleteSongs {
   BuildContext context;
   DeleteSongs(this.context);
 
-  Future<void> showDeleteDialog({Song song, RecorderModel record}) {
+  Future<void> showDeleteDialog(
+      {Song song,
+      RecorderModel record,
+      bool splitted = false,
+      bool showAll = false}) {
     return showDialog(
         context: context,
         builder: (context) {
@@ -26,7 +31,11 @@ class DeleteSongs {
               child: InkWell(
                 onTap: () {
                   Navigator.pop(context);
-                  showConfirmDeleteDialog(song: song, record: record);
+                  showConfirmDeleteDialog(
+                      song: song,
+                      record: record,
+                      splitted: splitted,
+                      showAll: showAll);
                 },
                 child: Container(
                   height: 30,
@@ -42,7 +51,8 @@ class DeleteSongs {
         });
   }
 
-  Future<void> showConfirmDeleteDialog({Song song, RecorderModel record}) {
+  Future<void> showConfirmDeleteDialog(
+      {Song song, RecorderModel record, bool splitted = false, bool showAll}) {
     return showDialog(
         context: context,
         builder: (_) {
@@ -66,7 +76,12 @@ class DeleteSongs {
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                 onPressed: () {
-                  deleteSong(song: song, record: record, context: _);
+                  deleteSong(
+                      song: song,
+                      record: record,
+                      context: _,
+                      splitted: splitted,
+                      showAll: showAll);
                 },
               ),
             ],
@@ -76,22 +91,46 @@ class DeleteSongs {
 }
 
 Future<void> deleteSong(
-    {Song song, RecorderModel record, @required BuildContext context}) async {
+    {Song song,
+    RecorderModel record,
+    @required BuildContext context,
+    @required bool splitted,
+    bool showAll}) async {
   if (song != null) {
     var path = song.file.split('/');
-    path.removeRange(0, 3);
+    int index = path.indexOf(
+        path.firstWhere((element) => element != '' && element != 'file:'));
+    path.removeRange(0, index);
+    print('this is the path: ${path.join('/')}');
     var file = File(path.join('/'));
     try {
       await file.delete();
-      SongRepository.deleteSong(song.fileName);
-      SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
-      Navigator.pop(context);
+      if (!splitted) {
+        SongRepository.deleteSong(song.fileName);
+        Provider.of<MusicProvider>(context, listen: false).getSongs();
+        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
+        Navigator.pop(context);
+      }
+      if (splitted) {
+        SplittedSongRepository.deleteSong(song.splittedFileName);
+        Provider.of<SplittedSongProvider>(context, listen: false)
+            .getSongs(showAll);
+        Navigator.pop(context);
+      }
     } catch (_) {
       print('couldn\'t delete');
-      SongRepository.deleteSong(song.fileName);
-      Provider.of<MusicProvider>(context, listen: false).getSongs();
-      SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
-      Navigator.pop(context);
+      if (!splitted) {
+        SongRepository.deleteSong(song.fileName);
+        Provider.of<MusicProvider>(context, listen: false).getSongs();
+        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
+        Navigator.pop(context);
+      }
+      if (splitted) {
+        SplittedSongRepository.deleteSong(song.splittedFileName);
+        Provider.of<SplittedSongProvider>(context, listen: false)
+            .getSongs(showAll);
+        Navigator.pop(context);
+      }
     }
   }
   if (record != null) {
@@ -106,7 +145,7 @@ Future<void> deleteSong(
     } catch (_) {
       print(_);
       RecorderServices().deleteRecording(record.name);
-      Provider.of<RecorderServices>(context).getRecordings();
+      Provider.of<RecordProvider>(context, listen: false).getRecords();
       Navigator.pop(context);
     }
   }

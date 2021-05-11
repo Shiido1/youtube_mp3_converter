@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -22,8 +21,6 @@ class SongViewCLass extends StatefulWidget {
 class _SongViewCLassState extends State<SongViewCLass> {
   MusicProvider _musicProvider;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-  AudioPlayer _audioPlayer1 = AudioPlayer();
-  AudioPlayer _audioPlayer2 = AudioPlayer();
 
   @override
   void initState() {

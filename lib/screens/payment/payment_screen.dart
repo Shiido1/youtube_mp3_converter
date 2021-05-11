@@ -1,12 +1,12 @@
 import 'package:dots_indicator/dots_indicator.dart';
-import'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/paymentAssistant.dart';
-import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -16,21 +16,20 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-
   int currentIndexPage;
   int pageLength;
   double amount;
-  String email='';
-  String name='';
-  String userToken='';
+  String email = '';
+  String name = '';
+  String userToken = '';
 
   @override
   void initState() {
     currentIndexPage = 0;
     pageLength = 3;
-    email = Provider.of<LoginProviders>(context,listen: false).email;
-    name =  Provider.of<LoginProviders>(context,listen: false).name;
-    userToken =  Provider.of<LoginProviders>(context,listen: false).userToken;
+    email = Provider.of<LoginProviders>(context, listen: false).email;
+    name = Provider.of<LoginProviders>(context, listen: false).name;
+    userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
     super.initState();
   }
 
@@ -38,7 +37,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.background,
-
       body: Container(
         child: Column(
           children: [
@@ -50,15 +48,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 onPressed: () => Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => MainDashBoard()),
+                  MaterialPageRoute(builder: (context) => MainDashBoard()),
                 ),
               ),
               text: 'Plan',
             ),
             Expanded(
               child: Container(
-                margin: EdgeInsets.only(left: 50, right: 50,top: 45),
+                margin: EdgeInsets.only(left: 50, right: 50, top: 45),
                 height: 400,
                 child: PageView(
                   onPageChanged: (value) {
@@ -66,87 +63,86 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   },
                   children: <Widget>[
                     paymentContainer(
-                      picture: SvgPicture.asset(
-                          AppAssets.basic,
-                          height: 60,
-                          width: 60),
+                      picture: SvgPicture.asset(AppAssets.basic,
+                          height: 60, width: 60),
                       text1: 'UNLIMITED BASIC',
                       text2: '150MB DISK SPACE (MONTHLY)',
                       text3: r'$0.99',
                       amount: amount,
-                      subWidgetButton: () async{
+                      subWidgetButton: () async {
                         //TODO: Show loading widget
                         print('About to pay mr $name with email $email');
                         var trxResponse =
-                        await PaymentAssistant.processTransaction(
-                          context,1.0,
-                          email, name,
+                            await PaymentAssistant.processTransaction(
+                          context,
+                          1.0,
+                          email,
+                          name,
                         );
-                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                        if (trxResponse != 'Cancelled' &&
+                            trxResponse != 'Failed') {
                           print(trxResponse);
                           bool storePayment =
-                          await PaymentAssistant.storePayment(context, 'txRef',
-                              1, 'txId', 150000000, userToken);
-                          if(storePayment)
+                              await PaymentAssistant.storePayment(context,
+                                  'txRef', 1, 'txId', 150000000, userToken);
+                          if (storePayment)
                             print('payment saved');
                           else
                             print('could not save payment');
                           print('Transaction successful');
-                        }else if(trxResponse == 'Failed'){
+                        } else if (trxResponse == 'Failed') {
                           print('Transaction Failed. Try again later');
-                        }
-                        else
+                        } else
                           print('Transaction Cancelled');
-
                       },
                     ),
                     paymentContainer(
-                      picture: SvgPicture.asset(
-                          AppAssets.medium,
-                          height: 60,
-                          width: 60),
+                      picture: SvgPicture.asset(AppAssets.medium,
+                          height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
                       text2: '1.5 GB DISK SPACE (MONTHLY)',
                       text3: r'$3.99',
                       amount: amount,
-                      subWidgetButton: () async{
+                      subWidgetButton: () async {
                         var trxResponse =
-                        await PaymentAssistant.processTransaction(
-                          context,3.99,
-                          email, name,
+                            await PaymentAssistant.processTransaction(
+                          context,
+                          3.99,
+                          email,
+                          name,
                         );
-                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                        if (trxResponse != 'Cancelled' &&
+                            trxResponse != 'Failed') {
                           print(trxResponse);
                           print('Transaction successful');
-                        }else if(trxResponse == 'Failed'){
+                        } else if (trxResponse == 'Failed') {
                           print('Transaction Failed. Try again later');
-                        }
-                        else
+                        } else
                           print('Transaction Cancelled');
                       },
                     ),
                     paymentContainer(
-                      picture: SvgPicture.asset(
-                          AppAssets.advance,
-                          height: 60,
-                          width: 60),
+                      picture: SvgPicture.asset(AppAssets.advance,
+                          height: 60, width: 60),
                       text1: 'UNLIMITED ADVANCE',
                       text2: '10GB DISK SPACE (6 MONTHLY)',
                       text3: r'$20',
                       amount: amount,
-                      subWidgetButton: ()async{
+                      subWidgetButton: () async {
                         var trxResponse =
-                        await PaymentAssistant.processTransaction(
-                          context,20.0,
-                          email, name,
+                            await PaymentAssistant.processTransaction(
+                          context,
+                          20.0,
+                          email,
+                          name,
                         );
-                        if(trxResponse != 'Cancelled' && trxResponse != 'Failed'){
+                        if (trxResponse != 'Cancelled' &&
+                            trxResponse != 'Failed') {
                           print(trxResponse);
                           print('Transaction successful');
-                        }else if(trxResponse == 'Failed'){
+                        } else if (trxResponse == 'Failed') {
                           print('Transaction Failed. Try again later');
-                        }
-                        else
+                        } else
                           print('Transaction Cancelled');
                       },
                     ),
@@ -189,69 +185,71 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String customerFName,
     // String narration,
     // String txRef,
-  })=> Container(
-    margin: EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.all(
-          Radius.circular(10) //                 <--- border radius here
-      ),
-      color: AppColor.white,
-    ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          picture,
-          SizedBox(
-            height: 26,
-          ),
-          TextViewWidget(
-            text: text1 ?? '',
-            textSize: 23,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.bold,
-            color: AppColor.bottomRed,
-          ),
-          SizedBox(height: 15,),
-          TextViewWidget(
-            text: text2 ?? '',
-            textSize: 17,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.w500,
-            color: AppColor.black,
-          ),
-          TextViewWidget(
-            text: text3 ?? '',
-            textSize: 22,
-            textAlign: TextAlign.center,
-            fontWeight: FontWeight.bold,
-            color: AppColor.bottomRed,
-          ),
-          InkWell(
-            onTap: subWidgetButton,
-            child: Container(
-              width: 70,
-              height: 40,
-              decoration: BoxDecoration(
-                color: AppColor.transparent,
-                border: Border.all(
-                    width: 1,color: AppColor.bottomRed
-                ),
-                borderRadius: BorderRadius.all(
-                    Radius.circular(5.0) //                 <--- border radius here
-                ),
+  }) =>
+      Container(
+        margin: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+              Radius.circular(10) //                 <--- border radius here
               ),
-              child: Center(
-                child: TextViewWidget(
-                    color: AppColor.black,
-                    text: 'BUY',
-                    textSize: 25,
-                    textAlign: TextAlign.center),
+          color: AppColor.white,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            picture,
+            SizedBox(
+              height: 26,
+            ),
+            TextViewWidget(
+              text: text1 ?? '',
+              textSize: 23,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.bold,
+              color: AppColor.bottomRed,
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            TextViewWidget(
+              text: text2 ?? '',
+              textSize: 17,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.w500,
+              color: AppColor.black,
+            ),
+            TextViewWidget(
+              text: text3 ?? '',
+              textSize: 22,
+              textAlign: TextAlign.center,
+              fontWeight: FontWeight.bold,
+              color: AppColor.bottomRed,
+            ),
+            InkWell(
+              onTap: subWidgetButton,
+              child: Container(
+                width: 70,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColor.transparent,
+                  border: Border.all(width: 1, color: AppColor.bottomRed),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                          5.0) //                 <--- border radius here
+                      ),
+                ),
+                child: Center(
+                  child: TextViewWidget(
+                      color: AppColor.black,
+                      text: 'BUY',
+                      textSize: 25,
+                      textAlign: TextAlign.center),
+                ),
               ),
             ),
-          ),
-          SizedBox(height: 15,)
-
-        ],
-    ),
-  );
+            SizedBox(
+              height: 15,
+            )
+          ],
+        ),
+      );
 }

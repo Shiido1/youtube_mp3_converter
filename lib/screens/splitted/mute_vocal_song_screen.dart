@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'dart:async';
 import 'package:file/local.dart';
-import 'package:file/file.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
@@ -13,7 +12,6 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:toast/toast.dart';
 
 class MuteVocalsScreen extends StatefulWidget {
   final LocalFileSystem localFileSystem;
@@ -123,8 +121,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
         } else {
           youtubeRecordDirectory.create(recursive: true);
           String alphaPath = "${youtubeRecordDirectory.path}$date";
-          _recorder =
-              FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
+          _recorder = FlutterAudioRecorder(alphaPath,
+              audioFormat: AudioFormat.WAV, sampleRate: 18000);
 
           await _recorder.initialized;
 

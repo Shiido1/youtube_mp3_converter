@@ -10,7 +10,6 @@ import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
 
-
 class SignInScreen extends StatefulWidget {
   @override
   _SignInScreenState createState() => _SignInScreenState();
@@ -24,15 +23,13 @@ class _SignInScreenState extends State<SignInScreen> {
   LoginProviders _loginProviders;
   SharedPreferencesHelper preferencesHelper;
   bool newUser;
-  String email,password;
-
+  String email, password;
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
       _loginProviders.loginUser(
           map: LoginModel.toJson(email: email, password: password),
           context: context);
-
   }
 
   bool _validateInputs() {
@@ -164,11 +161,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             size: 50.0,
                           )
                         : TextButton(
-                        style: TextButton
-                            .styleFrom(
-                          backgroundColor: AppColor
-                              .bottomRed,
-                        ),
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColor.bottomRed,
+                            ),
                             onPressed: () {
                               signIn(context, _emailController.text.trim(),
                                   _passwordController.text.trim());

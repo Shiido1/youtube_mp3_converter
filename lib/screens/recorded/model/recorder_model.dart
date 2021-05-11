@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class RecorderModel {
   String path;
   String name;

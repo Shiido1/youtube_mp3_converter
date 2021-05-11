@@ -10,13 +10,14 @@ import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 
 LoginApiRepository _repository = LoginApiRepository();
+
 class LoginProviders extends ChangeNotifier {
   BuildContext _context;
   bool isLoading = false;
-  String userToken='';
+  String userToken;
   Box<String> _box;
-  String email='';
-  String name='';
+  String email = '';
+  String name = '';
   LoginModel loginModel;
   SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper();
 
@@ -34,7 +35,6 @@ class LoginProviders extends ChangeNotifier {
         showToast(this._context, message: 'Successfully Logged in..');
         isLoading = false;
         preferencesHelper.saveValue(key: 'email', value: map['email']);
-        print(map['password']);
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
@@ -49,28 +49,13 @@ class LoginProviders extends ChangeNotifier {
     }
   }
 
-  getUserToken(String token){
-    userToken = token;
-    notifyListeners();
-  }
-
-  getUserEmail(String _email) {
-    email = _email;
-    notifyListeners();
-  }
-
-  getUserName(String _name) {
-    name = _name;
-    notifyListeners();
-  }
-
   saveUserToken(String token) async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('userToken');
     _box.put('token', token);
   }
 
-  getSavedUserToken(String token) async {
+  getSavedUserToken() async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');
@@ -78,11 +63,11 @@ class LoginProviders extends ChangeNotifier {
     notifyListeners();
   }
 
-  saveUserEmail(String email) async {
-    if (!(_box?.isOpen ?? false))
-      _box = await PgHiveBoxes.openBox<String>('userEmail');
-    _box.put('email', email);
-  }
+  // saveUserEmail(String email) async {
+  //   if (!(_box?.isOpen ?? false))
+  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
+  //   _box.put('email', email);
+  // }
 
   // getSavedUserEmail() async {
   //   if (!(_box?.isOpen ?? false))

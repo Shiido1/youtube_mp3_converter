@@ -11,10 +11,8 @@ import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
-import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 
 class Recorded extends StatefulWidget {
   @override

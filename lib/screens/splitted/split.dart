@@ -15,7 +15,7 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 
 class Split extends StatefulWidget {
   final LocalFileSystem localFileSystem;
-  Song song;
+  final Song song;
 
   Split({localFileSystem, @required this.song})
       : this.localFileSystem = localFileSystem ?? LocalFileSystem();

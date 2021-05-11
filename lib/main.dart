@@ -6,7 +6,6 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
-import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
@@ -14,10 +13,12 @@ import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
 import 'common/providers.dart';
 import 'utils/color_assets/color.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize();
+  await Firebase.initializeApp();
   var path = Directory.current.path;
   Hive.init(path);
   await PgHiveBoxes.init();

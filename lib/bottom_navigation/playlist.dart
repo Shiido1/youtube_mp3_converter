@@ -9,7 +9,7 @@ import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
-import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 

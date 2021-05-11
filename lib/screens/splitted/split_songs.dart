@@ -9,7 +9,6 @@ import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:mp3_music_converter/screens/splitted/mute_vocal_song_screen.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 
 class SplittedScreen extends StatefulWidget {

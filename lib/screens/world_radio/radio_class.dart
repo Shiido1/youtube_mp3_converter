@@ -17,7 +17,7 @@ import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'file:///C:/Users/u/AndroidStudioProjects/mp3_music_converter/lib/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 

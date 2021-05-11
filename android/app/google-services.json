@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "567453921459",
-    "project_id": "mp3converter-cd572",
-    "storage_bucket": "mp3converter-cd572.appspot.com"
+    "project_number": "320378040514",
+    "project_id": "youtubeaudio-312300",
+    "storage_bucket": "youtubeaudio-312300.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:567453921459:android:9b7c551a0596360cbfc0c6",
+        "mobilesdk_app_id": "1:320378040514:android:98b662cec5bc396fef4b5b",
         "android_client_info": {
           "package_name": "com.example.mp3_music_converter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "567453921459-l2keefdn24s0ftto7v4ucnnkceotjh1r.apps.googleusercontent.com",
+          "client_id": "320378040514-0c7npllfgjjbs9esq87e51b8chiff8bo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.mp3_music_converter",
-            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
+            "certificate_hash": "692a0a7bf5e8d6ae4cd1498c0f8d76d210139438"
           }
         },
         {
-          "client_id": "567453921459-gko5g9bf85bhhont09l77o042gk60nvp.apps.googleusercontent.com",
+          "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA8wkR4yCiBb_-ROSzt-gvYZ5Ega5y27O8"
+          "current_key": "AIzaSyByQI20rQD_NtlEeBSEz7Hd_Wkq2nRQjWY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "567453921459-gko5g9bf85bhhont09l77o042gk60nvp.apps.googleusercontent.com",
+              "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

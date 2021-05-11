@@ -15,7 +15,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
@@ -30,7 +29,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
-import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -53,7 +51,6 @@ class _AppDrawerState extends State<AppDrawer> {
   bool downloaded;
   int id;
   var val;
-  bool _isLoading;
   bool _permissionReady;
   static String _localPath;
   ReceivePort _port = ReceivePort();
@@ -73,7 +70,6 @@ class _AppDrawerState extends State<AppDrawer> {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
     _bindBackgroundIsolate();
-    _isLoading = true;
     _permissionReady = false;
     _prepare();
     shuffle = _musicProvider.shuffleSong;
@@ -270,10 +266,6 @@ class _AppDrawerState extends State<AppDrawer> {
     if (!hasExisted) {
       savedDir.create();
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
 //* finds available space for storage on users device

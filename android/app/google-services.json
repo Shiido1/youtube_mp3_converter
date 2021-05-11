@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "320378040514-gj4aulmnpjm15va0d47jrh86v4r832io.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mp3_music_converter",
+            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
+          }
+        },
+        {
           "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
           "client_type": 3
         }

@@ -35,6 +35,7 @@ class LoginProviders extends ChangeNotifier {
         showToast(this._context, message: 'Successfully Logged in..');
         isLoading = false;
         preferencesHelper.saveValue(key: 'email', value: map['email']);
+
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -23,6 +24,8 @@ class LoginApiRepository {
       preferencesHelper.saveValue(key: 'name', value: _finalData.name);
 
       await _provider.saveUserToken(_finalData.token);
+      Provider.of<RedBackgroundProvider>(context, listen: false)
+          .updateUrl(_finalData.profilepic);
       return ApiResponse.success(data: _finalData);
     } catch (e) {
       return handleNetworkException(e);

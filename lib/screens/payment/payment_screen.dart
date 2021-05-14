@@ -27,10 +27,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void initState() {
     currentIndexPage = 0;
     pageLength = 3;
+    init();
+
+    super.initState();
+  }
+
+  init()async{
+  await Provider.of<LoginProviders>(context, listen: false).getSavedUserToken();
+  await Provider.of<LoginProviders>(context, listen: false).getSavedUserName();
+  await Provider.of<LoginProviders>(context, listen: false).getSavedUserEmail();
     email = Provider.of<LoginProviders>(context, listen: false).email;
     name = Provider.of<LoginProviders>(context, listen: false).name;
     userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
-    super.initState();
+
   }
 
   @override
@@ -72,6 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       subWidgetButton: () async {
                         //TODO: Show loading widget
                         print('About to pay mr $name with email $email');
+                        print('print user token here $userToken');
                         var trxResponse =
                             await PaymentAssistant.processTransaction(
                           context,
@@ -81,10 +91,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         );
                         if (trxResponse != 'Cancelled' &&
                             trxResponse != 'Failed') {
-                          print(trxResponse);
+
+                          // await Provider.of<LoginProviders>(context, listen: false)
+                          //     .getSavedUserToken();
+                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
                           bool storePayment =
-                              await PaymentAssistant.storePayment(context,
-                                  'txRef', 1, 'txId', 150000000, userToken);
+                              await PaymentAssistant.storePayment(context:context,
+                                  txRef:'txRef', amount:1, txId:'txId',
+                                  storage:150000000, userToken: userToken);
                           if (storePayment)
                             print('payment saved');
                           else
@@ -104,6 +118,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text3: r'$3.99',
                       amount: amount,
                       subWidgetButton: () async {
+                        print('About to pay mr $name with email $email');
+                        print('print user token here $userToken');
                         var trxResponse =
                             await PaymentAssistant.processTransaction(
                           context,
@@ -113,7 +129,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         );
                         if (trxResponse != 'Cancelled' &&
                             trxResponse != 'Failed') {
-                          print(trxResponse);
+                          // await Provider.of<LoginProviders>(context, listen: false)
+                          //     .getSavedUserToken();
+                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
+                          bool storePayment =
+                          await PaymentAssistant.storePayment(context:context,
+                              txRef:'txRef', amount:1, txId:'txId',
+                              storage:1500000000, userToken: userToken);
+                          if (storePayment)
+                            print('payment saved');
+                          else
+                            print('could not save payment');
                           print('Transaction successful');
                         } else if (trxResponse == 'Failed') {
                           print('Transaction Failed. Try again later');
@@ -129,6 +155,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text3: r'$20',
                       amount: amount,
                       subWidgetButton: () async {
+                        print('About to pay mr $name with email $email');
+                        print('print user token here $userToken');
+
                         var trxResponse =
                             await PaymentAssistant.processTransaction(
                           context,
@@ -138,7 +167,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         );
                         if (trxResponse != 'Cancelled' &&
                             trxResponse != 'Failed') {
-                          print(trxResponse);
+                          // await Provider.of<LoginProviders>(context, listen: false)
+                          //     .getSavedUserToken();
+                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
+                          bool storePayment =
+                          await PaymentAssistant.storePayment(context:context,
+                              txRef:'txRef', amount:1, txId:'txId',
+                              storage:10000000000, userToken: userToken);
+                          if (storePayment)
+                            print('payment saved');
+                          else
+                            print('could not save payment');
                           print('Transaction successful');
                         } else if (trxResponse == 'Failed') {
                           print('Transaction Failed. Try again later');
@@ -247,8 +286,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
             ),
             SizedBox(
-              height: 15,
-            )
+                height: 15,
+              ),
           ],
         ),
       );

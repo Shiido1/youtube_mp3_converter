@@ -18,7 +18,7 @@ class RadioProvider extends ChangeNotifier {
 
   updateShowAllChannels(bool value) {
     this.showAllChannels = value;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void init(
@@ -66,11 +66,14 @@ class RadioProvider extends ChangeNotifier {
       @required bool add,
       bool firstSearch}) async {
     try {
+      await Provider.of<LoginProviders>(context, listen: false)
+          .getSavedUserToken();
+      String _token = Provider.of<LoginProviders>(context, listen: false).userToken;
       if (add) {
+        print('print token here $_token');
         RadioModel myModel = await _repository.radiox(
             map: Radio.mapToJson(
-                token: Provider.of<LoginProviders>(context, listen: false)
-                    .userToken,
+                token: _token,
                 searchData: searchData),
             search: true,
             context: context,

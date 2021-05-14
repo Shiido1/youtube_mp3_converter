@@ -60,20 +60,34 @@ class LoginProviders extends ChangeNotifier {
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');
     userToken = token;
+    // notifyListeners();
+  }
+
+  saveUserEmail(String email) async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('email');
+    _box.put('email', email);
+  }
+
+  getSavedUserEmail() async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('email');
+    String emailAd = _box.get('email');
+    email = emailAd;
     notifyListeners();
   }
 
-  // saveUserEmail(String email) async {
-  //   if (!(_box?.isOpen ?? false))
-  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
-  //   _box.put('email', email);
-  // }
+  saveUserName(String username) async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('name');
+    _box.put('name', name);
+  }
 
-  // getSavedUserEmail() async {
-  //   if (!(_box?.isOpen ?? false))
-  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
-  //   String email = _box.get('email');
-  //   userToken = email;
-  //   notifyListeners();
-  // }
+  getSavedUserName() async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('name');
+    String nameAd = _box.get('name');
+    name = nameAd;
+    notifyListeners();
+  }
 }

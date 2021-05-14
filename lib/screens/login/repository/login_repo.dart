@@ -21,8 +21,11 @@ class LoginApiRepository {
       final _finalData = LoginModel.fromJson(_response.data);
 
       preferencesHelper.saveValue(key: 'name', value: _finalData.name);
+      preferencesHelper.saveValue(key: 'email', value: _finalData.email);
 
       await _provider.saveUserToken(_finalData.token);
+      await _provider.saveUserEmail(_finalData.email);
+      await _provider.saveUserName(_finalData.name);
       return ApiResponse.success(data: _finalData);
     } catch (e) {
       return handleNetworkException(e);

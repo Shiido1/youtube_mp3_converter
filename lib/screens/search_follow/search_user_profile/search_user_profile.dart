@@ -22,6 +22,26 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
   SearchUserProfileProvider searchUserProfileProvider;
   // int id;
 
+  unFollow(){
+    searchUserProfileProvider.unFollow(searchUserProfileProvider.user.user.id);
+  }
+
+  snackBar(){
+    final snackBar = SnackBar(
+      content: TextViewWidget(
+        text:'Unfollow User',
+        color: AppColor.white,
+        textSize: 16,),
+      backgroundColor: AppColor.grey,
+      action: SnackBarAction(
+        label: 'Unfollow',
+        textColor: AppColor.bottomRed,
+        onPressed: unFollow,
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
 
   @override
   void initState() {
@@ -36,7 +56,6 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Consumer<SearchUserProfileProvider>(builder:(_,provider,__){
@@ -45,7 +64,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
         appBar: AppBar(
           backgroundColor: AppColor.bottomRed,
           title: TextViewWidget(
-            text: provider?.user?.name??'',
+            text: provider?.user?.user?.name??'',
             color: AppColor.white,
           ),
           leading: IconButton(
@@ -70,13 +89,15 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
                       height: 90,
                       width: 90,
                     child:CachedNetworkImage(
-                        imageUrl:provider?.user?.profilepic??''))),
+                        imageUrl:provider?.user?.user?.profilepic??'',
+                    errorWidget: (BuildContext context, String exception, dynamic stackTrace) {
+                      return Text('Your error widget...');
+                    },))),
                 SizedBox(width: 45,),
                 Column(
                   children: [
                     TextViewWidget(
-                        text: provider?.search?.followers==null?'0'
-                            :provider?.search?.followers?.toString(),
+                        text: '${provider?.user?.followers??'0'}',
                         color: AppColor.black,
                         textSize: 20,
                         fontWeight:FontWeight.w600,),
@@ -92,8 +113,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
                 Column(
                   children: [
                     TextViewWidget(
-                        text: provider?.search?.following==null?'0'
-                            :provider?.search?.following?.toString(),
+                        text: '${provider?.user?.following??'0'}',
                         color: AppColor.black,
                         textSize: 20,
                         fontWeight:FontWeight.w600,),
@@ -111,7 +131,10 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
             Padding(
               padding: const EdgeInsets.only(left: 18),
               child: ElevatedButton(
-                onPressed: ()=>provider.follow(provider.user.id),
+                onPressed: (){
+                  provider.isFollow == true ?
+                   snackBar() : provider.follow(provider.user.user.id);
+                  },
                     style: TextButton
                         .styleFrom(
                       backgroundColor:
@@ -130,4 +153,5 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
       );
     });
   }
+
 }

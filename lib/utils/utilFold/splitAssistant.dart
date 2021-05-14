@@ -5,20 +5,19 @@ import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 
 class SplitAssistant {
+
   static Future<dynamic> splitFile(
-      String filePath, BuildContext context) async {
+  {String filePath, BuildContext context,String userToken}) async {
     print('In the split function');
     print(filePath);
     String baseUrl = "http://67.205.165.56/api/splitter?";
-    await Provider.of<LoginProviders>(context).getSavedUserToken();
 
     try {
       var postUri = Uri.parse(baseUrl);
       var request = new http.MultipartRequest("POST", postUri);
-      request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
+      // request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
       request.headers['Content-Type'] = 'multipart/form-data';
-      // request.fields['token'] =
-      //     'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC82Ny4yMDUuMTY1LjU2IiwiYXVkIjoiaHR0cDpcL1wvNjcuMjA1LjE2NS41NiIsImlhdCI6MTM1Njk5MTUyNCwibmJmIjoxMzU3MDAxMDAwLCJlbWFpbCI6Im9hbnRob255NTkwQGdtYWlsLmNvbSJ9.bE-sdlodX1zMM6Lo0s5RtuVqSlrNq1QJ5vBk6rU-hxI';
+      request.fields['token'] = userToken;
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       var response = await request.send();
@@ -28,7 +27,7 @@ class SplitAssistant {
         var decodedData = jsonDecode(jsonData);
         print(decodedData);
         String errorMessage = decodedData["message"] ?? null;
-        if (errorMessage == null)
+        if(errorMessage == null)
           return decodedData;
         else
           return "Failed";
@@ -45,12 +44,12 @@ class SplitAssistant {
   }
 
   static Future<bool> saveSplitFiles(
-      var decodedData, BuildContext context) async {
+  {var decodedData, BuildContext context, String userToken}) async {
     String baseUrl = "http://67.205.165.56/api/savesplit";
-    await Provider.of<LoginProviders>(context).getSavedUserToken();
 
     var body = jsonEncode({
-      "token": Provider.of<LoginProviders>(context).userToken,
+      // "token2": Provider.of<LoginProviders>(context, listen: false).userToken,
+      "token": userToken,
       "bass": decodedData['files']['bass'],
       "voice": decodedData['files']['voice'],
       "drum": decodedData['files']['drums'],

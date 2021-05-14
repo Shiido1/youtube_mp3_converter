@@ -4,6 +4,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/splitted/database/split_services.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -496,14 +497,19 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future splitSongMethod() async {
+    await Provider.of<LoginProviders>(context, listen: false)
+        .getSavedUserToken();
+    String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
     _progressIndicator.show();
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
-    var splittedFiles = await SplitAssistant.splitFile(result, context);
+    var splittedFiles = await SplitAssistant.splitFile(
+        filePath:result, context:context, userToken:userToken );
     if (splittedFiles != "Failed") {
       _progressIndicator.dismiss();
       bool isSaved =
-          await SplitAssistant.saveSplitFiles(splittedFiles, context);
+          await SplitAssistant.saveSplitFiles(
+              decodedData:splittedFiles, context:context,userToken: userToken);
       if (isSaved && _permissionReady) {
         String voiceUrl = splittedFiles["files"]["voice"];
         String otherUrl = splittedFiles["files"]["other"];

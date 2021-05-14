@@ -19,7 +19,7 @@ class CloudStorage {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
     String id = Provider.of<LoginProviders>(context, listen: false).userToken;
-    print(id);
+    print("printing id for user"+id);
     final reference = FirebaseStorage.instance.ref().child('Images').child(id);
     _progressIndicator.show();
 
@@ -33,6 +33,7 @@ class CloudStorage {
         await uploadTask.cancel();
         return uploadTask.snapshot;
       });
+
       TaskSnapshot snapshot = await uploadTask;
       if (snapshot != null) {
         if (snapshot.state == TaskState.success) {

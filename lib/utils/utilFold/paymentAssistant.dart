@@ -8,7 +8,13 @@ import 'package:http/http.dart' as http;
 
 class PaymentAssistant{
 
-  static Future<bool> storePayment(BuildContext context, String txRef, int amount, String txId, int storage, String userToken) async{
+  static Future<bool> storePayment(
+      {BuildContext context,
+      String txRef,
+      int amount,
+      String txId,
+      int storage,
+      String userToken}) async{
     String baseUrl = "http://67.205.165.56/api/storepayment";
     var body = jsonEncode({
         "tx_ref": txRef,

@@ -108,6 +108,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(height: 65),
                   Image.asset(
@@ -271,6 +272,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height:150),
                 ],
               ),
             ),

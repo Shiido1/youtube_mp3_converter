@@ -289,7 +289,7 @@ class _DashBoardState extends State<DashBoard> {
                       height: 20,
                     ),
                     _buttonItem(
-                      title: "Split your Music",
+                      title: "Split Music",
                       item: HomeButtonItem.CREATE_MUSIC,
                       assets: AppAssets.radioWave,
                     ),

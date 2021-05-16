@@ -23,7 +23,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
   // int id;
 
   unFollow(){
-    searchUserProfileProvider.unFollow(searchUserProfileProvider.user.user.id);
+    searchUserProfileProvider.unFollow(searchUserProfileProvider.search.user.id);
   }
 
   snackBar(){
@@ -64,7 +64,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
         appBar: AppBar(
           backgroundColor: AppColor.bottomRed,
           title: TextViewWidget(
-            text: provider?.user?.user?.name??'',
+            text: provider?.search?.user?.name??'',
             color: AppColor.white,
           ),
           leading: IconButton(
@@ -89,7 +89,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
                       height: 90,
                       width: 90,
                     child:CachedNetworkImage(
-                        imageUrl:provider?.user?.user?.profilepic??'',
+                        imageUrl:provider?.search?.user?.profilepic??'',
                     errorWidget: (BuildContext context, String exception, dynamic stackTrace) {
                       return Text('Your error widget...');
                     },))),
@@ -97,7 +97,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
                 Column(
                   children: [
                     TextViewWidget(
-                        text: '${provider?.user?.followers??'0'}',
+                        text: '${provider?.search?.totalfollowers}',
                         color: AppColor.black,
                         textSize: 20,
                         fontWeight:FontWeight.w600,),
@@ -113,7 +113,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
                 Column(
                   children: [
                     TextViewWidget(
-                        text: '${provider?.user?.following??'0'}',
+                        text: '${provider?.search?.totalfollowing}',
                         color: AppColor.black,
                         textSize: 20,
                         fontWeight:FontWeight.w600,),
@@ -133,7 +133,7 @@ class _SearchUserProfileClassState extends State<SearchUserProfileClass> {
               child: ElevatedButton(
                 onPressed: (){
                   provider.isFollow == true ?
-                   snackBar() : provider.follow(provider.user.user.id);
+                   snackBar() : provider.follow(provider.search.user.id);
                   },
                     style: TextButton
                         .styleFrom(

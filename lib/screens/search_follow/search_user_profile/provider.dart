@@ -12,7 +12,7 @@ SearchUserProfileRepo searchUserProfileRepo = SearchUserProfileRepo();
 class SearchUserProfileProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
-  SearchUserProfile user;
+  // SearchUserProfile user;
   SearchUserProfile search;
   var value;
   bool isFollow = false;
@@ -26,7 +26,7 @@ class SearchUserProfileProvider extends ChangeNotifier {
   Future<void> searchUserProfile(String userId) async {
     try {
       _progressIndicator.show();
-      user = await searchUserProfileRepo.searchUserProfile(userId);
+      search = await searchUserProfileRepo.searchUserProfile(userId);
       _progressIndicator.dismiss();
       notifyListeners();
     } catch (e) {

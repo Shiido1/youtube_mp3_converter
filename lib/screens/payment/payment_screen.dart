@@ -234,7 +234,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           color: AppColor.white,
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             picture,
             SizedBox(

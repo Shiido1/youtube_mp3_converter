@@ -1,4 +1,6 @@
 class SearchUserProfile {
+  int totalfollowers;
+  int totalfollowing;
   User user;
   List<Null> musics;
   Latest latest;
@@ -6,12 +8,20 @@ class SearchUserProfile {
   List<Following> following;
 
   SearchUserProfile(
-      {this.user, this.musics, this.latest, this.followers, this.following});
+      {this.totalfollowers,
+        this.totalfollowing,
+        this.user,
+        this.musics,
+        this.latest,
+        this.followers,
+        this.following});
 
   SearchUserProfile.fromJson(Map<String, dynamic> json) {
+    totalfollowers = json['totalfollowers']== null ? null : json['totalfollowers'];
+    totalfollowing = json['totalfollowing']== null ? null : json['totalfollowing'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     if (json['musics'] != null) {
-      musics = [];
+      musics =[];
       json['musics'].forEach((v) {
         musics.add((v));
       });
@@ -27,13 +37,15 @@ class SearchUserProfile {
     if (json['following'] != null) {
       following = [];
       json['following'].forEach((v) {
-        following.add((v));
+        following.add(new Following.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['totalfollowers'] = this.totalfollowers;
+    data['totalfollowing'] = this.totalfollowing;
     if (this.user != null) {
       data['user'] = this.user.toJson();
     }

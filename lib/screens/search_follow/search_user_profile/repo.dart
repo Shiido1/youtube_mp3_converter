@@ -19,8 +19,8 @@ Future<SearchUserProfile> searchUserProfile(String userId) async {
         profilepic: mapUser['profilepic'],
         id:mapUser['id'],
       ),
-      followers: mapUser['followers'],
-      following: mapUser['following'],
+      totalfollowers: decodedData['totalfollowers'],
+      totalfollowing: decodedData['totalfollowing'],
     );
 
     return searchUserProfile;

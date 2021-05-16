@@ -69,8 +69,8 @@ class _SignInScreenState extends State<SignInScreen> {
         builder: (_, model, __) {
           return SingleChildScrollView(
             child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
+              // width: MediaQuery.of(context).size.width,
+              // height: MediaQuery.of(context).size.height,
               decoration: new BoxDecoration(
                 color: AppColor.black,
                 image: new DecorationImage(
@@ -202,6 +202,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 200),
                   ],
                 ),
               ),

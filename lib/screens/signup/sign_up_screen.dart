@@ -45,9 +45,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return false;
     }
 
-    if (_confirmPasswordController.text.isEmpty &&
-            _confirmPasswordController != _passwordController ||
-        !isPasswordCompliant(_confirmPasswordController.text)) {
+    if (_confirmPasswordController.text.isEmpty ||
+            _confirmPasswordController.text != _passwordController.text) {
       setState(() => _isConPassword = true);
       return false;
     }

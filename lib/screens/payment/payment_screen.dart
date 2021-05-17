@@ -225,70 +225,72 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // String narration,
     // String txRef,
   }) =>
-      Container(
-        margin: EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(
-              Radius.circular(10) //                 <--- border radius here
-              ),
-          color: AppColor.white,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            picture,
-            SizedBox(
-              height: 26,
-            ),
-            TextViewWidget(
-              text: text1 ?? '',
-              textSize: 23,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.bold,
-              color: AppColor.bottomRed,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            TextViewWidget(
-              text: text2 ?? '',
-              textSize: 17,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.w500,
-              color: AppColor.black,
-            ),
-            TextViewWidget(
-              text: text3 ?? '',
-              textSize: 22,
-              textAlign: TextAlign.center,
-              fontWeight: FontWeight.bold,
-              color: AppColor.bottomRed,
-            ),
-            InkWell(
-              onTap: subWidgetButton,
-              child: Container(
-                width: 70,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: AppColor.transparent,
-                  border: Border.all(width: 1, color: AppColor.bottomRed),
-                  borderRadius: BorderRadius.all(Radius.circular(
-                          5.0) //                 <--- border radius here
-                      ),
+      Expanded(
+        child: Container(
+          margin: EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(
+                Radius.circular(10) //                 <--- border radius here
                 ),
-                child: Center(
-                  child: TextViewWidget(
-                      color: AppColor.black,
-                      text: 'BUY',
-                      textSize: 25,
-                      textAlign: TextAlign.center),
-                ),
+            color: AppColor.white,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              picture,
+              SizedBox(
+                height: 26,
               ),
-            ),
-            SizedBox(
+              TextViewWidget(
+                text: text1 ?? '',
+                textSize: 23,
+                textAlign: TextAlign.center,
+                fontWeight: FontWeight.bold,
+                color: AppColor.bottomRed,
+              ),
+              SizedBox(
                 height: 15,
               ),
-          ],
+              TextViewWidget(
+                text: text2 ?? '',
+                textSize: 17,
+                textAlign: TextAlign.center,
+                fontWeight: FontWeight.w500,
+                color: AppColor.black,
+              ),
+              TextViewWidget(
+                text: text3 ?? '',
+                textSize: 22,
+                textAlign: TextAlign.center,
+                fontWeight: FontWeight.bold,
+                color: AppColor.bottomRed,
+              ),
+              InkWell(
+                onTap: subWidgetButton,
+                child: Container(
+                  width: 70,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppColor.transparent,
+                    border: Border.all(width: 1, color: AppColor.bottomRed),
+                    borderRadius: BorderRadius.all(Radius.circular(
+                            5.0) //                 <--- border radius here
+                        ),
+                  ),
+                  child: Center(
+                    child: TextViewWidget(
+                        color: AppColor.black,
+                        text: 'BUY',
+                        textSize: 25,
+                        textAlign: TextAlign.center),
+                  ),
+                ),
+              ),
+              SizedBox(
+                  height: 15,
+                ),
+            ],
+          ),
         ),
       );
 }

@@ -32,19 +32,19 @@ class LoginProviders extends ChangeNotifier {
       final _response =
           await _repository.loginUser(context: context, data: map);
       _response.when(success: (success, _, statusMessage) async {
-        showToast(this._context, message: 'Successfully Logged in..');
+        showToast(this._context, message: 'Login Successful.');
         isLoading = false;
         preferencesHelper.saveValue(key: 'email', value: map['email']);
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        showToast(this._context, message: 'Please try again');
+        showToast(this._context, message: NetworkExceptions.getErrorMessage(error));
         isLoading = false;
         notifyListeners();
       });
     } catch (e) {
       isLoading = false;
-      showToast(_context, message: "Please connect to internet");
+      showToast(_context, message: e);
       notifyListeners();
     }
   }

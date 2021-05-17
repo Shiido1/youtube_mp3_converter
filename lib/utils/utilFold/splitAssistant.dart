@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:provider/provider.dart';
 
 class SplitAssistant {
@@ -27,9 +28,9 @@ class SplitAssistant {
         var decodedData = jsonDecode(jsonData);
         print(decodedData);
         String errorMessage = decodedData["message"] ?? null;
-        if(errorMessage == null)
+        if(errorMessage == null) {
           return decodedData;
-        else
+        }else
           return "Failed";
       } else {
         print('failed');

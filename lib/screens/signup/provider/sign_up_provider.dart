@@ -11,6 +11,7 @@ final SignUpApiRepository _repository = SignUpApiRepository();
 class SignUpProviders extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
+  String _statusMessage;
 
   void init(BuildContext context) {
     this._context = context;
@@ -21,8 +22,9 @@ class SignUpProviders extends ChangeNotifier {
     try {
       _progressIndicator.show();
       final _response = await _repository.signUp(data: map);
-      _response.when(success: (success, _, __) async {
+      _response.when(success: (success, _, message) async {
         await _progressIndicator.dismiss();
+        showToast(this._context, message: 'SignUp Successful.');
         PageRouter.gotoWidget(
             OtpPage(
               email: success?.email,
@@ -35,10 +37,12 @@ class SignUpProviders extends ChangeNotifier {
         await _progressIndicator.dismiss();
         showToast(this._context,
             message: NetworkExceptions.getErrorMessage(error));
+        _statusMessage=statusMessage;
+        notifyListeners();
       });
     } catch (e) {
       await _progressIndicator.dismiss();
-      showToast(_context, message: "Please connect to internet");
+      showToast(_context, message: e);
     }
   }
 }

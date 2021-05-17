@@ -68,6 +68,7 @@ class _WrapperState extends State<Wrapper> {
   void initState() {
     preferencesHelper = SharedPreferencesHelper();
     getEmail();
+    print('print modaf...ing mail $email');
     super.initState();
   }
 

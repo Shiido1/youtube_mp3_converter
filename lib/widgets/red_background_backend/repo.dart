@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart';
 import 'package:jaynetwork/network/api_result.dart';
 import 'package:mp3_music_converter/error_handler/handler.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
@@ -12,10 +15,9 @@ class RedBackgroundRepo {
   void saveImage(String imageUrl) async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
-    final map = {
-      "token": Provider.of<LoginProviders>(context, listen: false).userToken,
-      "image": imageUrl
-    };
+    String token =
+        Provider.of<LoginProviders>(context, listen: false).userToken;
+    final map = {"token": token, "image": imageUrl};
 
     await image(map);
   }
@@ -26,7 +28,7 @@ class RedBackgroundRepo {
           await jayNetworkClient.makePostRequest("updatepic", data: map);
       return ApiResponse.success(data: response);
     } catch (e) {
-      image(map);
+      // image(map);
       return handleNetworkException(e);
     }
   }

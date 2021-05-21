@@ -80,7 +80,6 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    email = '';
     if (email == null)
       return SpinKitCircle(
         itemBuilder: (BuildContext context, int index) {

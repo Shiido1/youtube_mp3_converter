@@ -4,7 +4,7 @@ import 'package:mp3_music_converter/screens/search_follow/search_user_profile/re
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:provider/provider.dart';
-
+import 'package:mp3_music_converter/screens/search_follow/model/follow_model.dart';
 import 'model.dart';
 
 SearchUserProfileRepo searchUserProfileRepo = SearchUserProfileRepo();
@@ -12,10 +12,11 @@ SearchUserProfileRepo searchUserProfileRepo = SearchUserProfileRepo();
 class SearchUserProfileProvider extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
-  User user;
+  // SearchUserProfile user;
   SearchUserProfile search;
   var value;
   bool isFollow = false;
+  FollowModel modelFollow;
 
   void init(BuildContext context) {
     this._context = context;
@@ -25,7 +26,7 @@ class SearchUserProfileProvider extends ChangeNotifier {
   Future<void> searchUserProfile(String userId) async {
     try {
       _progressIndicator.show();
-      user = await searchUserProfileRepo.searchUserProfile(userId);
+      search = await searchUserProfileRepo.searchUserProfile(userId);
       _progressIndicator.dismiss();
       notifyListeners();
     } catch (e) {
@@ -36,34 +37,42 @@ class SearchUserProfileProvider extends ChangeNotifier {
   }
 
   Future<void> follow(int id) async {
+    await Provider.of<LoginProviders>(_context, listen: false)
+        .getSavedUserToken();
+    String _token = Provider.of<LoginProviders>(_context, listen: false).userToken;
     final map = {
-      "token": Provider.of<LoginProviders>(_context, listen: false).userToken,
+      "token": _token,
       "id": id
     };
     try {
       _progressIndicator.show();
-      await searchUserProfileRepo.follow(map);
+      modelFollow = await searchUserProfileRepo.follow(map);
       _progressIndicator.dismiss();
       isFollow = true;
       notifyListeners();
     } catch (e) {
-      return throw e;
+      _progressIndicator.dismiss();
+      return e;
     }
   }
 
   Future<void> unFollow(int id) async {
+    await Provider.of<LoginProviders>(_context, listen: false)
+        .getSavedUserToken();
+    String _token = Provider.of<LoginProviders>(_context, listen: false).userToken;
     final map = {
-      "token": Provider.of<LoginProviders>(_context, listen: false).userToken,
+      "token": _token,
       "id": id
     };
     try {
       _progressIndicator.show();
-      await searchUserProfileRepo.unFollow(map);
+      modelFollow = await searchUserProfileRepo.unFollow(map);
       _progressIndicator.dismiss();
       isFollow = false;
       notifyListeners();
     } catch (e) {
-      return throw e;
+      _progressIndicator.dismiss();
+      return e;
     }
   }
 }

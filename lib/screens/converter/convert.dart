@@ -483,7 +483,7 @@ class _ConvertState extends State<Convert> {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
-      if (saveToDownload) {
+      if (saveToDownload=true) {
         var downloadPath = await DownloadsPathProvider.downloadsDirectory;
         _localPath = downloadPath.path;
       }

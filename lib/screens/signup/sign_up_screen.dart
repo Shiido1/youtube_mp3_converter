@@ -45,9 +45,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return false;
     }
 
-    if (_confirmPasswordController.text.isEmpty &&
-            _confirmPasswordController != _passwordController ||
-        !isPasswordCompliant(_confirmPasswordController.text)) {
+    if (_confirmPasswordController.text.isEmpty ||
+            _confirmPasswordController.text != _passwordController.text) {
       setState(() => _isConPassword = true);
       return false;
     }
@@ -92,8 +91,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return Scaffold(
         body: SingleChildScrollView(
           child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            // width: MediaQuery.of(context).size.width,
+            // height: MediaQuery.of(context).size.height,
             decoration: new BoxDecoration(
               color: AppColor.black,
               image: new DecorationImage(
@@ -108,6 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(height: 65),
                   Image.asset(
@@ -271,6 +271,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height:150),
                 ],
               ),
             ),

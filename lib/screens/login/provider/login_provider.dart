@@ -32,20 +32,20 @@ class LoginProviders extends ChangeNotifier {
       final _response =
           await _repository.loginUser(context: context, data: map);
       _response.when(success: (success, _, statusMessage) async {
-        showToast(this._context, message: 'Successfully Logged in..');
+        showToast(this._context, message: 'Login Successful.');
         isLoading = false;
         preferencesHelper.saveValue(key: 'email', value: map['email']);
 
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        showToast(this._context, message: 'Please try again');
+        showToast(this._context, message: NetworkExceptions.getErrorMessage(error));
         isLoading = false;
         notifyListeners();
       });
     } catch (e) {
       isLoading = false;
-      showToast(_context, message: "Please connect to internet");
+      showToast(_context, message: e);
       notifyListeners();
     }
   }
@@ -61,20 +61,34 @@ class LoginProviders extends ChangeNotifier {
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');
     userToken = token;
+    // notifyListeners();
+  }
+
+  saveUserEmail(String email) async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('email');
+    _box.put('email', email);
+  }
+
+  getSavedUserEmail() async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('email');
+    String emailAd = _box.get('email');
+    email = emailAd;
     notifyListeners();
   }
 
-  // saveUserEmail(String email) async {
-  //   if (!(_box?.isOpen ?? false))
-  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
-  //   _box.put('email', email);
-  // }
+  saveUserName(String username) async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('name');
+    _box.put('name', name);
+  }
 
-  // getSavedUserEmail() async {
-  //   if (!(_box?.isOpen ?? false))
-  //     _box = await PgHiveBoxes.openBox<String>('userEmail');
-  //   String email = _box.get('email');
-  //   userToken = email;
-  //   notifyListeners();
-  // }
+  getSavedUserName() async {
+    if (!(_box?.isOpen ?? false))
+      _box = await PgHiveBoxes.openBox<String>('name');
+    String nameAd = _box.get('name');
+    name = nameAd;
+    notifyListeners();
+  }
 }

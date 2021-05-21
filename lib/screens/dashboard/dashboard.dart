@@ -10,12 +10,14 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
@@ -23,6 +25,7 @@ import 'package:mp3_music_converter/widgets/red_background_backend/red_backgroun
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -56,7 +59,12 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
-    _progressIndicator = CustomProgressIndicator(this.context);
+    this._progressIndicator = CustomProgressIndicator(this.context);
+
+    LinkShareAssistant()
+      ..onDataReceived = _handleSharedData
+      ..getSharedData().then(_handleSharedData);
+
     _bindBackgroundIsolate();
     _permissionReady = false;
     _prepare();
@@ -250,11 +258,11 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   /// Handles any shared data we may receive.
-  // void _handleSharedData(String sharedData) {
-  //   setState(() {
-  //     _sharedText = sharedData;
-  //   });
-  // }
+  void _handleSharedData(String sharedData) {
+    setState(() {
+      _sharedText = sharedData;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -281,7 +289,7 @@ class _DashBoardState extends State<DashBoard> {
                       height: 20,
                     ),
                     _buttonItem(
-                      title: "Split your Music",
+                      title: "Split Music",
                       item: HomeButtonItem.CREATE_MUSIC,
                       assets: AppAssets.radioWave,
                     ),
@@ -401,6 +409,10 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   Future splitMethod() async {
+    await Provider.of<LoginProviders>(context, listen: false)
+        .getSavedUserToken();
+    String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
+    print('printing user token $userToken');
     FilePickerResult result =
         await FilePicker.platform.pickFiles(type: FileType.audio);
 
@@ -410,12 +422,16 @@ class _DashBoardState extends State<DashBoard> {
       String nameOfFile = result.files.single.name.split(' ').join('_');
 
       var splittedFiles =
-          await SplitAssistant.splitFile(result.files.single.path, context);
+          await SplitAssistant.splitFile(
+            filePath:result.files.single.path,
+            context:context,
+            userToken: userToken);
       print('This is the splitted file: $splittedFiles');
       if (splittedFiles != "Failed") {
         _progressIndicator.dismiss();
         bool isSaved =
-            await SplitAssistant.saveSplitFiles(splittedFiles, context);
+            await SplitAssistant.saveSplitFiles(
+                decodedData:splittedFiles, context: context, userToken: userToken);
         if (isSaved && _permissionReady) {
           String voiceUrl = splittedFiles["files"]["voice"];
           String otherUrl = splittedFiles["files"]["other"];

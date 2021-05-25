@@ -1,5 +1,6 @@
 import 'dart:io';
 
+// import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -47,7 +48,7 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         debugShowCheckedModeBanner: false,
-        home: Wrapper(),
+        home :Wrapper(),// home: AudioServiceWidget(child:Wrapper()),
         routes: Routes.getRoutes,
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider_services.dart';
 import 'package:mp3_music_converter/widgets/app_text_widget.dart';
 import 'package:mp3_music_converter/widgets/slider2_widget.dart';
 import 'package:mp3_music_converter/widgets/icon_button.dart';

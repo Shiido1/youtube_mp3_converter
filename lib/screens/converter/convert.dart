@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider_services.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
@@ -424,7 +425,7 @@ class _ConvertState extends State<Convert> {
                               ),
                             )
                           : Container(),
-                      SizedBox(height: 60),
+                      SizedBox(height: 30),
                       loading == false
                           ? Container()
                           : Center(child: downloadProgress()),

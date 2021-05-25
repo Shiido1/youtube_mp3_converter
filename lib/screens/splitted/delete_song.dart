@@ -7,6 +7,7 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider_services.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:provider/provider.dart';
 

@@ -25,7 +25,6 @@ class AppAssets {
   static final String radioWave = 'assets/svg/radio_wave.svg';
   static final String line = 'assets/svg/line.svg';
   static final String favorite = 'assets/svg/heart.svg';
-  static final String rect = 'assets/rect.png';
   static final String shuffle = 'assets/svg/shuffle.svg';
   static final String repeat = 'assets/svg/repeat.svg';
   static final String share = 'assets/svg/share.svg';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider_services.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:provider/provider.dart';

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider_services.dart';
 import 'package:mp3_music_converter/screens/song/song_view_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';

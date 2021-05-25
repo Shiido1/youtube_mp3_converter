@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:320378040514:android:98b662cec5bc396fef4b5b",
         "android_client_info": {
-          "package_name": "com.example.mp3_music_converter"
+          "package_name": "youtubeaudio.example.mp3_music_converter"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "320378040514-0c7npllfgjjbs9esq87e51b8chiff8bo.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.mp3_music_converter",
+            "package_name": "youtubeaudio.example.mp3_music_converter",
             "certificate_hash": "692a0a7bf5e8d6ae4cd1498c0f8d76d210139438"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "320378040514-gj4aulmnpjm15va0d47jrh86v4r832io.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.mp3_music_converter",
+            "package_name": "youtubeaudio.example.mp3_music_converter",
             "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
           }
         },

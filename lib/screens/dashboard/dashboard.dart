@@ -56,6 +56,7 @@ class _DashBoardState extends State<DashBoard> {
   int _progress = 0;
   bool loading = false;
   CustomProgressIndicator _progressIndicator;
+  FilePickerResult result;
 
   @override
   void initState() {
@@ -408,18 +409,88 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 
+  downFileFunction() async {
+
+    String nameOfFile = result.files.single.name.split(' ').join('_');
+    await _requestDownload(
+        link: _apiSplittedList[0],
+        saveToDownload: true,
+        fileName: nameOfFile);
+    await _requestDownload(
+        link: _apiSplittedList[1],
+        saveToDownload: true,
+        fileName: nameOfFile);
+  }
+
+  Future<void> _showDialog(BuildContext context) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+            child: AlertDialog(
+                backgroundColor: AppColor.white.withOpacity(0.6),
+                content: Container(
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius:
+                    new BorderRadius.all(new Radius.circular(32.0)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 50),
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // SvgPicture.asset(AppAssets.check),
+                          SizedBox(
+                            height: 11.5,
+                          ),
+                          Center(
+                            child: TextViewWidget(
+                              color: AppColor.black,
+                              fontWeight: FontWeight.w500,
+                              textSize: 21,
+                              text: 'Download Spit file',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(height: 15,),
+                          Center(
+                            child:ElevatedButton(
+                              onPressed: ()=>downFileFunction(),
+                              style: TextButton
+                                  .styleFrom(
+                                backgroundColor:
+                                AppColor.green,
+                              ),
+                              child: TextViewWidget(
+                                text: 'Download',
+                                color: AppColor.white,
+                                textSize: 20,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+          );
+        });
+  }
+
   Future splitMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
     String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
     print('printing user token $userToken');
-    FilePickerResult result =
-        await FilePicker.platform.pickFiles(type: FileType.audio);
+    result = await FilePicker.platform.pickFiles(type: FileType.audio);
 
     if (result != null && result.files.isNotEmpty) {
       _progressIndicator.show();
-
-      String nameOfFile = result.files.single.name.split(' ').join('_');
 
       var splittedFiles =
           await SplitAssistant.splitFile(
@@ -428,7 +499,8 @@ class _DashBoardState extends State<DashBoard> {
             userToken: userToken);
       print('This is the splitted file: $splittedFiles');
       if (splittedFiles != "Failed") {
-        _progressIndicator.dismiss();
+        await _progressIndicator.dismiss();
+        _showDialog(context);
         bool isSaved =
             await SplitAssistant.saveSplitFiles(
                 decodedData:splittedFiles, context: context, userToken: userToken);
@@ -442,14 +514,6 @@ class _DashBoardState extends State<DashBoard> {
           _apiSplittedList.insert(0, otherUrl);
           _apiSplittedList.insert(1, voiceUrl);
 
-          await _requestDownload(
-              link: _apiSplittedList[0],
-              saveToDownload: true,
-              fileName: nameOfFile);
-          await _requestDownload(
-              link: _apiSplittedList[1],
-              saveToDownload: true,
-              fileName: nameOfFile);
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
         } else {

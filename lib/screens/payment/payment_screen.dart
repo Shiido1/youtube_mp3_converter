@@ -225,15 +225,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     // String narration,
     // String txRef,
   }) =>
-      Expanded(
-        child: Container(
-          margin: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(
-                Radius.circular(10) //                 <--- border radius here
-                ),
-            color: AppColor.white,
-          ),
+      Container(
+        margin: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(
+              Radius.circular(10) //                 <--- border radius here
+              ),
+          color: AppColor.white,
+        ),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[

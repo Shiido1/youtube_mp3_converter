@@ -11,6 +11,7 @@ import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -53,6 +54,8 @@ class _ConvertState extends State<Convert> {
   ReceivePort _port = ReceivePort();
   String _fileName;
   MusicProvider musicProvider;
+  String artist = '';
+  String song = '';
 
   @override
   void initState() {
@@ -176,9 +179,10 @@ class _ConvertState extends State<Convert> {
       if (status == DownloadTaskStatus.complete) {
         await SongRepository.addSong(Song(
           fileName: _fileName,
+          songName: song,
+          artistName: artist,
           filePath: _localPath,
           image: _converterProvider?.youtubeModel?.image ?? '',
-          playList: false,
           favorite: false,
           lastPlayDate: DateTime.now(),
         ));
@@ -286,7 +290,9 @@ class _ConvertState extends State<Convert> {
                                         size: 35,
                                       )),
                                   onTap: () {
-                                    _download('${controller.text}');
+                                    artist = '';
+                                    song = '';
+                                    _download('${controller.text.trim()}');
                                   },
                                 ),
                               ),
@@ -367,17 +373,30 @@ class _ConvertState extends State<Convert> {
                                                             .center,
                                                     children: [
                                                       ElevatedButton(
-                                                        onPressed: () {
-                                                          _requestDownload(
-                                                              link: base_url +
-                                                                  _converterProvider
-                                                                      ?.youtubeModel
-                                                                      ?.url,
-                                                              saveToDownload:
-                                                                  true);
-                                                          setState(() {
-                                                            downloaded = true;
-                                                          });
+                                                        onPressed: () async {
+                                                          final result =
+                                                              await showDownloadDialog(
+                                                                  context:
+                                                                      context,
+                                                                  song: song,
+                                                                  artist:
+                                                                      artist);
+                                                          if (result != null) {
+                                                            song = result
+                                                                .split('+')[0];
+                                                            artist = result
+                                                                .split('+')[1];
+                                                            _requestDownload(
+                                                                link: base_url +
+                                                                    _converterProvider
+                                                                        ?.youtubeModel
+                                                                        ?.url,
+                                                                saveToDownload:
+                                                                    true);
+                                                            setState(() {
+                                                              downloaded = true;
+                                                            });
+                                                          }
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
@@ -394,16 +413,29 @@ class _ConvertState extends State<Convert> {
                                                         width: 16,
                                                       ),
                                                       ElevatedButton(
-                                                        onPressed: () {
-                                                          _requestDownload(
-                                                              link: base_url +
-                                                                  _converterProvider
-                                                                      ?.youtubeModel
-                                                                      ?.url);
-                                                          setState(() {
-                                                            downloaded = false;
-                                                          });
-                                                          // todo: replace with ur actuall link to download
+                                                        onPressed: () async {
+                                                          final result =
+                                                              await showDownloadDialog(
+                                                                  context:
+                                                                      context,
+                                                                  song: song,
+                                                                  artist:
+                                                                      artist);
+                                                          if (result != null) {
+                                                            song = result
+                                                                .split('+')[0];
+                                                            artist = result
+                                                                .split('+')[1];
+                                                            _requestDownload(
+                                                                link: base_url +
+                                                                    _converterProvider
+                                                                        ?.youtubeModel
+                                                                        ?.url);
+                                                            setState(() {
+                                                              downloaded =
+                                                                  false;
+                                                            });
+                                                          }
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
@@ -483,7 +515,7 @@ class _ConvertState extends State<Convert> {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
-      if (saveToDownload=true) {
+      if (saveToDownload = true) {
         var downloadPath = await DownloadsPathProvider.downloadsDirectory;
         _localPath = downloadPath.path;
       }

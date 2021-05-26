@@ -32,7 +32,6 @@ class _SongViewScreenState extends State<SongViewScreen> {
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.playerType = PlayerType.ALL;
     _musicProvider.playAudio(widget.song);
     _musicProvider.updateDrawer(widget.song);
     repeat = _musicProvider.repeatSong;
@@ -77,7 +76,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
               children: [
                 Expanded(
                   child: CachedNetworkImage(
-                    imageUrl:  _provider?.currentSong?.image??'',
+                    imageUrl: _provider?.currentSong?.image ?? '',
                     imageBuilder: (context, imageProvider) => Container(
                       width: 280.0,
                       height: 320.0,
@@ -88,7 +87,8 @@ class _SongViewScreenState extends State<SongViewScreen> {
                             image: imageProvider, fit: BoxFit.cover),
                       ),
                     ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
                     errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                 ),
@@ -97,7 +97,17 @@ class _SongViewScreenState extends State<SongViewScreen> {
                 ),
                 Center(
                   child: TextViewWidget(
-                    text: _provider?.currentSong?.fileName??'',
+                    text: _provider?.currentSong?.songName ?? 'Unknown',
+                    color: AppColor.white,
+                    textSize: 18,
+                    fontWeight: FontWeight.w700,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 10),
+                Center(
+                  child: TextViewWidget(
+                    text: _provider?.currentSong?.artistName ?? 'Unknown',
                     color: AppColor.white,
                     textSize: 18,
                     fontWeight: FontWeight.w700,

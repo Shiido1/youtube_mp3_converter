@@ -105,11 +105,24 @@ class _SongViewCLassState extends State<SongViewCLass> {
                     _musicProvider.setCurrentIndex(index);
                     PageRouter.gotoWidget(SongViewScreen(_song), context);
                   },
-                  child: TextViewWidget(
-                    text: _song?.fileName ?? '',
-                    color: AppColor.white,
-                    textSize: 15,
-                    fontFamily: 'Roboto-Regular',
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: TextViewWidget(
+                      text: _song?.songName ?? 'Unknown',
+                      color: _provider?.currentSong?.fileName == _song?.fileName
+                          ? AppColor.bottomRed
+                          : AppColor.white,
+                      textSize: 15,
+                      fontFamily: 'Roboto-Regular',
+                    ),
+                    subtitle: TextViewWidget(
+                      text: _song?.artistName ?? 'Unknown Artist',
+                      color: _provider?.currentSong?.fileName == _song?.fileName
+                          ? AppColor.bottomRed
+                          : AppColor.white,
+                      textSize: 13,
+                      fontFamily: 'Roboto-Regular',
+                    ),
                   ),
                 ),
                 trailing: InkWell(

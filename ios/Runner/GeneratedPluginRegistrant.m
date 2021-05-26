@@ -4,6 +4,18 @@
 
 #import "GeneratedPluginRegistrant.h"
 
+#if __has_include(<audio_service/AudioServicePlugin.h>)
+#import <audio_service/AudioServicePlugin.h>
+#else
+@import audio_service;
+#endif
+
+#if __has_include(<audio_session/AudioSessionPlugin.h>)
+#import <audio_session/AudioSessionPlugin.h>
+#else
+@import audio_session;
+#endif
+
 #if __has_include(<audioplayers/AudioplayersPlugin.h>)
 #import <audioplayers/AudioplayersPlugin.h>
 #else
@@ -44,6 +56,12 @@
 #import <flutter_downloader/FlutterDownloaderPlugin.h>
 #else
 @import flutter_downloader;
+#endif
+
+#if __has_include(<flutter_isolate/FlutterIsolatePlugin.h>)
+#import <flutter_isolate/FlutterIsolatePlugin.h>
+#else
+@import flutter_isolate;
 #endif
 
 #if __has_include(<flutter_radio/FlutterRadioPlugin.h>)
@@ -133,6 +151,8 @@
 @implementation GeneratedPluginRegistrant
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
+  [AudioServicePlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioServicePlugin"]];
+  [AudioSessionPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioSessionPlugin"]];
   [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
   [DownloadsPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"DownloadsPathProviderPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
@@ -140,6 +160,7 @@
   [FLTFirebaseStoragePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseStoragePlugin"]];
   [FlutterAudioRecorderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterAudioRecorderPlugin"]];
   [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDownloaderPlugin"]];
+  [FlutterIsolatePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterIsolatePlugin"]];
   [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [GeocoderPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocoderPlugin"]];
   [GeocodingPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocodingPlugin"]];

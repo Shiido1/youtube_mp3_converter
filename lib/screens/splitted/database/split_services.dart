@@ -17,12 +17,7 @@ class SplittedSongServices implements SplittedSongInterface {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     if (_box.containsKey(song.splittedFileName)) {
       Map savedSong = _box.get(song.splittedFileName);
-
-      print(savedSong);
       String fileName = savedSong['fileName'];
-      // String filePath = savedSong['filePath'];
-      // String image = savedSong['image'];
-      // String splittedFileName = savedSong['splittedFileName'];
       String vocalName = savedSong['vocalName'];
 
       song.fileName =
@@ -33,11 +28,6 @@ class SplittedSongServices implements SplittedSongInterface {
       print(song.vocalName);
 
       return _box.put(song.splittedFileName, song.toJson());
-
-      // song.fileName = fileName != null ? fileName : song.fileName;
-      // song.fileName = fileName != null ? fileName : song.fileName;
-      // song.fileName = fileName != null ? fileName : song.fileName;
-
     }
     return _box.put(song.splittedFileName, song.toJson());
   }

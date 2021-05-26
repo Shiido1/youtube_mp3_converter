@@ -1,9 +1,12 @@
 import 'dart:math';
+import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
+import 'package:audio_session/audio_session.dart' as asp;
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
 
@@ -24,6 +27,7 @@ class RecordProvider with ChangeNotifier {
   AudioPlayerState audioPlayerState;
   PlayerControlCommand playerControlCommand;
   PlayerType playerType = PlayerType.ALL;
+  asp.AudioSession audioSession;
 
   initProvider() {
     initPlayer();
@@ -83,13 +87,21 @@ class RecordProvider with ChangeNotifier {
   void playAudio(
     RecorderModel record,
   ) async {
-    if (audioPlayerState == AudioPlayerState.PLAYING &&
-        currentRecord.name == record.name) return;
-    if (recordPlayer == null) initPlayer();
-    if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
-    await recordPlayer.play(record.path);
-    currentRecord = record;
-    notifyListeners();
+    audioSession = await asp.AudioSession.instance;
+    audioSession
+        .configure(asp.AudioSessionConfiguration.music())
+        .then((value) async {
+      if (await audioSession.setActive(true)) {
+        if (AudioService?.playbackState?.playing ?? false) AudioService.pause();
+        if (audioPlayerState == AudioPlayerState.PLAYING &&
+            currentRecord.name == record.name) return;
+        if (recordPlayer == null) initPlayer();
+        if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
+        await recordPlayer.play(record.path);
+        currentRecord = record;
+        notifyListeners();
+      }
+    });
   }
 
   void resumeAudio() async {
@@ -112,7 +124,7 @@ class RecordProvider with ChangeNotifier {
     audioPlayerState = AudioPlayerState.STOPPED;
     switch (playerType) {
       case PlayerType.ALL:
-        playAudio(nextRecord);
+        if (!canNextRecord) playAudio(nextRecord);
         break;
       case PlayerType.SHUFFLE:
         shuffle(false);

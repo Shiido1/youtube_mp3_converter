@@ -137,6 +137,8 @@ class _AppDrawerState extends State<AppDrawer> {
             filePath: _localPath,
             image: _musicProvider?.drawerItem?.image ?? '',
             splittedFileName: splitFileNameHere(_fileName[0]),
+            artistName: _musicProvider?.drawerItem?.artistName ?? '',
+            songName: _musicProvider?.drawerItem?.songName ?? '',
           ));
           Navigator.pop(context);
           Navigator.push(
@@ -144,10 +146,13 @@ class _AppDrawerState extends State<AppDrawer> {
         }
         if (data[0].toString() == splittedSongIDList[1].toString()) {
           SplittedSongRepository.addSong(Song(
-              filePath: _localPath,
-              image: _musicProvider?.drawerItem?.image ?? '',
-              splittedFileName: splitFileNameHere(_fileName[1]),
-              vocalName: _fileName[1]));
+            filePath: _localPath,
+            image: _musicProvider?.drawerItem?.image ?? '',
+            splittedFileName: splitFileNameHere(_fileName[1]),
+            vocalName: _fileName[1],
+            artistName: _musicProvider?.drawerItem?.artistName ?? '',
+            songName: _musicProvider?.drawerItem?.songName ?? '',
+          ));
         }
       }
     });
@@ -331,14 +336,25 @@ class _AppDrawerState extends State<AppDrawer> {
                                         imageUrl:
                                             _provider?.drawerItem?.image)))
                             : Container(),
-                        _provider?.drawerItem?.fileName?.isNotEmpty ?? false
+                        _provider?.drawerItem?.songName?.isNotEmpty ?? false
                             ? Expanded(
-                                child: TextViewWidget(
-                                text: _provider?.drawerItem?.fileName,
-                                color: AppColor.white,
-                                textSize: 16.5,
-                                fontWeight: FontWeight.w500,
-                              ))
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  title: TextViewWidget(
+                                    text: _provider?.drawerItem?.songName ?? '',
+                                    color: AppColor.white,
+                                    textSize: 16.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  subtitle: TextViewWidget(
+                                    text:
+                                        _provider?.drawerItem?.artistName ?? '',
+                                    color: AppColor.white,
+                                    textSize: 12.5,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              )
                             : Container()
                       ],
                     ),
@@ -499,17 +515,17 @@ class _AppDrawerState extends State<AppDrawer> {
   Future splitSongMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
-    String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
+    String userToken =
+        Provider.of<LoginProviders>(context, listen: false).userToken;
     _progressIndicator.show();
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
     var splittedFiles = await SplitAssistant.splitFile(
-        filePath:result, context:context, userToken:userToken );
+        filePath: result, context: context, userToken: userToken);
     if (splittedFiles != "Failed") {
       _progressIndicator.dismiss();
-      bool isSaved =
-          await SplitAssistant.saveSplitFiles(
-              decodedData:splittedFiles, context:context,userToken: userToken);
+      bool isSaved = await SplitAssistant.saveSplitFiles(
+          decodedData: splittedFiles, context: context, userToken: userToken);
       if (isSaved && _permissionReady) {
         String voiceUrl = splittedFiles["files"]["voice"];
         String otherUrl = splittedFiles["files"]["other"];

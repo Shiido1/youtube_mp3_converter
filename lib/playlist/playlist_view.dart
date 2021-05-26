@@ -124,7 +124,7 @@ class _PlayListViewState extends State<PlayListView> {
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: CachedNetworkImage(
-                      imageUrl: _song[0]?.image??'',
+                      imageUrl: _song[0]?.image ?? '',
                       fit: BoxFit.cover,
                       placeholder: (context, index) => Container(
                         child: Center(
@@ -302,7 +302,7 @@ class _PlayListViewState extends State<PlayListView> {
                       child: _currentSong?.image != null &&
                               _currentSong.image.isNotEmpty
                           ? CachedNetworkImage(
-                              imageUrl: _currentSong?.image??'',
+                              imageUrl: _currentSong?.image ?? '',
                               placeholder: (context, index) => Container(
                                 child: Center(
                                     child: SizedBox(
@@ -321,14 +321,26 @@ class _PlayListViewState extends State<PlayListView> {
                       PageRouter.gotoWidget(
                           SongViewScreen(_currentSong), context);
                     },
-                    child: TextViewWidget(
-                      text: _currentSong?.fileName ?? '',
-                      color: _currentlyPlayingSong?.fileName ==
-                              _currentSong?.fileName
-                          ? AppColor.bottomRed
-                          : AppColor.white,
-                      textSize: 15,
-                      fontFamily: 'Roboto-Regular',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: TextViewWidget(
+                        text: _currentSong?.songName ?? 'Unknown',
+                        color: _currentlyPlayingSong?.fileName ==
+                                _currentSong?.fileName
+                            ? AppColor.bottomRed
+                            : AppColor.white,
+                        textSize: 15,
+                        fontFamily: 'Roboto-Regular',
+                      ),
+                      subtitle: TextViewWidget(
+                        text: _currentSong?.artistName ?? 'Unknown Artist',
+                        color: _currentlyPlayingSong?.fileName ==
+                                _currentSong?.fileName
+                            ? AppColor.bottomRed
+                            : AppColor.white,
+                        textSize: 13,
+                        fontFamily: 'Roboto-Regular',
+                      ),
                     ),
                   ),
                   trailing: InkWell(

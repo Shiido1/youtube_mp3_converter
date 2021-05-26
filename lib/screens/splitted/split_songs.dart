@@ -101,11 +101,20 @@ class _SplittedScreenState extends State<SplittedScreen> {
                                   new Icon(Icons.error),
                             )
                           : null),
-                  title: TextViewWidget(
-                    text: _song?.fileName ?? '',
-                    color: AppColor.white,
-                    textSize: 15,
-                    fontFamily: 'Roboto-Regular',
+                  title: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: TextViewWidget(
+                      text: _song?.songName ?? 'Unknown',
+                      color: AppColor.white,
+                      textSize: 15,
+                      fontFamily: 'Roboto-Regular',
+                    ),
+                    subtitle: TextViewWidget(
+                      text: _song?.artistName ?? 'Unknown Artist',
+                      color: AppColor.white,
+                      textSize: 13,
+                      fontFamily: 'Roboto-Regular',
+                    ),
                   ),
                   trailing: Padding(
                     padding: const EdgeInsets.all(8.0),

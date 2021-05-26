@@ -32,7 +32,8 @@ class ConverterProvider extends ChangeNotifier {
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;
-        showToast(this._context, message: NetworkExceptions.getErrorMessage(error));
+        showToast(this._context,
+            message: NetworkExceptions.getErrorMessage(error));
         notifyListeners();
       });
     } catch (e) {

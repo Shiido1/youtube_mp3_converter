@@ -14,17 +14,6 @@ class SplitSongScreen extends StatefulWidget {
 }
 
 class _SplitSongScreenState extends State<SplitSongScreen> {
-  MusicProvider _musicProvider;
-
-  @override
-  void initState() {
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.playerType = PlayerType.ALL;
-    // _musicProvider.playAudio(widget.song);
-    // _musicProvider.updateDrawer(widget.song);
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
@@ -56,7 +45,7 @@ class _SplitSongScreenState extends State<SplitSongScreen> {
             children: [
               Expanded(
                 child: CachedNetworkImage(
-                  imageUrl:  _provider?.currentSong?.image??'',
+                  imageUrl: _provider?.currentSong?.image ?? '',
                   imageBuilder: (context, imageProvider) => Container(
                     width: 280.0,
                     height: 320.0,
@@ -74,13 +63,19 @@ class _SplitSongScreenState extends State<SplitSongScreen> {
               SizedBox(
                 height: 20,
               ),
-              Center(
-                child: TextViewWidget(
-                  text: _provider?.currentSong?.fileName ?? '',
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: TextViewWidget(
+                  text: _provider?.currentSong?.songName ?? 'Unknown',
                   color: AppColor.white,
-                  textSize: 18,
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.center,
+                  textSize: 15,
+                  fontFamily: 'Roboto-Regular',
+                ),
+                subtitle: TextViewWidget(
+                  text: _provider?.currentSong?.artistName ?? 'Unknown Artist',
+                  color: AppColor.white,
+                  textSize: 13,
+                  fontFamily: 'Roboto-Regular',
                 ),
               ),
               SizedBox(

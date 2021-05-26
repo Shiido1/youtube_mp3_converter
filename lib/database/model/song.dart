@@ -3,9 +3,10 @@ import 'dart:io';
 class Song {
   String filePath;
   String fileName = '';
+  String songName = 'Unknown';
   String image;
   String vocalName;
-  bool playList = false;
+  String artistName = 'Unknown';
   bool favorite = false;
   DateTime lastPlayDate;
   String splittedFileName;
@@ -18,7 +19,8 @@ class Song {
       {this.filePath,
       this.fileName,
       this.image,
-      this.playList,
+      this.songName,
+      this.artistName,
       this.favorite,
       this.lastPlayDate,
       this.splittedFileName,
@@ -28,9 +30,10 @@ class Song {
     Map<String, dynamic> songMap = Map();
     songMap["filePath"] = filePath;
     songMap["fileName"] = fileName;
+    songMap["songName"] = songName;
+    songMap["artistName"] = artistName;
     songMap["image"] = image;
     songMap["file"] = file;
-    songMap["playList"] = playList;
     songMap["favorite"] = favorite;
     songMap["lastPlayDate"] = lastPlayDate;
     songMap["splittedFileName"] = splittedFileName;
@@ -40,9 +43,10 @@ class Song {
 
   Song.fromMap(Map songMap) {
     this.fileName = songMap["fileName"];
+    this.songName = songMap["songName"];
+    this.artistName = songMap["artistName"];
     this.filePath = songMap["filePath"];
     this.image = songMap["image"];
-    this.playList = songMap["playList"] == null ? false : songMap["playList"];
     this.favorite = songMap["favorite"] == null ? false : songMap["favorite"];
     this.lastPlayDate =
         songMap["lastPlayDate"] == null ? null : songMap["lastPlayDate"];

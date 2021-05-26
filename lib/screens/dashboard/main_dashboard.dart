@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
@@ -40,23 +41,36 @@ class _MainDashBoardState extends State<MainDashBoard> {
 
   @override
   void initState() {
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.initProvider();
+    init();
+    super.initState();
+  }
 
+  init() async {
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    await _musicProvider.initProvider();
     _repository = Provider.of<SplittedSongProvider>(context, listen: false);
     _repository.initProvider();
-    preferencesHelper.getStringValues(key: "last_play").then((value) {
-      if (value != null) {
-        _musicProvider.updateLocal(Song.fromMap(json.decode(value)));
-      }
-    }).catchError((error) {
-      print(error);
-    });
+    if (AudioService.queue == null || AudioService.queue.isEmpty)
+      preferencesHelper.getStringValues(key: "last_play").then((data) {
+        if (data != null) {
+          Map value = json.decode(data);
+          MediaItem item = MediaItem(
+              album: value['album'],
+              id: value['id'],
+              title: value['title'],
+              artist: value['artist'],
+              extras: {
+                'fileName': value['fileName'],
+                'filePath': value['filePath'],
+                'image': value['image'],
+                'favourite': value['favourite']
+              });
 
-    // _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
-    // _playProvider.initPlayer();
-
-    super.initState();
+          _musicProvider.updateLocal(item);
+        }
+      }).catchError((error) {
+        print(error);
+      });
   }
 
   @override

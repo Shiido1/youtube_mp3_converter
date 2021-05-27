@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,6 +9,7 @@ import 'package:mp3_music_converter/screens/recorded/provider/record_provider.da
 import 'package:mp3_music_converter/screens/recorded/recorded_screen.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
@@ -26,21 +29,30 @@ class _RecordedState extends State<Recorded> {
 
   @override
   void initState() {
-    // records = [];
+    init();
+    super.initState();
+  }
+
+  init() async {
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
     _recordProvider.getRecords();
-    // getExternalStorageDirectory().then((value) {
-    //   appDir = value.parent.parent.parent.parent;
-    //   Directory appDirectory = Directory("${appDir.path}/YoutubeMusicRecords/");
-    // appDir = appDirectory;
-    //   appDir.list().listen((onData) {
-    //     records.add(onData.path);
-    //   }).onDone(() {
-    //     records = records.reversed.toList();
-    //     _recordProvider.getRecords();
-    //   });
-    // });
-    super.initState();
+    preferencesHelper
+        .getStringValues(key: 'last_play_record')
+        .then((value) async {
+      if (value != null) {
+        Map data = json.decode(value);
+        RecorderModel item =
+            RecorderModel(path: data['path'], name: data['name']);
+        await _recordProvider.updateRecord(item);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    if (_recordProvider.audioPlayerState != AudioPlayerState.STOPPED)
+      _recordProvider.stopAudio();
+    super.dispose();
   }
 
   @override

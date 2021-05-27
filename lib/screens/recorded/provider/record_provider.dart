@@ -1,20 +1,19 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:audio_session/audio_session.dart' as asp;
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
 
 class RecordProvider with ChangeNotifier {
   Duration totalDuration = Duration();
   Duration progress = Duration();
-  AudioPlayer recordPlayer;
-  AudioCache audioCache;
   RecorderModel currentRecord;
   List<RecorderModel> records = [];
   List<RecorderModel> allRecords = [];
@@ -39,89 +38,74 @@ class RecordProvider with ChangeNotifier {
   }
 
   updateRecord(RecorderModel recorded) {
-    records.forEach((element) {
-      if (element.name == recorded.name) {
-        element = recorded;
-      }
-    });
+    if (audioPlayerState != AudioPlayerState.PLAYING &&
+        audioPlayerState != AudioPlayerState.PAUSED)
+      currentRecord = records.firstWhere(
+          (element) => element.name == recorded.name,
+          orElse: () => recorded);
+
     notifyListeners();
   }
 
   void initPlayer() {
-    if (recordPlayer != null) return;
-    recordPlayer = new AudioPlayer();
-    audioCache = new AudioCache(fixedPlayer: recordPlayer);
-    recordPlayer.onAudioPositionChanged.listen((Duration position) {
-      progress = position;
-      notifyListeners();
+    AudioService.customEventStream.listen((event) {
+      if (event[AudioPlayerTask.DURATION] != null) {
+        totalDuration =
+            Duration(seconds: event[AudioPlayerTask.DURATION]) ?? Duration();
+        notifyListeners();
+      }
+      if (event[AudioPlayerTask.POSITION] != null) {
+        progress =
+            Duration(seconds: event[AudioPlayerTask.POSITION]) ?? Duration();
+        notifyListeners();
+      }
+      if (event[AudioPlayerTask.STATE] != null) {
+        audioPlayerState = event[AudioPlayerTask.STATE];
+        notifyListeners();
+      }
+      if (event[AudioPlayerTask.COMPLETION] != null) {
+        completion();
+      }
     });
-
-    recordPlayer.onDurationChanged.listen((Duration duration) {
-      totalDuration = duration;
-      notifyListeners();
-    });
-    recordPlayer.onPlayerStateChanged.listen((AudioPlayerState s) {
-      audioPlayerState = s;
-      notifyListeners();
-    });
-
-    recordPlayer.onPlayerCompletion.listen((event) {
-      completion();
-    });
-  }
-
-  void updateLocal(RecorderModel record) {
-    if (audioPlayerState != AudioPlayerState.PLAYING) {
-      currentRecord = records.firstWhere(
-          (element) => element.name == record.name,
-          orElse: () => record);
-      notifyListeners();
-    }
   }
 
   void seekToSecond(int second) {
-    Duration newDuration = Duration(seconds: second);
-    recordPlayer.seek(newDuration);
+    AudioService.customAction(AudioPlayerTask.SEEK_TO, second);
   }
 
   void playAudio(
     RecorderModel record,
   ) async {
-    audioSession = await asp.AudioSession.instance;
-    audioSession
-        .configure(asp.AudioSessionConfiguration.music())
-        .then((value) async {
-      if (await audioSession.setActive(true)) {
-        if (AudioService?.playbackState?.playing ?? false) AudioService.pause();
-        if (audioPlayerState == AudioPlayerState.PLAYING &&
-            currentRecord.name == record.name) return;
-        if (recordPlayer == null) initPlayer();
-        if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
-        await recordPlayer.play(record.path);
-        currentRecord = record;
-        notifyListeners();
-      }
-    });
+    if (audioPlayerState == AudioPlayerState.PLAYING &&
+        currentRecord.name == record.name) return;
+    currentRecord = record;
+    savePlayingSong({'name': record.name, 'path': record.path});
+    AudioService.customAction(AudioPlayerTask.PLAY, {'url': record.path});
+    notifyListeners();
+  }
+
+  savePlayingSong(Map song) {
+    preferencesHelper.saveValue(
+        key: 'last_play_record', value: json.encode(song));
   }
 
   void resumeAudio() async {
-    await recordPlayer.resume();
+    await AudioService.customAction(AudioPlayerTask.RESUME);
     notifyListeners();
   }
 
   void pauseAudio() async {
-    await recordPlayer.pause();
+    await AudioService.customAction(AudioPlayerTask.PAUSE);
     notifyListeners();
   }
 
   void stopAudio() async {
-    await recordPlayer.stop();
+    await AudioService.customAction(AudioPlayerTask.STOP);
     progress = Duration();
     notifyListeners();
   }
 
   void completion() async {
-    audioPlayerState = AudioPlayerState.STOPPED;
     switch (playerType) {
       case PlayerType.ALL:
         if (!canNextRecord) playAudio(nextRecord);
@@ -176,7 +160,7 @@ class RecordProvider with ChangeNotifier {
   handlePlaying() {
     switch (audioPlayerState) {
       case AudioPlayerState.STOPPED:
-        stopAudio();
+        playAudio(currentRecord);
         break;
       case AudioPlayerState.PAUSED:
         resumeAudio();

@@ -20,20 +20,33 @@ void _entryPoint() {
 
 class AudioPlayerTask extends BackgroundAudioTask {
   AudioPlayer audioPlayer;
+  AudioPlayer musicPlayer;
   static const POSITION_EVENT = 'POSITION_EVENT';
+  static const POSITION = 'POSITION';
   static const DURATION_EVENT = 'DURATION_EVENT';
+  static const DURATION = 'DURATION';
   static const STATE_CHANGE = 'STATE_CHANGE';
+  static const STATE = 'STATE';
   static const STATE_CHANGE2 = 'STATE_CHANGE2';
   static const PLAY_ACTION = 'PLAY_ACTION';
   static const CHANGE_TYPE = 'CHANGE_TYPE';
   static const SET_VOLUME = 'SET_VOLUME';
+  static const COMPLETION = 'COMPLETION';
   static const SEEK = 'SEEK';
+  static const PLAY = 'play';
+  static const RESUME = 'resume';
+  static const PAUSE = 'pause';
+  static const STOP = 'stop';
+  static const SEEK_TO = 'seek_to';
+  static const VOLUME = 'volume';
   int index;
   PlayerType playerType = PlayerType.ALL;
   asp.AudioSession audioSession;
+  asp.AudioSession audioSession2;
 
   void initPlayer() {
     audioPlayer = AudioPlayer();
+    musicPlayer = AudioPlayer();
 
     audioPlayer.onPlayerCompletion.listen((event) {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
@@ -79,6 +92,32 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
       _broadcastState();
     });
+
+    musicPlayer.onPlayerCompletion.listen((event) {
+      musicPlayer.state = AudioPlayerState.STOPPED;
+      AudioServiceBackground.sendCustomEvent({COMPLETION: true});
+      _broadcastState();
+    });
+
+    musicPlayer.onPlayerStateChanged.listen((event) {
+      AudioServiceBackground.sendCustomEvent({STATE: event});
+      _broadcastState();
+    });
+
+    musicPlayer.onAudioPositionChanged.listen((position) {
+      AudioServiceBackground.sendCustomEvent({POSITION: position.inSeconds});
+      _broadcastState();
+    });
+
+    musicPlayer.onDurationChanged.listen((duration) {
+      AudioServiceBackground.sendCustomEvent({DURATION: duration.inSeconds});
+      // AudioServiceBackground.setMediaItem(
+      //     AudioServiceBackground.mediaItem.copyWith(duration: duration));
+      // AudioServiceBackground.sendCustomEvent(
+      //     {STATE_CHANGE2: audioPlayer.state});
+
+      _broadcastState();
+    });
   }
 
   AudioProcessingState _getProcessingState() {
@@ -119,46 +158,89 @@ class AudioPlayerTask extends BackgroundAudioTask {
         position: position != null ? position : Duration());
   }
 
-  void handleInterruptions(asp.AudioSession audioSession) async {
+  void handleInterruptions(
+      asp.AudioSession audioSession, bool normalPlayer) async {
     bool interrupted = false;
-    audioSession.becomingNoisyEventStream.listen((event) async {
-      await onPause();
+    audioSession?.becomingNoisyEventStream?.listen((event) async {
+      if (normalPlayer)
+        await onPause();
+      else
+        AudioService.customAction(PAUSE);
     });
 
-    audioPlayer.onPlayerStateChanged.listen((event) {
-      interrupted = false;
-      if (event == AudioPlayerState.PLAYING) audioSession.setActive(true);
-    });
+    if (normalPlayer) {
+      audioPlayer.onPlayerStateChanged.listen((event) {
+        interrupted = false;
+        if (event == AudioPlayerState.PLAYING) {
+          if (musicPlayer.state == AudioPlayerState.PLAYING)
+            AudioService.customAction(PAUSE);
+          audioSession.setActive(true);
+        }
+      });
+    } else {
+      musicPlayer.onPlayerStateChanged.listen((event) {
+        interrupted = false;
+        if (event == AudioPlayerState.PLAYING) {
+          if (audioPlayer.state == AudioPlayerState.PLAYING) onPause();
+          audioSession.setActive(true);
+        }
+      });
+    }
+
     audioSession.interruptionEventStream.listen((event) async {
       if (event.begin) {
         switch (event.type) {
           case asp.AudioInterruptionType.duck:
             if (audioSession.androidAudioAttributes.usage ==
-                asp.AndroidAudioUsage.game)
-              await AudioService.customAction(AudioPlayerTask.SET_VOLUME, 0.3);
+                asp.AndroidAudioUsage.game) if (normalPlayer)
+              await AudioService.customAction(SET_VOLUME, 0.3);
+            else
+              await AudioService.customAction(VOLUME, 0.3);
             interrupted = false;
             break;
           case asp.AudioInterruptionType.pause:
           case asp.AudioInterruptionType.unknown:
-            await onPause();
+            if (normalPlayer)
+              await onPause();
+            else
+              AudioService.customAction(PAUSE);
             interrupted = true;
             break;
         }
       } else {
         switch (event.type) {
           case asp.AudioInterruptionType.duck:
-            await AudioService.customAction(AudioPlayerTask.SET_VOLUME, 1);
+            if (normalPlayer)
+              await AudioService.customAction(SET_VOLUME, 1);
+            else
+              await AudioService.customAction(VOLUME, 1);
             interrupted = false;
             break;
           case asp.AudioInterruptionType.pause:
             if (interrupted) {
-              await onPlay();
+              if (normalPlayer) {
+                if (musicPlayer.state == AudioPlayerState.PLAYING)
+                  await AudioService.customAction(PAUSE);
+                await onPlay();
+              } else {
+                if (audioPlayer.state == AudioPlayerState.PLAYING)
+                  await onPause();
+                AudioService.customAction(RESUME);
+              }
               interrupted = false;
             }
             break;
           case asp.AudioInterruptionType.unknown:
             if (interrupted) {
-              await onPlay();
+              if (normalPlayer) {
+                if (musicPlayer.state == AudioPlayerState.PLAYING)
+                  AudioService.customAction(PAUSE);
+                await onPlay();
+              } else {
+                if (audioPlayer.state == AudioPlayerState.PLAYING)
+                  await onPause();
+                AudioService.customAction(RESUME);
+              }
               interrupted = false;
             }
             break;
@@ -183,6 +265,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPlay() async {
+    if (musicPlayer.state == AudioPlayerState.PLAYING)
+      await musicPlayer.pause();
     await audioPlayer.resume();
     _broadcastState();
     return super.onPlay();
@@ -254,11 +338,13 @@ class AudioPlayerTask extends BackgroundAudioTask {
       });
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
+      if (musicPlayer.state == AudioPlayerState.PLAYING)
+        await musicPlayer.pause();
       audioSession = await asp.AudioSession.instance;
       audioSession
           .configure(asp.AudioSessionConfiguration.music())
           .then((value) async {
-        handleInterruptions(audioSession);
+        handleInterruptions(audioSession, true);
 
         if (await audioSession.setActive(true)) {
           await audioPlayer.play(mediaItem.id,
@@ -279,6 +365,38 @@ class AudioPlayerTask extends BackgroundAudioTask {
     if (name == SEEK) {
       Duration newDuration = Duration(seconds: arguments);
       audioPlayer.seek(newDuration);
+    }
+    if (name == PLAY) {
+      if (audioPlayer.state == AudioPlayerState.PLAYING)
+        await audioPlayer.pause();
+      audioSession2 = await asp.AudioSession.instance;
+      audioSession2
+          .configure(asp.AudioSessionConfiguration.music())
+          .then((value) async {
+        handleInterruptions(audioSession2, false);
+        if (await audioSession2.setActive(true)) {
+          await musicPlayer.play(arguments['url'],
+              isLocal: true, position: Duration());
+        }
+      });
+    }
+    if (name == PAUSE) {
+      await musicPlayer.pause();
+    }
+    if (name == RESUME) {
+      if (audioPlayer.state == AudioPlayerState.PLAYING)
+        await audioPlayer.pause();
+      await musicPlayer.resume();
+    }
+    if (name == STOP) {
+      await musicPlayer.stop();
+    }
+    if (name == SEEK_TO) {
+      Duration newDuration = Duration(seconds: arguments);
+      musicPlayer.seek(newDuration);
+    }
+    if (name == VOLUME) {
+      await musicPlayer.setVolume(arguments);
     }
     _broadcastState();
     return super.onCustomAction(name, arguments);
@@ -313,10 +431,7 @@ class MusicProvider with ChangeNotifier {
   int get length => songs.length;
   int get songNumber => _currentSongIndex + 1;
   String currentSongID = '';
-
   AudioPlayerState audioPlayerState;
-  // PlayerControlCommand playerControlCommand;
-  PlayerType playerType = PlayerType.ALL;
 
   Future<void> initProvider() async {
     SongRepository.init();
@@ -487,7 +602,6 @@ class MusicProvider with ChangeNotifier {
         () async => await AudioService.skipToQueueItem(song.file));
     await addActionToAudioService(() async =>
         await AudioService.customAction(AudioPlayerTask.PLAY_ACTION));
-
     notifyListeners();
   }
 

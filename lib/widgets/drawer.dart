@@ -74,7 +74,6 @@ class _AppDrawerState extends State<AppDrawer> {
     _prepare();
     shuffle = _musicProvider.shuffleSong;
     repeat = _musicProvider.repeatSong;
-
     super.initState();
   }
 
@@ -121,13 +120,6 @@ class _AppDrawerState extends State<AppDrawer> {
           loading = false;
         });
       }
-      // if (status == DownloadTaskStatus.failed) {
-      //   String newId = await FlutterDownloader.retry(taskId: data[0]);
-      //   if (data[0].toString() == splittedSongIDList[0].toString())
-      //     splittedSongIDList[0] = newId;
-      //   if (data[0].toString() == splittedSongIDList[1].toString())
-      //     splittedSongIDList[1] = newId;
-      // }
       if (status == DownloadTaskStatus.complete ||
           (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
         if (data[0].toString() == splittedSongIDList[0].toString()) {
@@ -232,12 +224,6 @@ class _AppDrawerState extends State<AppDrawer> {
             .then((value) => splittedSongIDList.insert(1, value));
       } else
         showToast(context, message: 'File already exists');
-      //   if (!(await File(_localPath + Platform.pathSeparator + _fileName[0])
-      //     .exists()))
-
-      // if (!(await File(_localPath + Platform.pathSeparator + _fileName[1])
-      //     .exists()))
-
     }
   }
 

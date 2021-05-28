@@ -16,6 +16,7 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import '../screens/song/song_view_screen.dart';
 import '../utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/screens/splitted/sing_along.dart';
+import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 class Library extends StatefulWidget {
   @override
@@ -128,6 +129,22 @@ class _LibraryState extends State<Library> {
                     ),
                     title: TextViewWidget(
                       text: 'Sing Along',
+                      color: AppColor.white,
+                      textSize: 18,
+                    ),
+                  ),
+                  Divider(
+                    color: AppColor.white,
+                  ),
+                  ListTile(
+                    onTap: () => PageRouter.gotoWidget(Downloads(), context),
+                    leading: Icon(
+                      Icons.download_rounded,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                    title: TextViewWidget(
+                      text: 'Downloads',
                       color: AppColor.white,
                       textSize: 18,
                     ),

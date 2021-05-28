@@ -198,23 +198,26 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     audioSession.interruptionEventStream.listen((event) async {
       if (event.begin) {
-        switch (event.type) {
-          case asp.AudioInterruptionType.duck:
-            if (audioSession.androidAudioAttributes.usage ==
-                asp.AndroidAudioUsage.game) if (normalPlayer)
-              await AudioService.customAction(SET_VOLUME, 0.3);
-            else
-              await AudioService.customAction(VOLUME, 0.3);
-            interrupted = false;
-            break;
-          case asp.AudioInterruptionType.pause:
-          case asp.AudioInterruptionType.unknown:
-            if (normalPlayer)
-              await onPause();
-            else
-              AudioService.customAction(PAUSE);
-            interrupted = true;
-            break;
+        if (audioPlayer.state == AudioPlayerState.PLAYING ||
+            musicPlayer.state == AudioPlayerState.PLAYING) {
+          switch (event.type) {
+            case asp.AudioInterruptionType.duck:
+              if (audioSession.androidAudioAttributes.usage ==
+                  asp.AndroidAudioUsage.game) if (normalPlayer)
+                await AudioService.customAction(SET_VOLUME, 0.3);
+              else
+                await AudioService.customAction(VOLUME, 0.3);
+              interrupted = false;
+              break;
+            case asp.AudioInterruptionType.pause:
+            case asp.AudioInterruptionType.unknown:
+              if (normalPlayer)
+                await onPause();
+              else
+                AudioService.customAction(PAUSE);
+              interrupted = true;
+              break;
+          }
         }
       } else {
         switch (event.type) {
@@ -226,19 +229,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
             interrupted = false;
             break;
           case asp.AudioInterruptionType.pause:
-            if (interrupted) {
-              if (normalPlayer) {
-                if (musicPlayer.state == AudioPlayerState.PLAYING)
-                  await AudioService.customAction(PAUSE);
-                await onPlay();
-              } else {
-                if (audioPlayer.state == AudioPlayerState.PLAYING)
-                  await onPause();
-                AudioService.customAction(RESUME);
-              }
-              interrupted = false;
-            }
-            break;
           case asp.AudioInterruptionType.unknown:
             if (interrupted) {
               if (normalPlayer) {
@@ -281,17 +271,15 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onClose() async {
-   
-  }
+  Future<void> onClose() async {}
 
   @override
   Future<void> onPlay() async {
+    await super.onPlay();
     if (musicPlayer.state == AudioPlayerState.PLAYING)
       await musicPlayer.pause();
     await audioPlayer.resume();
     _broadcastState();
-    return super.onPlay();
   }
 
   @override
@@ -337,9 +325,9 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPause() async {
+    await super.onPause();
     await audioPlayer.pause();
     _broadcastState();
-    return super.onPause();
   }
 
   @override
@@ -359,10 +347,10 @@ class AudioPlayerTask extends BackgroundAudioTask {
       });
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
-      if (musicPlayer.state == AudioPlayerState.PLAYING)
-        {await musicPlayer.stop();
-        if(playVocals) await vocalPlayer.stop();}
-      
+      if (musicPlayer.state == AudioPlayerState.PLAYING) {
+        await musicPlayer.stop();
+        if (playVocals) await vocalPlayer.stop();
+      }
 
       audioSession = await asp.AudioSession.instance;
       audioSession

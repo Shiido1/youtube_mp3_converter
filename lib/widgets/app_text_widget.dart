@@ -35,7 +35,7 @@ class _TextTitleState extends State<TextTitle> {
         ? Container(
             height: 20,
             child: Marquee(
-              text: _musicProvider?.currentSong?.fileName??'',
+              text: _musicProvider?.currentSong?.fileName ?? '',
               scrollAxis: Axis.horizontal,
               crossAxisAlignment: CrossAxisAlignment.start,
               style: TextStyle(

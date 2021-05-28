@@ -76,7 +76,6 @@ class _SliderClass2State extends State<SliderClass2> {
   }
 }
 
-
 class SliderClass3 extends StatefulWidget {
   @override
   _SliderClass3State createState() => _SliderClass3State();
@@ -98,11 +97,11 @@ class _SliderClass3State extends State<SliderClass3> {
 
   prefMed() {
     preferencesHelper.getStringValues(key: 'wav').then((value) => setState(() {
-      wav = value;
-    }));
+          wav = value;
+        }));
     preferencesHelper.getBoolValues(key: 'true').then((value) => setState(() {
-      isPlay = value;
-    }));
+          isPlay = value;
+        }));
   }
 
   @override

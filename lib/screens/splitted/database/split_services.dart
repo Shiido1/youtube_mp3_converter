@@ -48,4 +48,13 @@ class SplittedSongServices implements SplittedSongInterface {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     print(_box.keys);
   }
+
+  @override
+  renameSong({String fileName, String artistName, String songName}) async {
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    Song song = Song.fromMap(_box.get(fileName));
+    song.artistName = artistName ?? 'Unknown Artist';
+    song.songName = songName ?? 'Unknown';
+    _box.put(fileName, song.toJson());
+  }
 }

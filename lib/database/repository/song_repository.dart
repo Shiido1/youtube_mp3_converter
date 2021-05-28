@@ -29,6 +29,9 @@ class SongRepository {
   static Stream<List<Song>> streamAllSongs() => _services.streamAllSongs();
   static removeSongsFromPlaylistAterDelete(String songName) =>
       _services.removeSongsFromPlaylistAterDelete(songName);
+  static renameSong({String fileName, String artistName, String songName}) =>
+      _services.renameSong(
+          fileName: fileName, songName: songName, artistName: artistName);
 }
 
 class SplittedSongRepository {
@@ -44,4 +47,7 @@ class SplittedSongRepository {
   static deleteSong(String key) => _services.deleteSong(key);
 
   static getSongs() => _services.getSongs();
+  static renameSong({String fileName, String songName, String artistName}) =>
+      _services.renameSong(
+          artistName: artistName, songName: songName, fileName: fileName);
 }

@@ -456,7 +456,7 @@ class _ConvertState extends State<Convert> {
                               ),
                             )
                           : Container(),
-                      SizedBox(height: 60),
+                      SizedBox(height: 30),
                       loading == false
                           ? Container()
                           : Center(child: downloadProgress()),

@@ -14,6 +14,15 @@
 		<string>silexsecurerepo</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
+		<key>NSAppTransportSecurity</key>
+		<dict>
+			<key>NSAllowsArbitraryLoads</key>
+			<true/>
+		</dict>
+		<key>FDMaximumConcurrentTasks</key>
+		<integer>2</integer>
+		<key>FDAllFilesDownloadedMessage</key>
+		<string>All files have been downloaded</string>
 		<key>CFBundleShortVersionString</key>
 		<string>$(FLUTTER_BUILD_NAME)</string>
 		<key>CFBundleSignature</key>

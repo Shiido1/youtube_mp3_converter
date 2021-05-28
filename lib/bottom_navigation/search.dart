@@ -20,6 +20,8 @@ class _SearchState extends State<Search> {
   List<Song> songs = [];
   List<Song> songDuplicate = [];
   MusicProvider _musicProvider;
+  String searchKeyword = '';
+  bool searching = false;
 
   @override
   void initState() {
@@ -32,25 +34,27 @@ class _SearchState extends State<Search> {
 
   searchSong(String query) {
     List<Song> dummySearchList = [];
-    dummySearchList.addAll(songs);
+    dummySearchList.addAll(_musicProvider.allSongs);
     if (query.isNotEmpty) {
       List<Song> dummyListData = [];
       dummySearchList.forEach((item) {
-        if (item.fileName.toLowerCase().contains(query.toLowerCase())) {
+        if (item.songName.toLowerCase().contains(query.toLowerCase()) ||
+            item.artistName.toLowerCase().contains(query.toLowerCase()) &&
+                !dummyListData.contains(item)) {
           dummyListData.add(item);
         }
       });
       songs.clear();
       songs.addAll(dummyListData);
       if (songs.length > 0)
-        songs.sort((a, b) => a.fileName.compareTo(b.fileName));
+        songs.sort((a, b) => a.songName.compareTo(b.songName));
       setState(() {});
       return;
     } else {
       songs.clear();
       songs.addAll(songDuplicate);
       if (songs.length > 0)
-        songs.sort((a, b) => a.fileName.compareTo(b.fileName));
+        songs.sort((a, b) => a.songName.compareTo(b.songName));
       setState(() {});
     }
   }
@@ -59,10 +63,6 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<MusicProvider>(builder: (_, _provider, __) {
-        if (songs.length < 1) {
-          songs.addAll(_provider.allSongs);
-          songDuplicate.addAll(songs);
-        }
         return Container(
           color: AppColor.background,
           child: Column(
@@ -111,6 +111,10 @@ class _SearchState extends State<Search> {
                           new Expanded(
                             child: TextField(
                               onChanged: (s) {
+                                setState(() {
+                                  searching = true;
+                                  searchKeyword = s;
+                                });
                                 searchSong(s);
                               },
                               keyboardType: TextInputType.text,
@@ -143,7 +147,9 @@ class _SearchState extends State<Search> {
                                         color: AppColor.white,
                                         size: 20,
                                       )),
-                                  onTap: () {},
+                                  onTap: () {
+                                    searchSong(searchKeyword);
+                                  },
                                 ),
                               ),
                             ),
@@ -154,66 +160,96 @@ class _SearchState extends State<Search> {
                   )
                 ],
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: songs.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    Song _song = songs[index];
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListTile(
-                          leading: SizedBox(
-                              width: 95,
-                              height: 150,
-                              child:
-                                  _song?.image != null && _song.image.isNotEmpty
-                                      ? CachedNetworkImage(
-                                          imageUrl: _song.image,
-                                          placeholder: (context, index) =>
-                                              Container(
-                                            child: Center(
-                                                child: SizedBox(
-                                                    width: 20,
-                                                    height: 20,
-                                                    child:
-                                                        CircularProgressIndicator())),
-                                          ),
-                                          errorWidget: (context, url, error) =>
-                                              new Icon(Icons.error),
-                                        )
-                                      : null),
-                          title: InkWell(
-                            onTap: () {
-                              _musicProvider.songs = _musicProvider.allSongs;
-                              PageRouter.gotoWidget(
-                                  SongViewScreen(_song), context);
-                            },
-                            child: TextViewWidget(
-                              text: _song?.fileName ?? '',
-                              color: AppColor.white,
-                              textSize: 15,
-                              fontFamily: 'Roboto-Regular',
-                            ),
-                          ),
-                          trailing: Icon(
-                            Icons.navigate_next_sharp,
+              songs.length > 0
+                  ? Expanded(
+                      child: ListView.builder(
+                        itemCount: songs.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          Song _song = songs[index];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: SizedBox(
+                                    width: 95,
+                                    height: 150,
+                                    child: _song?.image != null &&
+                                            _song.image.isNotEmpty
+                                        ? CachedNetworkImage(
+                                            imageUrl: _song.image,
+                                            placeholder: (context, index) =>
+                                                Container(
+                                              child: Center(
+                                                  child: SizedBox(
+                                                      width: 20,
+                                                      height: 20,
+                                                      child:
+                                                          CircularProgressIndicator())),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    new Icon(Icons.error),
+                                          )
+                                        : null),
+                                title: InkWell(
+                                  onTap: () {
+                                    _musicProvider.songs =
+                                        _musicProvider.allSongs;
+                                    PageRouter.gotoWidget(
+                                        SongViewScreen(_song), context);
+                                  },
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: TextViewWidget(
+                                      text: _song?.songName ?? 'Unknown',
+                                      color: _provider?.currentSong?.fileName ==
+                                              _song?.fileName
+                                          ? AppColor.bottomRed
+                                          : AppColor.white,
+                                      textSize: 15,
+                                      fontFamily: 'Roboto-Regular',
+                                    ),
+                                    subtitle: TextViewWidget(
+                                      text:
+                                          _song?.artistName ?? 'Unknown Artist',
+                                      color: _provider?.currentSong?.fileName ==
+                                              _song?.fileName
+                                          ? AppColor.bottomRed
+                                          : AppColor.white,
+                                      textSize: 13,
+                                      fontFamily: 'Roboto-Regular',
+                                    ),
+                                  ),
+                                ),
+                                trailing: Icon(
+                                  Icons.navigate_next_sharp,
+                                  color: AppColor.white,
+                                ),
+                              ),
+                              if (songs.length - 1 != index)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 115.0, right: 15),
+                                  child: Divider(
+                                    color: AppColor.white,
+                                  ),
+                                )
+                            ],
+                          );
+                        },
+                      ),
+                    )
+                  : Expanded(
+                      child: Center(
+                        child: Text(
+                          searching ? 'No match found' : 'No Song',
+                          style: TextStyle(
                             color: AppColor.white,
+                            fontSize: 16,
                           ),
                         ),
-                        if (songs.length - 1 != index)
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 115.0, right: 15),
-                            child: Divider(
-                              color: AppColor.white,
-                            ),
-                          )
-                      ],
-                    );
-                  },
-                ),
-              ),
+                      ),
+                    ),
               BottomPlayingIndicator(),
             ],
           ),

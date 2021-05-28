@@ -15,10 +15,15 @@ abstract class SongInterface {
   deleteSong(String key);
   watchSongs();
   Stream<List<Song>> streamAllSongs();
+  renameSong(
+      {@required String fileName,
+      @required String artistName,
+      @required String songName});
 }
 
 abstract class SplittedSongInterface {
   addSong(Song log);
   Future<List<Song>> getSongs();
   deleteSong(String key);
+  renameSong({String fileName, String artistName, String songName});
 }

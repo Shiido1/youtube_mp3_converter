@@ -37,6 +37,15 @@ class SongServices implements SongInterface {
   }
 
   @override
+  renameSong({String fileName, String artistName, String songName}) async {
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    Song song = Song.fromMap(_box.get(fileName));
+    song.artistName = artistName ?? 'Unknown Artist';
+    song.songName = songName ?? 'Unknown';
+    _box.put(fileName, song.toJson());
+  }
+
+  @override
   createPlayList({String playListName, List songs}) async {
     if (!(_boxList?.isOpen ?? false))
       _boxList = await PgHiveBoxes.openBox<List>('playLists');
@@ -127,17 +136,17 @@ class SongServices implements SongInterface {
     await _box.delete(key);
   }
 
-  removeSongsFromPlaylistAterDelete(String songName) async {
+  removeSongsFromPlaylistAterDelete(String fileName) async {
     if (!(_boxList?.isOpen ?? false))
       _boxList = await PgHiveBoxes.openBox<List>('playLists');
     List playlist = [];
     _boxList.keys.forEach((element) {
-      if (_boxList.get(element).contains(songName)) playlist.add(element);
+      if (_boxList.get(element).contains(fileName)) playlist.add(element);
     });
     if (playlist.isNotEmpty) {
       playlist.forEach((element) async {
         List songs = _boxList.get(element);
-        songs.remove(songName);
+        songs.remove(fileName);
         await _boxList.put(element, songs);
       });
     }

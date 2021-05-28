@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
@@ -28,24 +29,62 @@ class DeleteSongs {
               data: Theme.of(context).copyWith(
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent),
-              child: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                  showConfirmDeleteDialog(
-                      song: song,
-                      record: record,
-                      splitted: splitted,
-                      showAll: showAll);
-                },
-                child: Container(
-                  height: 30,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Delete Song',
-                    style: TextStyle(fontSize: 17, color: Colors.white),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDownloadDialog(
+                        song: song.songName,
+                        artist: song.artistName,
+                        context: context,
+                        fileName: song.splittedFileName,
+                        download: false,
+                        showAll: showAll);
+                  },
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10),
+                    height: 50,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(0),
+                      leading: Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
+                      title: Text(
+                        'Rename Song',
+                        style: TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                    showConfirmDeleteDialog(
+                        song: song,
+                        record: record,
+                        splitted: splitted,
+                        showAll: showAll);
+                  },
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    padding: EdgeInsets.only(left: 10),
+                    height: 50,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(0),
+                      leading: Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                      ),
+                      title: Text(
+                        'Delete Song',
+                        style: TextStyle(color: Colors.white, fontSize: 17),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
             ),
           );
         });

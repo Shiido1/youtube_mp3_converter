@@ -4,8 +4,8 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
+import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/database/split_services.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -36,7 +36,11 @@ bool debug = true;
 
 class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
-  AppDrawer({Key key, this.platform}) : super(key: key);
+
+  AppDrawer({
+    Key key,
+    this.platform,
+  }) : super(key: key);
 
   @override
   _AppDrawerState createState() => _AppDrawerState();
@@ -60,11 +64,6 @@ class _AppDrawerState extends State<AppDrawer> {
   bool repeat;
 
   CustomProgressIndicator _progressIndicator;
-
-  // Future<List<String>> pickFile() async {
-  //   final result = await FilePicker.platform.pickFiles(allowMultiple: true);
-  //   return result == null ? <String>[] : result.paths;
-  // }
 
   @override
   void initState() {
@@ -181,7 +180,7 @@ class _AppDrawerState extends State<AppDrawer> {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
-      if (saveToDownload) {
+      if (saveToDownload = true) {
         var downloadPath = await DownloadsPathProvider.downloadsDirectory;
         _localPath = downloadPath.path;
       }
@@ -282,15 +281,6 @@ class _AppDrawerState extends State<AppDrawer> {
     return directory.path;
   }
 
-  printThis() async {
-    List songss = await SplittedSongServices().getKeys();
-
-    print(songss);
-
-    List<Song> songer = await SplittedSongServices().getSongs();
-    for (Song song in songer) print(song.file);
-  }
-
   @override
   Widget build(BuildContext context) {
     // SplittedSongServices().deleteSong('him');
@@ -311,7 +301,6 @@ class _AppDrawerState extends State<AppDrawer> {
     // print(_musicProvider.drawerItem.file);
     // FlutterDownloader.cancelAll();
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
-      // print(_provider?.drawerItem?.file);
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),
         child: Drawer(
@@ -481,6 +470,32 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                     ],
                   ),
+                  Wrap(
+                    children: [
+                      Divider(
+                        color: AppColor.white,
+                      ),
+                      ListTile(
+                        onTap: () async {
+                          Song song = _provider?.drawerItem;
+                          Navigator.pop(context);
+                          showDownloadDialog(
+                              context: context,
+                              artist: song.artistName,
+                              song: song.songName,
+                              fileName: song.fileName,
+                              download: false,
+                              split: false);
+                        },
+                        leading: Icon(Icons.edit, color: AppColor.white),
+                        title: TextViewWidget(
+                          text: 'Rename Song',
+                          color: AppColor.white,
+                          textSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
                   Expanded(
                     child: Wrap(
                       children: [
@@ -512,6 +527,77 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
+  downFileFunction() async {
+    await _requestDownload(
+        link: _apiSplittedList[0],
+        saveToDownload: true,
+        fileName: _musicProvider.drawerItem.fileName);
+    await _requestDownload(
+        link: _apiSplittedList[1],
+        saveToDownload: true,
+        fileName: _musicProvider.drawerItem.fileName);
+  }
+
+  Future<void> _showDialog(BuildContext context, String file) {
+    return showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+            child: AlertDialog(
+                backgroundColor: AppColor.white.withOpacity(0.6),
+                content: Container(
+                  decoration: new BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius:
+                        new BorderRadius.all(new Radius.circular(32.0)),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 20, bottom: 50),
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // SvgPicture.asset(AppAssets.check),
+                          SizedBox(
+                            height: 11.5,
+                          ),
+                          Center(
+                            child: TextViewWidget(
+                              color: AppColor.black,
+                              fontWeight: FontWeight.w500,
+                              textSize: 21,
+                              text: 'Download Spit file',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(
+                            height: 15,
+                          ),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () => downFileFunction(),
+                              style: TextButton.styleFrom(
+                                backgroundColor: AppColor.green,
+                              ),
+                              child: TextViewWidget(
+                                text: 'Download',
+                                color: AppColor.white,
+                                textSize: 20,
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )),
+          );
+        });
+  }
+
   Future splitSongMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
@@ -523,7 +609,8 @@ class _AppDrawerState extends State<AppDrawer> {
     var splittedFiles = await SplitAssistant.splitFile(
         filePath: result, context: context, userToken: userToken);
     if (splittedFiles != "Failed") {
-      _progressIndicator.dismiss();
+      await _progressIndicator.dismiss();
+      _showDialog(context, _fileName.toString());
       bool isSaved = await SplitAssistant.saveSplitFiles(
           decodedData: splittedFiles, context: context, userToken: userToken);
       if (isSaved && _permissionReady) {
@@ -534,15 +621,6 @@ class _AppDrawerState extends State<AppDrawer> {
         _fileName = ['', ''];
         _apiSplittedList.insert(0, otherUrl);
         _apiSplittedList.insert(1, voiceUrl);
-
-        await _requestDownload(
-            link: _apiSplittedList[0],
-            saveToDownload: true,
-            fileName: _musicProvider.drawerItem.fileName);
-        await _requestDownload(
-            link: _apiSplittedList[1],
-            saveToDownload: true,
-            fileName: _musicProvider.drawerItem.fileName);
       } else if (!_permissionReady) {
         _buildNoPermissionWarning();
       } else {

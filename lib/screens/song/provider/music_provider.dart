@@ -360,7 +360,10 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
       if (musicPlayer.state == AudioPlayerState.PLAYING)
-        await musicPlayer.stop();
+        {await musicPlayer.stop();
+        if(playVocals) await vocalPlayer.stop();}
+      
+
       audioSession = await asp.AudioSession.instance;
       audioSession
           .configure(asp.AudioSessionConfiguration.music())
@@ -391,7 +394,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       identity = arguments['identity'];
       playVocals = arguments['playVocals'] ?? false;
       if (audioPlayer.state == AudioPlayerState.PLAYING)
-        await audioPlayer.stop();
+        await audioPlayer.pause();
       audioSession2 = await asp.AudioSession.instance;
       audioSession2
           .configure(asp.AudioSessionConfiguration.music())

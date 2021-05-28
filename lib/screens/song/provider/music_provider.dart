@@ -21,6 +21,7 @@ void _entryPoint() {
 class AudioPlayerTask extends BackgroundAudioTask {
   AudioPlayer audioPlayer;
   AudioPlayer musicPlayer;
+  AudioPlayer vocalPlayer;
   static const POSITION_EVENT = 'POSITION_EVENT';
   static const POSITION = 'POSITION';
   static const DURATION_EVENT = 'DURATION_EVENT';
@@ -39,14 +40,18 @@ class AudioPlayerTask extends BackgroundAudioTask {
   static const STOP = 'stop';
   static const SEEK_TO = 'seek_to';
   static const VOLUME = 'volume';
+  static const VOCAL_VOLUME = 'vocal_volume';
   int index;
   PlayerType playerType = PlayerType.ALL;
   asp.AudioSession audioSession;
   asp.AudioSession audioSession2;
+  String identity;
+  bool playVocals = false;
 
   void initPlayer() {
     audioPlayer = AudioPlayer();
     musicPlayer = AudioPlayer();
+    vocalPlayer = AudioPlayer();
 
     audioPlayer.onPlayerCompletion.listen((event) {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
@@ -95,22 +100,27 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     musicPlayer.onPlayerCompletion.listen((event) {
       musicPlayer.state = AudioPlayerState.STOPPED;
-      AudioServiceBackground.sendCustomEvent({COMPLETION: true});
+      if (playVocals) vocalPlayer.state = AudioPlayerState.STOPPED;
+      AudioServiceBackground.sendCustomEvent(
+          {COMPLETION: true, 'identity': identity});
       _broadcastState();
     });
 
     musicPlayer.onPlayerStateChanged.listen((event) {
-      AudioServiceBackground.sendCustomEvent({STATE: event});
+      AudioServiceBackground.sendCustomEvent(
+          {STATE: event, 'identity': identity});
       _broadcastState();
     });
 
     musicPlayer.onAudioPositionChanged.listen((position) {
-      AudioServiceBackground.sendCustomEvent({POSITION: position.inSeconds});
+      AudioServiceBackground.sendCustomEvent(
+          {POSITION: position.inSeconds, 'identity': identity});
       _broadcastState();
     });
 
     musicPlayer.onDurationChanged.listen((duration) {
-      AudioServiceBackground.sendCustomEvent({DURATION: duration.inSeconds});
+      AudioServiceBackground.sendCustomEvent(
+          {DURATION: duration.inSeconds, 'identity': identity});
       // AudioServiceBackground.setMediaItem(
       //     AudioServiceBackground.mediaItem.copyWith(duration: duration));
       // AudioServiceBackground.sendCustomEvent(
@@ -143,19 +153,18 @@ class AudioPlayerTask extends BackgroundAudioTask {
     preferencesHelper.saveValue(key: 'last_play', value: json.encode(song));
   }
 
-  Future<void> _broadcastState({Duration position}) async {
+  Future<void> _broadcastState() async {
     await AudioServiceBackground.setState(
-        controls: [
-          MediaControl.skipToPrevious,
-          audioPlayer.state == AudioPlayerState.PLAYING
-              ? MediaControl.pause
-              : MediaControl.play,
-          MediaControl.stop,
-          MediaControl.skipToNext
-        ],
-        playing: audioPlayer.state == AudioPlayerState.PLAYING,
-        processingState: _getProcessingState(),
-        position: position != null ? position : Duration());
+      controls: [
+        MediaControl.skipToPrevious,
+        audioPlayer.state == AudioPlayerState.PLAYING
+            ? MediaControl.pause
+            : MediaControl.play,
+        MediaControl.skipToNext
+      ],
+      playing: audioPlayer.state == AudioPlayerState.PLAYING,
+      processingState: _getProcessingState(),
+    );
   }
 
   void handleInterruptions(
@@ -257,10 +266,23 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
+  Future<void> onTaskRemoved() async {
+    await onStop();
+    await super.onTaskRemoved();
+  }
+
+  @override
   Future<void> onStop() async {
     await audioPlayer.stop();
+    await vocalPlayer.stop();
+    await musicPlayer.stop();
     await _broadcastState();
-    return super.onStop();
+    await super.onStop();
+  }
+
+  @override
+  Future<void> onClose() async {
+   
   }
 
   @override
@@ -310,7 +332,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
     }
-
     return super.onSkipToPrevious();
   }
 
@@ -339,7 +360,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
       if (musicPlayer.state == AudioPlayerState.PLAYING)
-        await musicPlayer.pause();
+        await musicPlayer.stop();
       audioSession = await asp.AudioSession.instance;
       audioSession
           .configure(asp.AudioSessionConfiguration.music())
@@ -367,8 +388,10 @@ class AudioPlayerTask extends BackgroundAudioTask {
       audioPlayer.seek(newDuration);
     }
     if (name == PLAY) {
+      identity = arguments['identity'];
+      playVocals = arguments['playVocals'] ?? false;
       if (audioPlayer.state == AudioPlayerState.PLAYING)
-        await audioPlayer.pause();
+        await audioPlayer.stop();
       audioSession2 = await asp.AudioSession.instance;
       audioSession2
           .configure(asp.AudioSessionConfiguration.music())
@@ -377,26 +400,38 @@ class AudioPlayerTask extends BackgroundAudioTask {
         if (await audioSession2.setActive(true)) {
           await musicPlayer.play(arguments['url'],
               isLocal: true, position: Duration());
+          if (playVocals)
+            await vocalPlayer.play(arguments['path'],
+                isLocal: true, position: Duration(seconds: 0));
         }
       });
     }
     if (name == PAUSE) {
       await musicPlayer.pause();
+      if (playVocals) await vocalPlayer.pause();
     }
     if (name == RESUME) {
       if (audioPlayer.state == AudioPlayerState.PLAYING)
         await audioPlayer.pause();
       await musicPlayer.resume();
+      if (playVocals) await vocalPlayer.resume();
     }
     if (name == STOP) {
       await musicPlayer.stop();
+      if (playVocals) await vocalPlayer.stop();
     }
     if (name == SEEK_TO) {
       Duration newDuration = Duration(seconds: arguments);
       musicPlayer.seek(newDuration);
+      if (playVocals) vocalPlayer.seek(newDuration);
     }
     if (name == VOLUME) {
       await musicPlayer.setVolume(arguments);
+      if (playVocals) await vocalPlayer.setVolume(arguments);
+    }
+
+    if (name == VOCAL_VOLUME) {
+      await vocalPlayer.setVolume(arguments);
     }
     _broadcastState();
     return super.onCustomAction(name, arguments);
@@ -469,7 +504,11 @@ class MusicProvider with ChangeNotifier {
   }
 
   Future<void> initPlayer() async {
-    await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
+    await AudioService.start(
+      backgroundTaskEntrypoint: _entryPoint,
+      androidStopForegroundOnPause: true,
+      androidShowNotificationBadge: true,
+    );
     AudioService.customEventStream.listen((event) async {
       if (event[AudioPlayerTask.DURATION_EVENT] != null) {
         totalDuration =
@@ -606,8 +645,9 @@ class MusicProvider with ChangeNotifier {
   }
 
   Future<dynamic> addActionToAudioService(Function callback) async {
+    print(AudioService);
     if (AudioService.running == null || !AudioService.running)
-      await initPlayer();
+      await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
     return callback();
   }
 

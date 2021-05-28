@@ -1,20 +1,18 @@
-import 'dart:math';
-
-import 'package:audioplayers/audio_cache.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
+
+enum PlayerState { NONE, PLAYING, PAUSED }
 
 class SplittedSongProvider with ChangeNotifier {
   Duration totalDuration = Duration();
   Duration progress = Duration();
-  AudioPlayer advancedPlayer;
-  AudioCache audioCache;
   Song currentSong;
-  Song drawerItem;
   List<Song> songs = [];
   List<Song> allSongs = [];
   List splittedSongName = [];
@@ -29,6 +27,7 @@ class SplittedSongProvider with ChangeNotifier {
 
   AudioPlayerState audioPlayerState;
   PlayerType playerType = PlayerType.ALL;
+  PlayerState playerState = PlayerState.NONE;
 
   initProvider() {
     SplittedSongRepository.init();
@@ -53,26 +52,44 @@ class SplittedSongProvider with ChangeNotifier {
   }
 
   void initPlayer() {
-    if (advancedPlayer != null) return;
-    advancedPlayer = new AudioPlayer();
-    audioCache = new AudioCache(fixedPlayer: advancedPlayer);
-    advancedPlayer.onAudioPositionChanged.listen((Duration position) {
-      progress = position;
-      notifyListeners();
+    AudioService.customEventStream.listen((event) {
+      if (event[AudioPlayerTask.DURATION] != null &&
+          event['identity'] == 'split') {
+        totalDuration =
+            Duration(seconds: event[AudioPlayerTask.DURATION]) ?? Duration();
+        notifyListeners();
+      }
+      if (event[AudioPlayerTask.POSITION] != null &&
+          event['identity'] == 'split') {
+        progress =
+            Duration(seconds: event[AudioPlayerTask.POSITION]) ?? Duration();
+        notifyListeners();
+      }
+      if (event[AudioPlayerTask.STATE] != null &&
+          event['identity'] == 'split') {
+        audioPlayerState = event[AudioPlayerTask.STATE];
+        switch (audioPlayerState) {
+          case AudioPlayerState.STOPPED:
+            playerState = PlayerState.NONE;
+            break;
+          case AudioPlayerState.PLAYING:
+            playerState = PlayerState.PLAYING;
+            break;
+          case AudioPlayerState.PAUSED:
+            playerState = PlayerState.PAUSED;
+            break;
+          case AudioPlayerState.COMPLETED:
+            playerState = PlayerState.NONE;
+            break;
+        }
+        notifyListeners();
+      }
     });
+  }
 
-    advancedPlayer.onDurationChanged.listen((Duration duration) {
-      totalDuration = duration;
-      notifyListeners();
-    });
-    advancedPlayer.onPlayerStateChanged.listen((AudioPlayerState s) {
-      audioPlayerState = s;
-      notifyListeners();
-    });
-
-    // advancedPlayer.onPlayerCompletion.listen((event) {
-    //   completion();
-    // });
+  void updateState(PlayerState state) {
+    this.playerState = state;
+    notifyListeners();
   }
 
   void updateLocal(Song song) {
@@ -84,152 +101,49 @@ class SplittedSongProvider with ChangeNotifier {
     }
   }
 
-  void updateDrawer(Song log) {
-    drawerItem = log;
+  Future<void> seekToSecond(
+      {@required int second, bool playVocals = false}) async {
+    await AudioService.customAction(AudioPlayerTask.SEEK_TO, second);
   }
 
-  void seekToSecond(int second) {
-    Duration newDuration = Duration(seconds: second);
-    advancedPlayer.seek(newDuration);
-  }
-
-  void playAudio(
-    Song song,
-  ) async {
-    if (audioPlayerState == AudioPlayerState.PLAYING &&
-        currentSong.fileName == song.fileName) return;
-    if (advancedPlayer == null) initPlayer();
-    if (audioPlayerState == AudioPlayerState.PLAYING) stopAudio();
-    await advancedPlayer.play(song.file);
-    currentSong = song;
-    // savePlayingSong(song);
+  Future<void> playAudio(
+      {@required Song song, String file, bool playVocals = false}) async {
+    playerState = PlayerState.PLAYING;
+    await AudioService.customAction(AudioPlayerTask.PLAY, {
+      'url': song.file,
+      'identity': 'split',
+      'path': file ?? '',
+      'playVocals': playVocals
+    });
     notifyListeners();
   }
 
-  // savePlayingSong(Song song){
-  //   preferencesHelper.saveValue(
-  //       key: 'last_play',
-  //       value: json.encode(song.toJson())
-  //   );
-  // }
-
-  void resumeAudio() async {
-    await advancedPlayer.resume();
+  Future<void> resumeAudio() async {
+    playerState = PlayerState.PLAYING;
+    await AudioService.customAction(AudioPlayerTask.RESUME);
     notifyListeners();
   }
 
-  void pauseAudio() async {
-    await advancedPlayer.pause();
+  Future<void> pauseAudio() async {
+    playerState = PlayerState.PAUSED;
+    await AudioService.customAction(AudioPlayerTask.PAUSE);
     notifyListeners();
   }
 
-  void stopAudio() async {
-    await advancedPlayer.stop();
+  Future<void> stopAudio() async {
+    playerState = PlayerState.NONE;
+    await AudioService.customAction(AudioPlayerTask.STOP);
     progress = Duration();
     notifyListeners();
   }
 
-  void completion() async {
-    audioPlayerState = AudioPlayerState.STOPPED;
-    switch (playerType) {
-      case PlayerType.ALL:
-        playAudio(nextSong);
-        break;
-      case PlayerType.SHUFFLE:
-        shuffle(false);
-        break;
-      case PlayerType.REPEAT:
-        playAudio(currentSong);
-        break;
-    }
+  Future<void> setVolume(double vol) async {
+    await AudioService.customAction(AudioPlayerTask.VOLUME, vol);
     notifyListeners();
   }
 
-  Future next() async {
-    playAudio(nextSong);
+  Future<void> setVocalVolume(double vol) async {
+    await AudioService.customAction(AudioPlayerTask.VOCAL_VOLUME, vol);
     notifyListeners();
-  }
-
-  Future prev() async {
-    playAudio(prevSong);
-    notifyListeners();
-  }
-
-  Future shuffle(bool force) async {
-    shuffleSong = true;
-    playerType = PlayerType.SHUFFLE;
-    if (force) playAudio(randomSong);
-    if (audioPlayerState == AudioPlayerState.STOPPED) playAudio(randomSong);
-    notifyListeners();
-  }
-
-  Future stopShuffle() async {
-    shuffleSong = false;
-    playerType = PlayerType.ALL;
-    notifyListeners();
-  }
-
-  Future repeat(Song song) async {
-    playerType = PlayerType.REPEAT;
-    repeatSong = true;
-    playAudio(song);
-    notifyListeners();
-  }
-
-  Future undoRepeat() async {
-    repeatSong = false;
-    playerType = PlayerType.ALL;
-    notifyListeners();
-  }
-
-  handlePlaying() {
-    switch (audioPlayerState) {
-      case AudioPlayerState.STOPPED:
-        stopAudio();
-        break;
-      case AudioPlayerState.PAUSED:
-        resumeAudio();
-        break;
-      case AudioPlayerState.PLAYING:
-        pauseAudio();
-        break;
-      case AudioPlayerState.COMPLETED:
-        playAudio(currentSong);
-        break;
-      default:
-        playAudio(currentSong);
-    }
-  }
-
-  setCurrentIndex(int index) {
-    _currentSongIndex = index;
-  }
-
-  int get currentIndex => _currentSongIndex;
-
-  bool get canNextSong => _currentSongIndex == length - 1;
-  bool get canPrevSong => _currentSongIndex == 0;
-
-  Song get nextSong {
-    if (_currentSongIndex < length) {
-      _currentSongIndex++;
-    }
-    if (_currentSongIndex >= length) return null;
-    return songs[_currentSongIndex];
-  }
-
-  Song get randomSong {
-    Random r = new Random();
-    int songIndex = r.nextInt(songs.length);
-    setCurrentIndex(songIndex);
-    return songs[songIndex];
-  }
-
-  Song get prevSong {
-    if (_currentSongIndex > 0) {
-      _currentSongIndex--;
-    }
-    if (_currentSongIndex < 0) return null;
-    return songs[_currentSongIndex];
   }
 }

@@ -6,12 +6,16 @@ import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:audio_session/audio_session.dart' as asp;
+import 'package:provider/provider.dart';
 
 class MuteVocalsScreen extends StatefulWidget {
   final LocalFileSystem localFileSystem;
@@ -25,54 +29,18 @@ class MuteVocalsScreen extends StatefulWidget {
 }
 
 class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
-  AudioPlayer _instrumentalAudioPlayer = AudioPlayer();
-  AudioPlayer _vocalAudioPlayer = AudioPlayer();
-
-  bool _isPlaying = false;
   bool _isRecording = false;
   bool _playVocals = true;
-  String recordingDuration = '0:00:00';
-
-  String currentPlayingTime = "00:00";
-  Duration currentTime = Duration();
-  Duration maxTime = Duration();
-  String playingCompleteTime = "00:00";
+  asp.AudioSession audioSession;
+  SplittedSongProvider _songProvider;
 
   FlutterAudioRecorder _recorder;
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
-  StreamSubscription audioSuscription;
-  StreamSubscription audioSuscription2;
 
   @override
   void initState() {
-    audioSuscription = _instrumentalAudioPlayer.onAudioPositionChanged
-        .listen((Duration duration) {
-      if (duration >= Duration(milliseconds: 500) &&
-          _currentStatus == RecordingStatus.Initialized &&
-          _isPlaying == true &&
-          _isRecording == true) _startRecorder();
-      setState(() {
-        currentTime = duration;
-        currentPlayingTime = duration.toString().split(".")[0];
-      });
-      if (currentPlayingTime == playingCompleteTime) {
-        setState(() {
-          _isPlaying = false;
-          currentPlayingTime = "00:00";
-          currentTime = Duration();
-        });
-        if (_isRecording) _stopRecorder();
-      }
-    });
-
-    audioSuscription2 =
-        _instrumentalAudioPlayer.onDurationChanged.listen((Duration duration) {
-      setState(() {
-        maxTime = duration;
-        playingCompleteTime = duration.toString().split(".")[0];
-      });
-    });
+    _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
 
     _init();
     super.initState();
@@ -80,10 +48,9 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   void dispose() {
-    _instrumentalAudioPlayer.dispose();
-    _vocalAudioPlayer.dispose();
-    audioSuscription.cancel();
-    audioSuscription2.cancel();
+    if (_songProvider.playerState != PlayerState.NONE)
+      _songProvider.stopAudio();
+    if (_isRecording) _recorder.stop();
     super.dispose();
   }
 
@@ -143,7 +110,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
     }
   }
 
-  _startRecorder() async {
+  Future<void> _startRecorder() async {
     try {
       await _recorder.start();
       var recording = await _recorder.current(channel: 0);
@@ -171,29 +138,16 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
     }
   }
 
-  _resumeRecorder() async {
-    await _recorder.resume();
-    setState(() {});
-  }
-
-  _pauseRecorder() async {
-    await _recorder.pause();
-    setState(() {});
-  }
-
-  _stopRecorder() async {
+  Future<void> _stopRecorder() async {
     var result = await _recorder.stop();
 
     RecorderServices().addRecording(RecorderModel(path: result.path));
-    await _instrumentalAudioPlayer.stop();
-    await _vocalAudioPlayer.stop();
+    _songProvider.stopAudio();
     setState(() {
       _current = result;
       _currentStatus = _current.status;
       _isRecording = false;
-      _isPlaying = false;
     });
-    // Toast.show('Song has been saved to recorded list', context, duration: 2);
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (_) => Recorded()));
     _init();
@@ -231,236 +185,217 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColor.grey,
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: Icon(
-            Icons.arrow_back_ios_sharp,
-            color: AppColor.white,
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: new BoxDecoration(
-          color: AppColor.grey,
-          image: new DecorationImage(
-            fit: BoxFit.cover,
-            colorFilter: new ColorFilter.mode(
-                AppColor.black.withOpacity(0.5), BlendMode.dstATop),
-            image: new AssetImage(
-              AppAssets.bgImage2,
+    return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColor.grey,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(
+              Icons.arrow_back_ios_sharp,
+              color: AppColor.white,
             ),
           ),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Container(
-                height: 250,
-                width: 250,
-                decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                    image: new DecorationImage(
-                      image: new AssetImage(AppAssets.image1),
-                      fit: BoxFit.contain,
-                    ))),
-            SizedBox(
-              height: 20,
-            ),
-            Center(
-              child: TextViewWidget(
-                text: widget.song.splittedFileName ?? 'Unknown',
-                color: AppColor.white,
-                textSize: 18,
-                fontWeight: FontWeight.w700,
-                textAlign: TextAlign.center,
+        body: Container(
+          decoration: new BoxDecoration(
+            color: AppColor.grey,
+            image: new DecorationImage(
+              fit: BoxFit.cover,
+              colorFilter: new ColorFilter.mode(
+                  AppColor.black.withOpacity(0.5), BlendMode.dstATop),
+              image: new AssetImage(
+                AppAssets.bgImage2,
               ),
             ),
-            SizedBox(
-              height: 40,
-            ),
-            Container(
-              width: 300,
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  TextViewWidget(
-                    text: currentPlayingTime,
-                    textSize: 16,
-                    color: AppColor.white,
-                    textAlign: TextAlign.center,
-                  ),
-                  Expanded(
-                    child: Slider(
-                        activeColor: AppColor.bottomRed,
-                        inactiveColor: AppColor.white,
-                        value: currentTime.inSeconds.toDouble(),
-                        min: 0.0,
-                        max: maxTime.inSeconds.toDouble(),
-                        onChanged: (double value) {
-                          Duration newDuration =
-                              Duration(seconds: value.toInt());
-                          if (_isPlaying)
-                            Future.wait([
-                              _instrumentalAudioPlayer.seek(newDuration),
-                              _vocalAudioPlayer.seek(newDuration)
-                            ]);
-                          setState(() {});
-                        }),
-                  ),
-                  TextViewWidget(
-                    text: playingCompleteTime,
-                    textSize: 16,
-                    textAlign: TextAlign.center,
-                    color: AppColor.white,
-                  ),
-                ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                  height: 250,
+                  width: 250,
+                  decoration: new BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                      image: new DecorationImage(
+                        image: new AssetImage(AppAssets.image1),
+                        fit: BoxFit.contain,
+                      ))),
+              SizedBox(
+                height: 20,
               ),
-            ),
-            SizedBox(
-              height: 40,
-            ),
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                      icon: Icon(
-                          _isPlaying
-                              ? Icons.pause_circle_outline_rounded
-                              : Icons.play_circle_outline_rounded,
-                          size: 65,
-                          color: AppColor.white),
-                      onPressed: () async {
-                        if (!_isRecording && _isPlaying) {
-                          Future.wait([
-                            _instrumentalAudioPlayer.pause(),
-                            _vocalAudioPlayer.pause()
-                          ]);
-                          setState(() {
-                            _isPlaying = false;
-                          });
-                        } else if (_isRecording && _isPlaying) {
-                          Future.wait([
-                            _instrumentalAudioPlayer.pause(),
-                            _vocalAudioPlayer.pause()
-                          ]);
-                          _pauseRecorder();
-                          setState(() {
-                            _isPlaying = false;
-                          });
-                        } else if (_isRecording && !_isPlaying) {
-                          Future.wait([
-                            _instrumentalAudioPlayer.resume(),
-                            _vocalAudioPlayer.resume()
-                          ]);
-                          _resumeRecorder();
-                          setState(() {
-                            _isPlaying = true;
-                          });
-                        } else if (!_isPlaying && !_isRecording) {
-                          Future.wait([
-                            _instrumentalAudioPlayer.play(widget.song.file,
-                                isLocal: true),
-                            _vocalAudioPlayer.play(
-                                '${widget.song.filePath}/${widget.song.vocalName}',
-                                isLocal: true)
-                          ]);
-                          setState(() {
-                            _isPlaying = true;
-                          });
-                        }
-                      }),
-                  IconButton(
-                      icon: Icon(
+              Center(
+                child: TextViewWidget(
+                  text: widget.song.songName ?? 'Unknown Song',
+                  color: AppColor.white,
+                  textSize: 15,
+                  fontFamily: 'Roboto-Regular',
+                ),
+              ),
+              SizedBox(height: 10),
+              Center(
+                child: TextViewWidget(
+                  text: widget.song.artistName ?? 'Unknown Artist',
+                  color: AppColor.white,
+                  textSize: 13,
+                  fontFamily: 'Roboto-Regular',
+                ),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              Container(
+                width: 300,
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    TextViewWidget(
+                      text: _provider.progress.toString().split('.')[0],
+                      textSize: 16,
+                      color: AppColor.white,
+                      textAlign: TextAlign.center,
+                    ),
+                    Expanded(
+                      child: Slider(
+                          activeColor: AppColor.bottomRed,
+                          inactiveColor: AppColor.white,
+                          value: _provider.progress.inSeconds.toDouble(),
+                          min: 0.0,
+                          max: _provider.totalDuration.inSeconds.toDouble(),
+                          onChanged: (double value) async {
+                            Duration newDuration =
+                                Duration(seconds: value.toInt());
+                            if (_provider.playerState == PlayerState.PLAYING ||
+                                _provider.playerState == PlayerState.PAUSED)
+                              await Future.wait([
+                                _provider.seekToSecond(
+                                    second: newDuration.inSeconds,
+                                    playVocals: true),
+                              ]);
+                            setState(() {});
+                          }),
+                    ),
+                    TextViewWidget(
+                      text: _provider.totalDuration.toString().split('.')[0],
+                      textSize: 16,
+                      textAlign: TextAlign.center,
+                      color: AppColor.white,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (!_isRecording)
+                      IconButton(
+                          icon: Icon(
+                              _provider.playerState == PlayerState.PLAYING &&
+                                      !_isRecording
+                                  ? Icons.pause_circle_outline_rounded
+                                  : Icons.play_circle_outline_rounded,
+                              size: 65,
+                              color: AppColor.white),
+                          onPressed: () async {
+                            if (!_isRecording &&
+                                _provider.playerState == PlayerState.PLAYING) {
+                              await Future.wait([
+                                _provider.pauseAudio(),
+                              ]);
+                            } else if (_provider.playerState ==
+                                    PlayerState.NONE &&
+                                !_isRecording) {
+                              await Future.wait([
+                                _provider.playAudio(
+                                    song: widget.song,
+                                    file:
+                                        '${widget.song.filePath}/${widget.song.vocalName}',
+                                    playVocals: true),
+                              ]);
+                            } else if (_provider.playerState ==
+                                    PlayerState.PAUSED &&
+                                !_isRecording) {
+                              await Future.wait([
+                                _provider.resumeAudio(),
+                              ]);
+                            }
+                          }),
+                    IconButton(
+                        icon: Icon(
+                            _playVocals
+                                ? Icons.volume_up_outlined
+                                : Icons.volume_off_outlined,
+                            size: 60,
+                            color: AppColor.white),
+                        onPressed: () async {
                           _playVocals
-                              ? Icons.volume_up_outlined
-                              : Icons.volume_off_outlined,
-                          size: 60,
-                          color: AppColor.white),
-                      onPressed: () async {
-                        _playVocals
-                            ? await _vocalAudioPlayer.setVolume(0)
-                            : _isRecording
-                                ? await _vocalAudioPlayer.setVolume(0.5)
-                                : await _vocalAudioPlayer.setVolume(1);
-                        setState(() {
-                          _playVocals = !_playVocals;
-                        });
-                      }),
-                  Column(
-                    children: [
-                      Container(
-                        width: 80,
-                        child: IconButton(
-                            icon: Icon(
-                              _buildIcon(_currentStatus),
-                              size: 60,
-                              color: AppColor.white,
-                            ),
-                            onPressed: () async {
-                              if (_isRecording && _isPlaying) _stopRecorder();
+                              ? await _provider.setVocalVolume(0)
+                              : _isRecording
+                                  ? await _provider.setVocalVolume(0.5)
+                                  : await _provider.setVocalVolume(1);
+                          setState(() {
+                            _playVocals = !_playVocals;
+                          });
+                        }),
+                    Column(
+                      children: [
+                        Container(
+                          width: 80,
+                          child: IconButton(
+                              icon: Icon(
+                                _buildIcon(_currentStatus),
+                                size: 60,
+                                color: AppColor.white,
+                              ),
+                              onPressed: () async {
+                                if (_currentStatus ==
+                                        RecordingStatus.Initialized &&
+                                    _provider.playerState == PlayerState.NONE) {
+                                  await Future.wait([
+                                    _provider.playAudio(
+                                        song: widget.song,
+                                        file:
+                                            '${widget.song.filePath}/${widget.song.vocalName}'),
+                                    _startRecorder()
+                                  ]);
 
-                              if (_currentStatus ==
-                                      RecordingStatus.Initialized &&
-                                  !_isPlaying) {
-                                await _instrumentalAudioPlayer
-                                    .play(widget.song.file, isLocal: true);
-                                await _vocalAudioPlayer.play(
-                                  '${widget.song.filePath}/${widget.song.vocalName}',
-                                  isLocal: true,
-                                );
-                                setState(() {
-                                  _isPlaying = true;
-                                  _isRecording = true;
-                                });
-                              }
-
-                              if (_currentStatus == RecordingStatus.Paused &&
-                                  !_isPlaying) {
-                                Future.wait([
-                                  _instrumentalAudioPlayer.resume(),
-                                  _vocalAudioPlayer.resume()
-                                ]);
-                                if (_playVocals)
-                                  await _vocalAudioPlayer.setVolume(0.5);
-                                await _instrumentalAudioPlayer.setVolume(0.5);
-                                _resumeRecorder();
-                                setState(() {
-                                  _isPlaying = true;
-                                  _isRecording = true;
-                                });
-                              }
-
-                              if (_currentStatus ==
-                                      RecordingStatus.Initialized &&
-                                  _isPlaying) {
-                                await _startRecorder();
-                                if (_playVocals)
-                                  await _vocalAudioPlayer.setVolume(0.5);
-                                await _instrumentalAudioPlayer.setVolume(0.5);
-                              }
-                            }),
-                      ),
-                      SizedBox(height: 30),
-                      Text(
-                          _current?.duration.toString().split('.')[0] ??
-                              '0:0:00',
-                          style: TextStyle(color: AppColor.white)),
-                    ],
-                  ),
-                ],
+                                  setState(() {
+                                    _isRecording = true;
+                                  });
+                                } else if (_currentStatus ==
+                                        RecordingStatus.Initialized &&
+                                    _provider.playerState ==
+                                        PlayerState.PLAYING) {
+                                  await _startRecorder();
+                                  if (_playVocals)
+                                    await _provider.setVocalVolume(0.5);
+                                  await _provider.setVolume(0.5);
+                                } else
+                                  await _stopRecorder();
+                              }),
+                        ),
+                        SizedBox(height: 30),
+                        Text(
+                            _current?.duration.toString().split('.')[0] ??
+                                '0:0:00',
+                            style: TextStyle(color: AppColor.white)),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 70,
-            ),
-          ],
+              SizedBox(
+                height: 70,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

@@ -49,21 +49,25 @@ class RecordProvider with ChangeNotifier {
 
   void initPlayer() {
     AudioService.customEventStream.listen((event) {
-      if (event[AudioPlayerTask.DURATION] != null) {
+      if (event[AudioPlayerTask.DURATION] != null &&
+          event['identity'] == 'recorder') {
         totalDuration =
             Duration(seconds: event[AudioPlayerTask.DURATION]) ?? Duration();
         notifyListeners();
       }
-      if (event[AudioPlayerTask.POSITION] != null) {
+      if (event[AudioPlayerTask.POSITION] != null &&
+          event['identity'] == 'recorder') {
         progress =
             Duration(seconds: event[AudioPlayerTask.POSITION]) ?? Duration();
         notifyListeners();
       }
-      if (event[AudioPlayerTask.STATE] != null) {
+      if (event[AudioPlayerTask.STATE] != null &&
+          event['identity'] == 'recorder') {
         audioPlayerState = event[AudioPlayerTask.STATE];
         notifyListeners();
       }
-      if (event[AudioPlayerTask.COMPLETION] != null) {
+      if (event[AudioPlayerTask.COMPLETION] != null &&
+          event['identity'] == 'recorder') {
         completion();
       }
     });
@@ -80,8 +84,8 @@ class RecordProvider with ChangeNotifier {
         currentRecord.name == record.name) return;
     currentRecord = record;
     savePlayingSong({'name': record.name, 'path': record.path});
-    AudioService.customAction(AudioPlayerTask.PLAY, {'url': record.path});
-    notifyListeners();
+    AudioService.customAction(
+        AudioPlayerTask.PLAY, {'url': record.path, 'identity': 'recorder'});
   }
 
   savePlayingSong(Map song) {

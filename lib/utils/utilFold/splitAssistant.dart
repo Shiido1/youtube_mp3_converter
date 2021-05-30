@@ -1,14 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
-import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:provider/provider.dart';
 
 class SplitAssistant {
-
   static Future<dynamic> splitFile(
-  {String filePath, BuildContext context,String userToken}) async {
+      {String filePath, BuildContext context, String userToken}) async {
     print('In the split function');
     print(filePath);
     String baseUrl = "http://67.205.165.56/api/splitter?";
@@ -28,9 +24,9 @@ class SplitAssistant {
         var decodedData = jsonDecode(jsonData);
         print(decodedData);
         String errorMessage = decodedData["message"] ?? null;
-        if(errorMessage == null) {
+        if (errorMessage == null) {
           return decodedData;
-        }else
+        } else
           return "Failed";
       } else {
         print('failed');
@@ -45,7 +41,7 @@ class SplitAssistant {
   }
 
   static Future<bool> saveSplitFiles(
-  {var decodedData, BuildContext context, String userToken}) async {
+      {var decodedData, BuildContext context, String userToken}) async {
     String baseUrl = "http://67.205.165.56/api/savesplit";
 
     var body = jsonEncode({

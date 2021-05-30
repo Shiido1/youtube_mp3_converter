@@ -11,7 +11,6 @@ final SignUpApiRepository _repository = SignUpApiRepository();
 class SignUpProviders extends ChangeNotifier {
   BuildContext _context;
   CustomProgressIndicator _progressIndicator;
-  String _statusMessage;
 
   void init(BuildContext context) {
     this._context = context;
@@ -37,7 +36,7 @@ class SignUpProviders extends ChangeNotifier {
         await _progressIndicator.dismiss();
         showToast(this._context,
             message: NetworkExceptions.getErrorMessage(error));
-        _statusMessage=statusMessage;
+
         notifyListeners();
       });
     } catch (e) {

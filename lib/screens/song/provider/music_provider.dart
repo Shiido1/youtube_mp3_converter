@@ -2,13 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_session/audio_session.dart' as asp;
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
-import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 
 import '../../../utils/helper/instances.dart';
 
@@ -518,8 +516,6 @@ class MusicProvider with ChangeNotifier {
             image: AudioService.currentMediaItem.extras['image'],
             songName: AudioService.currentMediaItem.title,
           );
-
-          updateDrawer(currentSong);
         }
 
         notifyListeners();
@@ -551,7 +547,6 @@ class MusicProvider with ChangeNotifier {
                   image: event.extras['image'],
                   songName: event.title,
                 ));
-        updateDrawer(currentSong);
       }
 
       notifyListeners();

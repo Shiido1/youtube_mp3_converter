@@ -1,12 +1,10 @@
 import 'dart:io';
 
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
@@ -22,17 +20,14 @@ import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
-import 'dart:isolate';
 import 'dart:ui';
-import 'package:downloads_path_provider/downloads_path_provider.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 const String splitMusicPath = 'split';
-bool debug = true;
 
 class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
   final TargetPlatform platform;
@@ -48,18 +43,10 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 
 class _AppDrawerState extends State<AppDrawer> {
   List<String> _apiSplittedList = ['', ''];
-  List<String> splittedSongIDList = ['', ''];
-  List<dynamic> dataList = [];
   MusicProvider _musicProvider;
-  bool loading = false;
-  int _progress = 0;
-  bool downloaded;
   int id;
-  var val;
   bool _permissionReady;
   static String _localPath;
-  ReceivePort _port = ReceivePort();
-  List<String> _fileName = ['', ''];
   bool shuffle;
   bool repeat;
 
@@ -69,7 +56,7 @@ class _AppDrawerState extends State<AppDrawer> {
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     this._progressIndicator = CustomProgressIndicator(this.context);
-    _bindBackgroundIsolate();
+
     _permissionReady = false;
     _prepare();
     shuffle = _musicProvider.shuffleSong;
@@ -79,152 +66,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   void dispose() {
-    _unbindBackgroundIsolate();
     super.dispose();
-  }
-
-  String splitFileNameHere(String fileName) {
-    List name = fileName.split('-');
-    name.removeLast();
-    return name.join('-');
-  }
-
-  void _bindBackgroundIsolate() {
-    bool isSuccess = IsolateNameServer.registerPortWithName(
-        _port.sendPort, 'downloader_send_port');
-    if (!isSuccess) {
-      _unbindBackgroundIsolate();
-      _bindBackgroundIsolate();
-      return;
-    }
-    _port.listen((dynamic data) async {
-      if (debug) {
-        print('UI Isolate Callback: $data');
-        dataList.add(data);
-      }
-
-      // ignore: unused_local_variable
-      String id = data[0];
-      DownloadTaskStatus status = data[1];
-
-      int progress = data[2];
-      setState(() {
-        _progress = progress;
-        loading = true;
-      });
-      showToast(context,
-          message: 'Downloading Splitted files ' + _progress.toString() + '%');
-      if (_progress == 100) {
-        showToast(context, message: 'Downloaded Splitted file');
-        setState(() {
-          loading = false;
-        });
-      }
-      if (status == DownloadTaskStatus.complete ||
-          (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
-        if (data[0].toString() == splittedSongIDList[0].toString()) {
-          SplittedSongRepository.addSong(Song(
-            fileName: _fileName[0],
-            filePath: _localPath,
-            image: _musicProvider?.drawerItem?.image ?? '',
-            splittedFileName: splitFileNameHere(_fileName[0]),
-            artistName: _musicProvider?.drawerItem?.artistName ?? '',
-            songName: _musicProvider?.drawerItem?.songName ?? '',
-          ));
-          Navigator.pop(context);
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => SplittedScreen()));
-        }
-        if (data[0].toString() == splittedSongIDList[1].toString()) {
-          SplittedSongRepository.addSong(Song(
-            filePath: _localPath,
-            image: _musicProvider?.drawerItem?.image ?? '',
-            splittedFileName: splitFileNameHere(_fileName[1]),
-            vocalName: _fileName[1],
-            artistName: _musicProvider?.drawerItem?.artistName ?? '',
-            songName: _musicProvider?.drawerItem?.songName ?? '',
-          ));
-        }
-      }
-    });
-  }
-
-  void _unbindBackgroundIsolate() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
-  }
-
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) async {
-    if (debug) {
-      print(
-          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
-    }
-
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port');
-    send.send([id, status, progress]);
-  }
-
-  Future<void> _requestDownload(
-      {@required String link,
-      bool saveToDownload = false,
-      String fileName}) async {
-    final status = await Permission.storage.request();
-
-    if (status.isGranted) {
-      if (saveToDownload = true) {
-        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
-        _localPath = downloadPath.path;
-      }
-
-      if (getStringPathName(link) == 'vocals.wav')
-        _fileName[1] = fileName + "-" + getStringPathName(link);
-      else
-        _fileName[0] = fileName + "-" + getStringPathName(link);
-
-      bool splitVoc =
-          await File(_localPath + Platform.pathSeparator + _fileName[1])
-              .exists();
-      bool splitAcm =
-          await File(_localPath + Platform.pathSeparator + _fileName[0])
-              .exists();
-
-      if (!splitVoc && !splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: getStringPathName(link) == 'vocals.wav'
-                    ? _fileName[1]
-                    : _fileName[0],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(
-                getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
-      } else if (splitVoc && !splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: _fileName[0],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(0, value));
-      } else if (!splitVoc && splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: _fileName[1],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(1, value));
-      } else
-        showToast(context, message: 'File already exists');
-    }
   }
 
   Future<bool> _checkPermission() async {
@@ -490,9 +332,17 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         ListTile(
                           onTap: () async {
-                            Navigator.pop(context);
-                            DeleteSongs(context).showConfirmDeleteDialog(
-                                song: _provider?.drawerItem);
+                            if (_provider?.drawerItem ==
+                                _provider?.currentSong) {
+                              Navigator.pop(context);
+                              showToast(context,
+                                  message:
+                                      'Cannot delete currently playing song');
+                            } else {
+                              Navigator.pop(context);
+                              DeleteSongs(context).showConfirmDeleteDialog(
+                                  song: _provider?.drawerItem);
+                            }
                           },
                           leading: SvgPicture.asset(AppAssets.rubbish),
                           title: TextViewWidget(
@@ -513,76 +363,65 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
-  downFileFunction() async {
-    await _requestDownload(
-        link: _apiSplittedList[0],
-        saveToDownload: true,
-        fileName: _musicProvider.drawerItem.fileName);
-    await _requestDownload(
-        link: _apiSplittedList[1],
-        saveToDownload: true,
-        fileName: _musicProvider.drawerItem.fileName);
-  }
-
-  Future<void> _showDialog(BuildContext context, String file) {
-    return showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
-            child: AlertDialog(
-                backgroundColor: AppColor.white.withOpacity(0.6),
-                content: Container(
-                  decoration: new BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius:
-                        new BorderRadius.all(new Radius.circular(32.0)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 50),
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // SvgPicture.asset(AppAssets.check),
-                          SizedBox(
-                            height: 11.5,
-                          ),
-                          Center(
-                            child: TextViewWidget(
-                              color: AppColor.black,
-                              fontWeight: FontWeight.w500,
-                              textSize: 21,
-                              text: 'Download Spit file',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: () => downFileFunction(),
-                              style: TextButton.styleFrom(
-                                backgroundColor: AppColor.green,
-                              ),
-                              child: TextViewWidget(
-                                text: 'Download',
-                                color: AppColor.white,
-                                textSize: 20,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                )),
-          );
-        });
-  }
+  // Future<void> _showDialog(BuildContext context, String file) {
+  //   return showDialog(
+  //       context: context,
+  //       barrierDismissible: true,
+  //       builder: (BuildContext context) {
+  //         return Padding(
+  //           padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
+  //           child: AlertDialog(
+  //               backgroundColor: AppColor.white.withOpacity(0.6),
+  //               content: Container(
+  //                 decoration: new BoxDecoration(
+  //                   shape: BoxShape.rectangle,
+  //                   borderRadius:
+  //                       new BorderRadius.all(new Radius.circular(32.0)),
+  //                 ),
+  //                 child: Padding(
+  //                   padding: const EdgeInsets.only(top: 20, bottom: 50),
+  //                   child: Center(
+  //                     child: Column(
+  //                       crossAxisAlignment: CrossAxisAlignment.center,
+  //                       mainAxisSize: MainAxisSize.min,
+  //                       children: [
+  //                         // SvgPicture.asset(AppAssets.check),
+  //                         SizedBox(
+  //                           height: 11.5,
+  //                         ),
+  //                         Center(
+  //                           child: TextViewWidget(
+  //                             color: AppColor.black,
+  //                             fontWeight: FontWeight.w500,
+  //                             textSize: 21,
+  //                             text: 'Download Spit file',
+  //                             textAlign: TextAlign.center,
+  //                           ),
+  //                         ),
+  //                         SizedBox(
+  //                           height: 15,
+  //                         ),
+  //                         Center(
+  //                           child: ElevatedButton(
+  //                             onPressed: () => downFileFunction(),
+  //                             style: TextButton.styleFrom(
+  //                               backgroundColor: AppColor.green,
+  //                             ),
+  //                             child: TextViewWidget(
+  //                               text: 'Download',
+  //                               color: AppColor.white,
+  //                               textSize: 20,
+  //                             ),
+  //                           ),
+  //                         )
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ),
+  //               )),
+  //         );
+  //       });
+  // }
 
   Future splitSongMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
@@ -596,17 +435,21 @@ class _AppDrawerState extends State<AppDrawer> {
         filePath: result, context: context, userToken: userToken);
     if (splittedFiles != "Failed") {
       await _progressIndicator.dismiss();
-      _showDialog(context, _fileName.toString());
       bool isSaved = await SplitAssistant.saveSplitFiles(
           decodedData: splittedFiles, context: context, userToken: userToken);
       if (isSaved && _permissionReady) {
         String voiceUrl = splittedFiles["files"]["voice"];
         String otherUrl = splittedFiles["files"]["other"];
         _apiSplittedList = ['', ''];
-        splittedSongIDList = ['', ''];
-        _fileName = ['', ''];
         _apiSplittedList.insert(0, otherUrl);
         _apiSplittedList.insert(1, voiceUrl);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Downloads(
+                    apiSplittedList: _apiSplittedList,
+                    localPath: _localPath,
+                    song: _musicProvider?.drawerItem)));
       } else if (!_permissionReady) {
         _buildNoPermissionWarning();
       } else {

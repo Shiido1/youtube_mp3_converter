@@ -50,4 +50,7 @@ class SplittedSongRepository {
   static renameSong({String fileName, String songName, String artistName}) =>
       _services.renameSong(
           artistName: artistName, songName: songName, fileName: fileName);
+  static getDownload(String key) => _services.getDownload(key);
+  static addDownload({String key, Song song}) =>
+      _services.addDownload(key: key, song: song);
 }

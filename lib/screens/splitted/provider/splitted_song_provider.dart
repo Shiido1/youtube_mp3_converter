@@ -36,6 +36,7 @@ class SplittedSongProvider with ChangeNotifier {
 
   getSongs(bool showAll) async {
     allSongs = await SplittedSongRepository.getSongs();
+    for (Song song in allSongs) print(song.vocalName);
     for (Song song in allSongs)
       if (song.fileName == '' || song.fileName == null) emptyNames.add(song);
     if (emptyNames.isNotEmpty)

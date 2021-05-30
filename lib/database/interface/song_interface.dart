@@ -26,4 +26,6 @@ abstract class SplittedSongInterface {
   Future<List<Song>> getSongs();
   deleteSong(String key);
   renameSong({String fileName, String artistName, String songName});
+  addDownload({String key, Song song});
+  Future<Song> getDownload(String key);
 }

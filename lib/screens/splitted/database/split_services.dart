@@ -7,9 +7,14 @@ import 'package:mp3_music_converter/database/interface/song_interface.dart';
 
 class SplittedSongServices implements SplittedSongInterface {
   Box<Map> _box;
+  Box<Map> _box2;
 
   Future<Box<Map>> openBox() {
     return SplitHiveBoxes.openBox<Map>(SplitHiveBoxes.songs);
+  }
+
+  Future<Box<Map>> openBox2() {
+    return SplitHiveBoxes.openBox<Map>('downloads');
   }
 
   @override
@@ -56,5 +61,17 @@ class SplittedSongServices implements SplittedSongInterface {
     song.artistName = artistName ?? 'Unknown Artist';
     song.songName = songName ?? 'Unknown';
     _box.put(fileName, song.toJson());
+  }
+
+  @override
+  addDownload({String key, Song song}) async {
+    if (!(_box2?.isOpen ?? false)) _box2 = await openBox2();
+    _box2.put(key, song.toJson());
+  }
+
+  @override
+  Future<Song> getDownload(String key) async {
+    if (!(_box2?.isOpen ?? false)) _box2 = await openBox2();
+    return Song.fromMap(_box2.get(key));
   }
 }

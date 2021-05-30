@@ -1,18 +1,14 @@
-import 'dart:isolate';
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
-import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -45,15 +41,8 @@ class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
   List<String> _apiSplittedList = ['', ''];
   String _sharedText = "";
-  List<String> splittedFileList = [];
-  List<Song> splittedSongList = [];
-  List<String> splittedSongIDList = ['', ''];
-  List<dynamic> dataList = [];
   bool _permissionReady;
   static String _localPath;
-  ReceivePort _port = ReceivePort();
-  List<String> _fileName = ['', ''];
-  int _progress = 0;
   bool loading = false;
   CustomProgressIndicator _progressIndicator;
   FilePickerResult result;
@@ -65,157 +54,15 @@ class _DashBoardState extends State<DashBoard> {
     LinkShareAssistant()
       ..onDataReceived = _handleSharedData
       ..getSharedData().then(_handleSharedData);
-
-    _bindBackgroundIsolate();
     _permissionReady = false;
     _prepare();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    _unbindBackgroundIsolate();
-    super.dispose();
   }
 
   String splitFileNameHere(String fileName) {
     List name = fileName.split('-');
     name.removeLast();
     return name.join('-');
-  }
-
-  void _bindBackgroundIsolate() {
-    bool isSuccess = IsolateNameServer.registerPortWithName(
-        _port.sendPort, 'downloader_send_port');
-    if (!isSuccess) {
-      _unbindBackgroundIsolate();
-      _bindBackgroundIsolate();
-      return;
-    }
-    _port.listen((dynamic data) async {
-      if (debug) {
-        print('UI Isolate Callback: $data');
-        dataList.add(data);
-      }
-
-      // ignore: unused_local_variable
-      String id = data[0];
-      DownloadTaskStatus status = data[1];
-
-      int progress = data[2];
-      setState(() {
-        _progress = progress;
-        loading = true;
-      });
-      showToast(context,
-          message: 'Downloading Splitted files ' + _progress.toString() + '%');
-      if (_progress == 100) {
-        showToast(context, message: 'Downloaded Splitted file');
-        setState(() {
-          loading = false;
-        });
-      }
-      // if (status == DownloadTaskStatus.failed)
-      //   await FlutterDownloader.retry(taskId: data[0]);
-      if (status == DownloadTaskStatus.complete ||
-          (status.toString() == "DownloadTaskStatus(3)" && progress == 100)) {
-        if (data[0].toString() == splittedSongIDList[0].toString()) {
-          SplittedSongRepository.addSong(Song(
-            fileName: _fileName[0],
-            filePath: _localPath,
-            image: '',
-            splittedFileName: splitFileNameHere(_fileName[0]),
-          ));
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => SplittedScreen()));
-        }
-        if (data[0].toString() == splittedSongIDList[1].toString()) {
-          SplittedSongRepository.addSong(Song(
-              filePath: _localPath,
-              image: '',
-              splittedFileName: splitFileNameHere(_fileName[1]),
-              vocalName: _fileName[1]));
-        }
-      }
-    });
-  }
-
-  void _unbindBackgroundIsolate() {
-    IsolateNameServer.removePortNameMapping('downloader_send_port');
-  }
-
-  static void downloadCallback(
-      String id, DownloadTaskStatus status, int progress) async {
-    if (debug) {
-      print(
-          'Background Isolate Callback: task ($id) is in status ($status) and process ($progress)');
-    }
-
-    final SendPort send =
-        IsolateNameServer.lookupPortByName('downloader_send_port');
-    send.send([id, status, progress]);
-  }
-
-  Future<void> _requestDownload(
-      {@required String link,
-      bool saveToDownload = false,
-      String fileName}) async {
-    final status = await Permission.storage.request();
-
-    if (status.isGranted) {
-      if (saveToDownload) {
-        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
-        _localPath = downloadPath.path;
-      }
-
-      if (getStringPathName(link) == 'vocals.wav')
-        _fileName[1] = fileName + "-" + getStringPathName(link);
-      else
-        _fileName[0] = fileName + "-" + getStringPathName(link);
-
-      bool splitVoc =
-          await File(_localPath + Platform.pathSeparator + _fileName[1])
-              .exists();
-      bool splitAcm =
-          await File(_localPath + Platform.pathSeparator + _fileName[0])
-              .exists();
-
-      if (!splitVoc && !splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: getStringPathName(link) == 'vocals.wav'
-                    ? _fileName[1]
-                    : _fileName[0],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(
-                getStringPathName(link) == 'vocals.wav' ? 1 : 0, value));
-      } else if (splitVoc && !splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: _fileName[0],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(0, value));
-      } else if (!splitVoc && splitAcm) {
-        await FlutterDownloader.registerCallback(downloadCallback);
-        await FlutterDownloader.enqueue(
-                url: link,
-                headers: {"auth": "test_for_sql_encoding"},
-                savedDir: _localPath,
-                fileName: _fileName[1],
-                showNotification: true,
-                openFileFromNotification: true)
-            .then((value) => splittedSongIDList.insert(1, value));
-      } else
-        showToast(context, message: 'File already exists');
-    }
   }
 
   Future<bool> _checkPermission() async {
@@ -409,111 +256,39 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 
-  downFileFunction() async {
-
-    String nameOfFile = result.files.single.name.split(' ').join('_');
-    await _requestDownload(
-        link: _apiSplittedList[0],
-        saveToDownload: true,
-        fileName: nameOfFile);
-    await _requestDownload(
-        link: _apiSplittedList[1],
-        saveToDownload: true,
-        fileName: nameOfFile);
-  }
-
-  Future<void> _showDialog(BuildContext context) {
-    return showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
-            child: AlertDialog(
-                backgroundColor: AppColor.white.withOpacity(0.6),
-                content: Container(
-                  decoration: new BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius:
-                    new BorderRadius.all(new Radius.circular(32.0)),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20, bottom: 50),
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // SvgPicture.asset(AppAssets.check),
-                          SizedBox(
-                            height: 11.5,
-                          ),
-                          Center(
-                            child: TextViewWidget(
-                              color: AppColor.black,
-                              fontWeight: FontWeight.w500,
-                              textSize: 21,
-                              text: 'Download Spit file',
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          SizedBox(height: 15,),
-                          Center(
-                            child:ElevatedButton(
-                              onPressed: ()=>downFileFunction(),
-                              style: TextButton
-                                  .styleFrom(
-                                backgroundColor:
-                                AppColor.green,
-                              ),
-                              child: TextViewWidget(
-                                text: 'Download',
-                                color: AppColor.white,
-                                textSize: 20,
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                )),
-          );
-        });
-  }
-
   Future splitMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
-    String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
-    print('printing user token $userToken');
+    String userToken =
+        Provider.of<LoginProviders>(context, listen: false).userToken;
     result = await FilePicker.platform.pickFiles(type: FileType.audio);
 
     if (result != null && result.files.isNotEmpty) {
       _progressIndicator.show();
-
-      var splittedFiles =
-          await SplitAssistant.splitFile(
-            filePath:result.files.single.path,
-            context:context,
-            userToken: userToken);
-      print('This is the splitted file: $splittedFiles');
+      String nameOfFile = result.files.single.name.split(' ').join('_');
+      var splittedFiles = await SplitAssistant.splitFile(
+          filePath: result.files.single.path,
+          context: context,
+          userToken: userToken);
       if (splittedFiles != "Failed") {
         await _progressIndicator.dismiss();
-        _showDialog(context);
-        bool isSaved =
-            await SplitAssistant.saveSplitFiles(
-                decodedData:splittedFiles, context: context, userToken: userToken);
+        bool isSaved = await SplitAssistant.saveSplitFiles(
+            decodedData: splittedFiles, context: context, userToken: userToken);
         if (isSaved && _permissionReady) {
           String voiceUrl = splittedFiles["files"]["voice"];
           String otherUrl = splittedFiles["files"]["other"];
 
           _apiSplittedList = ['', ''];
-          splittedSongIDList = ['', ''];
-          _fileName = ['', ''];
           _apiSplittedList.insert(0, otherUrl);
           _apiSplittedList.insert(1, voiceUrl);
 
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Downloads(
+                      apiSplittedList: _apiSplittedList,
+                      localPath: _localPath,
+                      song: Song(fileName: nameOfFile))));
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
         } else {

@@ -142,6 +142,17 @@ Future<void> deleteSong(
     path.removeRange(0, index);
     print('this is the path: ${path.join('/')}');
     var file = File(path.join('/'));
+    if (song?.vocalName?.split('-')?.last == 'vocals.wav' ?? false) {
+      var path2 = song.vocalName.split('/');
+      int index = path2.indexOf(
+          path2.firstWhere((element) => element != '' && element != 'file:'));
+      path2.removeRange(0, index);
+      try {
+        await file.delete();
+      } catch (_) {
+        print(_);
+      }
+    }
     try {
       await file.delete();
       if (!splitted) {

@@ -24,7 +24,7 @@ class OtpProviders extends ChangeNotifier {
       _response.when(success: (OtpModel success, data, __) async {
         await _progressIndicator.dismiss();
         showToast(this._context, message: success.message);
-        print('successful');
+
         PageRouter.gotoNamed(Routes.DASHBOARD, _context);
       }, failure: (NetworkExceptions error, _, statusMessage) {
         _progressIndicator.dismiss();

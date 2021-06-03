@@ -97,7 +97,7 @@ class _DownloadsState extends State<Downloads> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -105,7 +105,7 @@ class _DownloadsState extends State<Downloads> {
     const time = const Duration(milliseconds: 500);
     _timer = new Timer.periodic(time, (timer) async {
       downloads = await FlutterDownloader.loadTasks();
-      setState(() {});
+      if (mounted) setState(() {});
     });
   }
 
@@ -124,17 +124,19 @@ class _DownloadsState extends State<Downloads> {
       }
       DownloadTaskStatus status = data[1];
 
-      int progress = data[2];
       if (status == DownloadTaskStatus.complete ||
-          (status == DownloadTaskStatus(3) && progress == 100)) {
+          status == DownloadTaskStatus(3)) {
         DownloadTask specificDownload = downloads.firstWhere(
             (element) => element.taskId.toString() == data[0].toString());
 
         String name = specificDownload.filename;
-        Song song =
-            await SplittedSongRepository.getDownload(splitFileNameHere(name));
+        String splittedName = name.split('-').last;
+        Song song = splittedName == 'accompaniment.wav' ||
+                splittedName == 'vocals.wav'
+            ? await SplittedSongRepository.getDownload(splitFileNameHere(name))
+            : await SplittedSongRepository.getDownload(name);
         String path = specificDownload.savedDir;
-        if (name.split('-').last == 'accompaniment.wav')
+        if (splittedName == 'accompaniment.wav')
           await SplittedSongRepository.addSong(Song(
             fileName: name,
             filePath: path,
@@ -143,7 +145,7 @@ class _DownloadsState extends State<Downloads> {
             artistName: song.artistName ?? 'Unknown Artist',
             songName: song.songName ?? 'Unknown',
           ));
-        else if (name.split('-').last == 'vocals.wav')
+        else if (splittedName == 'vocals.wav')
           await SplittedSongRepository.addSong(Song(
             vocalName: name,
             filePath: path,
@@ -303,6 +305,8 @@ class _DownloadsState extends State<Downloads> {
                     return InkWell(
                       onTap: _download.status == DownloadTaskStatus(3)
                           ? () async {
+                              int width =
+                                  MediaQuery.of(context).size.width.floor();
                               if (_download.filename.split('-').last ==
                                   'accompaniment.wav')
                                 Navigator.pushReplacement(
@@ -326,7 +330,8 @@ class _DownloadsState extends State<Downloads> {
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => SongViewCLass()));
+                                        builder: (context) =>
+                                            SongViewCLass(width)));
                             }
                           : null,
                       child: Column(

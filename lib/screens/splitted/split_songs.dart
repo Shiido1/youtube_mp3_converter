@@ -80,8 +80,14 @@ class _SplittedScreenState extends State<SplittedScreen> {
                       song: _song, splitted: true, showAll: true);
                 },
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => Split(song: _song)));
+                  int width = MediaQuery.of(context).size.width.floor();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => Split(
+                                song: _song,
+                                width: width,
+                              )));
                 },
                 child: ListTile(
                   leading: SizedBox(

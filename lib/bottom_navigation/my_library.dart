@@ -60,8 +60,10 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () =>
-                        PageRouter.gotoWidget(SongViewCLass(), context),
+                    onTap: () {
+                      int width = MediaQuery.of(context).size.width.floor();
+                      PageRouter.gotoWidget(SongViewCLass(width), context);
+                    },
                     leading: SvgPicture.asset(AppAssets.music),
                     title: TextViewWidget(
                       text: 'Song',
@@ -176,8 +178,15 @@ class _LibraryState extends State<Library> {
                                 .map((e) => Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: InkWell(
-                                        onTap: () => PageRouter.gotoWidget(
-                                            SongViewScreen(e), context),
+                                        onTap: () {
+                                          int width = MediaQuery.of(context)
+                                              .size
+                                              .width
+                                              .floor();
+                                          PageRouter.gotoWidget(
+                                              SongViewScreen(e, width),
+                                              context);
+                                        },
                                         child: CachedNetworkImage(
                                             imageUrl: e.image),
                                       ),

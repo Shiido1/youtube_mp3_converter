@@ -46,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     if (_confirmPasswordController.text.isEmpty ||
-            _confirmPasswordController.text != _passwordController.text) {
+        _confirmPasswordController.text != _passwordController.text) {
       setState(() => _isConPassword = true);
       return false;
     }
@@ -58,12 +58,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (!_validateInputs()) return;
 
-    email = _emailController.text;
+    email = _emailController.text.trim();
     password = _passwordController.text;
     _signUpProvider.signUp(
         map: SignupModel.toJson(
-      name: _nameController.text,
-      email: _emailController.text,
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
       password: _passwordController.text,
     ));
     setState(() {});
@@ -230,9 +230,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                   SizedBox(height: 15),
                   TextButton(
-                      style: TextButton
-                          .styleFrom(
-                        backgroundColor:AppColor.bottomRed,
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColor.bottomRed,
                       ),
                       onPressed: () {
                         _signUpUser();
@@ -271,7 +270,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height:150),
+                  SizedBox(height: 150),
                 ],
               ),
             ),

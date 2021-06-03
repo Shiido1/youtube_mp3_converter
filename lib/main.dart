@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
@@ -19,7 +20,10 @@ import 'package:firebase_core/firebase_core.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterDownloader.initialize();
+  await MobileAds.instance.initialize();
   await Firebase.initializeApp();
+  MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
+      testDeviceIds: ["92404C1F75C7C8711E9941D4C1C151A9"]));
   var path = Directory.current.path;
   Hive.init(path);
   await PgHiveBoxes.init();
@@ -69,7 +73,6 @@ class _WrapperState extends State<Wrapper> {
   void initState() {
     preferencesHelper = SharedPreferencesHelper();
     getEmail();
-    print('print modaf...ing mail $email');
     super.initState();
   }
 

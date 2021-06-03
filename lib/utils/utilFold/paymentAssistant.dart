@@ -4,24 +4,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-
-
-class PaymentAssistant{
-
+class PaymentAssistant {
   static Future<bool> storePayment(
       {BuildContext context,
       String txRef,
-      int amount,
+      double amount,
       String txId,
       int storage,
-      String userToken}) async{
+      String userToken}) async {
     String baseUrl = "http://67.205.165.56/api/storepayment";
+
     var body = jsonEncode({
-        "tx_ref": txRef,
-        "amount":amount,
-        "transaction_id":txId,
-        "storage":storage,
-        "token":userToken
+      "tx_ref": txRef,
+      "amount": amount,
+      "transaction_id": txId,
+      "storage": storage,
+      "token": userToken
     });
 
     try {
@@ -30,6 +28,9 @@ class PaymentAssistant{
             'Content-Type': 'application/json',
           },
           body: body);
+      print(_response.statusCode);
+      print('this isthe response: ${_response.body}');
+      print('this is the decoded response: ${json.decode(_response.body)}');
 
       if (_response.statusCode == 200) {
         return Future.value(true);
@@ -37,32 +38,29 @@ class PaymentAssistant{
         return Future.value(false);
       }
     } catch (e) {
+      print(e);
       return Future.value(false);
     }
   }
 
-
-  static Future<dynamic>processTransaction(
-      BuildContext context,
-      double _amount,
-      String customerEmailAddress,
-      String customerFName,
-      // String narration,
-      // String txRef
-      ) async {
-    // Get a reference to RavePayInitializer
+  static Future<dynamic> processTransaction(
+      {@required BuildContext context,
+      @required double amount,
+      @required String email,
+      @required String name,
+      @required String ref}) async {
     Widget companyName = Text('Youtube Audio');
     String publicKey = "FLWPUBK_TEST-eb59a5bc41b70eabbd718b5334202c0a-X";
     String encryptionKey = "FLWSECK_TEST2b05410cd196";
     var initializer = RavePayInitializer(
-        amount: _amount, publicKey: publicKey, encryptionKey: encryptionKey)
+        amount: amount, publicKey: publicKey, encryptionKey: encryptionKey)
       ..country = "NG"
       ..currency = 'USD'
-      ..email = customerEmailAddress
-      ..fName = customerFName
-      ..lName = 'customerLName'
-      ..narration = 'narration'
-      ..txRef = 'transaction reference'
+      ..email = email
+      ..fName = name.split(' ')[0]
+      ..lName = name.split(' ').length > 1 ? name.split(' ')[1] : ''
+      ..narration = 'Subscription Plan'
+      ..txRef = ref
       ..subAccounts = []
       ..acceptMpesaPayments = false
       ..acceptAccountPayments = false
@@ -76,14 +74,12 @@ class PaymentAssistant{
       ..displayEmail = true
       ..displayFee = true;
 
-    // Initialize and get the transaction result
     RaveResult response = await RavePayManager()
         .prompt(context: context, initializer: initializer);
 
     RaveStatus txStatus = response.status;
 
-    switch(txStatus){
-
+    switch (txStatus) {
       case (RaveStatus.success):
         return response.rawResponse;
         break;
@@ -97,5 +93,4 @@ class PaymentAssistant{
         break;
     }
   }
-
 }

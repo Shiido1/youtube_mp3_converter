@@ -298,7 +298,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onSkipToNext() {
+  Future<void> onSkipToNext() async {
     List<MediaItem> mediaItems = AudioServiceBackground.queue;
 
     if (index != null && index < mediaItems.length - 1) {
@@ -306,11 +306,10 @@ class AudioPlayerTask extends BackgroundAudioTask {
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
     }
-    return super.onSkipToNext();
   }
 
   @override
-  Future<void> onSkipToPrevious() {
+  Future<void> onSkipToPrevious() async {
     List<MediaItem> mediaItems = AudioServiceBackground.queue;
 
     if (index != null && index > 0) {
@@ -318,7 +317,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
     }
-    return super.onSkipToPrevious();
   }
 
   @override
@@ -631,7 +629,6 @@ class MusicProvider with ChangeNotifier {
   }
 
   Future<dynamic> addActionToAudioService(Function callback) async {
-    print(AudioService);
     if (AudioService.running == null || !AudioService.running)
       await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
     return callback();

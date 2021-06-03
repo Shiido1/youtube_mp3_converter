@@ -82,8 +82,10 @@ class _FavoriteSongsState extends State<FavoriteSongs> {
                         title: InkWell(
                           onTap: () {
                             _musicProvider.songs = _musicProvider.favoriteSongs;
+                            int width =
+                                MediaQuery.of(context).size.width.floor();
                             PageRouter.gotoWidget(
-                                SongViewScreen(_song), context);
+                                SongViewScreen(_song, width), context);
                           },
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,

@@ -39,7 +39,8 @@ class LoginProviders extends ChangeNotifier {
         await PageRouter.gotoNamed(Routes.DASHBOARD, _context);
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
-        showToast(this._context, message: NetworkExceptions.getErrorMessage(error));
+        showToast(this._context,
+            message: NetworkExceptions.getErrorMessage(error));
         isLoading = false;
         notifyListeners();
       });
@@ -61,13 +62,12 @@ class LoginProviders extends ChangeNotifier {
       _box = await PgHiveBoxes.openBox<String>('userToken');
     String token = _box.get('token');
     userToken = token;
-    // notifyListeners();
   }
 
-  saveUserEmail(String email) async {
+  saveUserEmail(String userEmail) async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('email');
-    _box.put('email', email);
+    _box.put('email', userEmail);
   }
 
   getSavedUserEmail() async {
@@ -81,7 +81,7 @@ class LoginProviders extends ChangeNotifier {
   saveUserName(String username) async {
     if (!(_box?.isOpen ?? false))
       _box = await PgHiveBoxes.openBox<String>('name');
-    _box.put('name', name);
+    _box.put('name', username);
   }
 
   getSavedUserName() async {

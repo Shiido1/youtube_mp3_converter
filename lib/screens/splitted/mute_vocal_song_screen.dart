@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'dart:async';
 import 'package:file/local.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
@@ -18,8 +21,9 @@ import 'package:provider/provider.dart';
 class MuteVocalsScreen extends StatefulWidget {
   final LocalFileSystem localFileSystem;
   final Song song;
+  final int width;
 
-  MuteVocalsScreen({localFileSystem, @required this.song})
+  MuteVocalsScreen({localFileSystem, @required this.song, @required this.width})
       : this.localFileSystem = localFileSystem ?? LocalFileSystem();
 
   @override
@@ -31,6 +35,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   bool _playVocals = true;
   asp.AudioSession audioSession;
   SplittedSongProvider _songProvider;
+  Timer _timer;
+  BannerAd songAd;
 
   FlutterAudioRecorder _recorder;
   Recording _current;
@@ -39,8 +45,9 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   @override
   void initState() {
     _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
-
     _init();
+    showAd(widget.width);
+    startTimer();
     super.initState();
   }
 
@@ -49,7 +56,35 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
     if (_songProvider.playerState != PlayerState.NONE)
       _songProvider.stopAudio();
     if (_isRecording) _recorder.stop();
+    _timer?.cancel();
+    songAd?.dispose();
     super.dispose();
+  }
+
+  showAd(width) {
+    if (songAd == null) {
+      BannerAd appAd = BannerAd(
+        size: AdSize(height: 70, width: width - 70),
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-4279408488674166/9228377666'
+            : 'ca-app-pub-4279408488674166/6018640831',
+        listener: BannerAdListener(
+          onAdFailedToLoad: (ad, error) => ad.dispose(),
+          onAdLoaded: (ad) => setState(() {
+            songAd = ad;
+          }),
+        ),
+        request: AdRequest(),
+      );
+      appAd.load();
+    }
+  }
+
+  void startTimer() async {
+    const time = const Duration(seconds: 10);
+    _timer = new Timer.periodic(time, (timer) async {
+      showAd(widget.width);
+    });
   }
 
   _init() async {
@@ -239,8 +274,15 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                   fontFamily: 'Roboto-Regular',
                 ),
               ),
+              SizedBox(height: 30),
+              if (songAd != null)
+                Container(
+                    child: AdWidget(ad: songAd),
+                    alignment: Alignment.center,
+                    height: songAd.size.height.toDouble(),
+                    width: songAd.size.width.toDouble()),
               SizedBox(
-                height: 40,
+                height: 20,
               ),
               Container(
                 width: 300,
@@ -358,7 +400,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                     _provider.playAudio(
                                         song: widget.song,
                                         file:
-                                            '${widget.song.filePath}/${widget.song.vocalName}'),
+                                            '${widget.song.filePath}/${widget.song.vocalName}',
+                                        playVocals: true),
                                     _startRecorder()
                                   ]);
 

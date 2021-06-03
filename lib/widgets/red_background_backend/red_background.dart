@@ -24,6 +24,7 @@ class RedBackground extends StatefulWidget {
 
 class _RedBackgroundState extends State<RedBackground> {
   String url;
+  // SpeechRecognition speech = SpeechRecognition();
 
   Future getImage(BuildContext context, bool isCamera) async {
     if (isCamera) {
@@ -127,7 +128,18 @@ class _RedBackgroundState extends State<RedBackground> {
                           ),
                   ],
                 ),
-                _widgetContainer(url)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _widgetContainer(url),
+                    SizedBox(height: 20),
+                    IconButton(
+                        icon: Icon(Icons.mic, size: 35, color: AppColor.white),
+                        onPressed: () {
+                          print('i have been pressed');
+                        })
+                  ],
+                )
               ],
             ),
           ),
@@ -149,10 +161,13 @@ class _RedBackgroundState extends State<RedBackground> {
                         height: 50,
                         width: 50,
                         child: CachedNetworkImage(
-                            imageUrl:
-                                'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
-                          placeholder: (context, url) => new CircularProgressIndicator(),
-                          errorWidget: (context, url, error) => new Icon(Icons.error),)),
+                          imageUrl:
+                              'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                          placeholder: (context, url) =>
+                              new CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                        )),
                   )
                 : ClipOval(
                     child: SizedBox(

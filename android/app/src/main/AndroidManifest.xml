@@ -18,6 +18,8 @@
 
 
 
+
+
     <application android:name="io.flutter.app.FlutterApplication" android:label="mp3_music_converter" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true">
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDbnaH3z7dOOvfEHrJWEET_BXH_zrOlNhs"/>
@@ -89,5 +91,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <meta-data android:name="com.google.android.gms.ads.APPLICATION_ID" android:value="ca-app-pub-4279408488674166~5863847722"/>
     </application>
 </manifest>

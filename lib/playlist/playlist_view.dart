@@ -236,7 +236,8 @@ class _PlayListViewState extends State<PlayListView> {
               onTap: () {
                 _musicProvider.stopShuffle();
                 _musicProvider.setCurrentIndex(0);
-                PageRouter.gotoWidget(SongViewScreen(_song[0]), context);
+                int width = MediaQuery.of(context).size.width.floor();
+                PageRouter.gotoWidget(SongViewScreen(_song[0], width), context);
               },
               child: Container(
                 height: 40,
@@ -318,8 +319,9 @@ class _PlayListViewState extends State<PlayListView> {
                     onTap: () async {
                       _musicProvider.songs = _song;
                       _musicProvider.setCurrentIndex(index);
+                      int width = MediaQuery.of(context).size.width.floor();
                       PageRouter.gotoWidget(
-                          SongViewScreen(_currentSong), context);
+                          SongViewScreen(_currentSong, width), context);
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,

@@ -4,11 +4,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/paymentAssistant.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 
 class PaymentScreen extends StatefulWidget {
   @override
@@ -18,7 +20,6 @@ class PaymentScreen extends StatefulWidget {
 class _PaymentScreenState extends State<PaymentScreen> {
   int currentIndexPage;
   int pageLength;
-  double amount;
   String email = '';
   String name = '';
   String userToken = '';
@@ -79,40 +80,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED BASIC',
                       text2: '150MB DISK SPACE (MONTHLY)',
                       text3: r'$0.99',
-                      amount: amount,
                       subWidgetButton: () async {
                         //TODO: Show loading widget
-                        print('About to pay mr $name with email $email');
-                        print('print user token here $userToken');
-                        var trxResponse =
-                            await PaymentAssistant.processTransaction(
-                          context,
-                          1.0,
-                          email,
-                          name,
-                        );
-                        if (trxResponse != 'Cancelled' &&
-                            trxResponse != 'Failed') {
-                          // await Provider.of<LoginProviders>(context, listen: false)
-                          //     .getSavedUserToken();
-                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
-                          bool storePayment =
-                              await PaymentAssistant.storePayment(
-                                  context: context,
-                                  txRef: 'txRef',
-                                  amount: 1,
-                                  txId: 'txId',
-                                  storage: 150000000,
-                                  userToken: userToken);
-                          if (storePayment)
-                            print('payment saved');
-                          else
-                            print('could not save payment');
-                          print('Transaction successful');
-                        } else if (trxResponse == 'Failed') {
-                          print('Transaction Failed. Try again later');
-                        } else
-                          print('Transaction Cancelled');
+
+                        makePayment(amount: 0.99, storage: 150000000);
                       },
                     ),
                     paymentContainer(
@@ -121,39 +92,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED MEDIUM',
                       text2: '1.5 GB DISK SPACE (MONTHLY)',
                       text3: r'$3.99',
-                      amount: amount,
                       subWidgetButton: () async {
-                        print('About to pay mr $name with email $email');
-                        print('print user token here $userToken');
-                        var trxResponse =
-                            await PaymentAssistant.processTransaction(
-                          context,
-                          3.99,
-                          email,
-                          name,
-                        );
-                        if (trxResponse != 'Cancelled' &&
-                            trxResponse != 'Failed') {
-                          // await Provider.of<LoginProviders>(context, listen: false)
-                          //     .getSavedUserToken();
-                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
-                          bool storePayment =
-                              await PaymentAssistant.storePayment(
-                                  context: context,
-                                  txRef: 'txRef',
-                                  amount: 1,
-                                  txId: 'txId',
-                                  storage: 1500000000,
-                                  userToken: userToken);
-                          if (storePayment)
-                            print('payment saved');
-                          else
-                            print('could not save payment');
-                          print('Transaction successful');
-                        } else if (trxResponse == 'Failed') {
-                          print('Transaction Failed. Try again later');
-                        } else
-                          print('Transaction Cancelled');
+                        makePayment(amount: 3.99, storage: 1500000000);
                       },
                     ),
                     paymentContainer(
@@ -162,40 +102,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED ADVANCE',
                       text2: '10GB DISK SPACE (6 MONTHLY)',
                       text3: r'$20',
-                      amount: amount,
                       subWidgetButton: () async {
-                        print('About to pay mr $name with email $email');
-                        print('print user token here $userToken');
-
-                        var trxResponse =
-                            await PaymentAssistant.processTransaction(
-                          context,
-                          20.0,
-                          email,
-                          name,
-                        );
-                        if (trxResponse != 'Cancelled' &&
-                            trxResponse != 'Failed') {
-                          // await Provider.of<LoginProviders>(context, listen: false)
-                          //     .getSavedUserToken();
-                          // String userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
-                          bool storePayment =
-                              await PaymentAssistant.storePayment(
-                                  context: context,
-                                  txRef: 'txRef',
-                                  amount: 1,
-                                  txId: 'txId',
-                                  storage: 10000000000,
-                                  userToken: userToken);
-                          if (storePayment)
-                            print('payment saved');
-                          else
-                            print('could not save payment');
-                          print('Transaction successful');
-                        } else if (trxResponse == 'Failed') {
-                          print('Transaction Failed. Try again later');
-                        } else
-                          print('Transaction Cancelled');
+                        makePayment(amount: 20.0, storage: 10000000000);
                       },
                     ),
                   ],
@@ -231,19 +139,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
     String text2,
     String text3,
     VoidCallback subWidgetButton,
-    // , double amount, String customerEmailAddress, String customerFName, String customerLName, String narration, String txRef
-    double amount,
-    String customerEmailAddress,
-    String customerFName,
-    // String narration,
-    // String txRef,
   }) =>
       Container(
         margin: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(
-              Radius.circular(10) //                 <--- border radius here
-              ),
+          borderRadius: BorderRadius.all(Radius.circular(10)),
           color: AppColor.white,
         ),
         child: SingleChildScrollView(
@@ -251,9 +151,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               picture,
-              SizedBox(
-                height: 26,
-              ),
               TextViewWidget(
                 text: text1 ?? '',
                 textSize: 23,
@@ -286,9 +183,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   decoration: BoxDecoration(
                     color: AppColor.transparent,
                     border: Border.all(width: 1, color: AppColor.bottomRed),
-                    borderRadius: BorderRadius.all(Radius.circular(
-                            5.0) //                 <--- border radius here
-                        ),
+                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   ),
                   child: Center(
                     child: TextViewWidget(
@@ -306,4 +201,30 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
       );
+
+  void makePayment({@required double amount, @required int storage}) async {
+    var uuid = Uuid();
+    String ref = uuid.v4();
+    String name = 'Undie Ebenezer';
+
+    var trxResponse = await PaymentAssistant.processTransaction(
+        amount: amount, context: context, email: email, name: name, ref: ref);
+
+    if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
+      PaymentAssistant.storePayment(
+          context: context,
+          // txRef: trxResponse['data']['flwRef'] != null &&
+          //         trxResponse['data']['flwRef'].toString().isNotEmpty
+          //     ? trxResponse['data']['flwRef']
+          //     : trxResponse['data']['txRef'],
+          txRef: trxResponse['data']['raveRef'],
+          amount: amount,
+          txId: trxResponse['data']['id'].toString(),
+          storage: storage,
+          userToken: userToken);
+    } else if (trxResponse == 'Failed') {
+      showToast(context, message: 'Transaction Failed. Try again later');
+    } else
+      showToast(context, message: 'Transaction cancelled');
+  }
 }

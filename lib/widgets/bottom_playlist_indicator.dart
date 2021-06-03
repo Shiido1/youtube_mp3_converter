@@ -39,8 +39,12 @@ class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InkWell(
-                onTap: () => PageRouter.gotoWidget(
-                    SongViewScreen(_musicProvider.currentSong), context),
+                onTap: () {
+                  int width = MediaQuery.of(context).size.width.floor();
+                  PageRouter.gotoWidget(
+                      SongViewScreen(_musicProvider.currentSong, width),
+                      context);
+                },
                 child: Container(
                   decoration: BoxDecoration(color: AppColor.black),
                   child: Row(children: [

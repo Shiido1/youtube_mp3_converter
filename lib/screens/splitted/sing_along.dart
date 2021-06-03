@@ -78,10 +78,14 @@ class _SingAlongState extends State<SingAlong> {
                       song: _song, splitted: true, showAll: false);
                 },
                 onTap: () {
+                  int width = MediaQuery.of(context).size.width.floor();
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => MuteVocalsScreen(song: _song)));
+                          builder: (_) => MuteVocalsScreen(
+                                song: _song,
+                                width: width,
+                              )));
                 },
                 child: ListTile(
                   leading: SizedBox(

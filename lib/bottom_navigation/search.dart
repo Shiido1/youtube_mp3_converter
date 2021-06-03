@@ -195,8 +195,12 @@ class _SearchState extends State<Search> {
                                   onTap: () {
                                     _musicProvider.songs =
                                         _musicProvider.allSongs;
+                                    int width = MediaQuery.of(context)
+                                        .size
+                                        .width
+                                        .floor();
                                     PageRouter.gotoWidget(
-                                        SongViewScreen(_song), context);
+                                        SongViewScreen(_song, width), context);
                                   },
                                   child: ListTile(
                                     contentPadding: EdgeInsets.zero,

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'dart:async';
 import 'package:file/local.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -16,8 +19,9 @@ import 'package:provider/provider.dart';
 class Split extends StatefulWidget {
   final LocalFileSystem localFileSystem;
   final Song song;
+  final int width;
 
-  Split({localFileSystem, @required this.song})
+  Split({localFileSystem, @required this.song, @required this.width})
       : this.localFileSystem = localFileSystem ?? LocalFileSystem();
   @override
   _SplitState createState() => _SplitState();
@@ -30,11 +34,15 @@ class _SplitState extends State<Split> {
   RecordingStatus _currentStatus = RecordingStatus.Unset;
   bool _isRecording = false;
   SplittedSongProvider _splittedSongProvider;
+  Timer _timer;
+  BannerAd songAd;
 
   @override
   void initState() {
     _splittedSongProvider = Provider.of(context, listen: false);
     _init();
+    showAd(widget.width);
+    startTimer();
     super.initState();
   }
 
@@ -43,7 +51,34 @@ class _SplitState extends State<Split> {
     if (_splittedSongProvider.playerState == PlayerState.PLAYING)
       _splittedSongProvider.stopAudio();
     if (_isRecording) _recorder.stop();
+    _timer?.cancel();
     super.dispose();
+  }
+
+  showAd(width) {
+    if (songAd == null) {
+      BannerAd appAd = BannerAd(
+        size: AdSize(height: 70, width: width - 70),
+        adUnitId: Platform.isAndroid
+            ? 'ca-app-pub-4279408488674166/9228377666'
+            : 'ca-app-pub-4279408488674166/6018640831',
+        listener: BannerAdListener(
+          onAdFailedToLoad: (ad, error) => ad.dispose(),
+          onAdLoaded: (ad) => setState(() {
+            songAd = ad;
+          }),
+        ),
+        request: AdRequest(),
+      );
+      appAd.load();
+    }
+  }
+
+  void startTimer() async {
+    const time = const Duration(seconds: 10);
+    _timer = new Timer.periodic(time, (timer) async {
+      showAd(widget.width);
+    });
   }
 
   _init() async {
@@ -229,8 +264,15 @@ class _SplitState extends State<Split> {
                   fontFamily: 'Roboto-Regular',
                 ),
               ),
+              SizedBox(height: 30),
+              if (songAd != null)
+                Container(
+                    child: AdWidget(ad: songAd),
+                    alignment: Alignment.center,
+                    height: songAd.size.height.toDouble(),
+                    width: songAd.size.width.toDouble()),
               SizedBox(
-                height: 40,
+                height: 20,
               ),
               Container(
                 width: 300,

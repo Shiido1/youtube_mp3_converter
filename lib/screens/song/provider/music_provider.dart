@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_session/audio_session.dart' as asp;
 import 'package:flutter/material.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 
@@ -119,10 +120,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
     musicPlayer.onDurationChanged.listen((duration) {
       AudioServiceBackground.sendCustomEvent(
           {DURATION: duration.inSeconds, 'identity': identity});
-      // AudioServiceBackground.setMediaItem(
-      //     AudioServiceBackground.mediaItem.copyWith(duration: duration));
-      // AudioServiceBackground.sendCustomEvent(
-      //     {STATE_CHANGE2: audioPlayer.state});
 
       _broadcastState();
     });
@@ -321,8 +318,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
   @override
   Future<void> onPause() async {
-    await super.onPause();
     await audioPlayer.pause();
+    await super.onPause();
     _broadcastState();
   }
 
@@ -346,6 +343,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (musicPlayer.state == AudioPlayerState.PLAYING) {
         await musicPlayer.stop();
         if (playVocals) await vocalPlayer.stop();
+        if (await FlutterRadio.isPlaying()) FlutterRadio.stop();
       }
 
       audioSession = await asp.AudioSession.instance;
@@ -460,7 +458,7 @@ class MusicProvider with ChangeNotifier {
     await initPlayer();
   }
 
-  getSongs() async {
+  Future<void> getSongs() async {
     allSongs = await SongRepository.getSongs();
     notifyListeners();
   }
@@ -614,11 +612,9 @@ class MusicProvider with ChangeNotifier {
     return playingSongs;
   }
 
-  void playAudio(
-    Song song,
-  ) async {
+  void playAudio(Song song, {bool force = false}) async {
     currentSong = song;
-    if (song.file == currentSongID) return;
+    if (song.file == currentSongID && force == false) return;
     await addActionToAudioService(() async =>
         await AudioService.updateQueue(convertSongToMediaItem(songs)));
     await addActionToAudioService(

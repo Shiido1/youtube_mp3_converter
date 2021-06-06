@@ -29,19 +29,24 @@ class _MainDashBoardState extends State<MainDashBoard> {
   MusicProvider _musicProvider;
   SplittedSongProvider _repository;
   RecordProvider _recordProvider;
-  // RadioPlayProvider _playProvider;
+  List<Widget> _screens;
 
-  List<Widget> _screens = [
-    DashBoard(),
-    PlayList(),
-    Library(),
-    Search(),
-    Setting()
-  ];
+  void setIndex(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   void initState() {
     init();
+    _screens = [
+      DashBoard(),
+      PlayList(),
+      Library(setIndex),
+      Search(),
+      Setting()
+    ];
     super.initState();
   }
 

@@ -50,8 +50,8 @@ class PaymentAssistant {
       @required String name,
       @required String ref}) async {
     Widget companyName = Text('Youtube Audio');
-    String publicKey = "FLWPUBK_TEST-eb59a5bc41b70eabbd718b5334202c0a-X";
-    String encryptionKey = "FLWSECK_TEST2b05410cd196";
+    String publicKey = "FLWSECK_TEST-5b1e458a6efcd762bcc24f132244002e-X";
+    String encryptionKey = "FLWSECK_TESTe654c63ec08a";
     var initializer = RavePayInitializer(
         amount: amount, publicKey: publicKey, encryptionKey: encryptionKey)
       ..country = "NG"

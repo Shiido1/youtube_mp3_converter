@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
@@ -112,6 +113,15 @@ class _DashBoardState extends State<DashBoard> {
     });
   }
 
+  void openRadio(String search) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => RadioClass(
+                  search: search,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_sharedText.length > 1)
@@ -121,7 +131,7 @@ class _DashBoardState extends State<DashBoard> {
         backgroundColor: AppColor.background,
         body: Column(
           children: [
-            RedBackground(),
+            RedBackground(showMic: true, openRadio: openRadio),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(left: 16, right: 90),
@@ -161,7 +171,10 @@ class _DashBoardState extends State<DashBoard> {
                         appBar: AppBar(
                           backgroundColor: AppColor.bottomRed,
                           leading: IconButton(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => MainDashBoard())),
                             icon: Icon(
                               Icons.arrow_back_ios_sharp,
                               color: AppColor.white,
@@ -209,7 +222,7 @@ class _DashBoardState extends State<DashBoard> {
         });
         screen == null
             ? splitMethod()
-            : Navigator.push(
+            : Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => screen),
               );

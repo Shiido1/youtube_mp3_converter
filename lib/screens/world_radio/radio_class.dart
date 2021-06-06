@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_radio/flutter_radio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_switch/flutter_switch.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart'
     as radioModel;
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
@@ -22,6 +24,8 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
 class RadioClass extends StatefulWidget {
+  final String search;
+  RadioClass({this.search});
   @override
   _RadioClassState createState() => _RadioClassState();
 }
@@ -53,6 +57,7 @@ class _RadioClassState extends State<RadioClass>
   bool search = false;
   CustomProgressIndicator _progressIndicator;
   Map<MarkerId, Marker> markers = {};
+  String searchString;
 
   @override
   void initState() {
@@ -70,6 +75,10 @@ class _RadioClassState extends State<RadioClass>
       _playProvider.playRadio(radioMp3);
     } else {
       init();
+    }
+    if (widget.search != null) {
+      searchString = widget.search;
+      search = true;
     }
 
     getFavourites();
@@ -173,9 +182,6 @@ class _RadioClassState extends State<RadioClass>
           break;
         }
       }
-    // var _radioLog = tap
-    //     ? _radioProvider.radioModels.radio[currentRadioIndex]
-    //     : json.decode(favourite[currentRadioIndex]);
 
     if (currentRadioIndex != null) {
       if (_favourite != null) {
@@ -274,77 +280,87 @@ class _RadioClassState extends State<RadioClass>
   }
 
   permissionNotGranted() {
-    _radioProvider.init(context: context, search: false, searchData: '');
-    setState(() {
-      showAllChannels = true;
-    });
+    if (searchString == null) {
+      _radioProvider.init(context: context, search: false, searchData: '');
+      setState(() {
+        showAllChannels = true;
+      });
+    } else {
+      _radioProvider.init(
+          context: context, search: true, searchData: searchString);
+      setState(() {
+        showAllChannels = false;
+      });
+    }
   }
 
   getUserLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+    if (searchString == null) {
+      bool serviceEnabled;
+      LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      showLocationMessage(
-          message:
-              'This function requires your location to be turned on. Do you want to turn it on?',
-          type: 'location');
-    } else {
-      permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        showLocationMessage(
+            message:
+                'This function requires your location to be turned on. Do you want to turn it on?',
+            type: 'location');
+      } else {
+        permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+          if (permission == LocationPermission.denied ||
+              permission == LocationPermission.deniedForever) {
+            showLocationMessage(
+                message:
+                    'This function requires permission to access your location. Grant permission?',
+                type: 'permission');
+          } else
+            getUserLocation();
+        }
+        if (permission == LocationPermission.deniedForever) {
           showLocationMessage(
               message:
                   'This function requires permission to access your location. Grant permission?',
               type: 'permission');
-        } else
-          getUserLocation();
-      }
-      if (permission == LocationPermission.deniedForever) {
-        showLocationMessage(
-            message:
-                'This function requires permission to access your location. Grant permission?',
-            type: 'permission');
-      }
-      if (permission == LocationPermission.always ||
-          permission == LocationPermission.whileInUse) {
-        _progressIndicator.show();
-        try {
-          location = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.best,
-              timeLimit: Duration(seconds: 60),
-              forceAndroidLocationManager: true);
-          _progressIndicator.dismiss();
-
-          setState(() {});
-          GoogleMapController _controller = await _mapController.future;
-          _controller.animateCamera(CameraUpdate.newCameraPosition(
-              CameraPosition(
-                  target: LatLng(location.latitude, location.longitude),
-                  zoom: 10)));
-        } catch (e) {
-          _progressIndicator.dismiss();
         }
+        if (permission == LocationPermission.always ||
+            permission == LocationPermission.whileInUse) {
+          _progressIndicator.show();
+          try {
+            location = await Geolocator.getCurrentPosition(
+                desiredAccuracy: LocationAccuracy.best,
+                timeLimit: Duration(seconds: 60),
+                forceAndroidLocationManager: true);
+            _progressIndicator.dismiss();
 
-        try {
-          List<Placemark> placemark = await placemarkFromCoordinates(
-              location.latitude, location.longitude);
-          _radioProvider.init(
+            setState(() {});
+            GoogleMapController _controller = await _mapController.future;
+            _controller.animateCamera(CameraUpdate.newCameraPosition(
+                CameraPosition(
+                    target: LatLng(location.latitude, location.longitude),
+                    zoom: 10)));
+            List<Placemark> placemark = await placemarkFromCoordinates(
+                location.latitude, location.longitude);
+
+            _radioProvider.init(
               context: context,
               search: true,
               searchData: placemark[0].country,
-              add: false,
-              firstSearch: true);
-        } catch (e) {
-          showToast(context,
-              message: 'An error occurred. Try again', gravity: 3);
-          print(e);
+            );
+          } catch (e) {
+            _progressIndicator.dismiss();
+            showToast(context,
+                message: 'An error occurred. Try again', gravity: 3);
+          }
         }
       }
-    }
+    } else
+      _radioProvider.init(
+        context: context,
+        search: true,
+        searchData: searchString,
+      );
   }
 
   showLocationMessage({String message, String type}) {
@@ -380,11 +396,20 @@ class _RadioClassState extends State<RadioClass>
         });
   }
 
+  checkIsPlaying() async {
+    isPlaying = await FlutterRadio.isPlaying();
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_radioProvider.radioModels != null && search == false) checkStation();
     showAllChannels = Provider.of<RadioProvider>(context).showAllChannels;
+    checkIsPlaying();
+
     return Consumer<RadioProvider>(builder: (_, radioProvider, __) {
+      playStationFromSpeech(radioProvider);
+
       return Scaffold(
           backgroundColor: AppColor.background1,
           resizeToAvoidBottomInset: false,
@@ -403,7 +428,10 @@ class _RadioClassState extends State<RadioClass>
                             Icons.arrow_back_ios_outlined,
                             color: AppColor.white,
                           ),
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => MainDashBoard())),
                         ),
                         text: 'Radio World Wide',
                       ),
@@ -717,7 +745,6 @@ class _RadioClassState extends State<RadioClass>
                                             placeId = _radioLog["placeId"];
                                             placeLat = _radioLog["placeLat"];
                                             placeLong = _radioLog["placeLong"];
-                                            isPlaying = true;
                                             currentRadioIndex =
                                                 currentRadioIndex - 1;
                                           });
@@ -773,7 +800,6 @@ class _RadioClassState extends State<RadioClass>
                                             placeId = _radioLog.id;
                                             placeLat = _radioLog.placeLat;
                                             placeLong = _radioLog.placeLong;
-                                            isPlaying = true;
                                             currentRadioIndex =
                                                 currentRadioIndex - 1;
                                           });
@@ -827,9 +853,6 @@ class _RadioClassState extends State<RadioClass>
                                             size: 50,
                                           ),
                                     onPressed: () {
-                                      setState(() {
-                                        isPlaying = !isPlaying;
-                                      });
                                       _playProvider.playRadio(radioMp3);
                                     },
                                   ),
@@ -853,7 +876,6 @@ class _RadioClassState extends State<RadioClass>
                                             placeId = _radioLog['placeId'];
                                             placeLat = _radioLog["placeLat"];
                                             placeLong = _radioLog['placeLong'];
-                                            isPlaying = true;
                                             currentRadioIndex =
                                                 currentRadioIndex + 1;
                                           });
@@ -923,7 +945,6 @@ class _RadioClassState extends State<RadioClass>
                                           placeId = _radioLog.id;
                                           placeLat = _radioLog.placeLat;
                                           placeLong = _radioLog.placeLong;
-                                          isPlaying = true;
                                           currentRadioIndex =
                                               currentRadioIndex + 1;
                                         });
@@ -988,89 +1009,88 @@ class _RadioClassState extends State<RadioClass>
   }
 
   Widget radioContainer(
-          bool isFavorite, List radioList, RadioProvider radioProvider) =>
-      ListView.builder(
-          itemCount: !isFavorite
-              ? radioProvider?.radioModels?.radio?.length ?? 0
-              : radioList.length ?? 0,
-          itemBuilder: (context, index) {
-            var _radioLog = isFavorite
-                ? jsonDecode(radioList[index])
-                : radioProvider.radioModels.radio[index];
-            bool currentStation = isFavorite
-                ? _radioLog['placeId'] == placeId
-                : _radioLog.id == placeId
-                    ? true
-                    : false;
-            return InkWell(
-              onTap: () {
-                setState(() {
-                  currentRadioIndex = index;
-                  if (location == null)
-                    location = Position(
-                        latitude: !isFavorite
-                            ? double.parse(_radioLog.placeLat.toString())
-                            : double.parse(_radioLog['placeLat'].toString()),
-                        longitude: !isFavorite
-                            ? double.parse(_radioLog.placeLong.toString())
-                            : double.parse(_radioLog['placeLong'].toString()));
-                  // !isFavorite ? tap = true : tap = false;
-                  tap = showFaves ? false : true;
-                  search = false;
-                  radioFile = isFavorite ? _radioLog["name"] : _radioLog.name;
-                  radioMp3 = !isFavorite ? _radioLog.mp3 : _radioLog["mp3"];
-                  placeName = !isFavorite
-                      ? _radioLog.placeName
-                      : _radioLog["placename"];
-                  placeId = !isFavorite ? _radioLog.id : _radioLog["placeId"];
-                  placeLat = !isFavorite
-                      ? _radioLog.placeLat
-                      : _radioLog["placeLat"] ?? location.latitude.toString();
-                  placeLong = !isFavorite
-                      ? _radioLog.placeLong
-                      : _radioLog["placeLong"] ?? location.longitude.toString();
+      bool isFavorite, List radioList, RadioProvider radioProvider) {
+    return ListView.builder(
+        itemCount: !isFavorite
+            ? radioProvider?.radioModels?.radio?.length ?? 0
+            : radioList.length ?? 0,
+        itemBuilder: (context, index) {
+          var _radioLog = isFavorite
+              ? jsonDecode(radioList[index])
+              : radioProvider.radioModels.radio[index];
+          bool currentStation = isFavorite
+              ? _radioLog['placeId'] == placeId
+              : _radioLog.id == placeId
+                  ? true
+                  : false;
 
-                  isPlaying = true;
-                });
-                _changeLocationMarker(
-                    latitude: !isFavorite
-                        ? double.parse(_radioLog.placeLat.toString())
-                        : double.parse(_radioLog['placeLat'].toString()) ??
-                            location.latitude,
-                    longitude: !isFavorite
-                        ? double.parse(_radioLog.placeLong.toString())
-                        : double.parse(_radioLog['placeLong'].toString()) ??
-                            location.longitude,
-                    title: isFavorite ? _radioLog["name"] : _radioLog.name);
-                preferencesHelper.saveValue(key: 'radiomp3', value: radioMp3);
-                preferencesHelper.saveValue(key: 'radioFile', value: radioFile);
-                preferencesHelper.saveValue(key: 'placename', value: placeName);
-                preferencesHelper.saveValue(key: 'placeId', value: placeId);
-                preferencesHelper.saveValue(key: 'placeLat', value: placeLat);
-                preferencesHelper.saveValue(key: 'placeLong', value: placeLong);
-                checkFavourite();
-                _playProvider.playRadio(radioMp3);
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextViewWidget(
-                      text: !isFavorite ? _radioLog.name : _radioLog["name"],
-                      color:
-                          currentStation ? AppColor.bottomRed : AppColor.white,
-                      textSize: 16,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 15),
-                      child: Divider(thickness: 1, color: AppColor.white),
-                    )
-                  ],
-                ),
+          return InkWell(
+            onTap: () {
+              setState(() {
+                currentRadioIndex = index;
+                if (location == null)
+                  location = Position(
+                      latitude: !isFavorite
+                          ? double.parse(_radioLog.placeLat.toString())
+                          : double.parse(_radioLog['placeLat'].toString()),
+                      longitude: !isFavorite
+                          ? double.parse(_radioLog.placeLong.toString())
+                          : double.parse(_radioLog['placeLong'].toString()));
+                // !isFavorite ? tap = true : tap = false;
+                tap = showFaves ? false : true;
+                search = false;
+                radioFile = isFavorite ? _radioLog["name"] : _radioLog.name;
+                radioMp3 = !isFavorite ? _radioLog.mp3 : _radioLog["mp3"];
+                placeName =
+                    !isFavorite ? _radioLog.placeName : _radioLog["placename"];
+                placeId = !isFavorite ? _radioLog.id : _radioLog["placeId"];
+                placeLat = !isFavorite
+                    ? _radioLog.placeLat
+                    : _radioLog["placeLat"] ?? location.latitude.toString();
+                placeLong = !isFavorite
+                    ? _radioLog.placeLong
+                    : _radioLog["placeLong"] ?? location.longitude.toString();
+              });
+              _changeLocationMarker(
+                  latitude: !isFavorite
+                      ? double.parse(_radioLog.placeLat.toString())
+                      : double.parse(_radioLog['placeLat'].toString()) ??
+                          location.latitude,
+                  longitude: !isFavorite
+                      ? double.parse(_radioLog.placeLong.toString())
+                      : double.parse(_radioLog['placeLong'].toString()) ??
+                          location.longitude,
+                  title: isFavorite ? _radioLog["name"] : _radioLog.name);
+              preferencesHelper.saveValue(key: 'radiomp3', value: radioMp3);
+              preferencesHelper.saveValue(key: 'radioFile', value: radioFile);
+              preferencesHelper.saveValue(key: 'placename', value: placeName);
+              preferencesHelper.saveValue(key: 'placeId', value: placeId);
+              preferencesHelper.saveValue(key: 'placeLat', value: placeLat);
+              preferencesHelper.saveValue(key: 'placeLong', value: placeLong);
+
+              checkFavourite();
+              _playProvider.playRadio(radioMp3);
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextViewWidget(
+                    text: !isFavorite ? _radioLog.name : _radioLog["name"],
+                    color: currentStation ? AppColor.bottomRed : AppColor.white,
+                    textSize: 16,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 15),
+                    child: Divider(thickness: 1, color: AppColor.white),
+                  )
+                ],
               ),
-            );
-          });
+            ),
+          );
+        });
+  }
 
   buildCenter(String text) => Center(
         child: Text(
@@ -1078,4 +1098,41 @@ class _RadioClassState extends State<RadioClass>
           style: TextStyle(color: AppColor.white),
         ),
       );
+
+  playStationFromSpeech(RadioProvider radioProvider) async {
+    if (searchString != null && radioProvider.radioModels != null) {
+      var _radioLog = radioProvider.radioModels.radio.length > 0
+          ? radioProvider?.radioModels?.radio[0]
+          : null;
+
+      if (_radioLog == null) {
+        showToast(context, message: 'Station not found', gravity: 2);
+      } else {
+        radioFile = _radioLog.name;
+        radioMp3 = _radioLog.mp3;
+        placeName = _radioLog.placeName;
+        placeId = _radioLog.id;
+        placeLat = _radioLog.placeLat;
+        placeLong = _radioLog.placeLong;
+
+        preferencesHelper.saveValue(key: 'radiomp3', value: radioMp3);
+        preferencesHelper.saveValue(key: 'radioFile', value: radioFile);
+        preferencesHelper.saveValue(key: 'placename', value: placeName);
+        preferencesHelper.saveValue(key: 'placeId', value: placeId);
+        preferencesHelper.saveValue(key: 'placeLat', value: placeLat);
+        preferencesHelper.saveValue(key: 'placeLong', value: placeLong);
+
+        _playProvider.playRadio(radioMp3);
+        location = Position(
+            latitude: double.parse(placeLat),
+            longitude: double.parse(placeLong));
+        _changeLocationMarker(
+            latitude: location.latitude,
+            longitude: location.longitude,
+            title: placeName);
+      }
+      searchString = null;
+      search = false;
+    }
+  }
 }

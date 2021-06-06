@@ -8,6 +8,7 @@ import 'package:mp3_music_converter/screens/favorite/favorite_songs.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
+import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
@@ -19,11 +20,24 @@ import 'package:mp3_music_converter/screens/splitted/sing_along.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 class Library extends StatefulWidget {
+  final Function setIndex;
+  Library(this.setIndex);
   @override
   _LibraryState createState() => _LibraryState();
 }
 
 class _LibraryState extends State<Library> {
+  void openRadio(String search) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => RadioClass(
+          search: search,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,6 +50,8 @@ class _LibraryState extends State<Library> {
           children: [
             RedBackground(
               text: 'Library',
+              showMic: true,
+              openRadio: openRadio,
             ),
             Expanded(
               child: Container(
@@ -43,11 +59,7 @@ class _LibraryState extends State<Library> {
                 child: ListView(children: [
                   ListTile(
                     onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PlayList(),
-                          ));
+                      widget.setIndex(1);
                     },
                     leading: SvgPicture.asset(AppAssets.library),
                     title: TextViewWidget(

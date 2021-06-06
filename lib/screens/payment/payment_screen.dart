@@ -58,10 +58,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   Icons.arrow_back_ios_outlined,
                   color: AppColor.white,
                 ),
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainDashBoard()),
-                ),
+                onPressed: () => Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => MainDashBoard())),
               ),
               text: 'Plan',
             ),
@@ -146,65 +144,76 @@ class _PaymentScreenState extends State<PaymentScreen> {
           borderRadius: BorderRadius.all(Radius.circular(10)),
           color: AppColor.white,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              picture,
-              TextViewWidget(
-                text: text1 ?? '',
-                textSize: 23,
-                textAlign: TextAlign.center,
-                fontWeight: FontWeight.bold,
-                color: AppColor.bottomRed,
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              TextViewWidget(
-                text: text2 ?? '',
-                textSize: 17,
-                textAlign: TextAlign.center,
-                fontWeight: FontWeight.w500,
-                color: AppColor.black,
-              ),
-              TextViewWidget(
-                text: text3 ?? '',
-                textSize: 22,
-                textAlign: TextAlign.center,
-                fontWeight: FontWeight.bold,
-                color: AppColor.bottomRed,
-              ),
-              InkWell(
-                onTap: subWidgetButton,
-                child: Container(
-                  width: 70,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColor.transparent,
-                    border: Border.all(width: 1, color: AppColor.bottomRed),
-                    borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                  ),
-                  child: Center(
-                    child: TextViewWidget(
-                        color: AppColor.black,
-                        text: 'BUY',
-                        textSize: 25,
-                        textAlign: TextAlign.center),
-                  ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: <Widget>[
+                    picture,
+                    TextViewWidget(
+                      text: text1 ?? '',
+                      textSize: 23,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.bottomRed,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    TextViewWidget(
+                      text: text2 ?? '',
+                      textSize: 17,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.w500,
+                      color: AppColor.black,
+                    ),
+                    TextViewWidget(
+                      text: text3 ?? '',
+                      textSize: 22,
+                      textAlign: TextAlign.center,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.bottomRed,
+                    ),
+                    InkWell(
+                      onTap: subWidgetButton,
+                      child: Container(
+                        width: 70,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColor.transparent,
+                          border:
+                              Border.all(width: 1, color: AppColor.bottomRed),
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                        ),
+                        child: Center(
+                          child: TextViewWidget(
+                              color: AppColor.black,
+                              text: 'BUY',
+                              textSize: 25,
+                              textAlign: TextAlign.center),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                  ],
                 ),
               ),
-              SizedBox(
-                height: 15,
-              ),
-            ],
-          ),
+            );
+          },
         ),
       );
 
   void makePayment({@required double amount, @required int storage}) async {
     var uuid = Uuid();
     String ref = uuid.v4();
+
+    //TODO: remove this name
     String name = 'Undie Ebenezer';
 
     var trxResponse = await PaymentAssistant.processTransaction(
@@ -217,7 +226,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
           //         trxResponse['data']['flwRef'].toString().isNotEmpty
           //     ? trxResponse['data']['flwRef']
           //     : trxResponse['data']['txRef'],
-          txRef: trxResponse['data']['raveRef'],
+          // txRef: trxResponse['data']['raveRef'],
+          txRef: trxResponse['data']['txRef'],
           amount: amount,
           txId: trxResponse['data']['id'].toString(),
           storage: storage,

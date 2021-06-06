@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_follow.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
@@ -21,16 +20,6 @@ class _SettingState extends State<Setting> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             RedBackground(
-              iconButton: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_outlined,
-                  color: AppColor.white,
-                ),
-                onPressed: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => MainDashBoard()),
-                ),
-              ),
               text: 'Setting',
             ),
             bodyContainer(

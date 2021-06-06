@@ -21,60 +21,58 @@ class RadioProvider extends ChangeNotifier {
     // notifyListeners();
   }
 
-  void init(
-      {BuildContext context,
-      @required bool search,
-      String searchData,
-      bool add = false,
-      bool firstSearch = false}) {
+  void init({
+    BuildContext context,
+    @required bool search,
+    String searchData,
+    bool add = false,
+  }) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
     getRadio(
+      search: search,
+      searchData: searchData,
+      context: context,
+      add: add,
+    );
+  }
+
+  getRadio({
+    @required bool search,
+    String searchData,
+    @required BuildContext context,
+    bool add,
+  }) async {
+    if (search)
+      radioX(
+        search: true,
+        searchData: searchData,
+        context: context,
+        add: add,
+      );
+    if (search == false || radioModels == null)
+      radioX(
         search: search,
         searchData: searchData,
         context: context,
         add: add,
-        firstSearch: firstSearch);
+      );
   }
 
-  getRadio(
-      {@required bool search,
-      String searchData,
-      @required BuildContext context,
-      bool add,
-      bool firstSearch}) async {
-    if (search)
-      radioX(
-          search: true,
-          searchData: searchData,
-          context: context,
-          add: add,
-          firstSearch: firstSearch);
-    if (search == false || radioModels == null)
-      radioX(
-          search: search,
-          searchData: searchData,
-          context: context,
-          add: add,
-          firstSearch: firstSearch);
-  }
-
-  void radioX(
-      {@required bool search,
-      String searchData,
-      @required BuildContext context,
-      @required bool add,
-      bool firstSearch}) async {
-    try {
-      await Provider.of<LoginProviders>(context, listen: false)
-          .getSavedUserToken();
-      String _token = Provider.of<LoginProviders>(context, listen: false).userToken;
-      if (add) {
-        print('print token here $_token');
+  void radioX({
+    @required bool search,
+    String searchData,
+    @required BuildContext context,
+    @required bool add,
+  }) async {
+    await Provider.of<LoginProviders>(context, listen: false)
+        .getSavedUserToken();
+    String _token =
+        Provider.of<LoginProviders>(context, listen: false).userToken;
+    if (add) {
+      try {
         RadioModel myModel = await _repository.radiox(
-            map: Radio.mapToJson(
-                token: _token,
-                searchData: searchData),
+            map: Radio.mapToJson(token: _token, searchData: searchData),
             search: true,
             context: context,
             add: true);
@@ -82,10 +80,14 @@ class RadioProvider extends ChangeNotifier {
           radioModels = myModel;
         else
           radioModels.radio.addAll(myModel.radio);
-      } else {
-        if (search) {
-          _progressIndicator.show();
-          if (radioModels != null) radioModelsItems = radioModels;
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      if (search) {
+        _progressIndicator.show();
+        if (radioModels != null) radioModelsItems = radioModels;
+        try {
           radioModels = await _repository.radiox(
               map: Radio.mapToJson(
                   token: Provider.of<LoginProviders>(context, listen: false)
@@ -96,8 +98,12 @@ class RadioProvider extends ChangeNotifier {
               add: false);
           _progressIndicator.dismiss();
           notifyListeners();
-        } else {
-          _progressIndicator.show();
+        } catch (e) {
+          _progressIndicator.dismiss();
+        }
+      } else {
+        _progressIndicator.show();
+        try {
           RadioModel myModel = await _repository.radiox(
               map: Radio.mapToJson(
                 token: Provider.of<LoginProviders>(context, listen: false)
@@ -106,18 +112,16 @@ class RadioProvider extends ChangeNotifier {
               search: false,
               add: false,
               context: context);
+          _progressIndicator.dismiss();
           if (radioModels == null)
             radioModels = myModel;
           else
             radioModels.radio.addAll(myModel.radio);
-          _progressIndicator.dismiss();
           notifyListeners();
+        } catch (e) {
+          _progressIndicator.dismiss();
         }
       }
-    } catch (e) {
-      if (!add) _progressIndicator.dismiss();
-      if (!add) problem = false;
-      print("error $e");
     }
     notifyListeners();
   }

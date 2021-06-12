@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -22,6 +23,8 @@ Future<void> main() async {
   await FlutterDownloader.initialize();
   await MobileAds.instance.initialize();
   await Firebase.initializeApp();
+  await FirebaseDatabase.instance.setPersistenceCacheSizeBytes(100000000);
+  await FirebaseDatabase.instance.setPersistenceEnabled(true);
   MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
       testDeviceIds: ["92404C1F75C7C8711E9941D4C1C151A9"]));
   var path = Directory.current.path;
@@ -69,8 +72,13 @@ class _WrapperState extends State<Wrapper> {
   String email;
   bool newUser;
 
+  openBox() async {
+    await Hive.openBox('task');
+  }
+
   @override
   void initState() {
+    openBox();
     preferencesHelper = SharedPreferencesHelper();
     getEmail();
     super.initState();

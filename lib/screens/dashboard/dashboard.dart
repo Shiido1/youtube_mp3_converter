@@ -17,6 +17,7 @@ import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
+import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -166,28 +167,7 @@ class _DashBoardState extends State<DashBoard> {
                     _buttonItem(
                       title: "Disk Jockey",
                       item: HomeButtonItem.DJ,
-                      screen: Scaffold(
-                        backgroundColor: AppColor.background,
-                        appBar: AppBar(
-                          backgroundColor: AppColor.bottomRed,
-                          leading: IconButton(
-                            onPressed: () => Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => MainDashBoard())),
-                            icon: Icon(
-                              Icons.arrow_back_ios_sharp,
-                              color: AppColor.white,
-                            ),
-                          ),
-                        ),
-                        body: Center(
-                            child: TextViewWidget(
-                          text: 'Coming Soon...!',
-                          color: AppColor.white,
-                          textSize: 18,
-                        )),
-                      ),
+                      screen: DJMixer(),
                       assets: AppAssets.djMixer,
                     ),
                     SizedBox(
@@ -283,13 +263,15 @@ class _DashBoardState extends State<DashBoard> {
           filePath: result.files.single.path,
           context: context,
           userToken: userToken);
-      if (splittedFiles != "Failed") {
+      if (splittedFiles['reply'] == "success") {
         await _progressIndicator.dismiss();
-        bool isSaved = await SplitAssistant.saveSplitFiles(
-            decodedData: splittedFiles, context: context, userToken: userToken);
-        if (isSaved && _permissionReady) {
-          String voiceUrl = splittedFiles["files"]["voice"];
-          String otherUrl = splittedFiles["files"]["other"];
+        SplitAssistant.saveSplitFiles(
+            decodedData: splittedFiles['data'],
+            context: context,
+            userToken: userToken);
+        if (_permissionReady) {
+          String voiceUrl = splittedFiles['data']["files"]["voice"];
+          String otherUrl = splittedFiles['data']["files"]["other"];
 
           _apiSplittedList = ['', ''];
           _apiSplittedList.insert(0, otherUrl);
@@ -304,10 +286,11 @@ class _DashBoardState extends State<DashBoard> {
                       song: Song(fileName: nameOfFile))));
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
-        } else {
-          await _progressIndicator.dismiss();
-          showToast(context, message: "error occurred, please try again");
         }
+      } else if (splittedFiles['data'] ==
+          'please subscribe to enjoy this service') {
+        await _progressIndicator.dismiss();
+        showSubscriptionMessage(context);
       } else {
         await _progressIndicator.dismiss();
         showToast(context, message: 'Please try again later');
@@ -354,3 +337,31 @@ class _DashBoardState extends State<DashBoard> {
 }
 
 enum HomeButtonItem { NON, CONVERTER, CREATE_MUSIC, RADIO, DJ, PLAN }
+
+class DJMixer extends StatelessWidget {
+  const DJMixer({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.background,
+      appBar: AppBar(
+        backgroundColor: AppColor.bottomRed,
+        leading: IconButton(
+          onPressed: () => Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (_) => MainDashBoard())),
+          icon: Icon(
+            Icons.arrow_back_ios_sharp,
+            color: AppColor.white,
+          ),
+        ),
+      ),
+      body: Center(
+          child: TextViewWidget(
+        text: 'Coming Soon...!',
+        color: AppColor.white,
+        textSize: 18,
+      )),
+    );
+  }
+}

@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
+import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
@@ -363,66 +364,6 @@ class _AppDrawerState extends State<AppDrawer> {
     });
   }
 
-  // Future<void> _showDialog(BuildContext context, String file) {
-  //   return showDialog(
-  //       context: context,
-  //       barrierDismissible: true,
-  //       builder: (BuildContext context) {
-  //         return Padding(
-  //           padding: const EdgeInsets.fromLTRB(20, 170, 20, 250),
-  //           child: AlertDialog(
-  //               backgroundColor: AppColor.white.withOpacity(0.6),
-  //               content: Container(
-  //                 decoration: new BoxDecoration(
-  //                   shape: BoxShape.rectangle,
-  //                   borderRadius:
-  //                       new BorderRadius.all(new Radius.circular(32.0)),
-  //                 ),
-  //                 child: Padding(
-  //                   padding: const EdgeInsets.only(top: 20, bottom: 50),
-  //                   child: Center(
-  //                     child: Column(
-  //                       crossAxisAlignment: CrossAxisAlignment.center,
-  //                       mainAxisSize: MainAxisSize.min,
-  //                       children: [
-  //                         // SvgPicture.asset(AppAssets.check),
-  //                         SizedBox(
-  //                           height: 11.5,
-  //                         ),
-  //                         Center(
-  //                           child: TextViewWidget(
-  //                             color: AppColor.black,
-  //                             fontWeight: FontWeight.w500,
-  //                             textSize: 21,
-  //                             text: 'Download Spit file',
-  //                             textAlign: TextAlign.center,
-  //                           ),
-  //                         ),
-  //                         SizedBox(
-  //                           height: 15,
-  //                         ),
-  //                         Center(
-  //                           child: ElevatedButton(
-  //                             onPressed: () => downFileFunction(),
-  //                             style: TextButton.styleFrom(
-  //                               backgroundColor: AppColor.green,
-  //                             ),
-  //                             child: TextViewWidget(
-  //                               text: 'Download',
-  //                               color: AppColor.white,
-  //                               textSize: 20,
-  //                             ),
-  //                           ),
-  //                         )
-  //                       ],
-  //                     ),
-  //                   ),
-  //                 ),
-  //               )),
-  //         );
-  //       });
-  // }
-
   Future splitSongMethod() async {
     await Provider.of<LoginProviders>(context, listen: false)
         .getSavedUserToken();
@@ -433,13 +374,17 @@ class _AppDrawerState extends State<AppDrawer> {
         '${_musicProvider.drawerItem.fileName}';
     var splittedFiles = await SplitAssistant.splitFile(
         filePath: result, context: context, userToken: userToken);
-    if (splittedFiles != "Failed") {
+
+    print(splittedFiles);
+    if (splittedFiles['reply'] == "success") {
       await _progressIndicator.dismiss();
-      bool isSaved = await SplitAssistant.saveSplitFiles(
-          decodedData: splittedFiles, context: context, userToken: userToken);
-      if (isSaved && _permissionReady) {
-        String voiceUrl = splittedFiles["files"]["voice"];
-        String otherUrl = splittedFiles["files"]["other"];
+      SplitAssistant.saveSplitFiles(
+          decodedData: splittedFiles['data'],
+          context: context,
+          userToken: userToken);
+      if (_permissionReady) {
+        String voiceUrl = splittedFiles['data']["files"]["voice"];
+        String otherUrl = splittedFiles['data']["files"]["other"];
         _apiSplittedList = ['', ''];
         _apiSplittedList.insert(0, otherUrl);
         _apiSplittedList.insert(1, voiceUrl);
@@ -450,15 +395,15 @@ class _AppDrawerState extends State<AppDrawer> {
                     apiSplittedList: _apiSplittedList,
                     localPath: _localPath,
                     song: _musicProvider?.drawerItem)));
-      } else if (!_permissionReady) {
-        _buildNoPermissionWarning();
       } else {
-        await _progressIndicator.dismiss();
-        showToast(context, message: "error occurred, please try again");
+        _buildNoPermissionWarning();
       }
+    } else if (splittedFiles['data'] ==
+        'please subscribe to enjoy this service') {
       await _progressIndicator.dismiss();
+      showSubscriptionMessage(context);
     } else {
-      _progressIndicator.dismiss();
+      await _progressIndicator.dismiss();
       showToast(context, message: 'Please try again later');
     }
   }
@@ -499,4 +444,35 @@ class _AppDrawerState extends State<AppDrawer> {
           ),
         ),
       );
+}
+
+Future<void> showSubscriptionMessage(BuildContext context) {
+  return showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+          content: Text(
+            'You need to subscribe to enjoy this service. \n\nSubscribe now?',
+            style: TextStyle(color: Colors.white, fontSize: 17),
+          ),
+          actions: [
+            TextButton(
+              child: Text('No',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pop(_);
+              },
+            ),
+            TextButton(
+              child: Text('Yes',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (_) => PaymentScreen()));
+              },
+            ),
+          ],
+        );
+      });
 }

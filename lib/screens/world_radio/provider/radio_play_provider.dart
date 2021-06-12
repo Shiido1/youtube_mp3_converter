@@ -1,4 +1,5 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:audio_session/audio_session.dart' as asp;
@@ -21,8 +22,10 @@ class RadioPlayProvider with ChangeNotifier {
   }
 
   void playRadio(radioPlayer) async {
-    await AudioService.customAction(AudioPlayerTask.STOP);
-    await AudioService.pause();
+    if (AudioService.playbackState.playing) {
+      await AudioService.customAction(AudioPlayerTask.STOP);
+      await AudioService.pause();
+    }
     asp.AudioSession audioSession = await asp.AudioSession.instance;
     audioSession
         .configure(asp.AudioSessionConfiguration.speech())

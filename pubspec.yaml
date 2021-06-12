@@ -36,11 +36,17 @@ dependencies:
   pin_entry_text_field: ^0.1.4
   route_transitions: ^1.0.2
   image_picker: ^0.6.7+22
+  font_awesome_flutter: ^9.0.0
   toast: ^0.1.5
   flutter_spinkit: ^4.1.2+1
   jaynetwork: ^0.0.1
   provider: ^4.3.2+2
+  video_thumbnail: 0.3.3
   flutter_svg:
+  ntp: ^1.0.5
+  time_machine: ^0.9.16
+  hive_listener:
+  intl: ^0.16.0
   flutter:
     sdk: flutter
   shared_preferences: ^0.5.12+4
@@ -48,6 +54,7 @@ dependencies:
   dots_indicator: ^2.0.0
   geolocator: ^6.2.1
   geocoder: ^0.2.1
+  intent: ^1.4.0
   flutter_switch: ^0.3.1
   rave_flutter: ^0.0.9-alpha+2
   flutter_audio_recorder: ^0.5.5
@@ -59,6 +66,8 @@ dependencies:
   google_mobile_ads: ^0.13.0
   uuid:
   flutter_speech: ^2.0.0
+  image_downloader: ^0.30.0
+  firebase_database: ^6.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

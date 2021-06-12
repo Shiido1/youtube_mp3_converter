@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class SplitAssistant {
-  static Future<dynamic> splitFile(
+  static Future<Map<String, dynamic>> splitFile(
       {String filePath, BuildContext context, String userToken}) async {
+    print(userToken);
     print('In the split function');
     print(filePath);
     String baseUrl = "http://67.205.165.56/api/splitter?";
@@ -12,7 +13,6 @@ class SplitAssistant {
     try {
       var postUri = Uri.parse(baseUrl);
       var request = new http.MultipartRequest("POST", postUri);
-      // request.fields['token'] = Provider.of<LoginProviders>(context).userToken;
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] = userToken;
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
@@ -25,18 +25,25 @@ class SplitAssistant {
         print(decodedData);
         String errorMessage = decodedData["message"] ?? null;
         if (errorMessage == null) {
-          return decodedData;
+          return {'reply': 'success', 'data': decodedData};
         } else
-          return "Failed";
+          return {'reply': 'failed', 'data': errorMessage};
       } else {
-        print('failed');
-        print(response.statusCode);
-        print(await response.stream.bytesToString());
-        return "Failed";
+        String checkReason = await response.stream.bytesToString();
+        String reason = checkReason.contains(':') && checkReason.contains('"')
+            ? checkReason
+                ?.split(':')[1]
+                .split('"')[1]
+                .toString()
+                .trim()
+                .toLowerCase()
+            : '';
+        print(reason);
+
+        return {'reply': 'failed', 'data': reason};
       }
     } catch (e) {
-      print(e);
-      return "Failed";
+      return {'reply': 'failed', 'data': ''};
     }
   }
 
@@ -45,7 +52,6 @@ class SplitAssistant {
     String baseUrl = "http://67.205.165.56/api/savesplit";
 
     var body = jsonEncode({
-      // "token2": Provider.of<LoginProviders>(context, listen: false).userToken,
       "token": userToken,
       "bass": decodedData['files']['bass'],
       "voice": decodedData['files']['voice'],

@@ -89,6 +89,7 @@ class _DownloadsState extends State<Downloads> {
 
   @override
   void initState() {
+    IsolateNameServer.removePortNameMapping('audio_downloader');
     _bindBackgroundIsolate();
     init();
     startTimer();

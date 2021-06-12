@@ -738,6 +738,8 @@ class _RadioClassState extends State<RadioClass>
                                             currentRadioIndex > 0) {
                                           var _radioLog = json.decode(
                                               favourite[currentRadioIndex - 1]);
+                                          if (isPlaying)
+                                            _playProvider.playRadio(radioMp3);
                                           setState(() {
                                             radioFile = _radioLog["name"];
                                             radioMp3 = _radioLog["mp3"];
@@ -792,7 +794,8 @@ class _RadioClassState extends State<RadioClass>
                                                   .radio[currentRadioIndex - 1]
                                               : radioProvider.radioModels
                                                   .radio[currentRadioIndex - 1];
-
+                                          if (isPlaying)
+                                            _playProvider.playRadio(radioMp3);
                                           setState(() {
                                             radioFile = _radioLog.name;
                                             radioMp3 = _radioLog.mp3;
@@ -869,6 +872,8 @@ class _RadioClassState extends State<RadioClass>
                                                 favourite.length - 1) {
                                           var _radioLog = json.decode(
                                               favourite[currentRadioIndex + 1]);
+                                          if (isPlaying)
+                                            _playProvider.playRadio(radioMp3);
                                           setState(() {
                                             radioFile = _radioLog["name"];
                                             radioMp3 = _radioLog["mp3"];
@@ -938,6 +943,8 @@ class _RadioClassState extends State<RadioClass>
                                                 .radio[currentRadioIndex + 1];
                                           }
                                         }
+                                        if (isPlaying)
+                                          _playProvider.playRadio(radioMp3);
                                         setState(() {
                                           radioFile = _radioLog.name;
                                           radioMp3 = _radioLog.mp3;
@@ -1039,6 +1046,7 @@ class _RadioClassState extends State<RadioClass>
                 // !isFavorite ? tap = true : tap = false;
                 tap = showFaves ? false : true;
                 search = false;
+                if (isPlaying) _playProvider.playRadio(radioMp3);
                 radioFile = isFavorite ? _radioLog["name"] : _radioLog.name;
                 radioMp3 = !isFavorite ? _radioLog.mp3 : _radioLog["mp3"];
                 placeName =

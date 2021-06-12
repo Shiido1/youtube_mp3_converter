@@ -73,20 +73,6 @@ class _OtpPageState extends State<OtpPage> {
                   SizedBox(
                     height: 30,
                   ),
-                  // Container(
-                  //   height: 100,
-                  //   width: 100,
-                  //   decoration: BoxDecoration(
-                  //       shape: BoxShape.circle, color: Color(0xffD6EFFF)),
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(top: 20.0),
-                  //     child: ImageLoader(
-                  //       path: AppAssets.otpIcon,
-                  //       width: 120,
-                  //       height: 106,
-                  //     ),
-                  //   ),
-                  // ),
                   SizedBox(
                     height: 30,
                   ),
@@ -174,8 +160,9 @@ class _OtpPageState extends State<OtpPage> {
       setState(() => userId = widget.userID);
       _otpProviders.verifyOtp(
           map: OtpModel.toJson(otp: int.parse(pin), email: email));
-    }else{
-      _otpProviders.resendOtp(map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
+    } else {
+      _otpProviders.resendOtp(
+          map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
     }
   }
 }

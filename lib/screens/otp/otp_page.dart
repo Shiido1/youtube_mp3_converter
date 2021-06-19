@@ -46,10 +46,10 @@ class _OtpPageState extends State<OtpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background1,
+      backgroundColor: AppColor.background,
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: AppColor.background,
+        backgroundColor: AppColor.black,
         automaticallyImplyLeading: true,
         leading: IconButton(
             icon: Platform.isAndroid

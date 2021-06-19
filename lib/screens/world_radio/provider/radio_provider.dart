@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart';
 import 'package:mp3_music_converter/screens/world_radio/repo/radio_repo.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'package:provider/provider.dart';
 
 final RadioRepo _repository = RadioRepo();
 
@@ -65,10 +65,7 @@ class RadioProvider extends ChangeNotifier {
     @required BuildContext context,
     @required bool add,
   }) async {
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserToken();
-    String _token =
-        Provider.of<LoginProviders>(context, listen: false).userToken;
+    String _token = await preferencesHelper.getStringValues(key: 'token');
     if (add) {
       try {
         RadioModel myModel = await _repository.radiox(
@@ -89,10 +86,7 @@ class RadioProvider extends ChangeNotifier {
         if (radioModels != null) radioModelsItems = radioModels;
         try {
           radioModels = await _repository.radiox(
-              map: Radio.mapToJson(
-                  token: Provider.of<LoginProviders>(context, listen: false)
-                      .userToken,
-                  searchData: searchData),
+              map: Radio.mapToJson(token: _token, searchData: searchData),
               search: true,
               context: context,
               add: false);
@@ -106,8 +100,7 @@ class RadioProvider extends ChangeNotifier {
         try {
           RadioModel myModel = await _repository.radiox(
               map: Radio.mapToJson(
-                token: Provider.of<LoginProviders>(context, listen: false)
-                    .userToken,
+                token: _token,
               ),
               search: false,
               add: false,

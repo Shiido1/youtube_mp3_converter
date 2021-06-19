@@ -5,17 +5,15 @@ class DatabaseService {
   DatabaseReference _messages =
       FirebaseDatabase.instance.reference().child('messages');
 
-  Future<void> sendMessage(
-      {@required String message,
-      @required String type,
-      @required String id,
-      @required String peerId,
-      @required DatabaseReference path,
-      String filePath = '',
-      String fileName = '',
-      @required String userName,
-      @required String peerName,
-      @required bool saveName}) async {
+  Future<void> sendMessage({
+    @required String message,
+    @required String type,
+    @required String id,
+    @required String peerId,
+    @required DatabaseReference path,
+    String filePath = '',
+    String fileName = '',
+  }) async {
     await path.set({
       'message': message,
       'time': ServerValue.timestamp,
@@ -54,13 +52,6 @@ class DatabaseService {
               ? 'Image file'
               : 'Audio file'
     });
-    if (saveName) setUserName(peerName, id, peerId, userName);
-  }
-
-  Future<void> setUserName(
-      String peerName, String id, String peerId, String userName) async {
-    await _messages.child(id).child(peerId).update({'name': peerName});
-    await _messages.child(peerId).child(id).update({'name': userName});
   }
 
   Future<void> updateMessage(

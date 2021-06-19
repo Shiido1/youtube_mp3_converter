@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
@@ -12,15 +12,18 @@ import 'package:provider/provider.dart';
 
 class CloudStorage {
   SharedPreferencesHelper preferencesHelper = SharedPreferencesHelper();
+  HttpsCallable callable =
+      FirebaseFunctions.instance.httpsCallable('updatePhoto');
+
   Future imageUploadAndDownload(
       {@required File image, @required BuildContext context}) async {
     CustomProgressIndicator _progressIndicator =
         CustomProgressIndicator(context);
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserToken();
-    String id = Provider.of<LoginProviders>(context, listen: false).userToken;
-    print("printing id for user"+id);
-    final reference = FirebaseStorage.instance.ref().child('Images').child(id);
+
+    String token = await preferencesHelper.getStringValues(key: 'token');
+    String id = await preferencesHelper.getStringValues(key: 'id');
+    final reference =
+        FirebaseStorage.instance.ref().child('Images').child('$token.jpg');
     _progressIndicator.show();
 
     try {
@@ -42,6 +45,8 @@ class CloudStorage {
           preferencesHelper.saveValue(key: 'profileImage', value: url);
           Provider.of<RedBackgroundProvider>(context, listen: false)
               .updateUrl(url);
+
+          callable.call({'url': url, 'id': id});
           RedBackgroundRepo(context).saveImage(url);
           _progressIndicator.dismiss();
           showToast(context, message: 'Picture updated');

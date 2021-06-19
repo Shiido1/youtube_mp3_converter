@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
+import 'package:audio_service/audio_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
@@ -17,6 +18,7 @@ import 'package:hive_listener/hive_listener.dart';
 import 'package:mp3_music_converter/chat/chat_home.dart';
 import 'package:mp3_music_converter/chat/database_service.dart';
 import 'package:mp3_music_converter/chat/show_image.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -24,14 +26,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
-  final String userName;
   final String peerName;
   final String imageUrl;
   final String id;
   final String pid;
   ChatScreen(
       {@required this.imageUrl,
-      @required this.userName,
       @required this.peerName,
       @required this.id,
       @required this.pid,
@@ -125,6 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
           setState(() {
             messages = userMessages;
           });
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         }
       }
     });
@@ -246,8 +247,23 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         title: Row(
           children: [
-            CircleAvatar(
-              child: Icon(Icons.person),
+            ClipOval(
+              child: Container(
+                width: 50,
+                height: 50,
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, index) => Container(
+                    child: Center(
+                        child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator())),
+                  ),
+                  errorWidget: (context, url, error) => new Icon(Icons.error),
+                ),
+              ),
             ),
             SizedBox(width: 20),
             Text(widget.peerName),
@@ -327,10 +343,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             id: widget.id,
                             path: path,
                             type: 'text',
-                            peerId: widget.pid,
-                            userName: widget.userName,
-                            peerName: widget.peerName,
-                            saveName: messages.length == 0);
+                            peerId: widget.pid);
 
                         _scrollController
                             .jumpTo(_scrollController.position.maxScrollExtent);
@@ -730,8 +743,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                 MaterialPageRoute(
                                     builder: (_) => ShowImage(
                                           name: message['name'],
-                                          photoUrl: message['filePath'],
+                                          photoUrl:
+                                              message['message'] != null &&
+                                                      message['message'] != ''
+                                                  ? message['message']
+                                                  : message['filePath'],
                                           heroKey: message['key'],
+                                          network: message['message'] != null &&
+                                              message['message'] != '',
                                         )));
                           },
                           child: Hero(
@@ -740,6 +759,54 @@ class _ChatScreenState extends State<ChatScreen> {
                               File(message['filePath']),
                               fit: BoxFit.cover,
                               gaplessPlayback: true,
+                              errorBuilder: (context, object, stackTrace) {
+                                return CachedNetworkImage(
+                                  imageUrl: message['message'],
+                                  fit: BoxFit.cover,
+                                  progressIndicatorBuilder:
+                                      (context, value, progress) {
+                                    return Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Container(
+                                            child: Image.asset(
+                                                'assets/youtubeaudiologo.png'),
+                                          ),
+                                          Container(
+                                            color:
+                                                Colors.white.withOpacity(0.98),
+                                          ),
+                                          Container(
+                                            height: 50,
+                                            width: 50,
+                                            child: CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation(
+                                                        Colors.blue),
+                                                value: progress.progress ?? 0),
+                                          ),
+                                        ]);
+                                  },
+                                  errorWidget: (context, _, __) {
+                                    return Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          child: Image.asset(
+                                              'assets/youtubeaudiologo.png'),
+                                        ),
+                                        Container(
+                                          color: Colors.white.withOpacity(0.95),
+                                        ),
+                                        Text('Could not load',
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16))
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           ),
                         )),
@@ -747,7 +814,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       box: _taskBox,
                       builder: (box) {
                         Map value = box.get(message['key']);
-                        return value != null
+                        return value != null && value['status'] != 'completed'
                             ? Container(
                                 width: 0.7 * width,
                                 height: 200,
@@ -1207,16 +1274,14 @@ class _ChatScreenState extends State<ChatScreen> {
             .push();
 
         await DatabaseService().sendMessage(
-            message: '',
-            id: widget.id,
-            type: selectedFileType,
-            path: path,
-            filePath: file.files.single.path,
-            fileName: file.files.single.name,
-            userName: widget.userName,
-            peerName: widget.peerName,
-            peerId: widget.pid,
-            saveName: messages.length == 0);
+          message: '',
+          id: widget.id,
+          type: selectedFileType,
+          path: path,
+          filePath: file.files.single.path,
+          fileName: file.files.single.name,
+          peerId: widget.pid,
+        );
       }
 
       await _taskBox.put(retry ? key : path.key,
@@ -1274,6 +1339,10 @@ class _ChatScreenState extends State<ChatScreen> {
         .then((session) async {
       handleInterruptions(audioSession);
       if (await audioSession.setActive(true)) {
+        if (AudioService.playbackState.playing) {
+          await AudioService.customAction(AudioPlayerTask.STOP);
+          await AudioService.pause();
+        }
         if (_playerState == AudioPlayerState.PLAYING && currentlyPlaying == key)
           await _player.pause();
         else if (_playerState == AudioPlayerState.PAUSED &&

@@ -9,9 +9,27 @@ admin.initializeApp();
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-exports.getSubCollections = functions.https.onCall(async (data, context) => {
-  const docPath = data.docPath;
-  const collections = await admin.firestore().doc(docPath).listCollections();
-  const collectionIds = collections.map((col) => col.id);
-  return { collections: collectionIds };
+// exports.getSubCollections = functions.https.onCall(async (data, context) => {
+//   const docPath = data.docPath;
+//   const collections = await admin.firestore().doc(docPath).listCollections();
+//   const collectionIds = collections.map((col) => col.id);
+//   return { collections: collectionIds };
+// });
+
+exports.createUser = functions.https.onCall(async (data, context) => {
+  const name = data.name;
+  const id = data.id;
+  const url = data.url;
+  await admin.database().ref("users").child(id).set({
+    name: name,
+    photoUrl: url,
+  });
+});
+
+exports.updatePhoto = functions.https.onCall(async (data, context) => {
+  const id = data.id;
+  const url = data.url;
+  await admin.database().ref("users").child(id).update({
+    photoUrl: url,
+  });
 });

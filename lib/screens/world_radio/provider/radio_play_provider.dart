@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:audio_session/audio_session.dart' as asp;

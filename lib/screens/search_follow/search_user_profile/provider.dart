@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_user_profile/repo.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/search_follow/model/follow_model.dart';
 import 'model.dart';
 
@@ -37,13 +36,8 @@ class SearchUserProfileProvider extends ChangeNotifier {
   }
 
   Future<void> follow(int id) async {
-    await Provider.of<LoginProviders>(_context, listen: false)
-        .getSavedUserToken();
-    String _token = Provider.of<LoginProviders>(_context, listen: false).userToken;
-    final map = {
-      "token": _token,
-      "id": id
-    };
+    String _token = await preferencesHelper.getStringValues(key: 'token');
+    final map = {"token": _token, "id": id};
     try {
       _progressIndicator.show();
       modelFollow = await searchUserProfileRepo.follow(map);
@@ -57,13 +51,8 @@ class SearchUserProfileProvider extends ChangeNotifier {
   }
 
   Future<void> unFollow(int id) async {
-    await Provider.of<LoginProviders>(_context, listen: false)
-        .getSavedUserToken();
-    String _token = Provider.of<LoginProviders>(_context, listen: false).userToken;
-    final map = {
-      "token": _token,
-      "id": id
-    };
+    String _token = await preferencesHelper.getStringValues(key: 'token');
+    final map = {"token": _token, "id": id};
     try {
       _progressIndicator.show();
       modelFollow = await searchUserProfileRepo.unFollow(map);

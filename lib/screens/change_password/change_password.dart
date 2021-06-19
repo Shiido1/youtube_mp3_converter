@@ -21,7 +21,8 @@ class _ChangePasswordState extends State<ChangePassword> {
 
   @override
   void initState() {
-    changePasswordProvider = Provider.of<ChangePasswordProvider>(context, listen: false);
+    changePasswordProvider =
+        Provider.of<ChangePasswordProvider>(context, listen: false);
     changePasswordProvider.init(context);
     super.initState();
   }
@@ -53,11 +54,13 @@ class _ChangePasswordState extends State<ChangePassword> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               textField(passwordController, 'Password'),
-              textField(cPasswordController, 'Current Password'),
+              textField(cPasswordController, 'Re-type Password'),
               PinEntryTextField(
                 showFieldAsBox: false,
                 isTextObscure: false,
+
                 fields: 4,
+
                 onSubmit: (String pin) {
                   setState(() {
                     otpPin = pin;
@@ -66,14 +69,10 @@ class _ChangePasswordState extends State<ChangePassword> {
               ),
               Center(
                 child: TextButton(
-                    style: TextButton
-                        .styleFrom(
-                      backgroundColor: AppColor
-                          .bottomRed,
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColor.bottomRed,
                     ),
-                    onPressed: ()=>_submitOtp(
-                        otpPin,
-                        passwordController.text,
+                    onPressed: () => _submitOtp(otpPin, passwordController.text,
                         cPasswordController.text),
                     child: Text(
                       'Update Password',
@@ -91,40 +90,39 @@ class _ChangePasswordState extends State<ChangePassword> {
   }
 
   void _submitOtp(
-      String pin,
-      String password,
-      String cPassword,
-      ) async{
+    String pin,
+    String password,
+    String cPassword,
+  ) async {
     final map = {
-      "password":password,
-      "cpassword":cPassword,
-      "email":widget.email,
-      "OTP":pin
-
+      "password": password,
+      "cpassword": cPassword,
+      "email": widget.email,
+      "OTP": pin
     };
-      changePasswordProvider.otp(map);
+    changePasswordProvider.otp(map);
   }
 
-  Widget textField(TextEditingController _controller,String hint)=>Theme(
-    data: new ThemeData(hintColor: AppColor.white),
-    child: TextField(
-        style: TextStyle(color: AppColor.white),
-        controller: _controller,
-        decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: BorderSide(color: AppColor.white),
-            ),
-            border: new OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: BorderSide(color: AppColor.white),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: BorderSide(color: AppColor.white),
-            ),
-            hintText: hint,
-            focusColor: AppColor.white,
-            hoverColor: AppColor.white)),
-  );
+  Widget textField(TextEditingController _controller, String hint) => Theme(
+        data: new ThemeData(hintColor: AppColor.white),
+        child: TextField(
+            style: TextStyle(color: AppColor.white),
+            controller: _controller,
+            decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                  borderSide: BorderSide(color: AppColor.white),
+                ),
+                border: new OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                  borderSide: BorderSide(color: AppColor.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                  borderSide: BorderSide(color: AppColor.white),
+                ),
+                hintText: hint,
+                focusColor: AppColor.white,
+                hoverColor: AppColor.white)),
+      );
 }

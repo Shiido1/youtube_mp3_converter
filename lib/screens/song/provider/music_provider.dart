@@ -332,11 +332,11 @@ class AudioPlayerTask extends BackgroundAudioTask {
         'artist': mediaItem.artist,
         'album': mediaItem.album,
         'id': mediaItem.id,
-        // 'title': mediaItem.title,
-        // 'filePath': mediaItem.extras['filePath'],
-        // 'fileName': mediaItem.extras['fileName'],
-        // 'favourite': mediaItem.extras['favourite'],
-        // 'image': mediaItem.extras['image']
+        'title': mediaItem.title,
+        'filePath': mediaItem.extras['filePath'],
+        'fileName': mediaItem.extras['fileName'],
+        'favourite': mediaItem.extras['favourite'],
+        'image': mediaItem.extras['image']
       });
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);

@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/favorite/favorite_songs.dart';
@@ -36,6 +35,11 @@ class _LibraryState extends State<Library> {
         ),
       ),
     );
+  }
+
+  @override
+  initState() {
+    super.initState();
   }
 
   @override

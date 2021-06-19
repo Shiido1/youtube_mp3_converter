@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "320378040514-0jqlm9fe1l2g6o9o8st8dhi3gsnj4hgq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "youtubeaudio.example.mp3_music_converter",
+            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
+          }
+        },
+        {
           "client_id": "320378040514-arr4a0vtkgndiqqj736ph4i5qin78hvf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

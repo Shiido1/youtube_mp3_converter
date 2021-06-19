@@ -10,6 +10,7 @@ class OtpModel {
   String token;
   String email;
   String name;
+  String id;
   Null background;
   Null color;
   String profilepic;
@@ -33,7 +34,8 @@ class OtpModel {
       this.totalplayed,
       this.followers,
       this.following,
-      this.email});
+      this.email,
+      this.id});
 
   OtpModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
@@ -45,6 +47,7 @@ class OtpModel {
       });
     }
     totalsplitsongs = json['totalsplitsongs'];
+    id = json['userid'].toString();
     storage = json['storage'];
     token = json['token'];
     name = json['name'];

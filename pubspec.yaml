@@ -63,6 +63,7 @@ dependencies:
   geocoding:
   firebase_storage:
   firebase_core:
+  cloud_functions:
   google_mobile_ads: ^0.13.0
   uuid:
   flutter_speech: ^2.0.0

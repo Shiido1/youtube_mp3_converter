@@ -4,9 +4,9 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:path_provider/path_provider.dart';
@@ -365,10 +365,7 @@ class _AppDrawerState extends State<AppDrawer> {
   }
 
   Future splitSongMethod() async {
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserToken();
-    String userToken =
-        Provider.of<LoginProviders>(context, listen: false).userToken;
+    String userToken = await preferencesHelper.getStringValues(key: 'token');
     _progressIndicator.show();
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';

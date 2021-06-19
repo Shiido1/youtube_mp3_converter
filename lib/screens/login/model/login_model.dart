@@ -9,6 +9,7 @@ class LoginModel {
   String token;
   String email;
   String name;
+  String id;
   String background;
   String color;
   String profilepic;
@@ -30,6 +31,7 @@ class LoginModel {
       this.profilepic,
       this.about,
       this.totalplayed,
+      this.id,
       this.followers,
       this.following,
       this.email});
@@ -46,6 +48,7 @@ class LoginModel {
     totalsplitsongs = json['totalsplitsongs'];
     storage = json['storage'];
     token = json['token'];
+    id = json['userid'].toString();
     name = json['name'];
     background = json['background'];
     color = json['color'];

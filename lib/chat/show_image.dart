@@ -10,12 +10,14 @@ class ShowImage extends StatefulWidget {
   final String photoUrl;
   final bool showSave;
   final String heroKey;
+  final bool network;
   ShowImage(
       {Key key,
       @required this.name,
       @required this.photoUrl,
       @required this.heroKey,
-      this.showSave = false})
+      this.showSave = false,
+      this.network = false})
       : super(key: key);
 
   @override
@@ -63,7 +65,7 @@ class _ShowImageState extends State<ShowImage> {
       body: Center(
         child: Hero(
           tag: widget.heroKey,
-          child: widget.showSave
+          child: widget.network
               ? CachedNetworkImage(
                   imageUrl: widget.photoUrl,
                   progressIndicatorBuilder: (context, value, progress) {

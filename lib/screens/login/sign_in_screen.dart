@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
@@ -65,6 +66,7 @@ class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.black,
       body: Consumer<LoginProviders>(
         builder: (_, model, __) {
           return SingleChildScrollView(
@@ -176,8 +178,25 @@ class _SignInScreenState extends State<SignInScreen> {
                                   fontSize: 22,
                                 ),
                               ),
-                            )),
-                    SizedBox(height: 75),
+                            ),
+                          ),
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPassword()),
+                      ),
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: AppColor.bottomRed,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 45),
                     Text(
                       'Don\'t have an Account?',
                       style: TextStyle(
@@ -200,7 +219,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 200),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),

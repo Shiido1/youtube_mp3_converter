@@ -8,11 +8,11 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -23,7 +23,6 @@ import 'package:mp3_music_converter/widgets/red_background_backend/red_backgroun
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:provider/provider.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -250,10 +249,7 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   Future splitMethod() async {
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserToken();
-    String userToken =
-        Provider.of<LoginProviders>(context, listen: false).userToken;
+    String userToken = await preferencesHelper.getStringValues(key: 'token');
     result = await FilePicker.platform.pickFiles(type: FileType.audio);
 
     if (result != null && result.files.isNotEmpty) {

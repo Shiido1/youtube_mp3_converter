@@ -179,18 +179,6 @@ class _SongViewCLassState extends State<SongViewCLass> {
             ],
           );
         },
-        // separatorBuilder: (context, index) {
-        //   if ((index + 1) % 2 == 0) {
-        //     return loadedAds['appAd$index'] != null
-        // ? Container(
-        //     child: AdWidget(ad: loadedAds['appAd$index']),
-        //     alignment: Alignment.center,
-        //     height: loadedAds['appAd$index'].size.height.toDouble(),
-        //     width: loadedAds['appAd$index'].size.width.toDouble())
-        //         : SizedBox.shrink();
-        //   }
-        //   return SizedBox.shrink();
-        // },
       );
     });
   }

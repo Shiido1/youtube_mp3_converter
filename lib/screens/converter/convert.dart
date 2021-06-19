@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
-import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -263,7 +262,7 @@ class _ConvertState extends State<Convert> {
                                                                     ?.youtubeModel
                                                                     ?.url;
                                                             Navigator
-                                                                .pushReplacement(
+                                                                .push(
                                                                     context,
                                                                     MaterialPageRoute(
                                                                         builder: (context) =>

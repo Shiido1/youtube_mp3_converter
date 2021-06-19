@@ -1,11 +1,14 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mp3_music_converter/chat/available_users..dart';
 import 'package:mp3_music_converter/chat/chat_screen.dart';
 import 'package:mp3_music_converter/chat/database_service.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 
 class ChatHome extends StatefulWidget {
@@ -17,12 +20,13 @@ class ChatHome extends StatefulWidget {
 
 class _ChatHomeState extends State<ChatHome> {
   bool search = false;
-  String userName = 'Rita';
   List<MessageData> users = [];
   List<MessageData> userSearchResult = [];
   StreamSubscription userStream;
+  StreamSubscription userDetailsStream;
   bool newMessage = false;
   int newMessageCount = 0;
+  Map<String, UserDetails> chats = {};
 
   searchUsers(String value) {
     List<MessageData> usersPlaceholder = [];
@@ -33,8 +37,12 @@ class _ChatHomeState extends State<ChatHome> {
       return;
     }
     for (MessageData user in users) {
-      if (user.name.toLowerCase().contains(value.toLowerCase()))
-        usersPlaceholder.add(user);
+      for (String data in chats.keys) {
+        if (data == user.peerId &&
+            chats[data].name.toLowerCase().contains(value.toLowerCase())) {
+          usersPlaceholder.add(user);
+        }
+      }
     }
     setState(() {
       userSearchResult = usersPlaceholder;
@@ -53,23 +61,26 @@ class _ChatHomeState extends State<ChatHome> {
       });
   }
 
-  getUsers(String id) {
+  getUsers() async {
+    String id = await preferencesHelper.getStringValues(key: 'id');
+
     userStream = DatabaseService().allStream(id).listen((event) {
       Map<int, MessageData> userIDs = {};
       List<MessageData> userData = [];
 
       if (event != null) {
         Map data = event.snapshot.value;
-        if (data == null && event.snapshot.key == id)
+        if (data == null && event.snapshot.key == id) {
           setState(() {
             users = [];
           });
+          return;
+        }
 
         data.forEach((key, value) {
           int count = 0;
           value.forEach((key2, value2) {
-            if (key2 != 'name' &&
-                key2 != 'time' &&
+            if (key2 != 'time' &&
                 key2 != 'lastMessage' &&
                 value2['id'] != id &&
                 value2['read'] == false) count += 1;
@@ -81,7 +92,6 @@ class _ChatHomeState extends State<ChatHome> {
                   message: value['lastMessage'],
                   peerId: key,
                   time: value['time'].toString(),
-                  name: value['name'],
                   unreadCount: count));
         });
 
@@ -98,17 +108,36 @@ class _ChatHomeState extends State<ChatHome> {
         checkUnreadMessages(users);
       }
     });
+    userDetailsStream = FirebaseDatabase.instance
+        .reference()
+        .child('users')
+        .onValue
+        .listen((event) {
+      Map<String, UserDetails> userDetails = {};
+      if (event != null) {
+        Map data = event.snapshot.value;
+        if (data == null) return;
+        data.forEach((key, value) {
+          userDetails.putIfAbsent(
+              key, () => UserDetails(value['name'], value['photoUrl']));
+        });
+      }
+      setState(() {
+        chats = userDetails;
+      });
+    });
   }
 
   @override
   void initState() {
-    getUsers('70');
+    getUsers();
     super.initState();
   }
 
   @override
   void dispose() {
     userStream?.cancel();
+    userDetailsStream?.cancel();
     super.dispose();
   }
 
@@ -137,6 +166,7 @@ class _ChatHomeState extends State<ChatHome> {
                 onPressed: () {
                   setState(() {
                     search = !search;
+                    if (search) userSearchResult = users;
                   });
                 }),
             SizedBox(width: 10),
@@ -206,6 +236,9 @@ class _ChatHomeState extends State<ChatHome> {
                         itemBuilder: (context, index) {
                           MessageData user =
                               search ? userSearchResult[index] : users[index];
+                          UserDetails details = chats[user.peerId];
+                          String messageTime =
+                              user?.time != null ? checkDates(user.time) : '';
                           return Card(
                             color: AppColor.white,
                             shape: RoundedRectangleBorder(
@@ -221,26 +254,41 @@ class _ChatHomeState extends State<ChatHome> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ChatScreen(
-                                              userName: userName,
-                                              peerName: user.name,
-                                              imageUrl: '',
-                                              id: user.id,
-                                              pid: user.peerId,
+                                              peerName: details?.name,
+                                              imageUrl: details?.photoUrl,
+                                              id: user?.id,
+                                              pid: user?.peerId,
                                             )));
                               },
-                              leading: CircleAvatar(
-                                child: Icon(Icons.person),
-                                radius: 25,
+                              leading: ClipOval(
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  child: CachedNetworkImage(
+                                    imageUrl: details?.photoUrl ?? '',
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, index) => Container(
+                                      child: Center(
+                                          child: SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child:
+                                                  CircularProgressIndicator())),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        new Icon(Icons.error),
+                                  ),
+                                ),
                               ),
                               title: TextViewWidget(
-                                text: user.name ?? '',
+                                text: details?.name ?? '',
                                 color: AppColor.black,
                                 fontWeight: FontWeight.w500,
                               ),
                               subtitle: Padding(
                                 padding: EdgeInsets.only(top: 8),
                                 child: Text(
-                                  user.message ?? '',
+                                  user?.message ?? '',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -252,10 +300,7 @@ class _ChatHomeState extends State<ChatHome> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceAround,
                                 children: [
-                                  Text(
-                                      user.time != null
-                                          ? checkDates(user.time)
-                                          : '',
+                                  Text(messageTime ?? '',
                                       style: TextStyle(color: Colors.black)),
                                   if (user.unreadCount > 0)
                                     Container(
@@ -267,7 +312,7 @@ class _ChatHomeState extends State<ChatHome> {
                                       child: Text(
                                         user.unreadCount > 99
                                             ? '99+'
-                                            : user.unreadCount.toString(),
+                                            : user?.unreadCount.toString(),
                                         style: TextStyle(
                                             color: AppColor.black,
                                             fontWeight: FontWeight.w700,
@@ -285,6 +330,7 @@ class _ChatHomeState extends State<ChatHome> {
                   bottom: 15,
                   right: 5,
                   child: InkWell(
+                    borderRadius: BorderRadius.circular(25),
                     onTap: () {
                       search = false;
                       Navigator.push(context,
@@ -296,7 +342,8 @@ class _ChatHomeState extends State<ChatHome> {
                         color: AppColor.red,
                       ),
                       padding: EdgeInsets.all(10),
-                      child: Icon(Icons.add, color: AppColor.white, size: 40),
+                      child:
+                          Icon(Icons.message, color: AppColor.white, size: 35),
                     ),
                   ),
                 ),
@@ -356,13 +403,17 @@ class MessageData {
   String id;
   String peerId;
   String time;
-  String name;
   int unreadCount;
   MessageData(
       {@required this.id,
       @required this.message,
       @required this.peerId,
       @required this.time,
-      @required this.name,
       @required this.unreadCount});
+}
+
+class UserDetails {
+  String name;
+  String photoUrl;
+  UserDetails(this.name, this.photoUrl);
 }

@@ -2,14 +2,13 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
-import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/paymentAssistant.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -34,15 +33,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   init() async {
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserToken();
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserName();
-    await Provider.of<LoginProviders>(context, listen: false)
-        .getSavedUserEmail();
-    email = Provider.of<LoginProviders>(context, listen: false).email;
-    name = Provider.of<LoginProviders>(context, listen: false).name;
-    userToken = Provider.of<LoginProviders>(context, listen: false).userToken;
+    email = await preferencesHelper.getStringValues(key: 'email');
+    name = await preferencesHelper.getStringValues(key: 'name');
+    userToken = await preferencesHelper.getStringValues(key: 'token');
   }
 
   @override
@@ -79,8 +72,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text2: '150MB DISK SPACE (MONTHLY)',
                       text3: r'$0.99',
                       subWidgetButton: () async {
-                        //TODO: Show loading widget
-
                         makePayment(amount: 0.99, storage: 150000000);
                       },
                     ),
@@ -213,20 +204,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
     var uuid = Uuid();
     String ref = uuid.v4();
 
-    //TODO: remove this name
-    String name = 'Undie Ebenezer';
-
     var trxResponse = await PaymentAssistant.processTransaction(
         amount: amount, context: context, email: email, name: name, ref: ref);
 
     if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
       PaymentAssistant.storePayment(
           context: context,
-          // txRef: trxResponse['data']['flwRef'] != null &&
-          //         trxResponse['data']['flwRef'].toString().isNotEmpty
-          //     ? trxResponse['data']['flwRef']
-          //     : trxResponse['data']['txRef'],
-          // txRef: trxResponse['data']['raveRef'],
           txRef: trxResponse['data']['txRef'],
           amount: amount,
           txId: trxResponse['data']['id'].toString(),

@@ -92,7 +92,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
       key: _scaffoldKey,
       backgroundColor: AppColor.background,
       appBar: AppBar(
-        // actions: [Container()],
+        actions: [Container()],
         backgroundColor: AppColor.black,
         title: TextViewWidget(
           text: 'Song',

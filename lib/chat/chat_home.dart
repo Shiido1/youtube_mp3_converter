@@ -359,21 +359,15 @@ class _ChatHomeState extends State<ChatHome> {
     String currentItemDate = DateFormat.yMd()
         .format(DateTime.fromMillisecondsSinceEpoch(int.parse(key)));
 
-    String currentItemDay = currentItemDate.split('/')[1];
-    String currentItemMonth = currentItemDate.split('/')[0];
-    String currentItemYear = currentItemDate.split('/')[2];
+    String todayDate = DateFormat.yMd().format(DateTime.now());
 
-    String currentDate = DateFormat.yMd().format(DateTime.now());
-    String currentDay = currentDate.split('/')[1];
-    String currentMonth = currentDate.split('/')[0];
-    String currentYear = currentDate.split('/')[2];
+    String yesterdayDate =
+        DateFormat.yMd().format(DateTime.now().subtract(Duration(days: 1)));
 
-    if (currentItemDate == currentDate) {
+    if (currentItemDate == todayDate) {
       DateTime time = DateTime.fromMillisecondsSinceEpoch(int.parse(key));
       return DateFormat.Hm().format(time).toString();
-    } else if (currentItemYear == currentYear &&
-        currentItemMonth == currentMonth &&
-        int.parse(currentItemDay) == int.parse(currentDay) - 1) {
+    } else if (currentItemDate == yesterdayDate) {
       return 'yesterday';
     } else
       return DateFormat.yMd()

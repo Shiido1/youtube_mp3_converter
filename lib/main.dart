@@ -25,8 +25,6 @@ Future<void> main() async {
   await Firebase.initializeApp();
   await FirebaseDatabase.instance.setPersistenceCacheSizeBytes(100000000);
   await FirebaseDatabase.instance.setPersistenceEnabled(true);
-  MobileAds.instance.updateRequestConfiguration(RequestConfiguration(
-      testDeviceIds: ["92404C1F75C7C8711E9941D4C1C151A9"]));
   var path = Directory.current.path;
   Hive.init(path);
   await PgHiveBoxes.init();

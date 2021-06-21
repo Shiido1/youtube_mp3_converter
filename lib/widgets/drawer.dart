@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/database/songs/song_service.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
@@ -112,23 +115,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    // SplittedSongServices().deleteSong('him');
-    // printThis();
-    // SplittedSongServices()
-    //     .addSong(Song(splittedFileName: 'him', vocalName: 'this.vocal.wav'));
-    // RecorderServices().clear();
-    // SplittedSongServices().deleteSong('');
-    // SongRepository
-    // SplittedSongServices()
-    // .addSong(Song(
-    //     fileName: 'Nizatreasure.wav',
-    //     filePath: 'storage/emulated/0/Download',
-    //     image: 'http://img.youtube.com/vi/sQR2-Q-k_9Y/mqdefault.jpg',
-    //     splittedFileName: 'Nizatreasure.mp3',
-    //     vocalName: 'Nizatreasure.mp3-vocals.wav'));
-
-    // print(_musicProvider.drawerItem.file);
-    // FlutterDownloader.cancelAll();
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),

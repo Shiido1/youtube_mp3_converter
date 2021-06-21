@@ -20,7 +20,7 @@
 
 
 
-    <application android:name="io.flutter.app.FlutterApplication" android:label="mp3_music_converter" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="false">
+    <application android:name="io.flutter.app.FlutterApplication" android:label="Music Converter" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="false">
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDbnaH3z7dOOvfEHrJWEET_BXH_zrOlNhs"/>
 

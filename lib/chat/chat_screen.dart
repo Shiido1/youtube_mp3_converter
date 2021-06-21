@@ -251,17 +251,35 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 width: 50,
                 height: 50,
-                child: CachedNetworkImage(
-                  imageUrl: widget.imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, index) => Container(
-                    child: Center(
-                        child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator())),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => ShowImage(
+                                  network: true,
+                                  showSave: true,
+                                  name: widget.peerName,
+                                  heroKey: widget.pid,
+                                  photoUrl: widget.imageUrl,
+                                )));
+                  },
+                  child: Hero(
+                    tag: widget.pid,
+                    child: CachedNetworkImage(
+                      imageUrl: widget.imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, index) => Container(
+                        child: Center(
+                            child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator())),
+                      ),
+                      errorWidget: (context, url, error) =>
+                          new Icon(Icons.error),
+                    ),
                   ),
-                  errorWidget: (context, url, error) => new Icon(Icons.error),
                 ),
               ),
             ),
@@ -1115,26 +1133,16 @@ class _ChatScreenState extends State<ChatScreen> {
     String currentItemDate = DateFormat.yMd()
         .format(DateTime.fromMillisecondsSinceEpoch(data[index]['time']));
 
-    String currentItemDay = currentItemDate.split('/')[1];
-    String currentItemMonth = currentItemDate.split('/')[0];
-    String currentItemYear = currentItemDate.split('/')[2];
+    String todayDate = DateFormat.yMd().format(DateTime.now());
 
-    String currentDate = DateFormat.yMd().format(DateTime.now());
-    String currentDay = currentDate.split('/')[1];
-    String currentMonth = currentDate.split('/')[0];
-    String currentYear = currentDate.split('/')[2];
+    String yesterdayDate =
+        DateFormat.yMd().format(DateTime.now().subtract(Duration(days: 1)));
 
     String nextItemDate = index != data.length - 1
         ? DateFormat.yMd().format(
             DateTime.fromMillisecondsSinceEpoch(data[index + 1]['time']))
         : currentItemDate;
-    String nextItemDay =
-        index != data.length - 1 ? nextItemDate.split('/')[1] : currentItemDay;
-    String nextItemMonth = index != data.length - 1
-        ? nextItemDate.split('/')[0]
-        : currentItemMonth;
-    String nextItemYear =
-        index != data.length - 1 ? nextItemDate.split('/')[2] : currentItemYear;
+
     String date = index != data.length - 1
         ? DateFormat.MMMMd().format(
                 DateTime.fromMillisecondsSinceEpoch(data[index + 1]['time'])) +
@@ -1147,15 +1155,9 @@ class _ChatScreenState extends State<ChatScreen> {
             DateFormat.y().format(
                 DateTime.fromMillisecondsSinceEpoch(data[index]['time']));
 
-    if (currentItemDate != nextItemDate &&
-        nextItemYear == currentYear &&
-        nextItemMonth == currentMonth &&
-        nextItemDay == currentDay)
+    if (currentItemDate != nextItemDate && nextItemDate == todayDate)
       return buildSeparator('Today');
-    else if (currentItemDate != nextItemDate &&
-        nextItemYear == currentYear &&
-        nextItemMonth == currentMonth &&
-        int.parse(nextItemDay) == int.parse(currentDay) - 1)
+    else if (currentItemDate != nextItemDate && nextItemDate == yesterdayDate)
       return buildSeparator('Yesterday');
     else if (currentItemDate != nextItemDate)
       return buildSeparator(date);

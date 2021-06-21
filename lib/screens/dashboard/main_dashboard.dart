@@ -58,7 +58,7 @@ class _MainDashBoardState extends State<MainDashBoard> {
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
     await _recordProvider.initProvider();
     if (AudioService.queue == null || AudioService.queue.isEmpty)
-      preferencesHelper.getStringValues(key: "last_play").then((data) {
+      preferencesHelper.getStringValues(key: 'last_play').then((data) {
         if (data != null) {
           Map value = json.decode(data);
           MediaItem item = MediaItem(

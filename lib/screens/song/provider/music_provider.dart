@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../utils/helper/instances.dart';
 
@@ -144,8 +145,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
     }
   }
 
-  savePlayingSong(Map song) {
-    preferencesHelper.saveValue(key: 'last_play', value: json.encode(song));
+  savePlayingSong(Map song) async {
+    preferencesHelper.saveValue(key: 'last_play', value: song);
   }
 
   Future<void> _broadcastState() async {

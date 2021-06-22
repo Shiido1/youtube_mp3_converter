@@ -106,7 +106,7 @@ class _DashBoardState extends State<DashBoard> {
     return directory.path;
   }
 
-  /// Handles any shared data we may receive.
+  // Handles any shared data we may receive.
   void _handleSharedData(String sharedData) {
     setState(() {
       _sharedText = sharedData;

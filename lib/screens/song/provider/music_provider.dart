@@ -145,10 +145,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
     }
   }
 
-  savePlayingSong(Map song) async {
-    preferencesHelper.saveValue(key: 'last_play', value: song);
-  }
-
   Future<void> _broadcastState() async {
     await AudioServiceBackground.setState(
       controls: [
@@ -329,16 +325,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
     if (name == PLAY_ACTION) {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
       MediaItem mediaItem = AudioServiceBackground.mediaItem;
-      savePlayingSong({
-        'artist': mediaItem.artist,
-        'album': mediaItem.album,
-        'id': mediaItem.id,
-        'title': mediaItem.title,
-        'filePath': mediaItem.extras['filePath'],
-        'fileName': mediaItem.extras['fileName'],
-        'favourite': mediaItem.extras['favourite'],
-        'image': mediaItem.extras['image']
-      });
+
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
       if (musicPlayer.state == AudioPlayerState.PLAYING) {
@@ -459,6 +446,19 @@ class MusicProvider with ChangeNotifier {
     await initPlayer();
   }
 
+  savePlayingSong(Song song) async {
+    Map data = {
+      'artist': song.artistName,
+      'id': song.file,
+      'title': song.songName,
+      'filePath': song.filePath,
+      'fileName': song.fileName,
+      'favourite': song.favorite,
+      'image': song.image
+    };
+    preferencesHelper.saveValue(key: 'last_play', value: data);
+  }
+
   Future<void> getSongs() async {
     allSongs = await SongRepository.getSongs();
     notifyListeners();
@@ -524,6 +524,7 @@ class MusicProvider with ChangeNotifier {
       }
       if (event[AudioPlayerTask.STATE_CHANGE] != null) {
         audioPlayerState = event[AudioPlayerTask.STATE_CHANGE];
+
         notifyListeners();
       }
       if (event[AudioPlayerTask.STATE_CHANGE2] != null) {
@@ -544,13 +545,14 @@ class MusicProvider with ChangeNotifier {
                   image: event.extras['image'],
                   songName: event.title,
                 ));
+        savePlayingSong(currentSong);
       }
 
       notifyListeners();
     });
   }
 
-  void updateLocal(MediaItem song) {
+  void updateLocal(MediaItem song) async {
     if (audioPlayerState != AudioPlayerState.PLAYING &&
         audioPlayerState != AudioPlayerState.PAUSED) {
       progress = Duration();
@@ -564,7 +566,7 @@ class MusicProvider with ChangeNotifier {
                 image: song.extras['image'],
                 songName: song.title,
               ));
-      AudioService.updateMediaItem(song);
+      await AudioService.updateMediaItem(song);
       notifyListeners();
     }
   }
@@ -615,6 +617,7 @@ class MusicProvider with ChangeNotifier {
 
   void playAudio(Song song, {bool force = false}) async {
     currentSong = song;
+    savePlayingSong(song);
     if (song.file == currentSongID && force == false) return;
     await addActionToAudioService(() async =>
         await AudioService.updateQueue(convertSongToMediaItem(songs)));

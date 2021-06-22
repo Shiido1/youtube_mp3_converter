@@ -69,7 +69,7 @@ class _ShowImageState extends State<ShowImage> {
               ? CachedNetworkImage(
                   imageUrl: widget.photoUrl,
                   progressIndicatorBuilder: (context, value, progress) {
-                    return Stack(children: [
+                    return Stack(alignment: Alignment.center, children: [
                       Container(
                         child: Image.asset('assets/youtubeaudiologo.png'),
                       ),

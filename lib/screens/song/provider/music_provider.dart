@@ -91,7 +91,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
           AudioServiceBackground.mediaItem.copyWith(duration: duration));
       AudioServiceBackground.sendCustomEvent(
           {STATE_CHANGE2: audioPlayer.state});
-
       _broadcastState();
     });
 
@@ -437,6 +436,11 @@ class MusicProvider with ChangeNotifier {
   int get songNumber => _currentSongIndex + 1;
   String currentSongID = '';
   AudioPlayerState audioPlayerState;
+  String sharedText = '';
+
+  void updateSharedText(String shared) {
+    sharedText = shared;
+  }
 
   Future<void> initProvider() async {
     SongRepository.init();

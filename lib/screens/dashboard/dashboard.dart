@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +8,7 @@ import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -23,6 +23,7 @@ import 'package:mp3_music_converter/widgets/red_background_backend/red_backgroun
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -60,9 +61,19 @@ class _DashBoardState extends State<DashBoard> {
 
   // Handles any shared data we may receive.
   void _handleSharedData(String sharedData) {
-    setState(() {
-      _sharedText = sharedData;
-    });
+    MusicProvider _provider =
+        Provider.of<MusicProvider>(context, listen: false);
+    if (sharedData != null &&
+        sharedData.isNotEmpty &&
+        _provider.sharedText != sharedData) {
+      setState(() {
+        _sharedText = sharedData;
+      });
+      _provider.updateSharedText(sharedData);
+    } else
+      setState(() {
+        _sharedText = '';
+      });
   }
 
   String splitFileNameHere(String fileName) {

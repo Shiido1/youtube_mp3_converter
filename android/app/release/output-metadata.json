@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "youtubeaudio.example.mp3_music_converter",
+  "applicationId": "com.youtubeaudio.mp3_music_converter",
   "variantName": "release",
   "elements": [
     {

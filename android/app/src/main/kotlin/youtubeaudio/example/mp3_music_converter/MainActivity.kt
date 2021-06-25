@@ -1,4 +1,4 @@
-package youtubeaudio.example.mp3_music_converter
+package com.youtubeaudio.mp3_music_converter
 import android.content.Intent
 import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
@@ -18,7 +18,7 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger,
-                "youtubeaudio.example.mp3_music_converter").setMethodCallHandler { call, result ->
+                "com.youtubeaudio.mp3_music_converter").setMethodCallHandler { call, result ->
             if (call.method == "getSharedData") {
                 handleIntent()
                 result.success(sharedData)

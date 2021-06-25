@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" package="youtubeaudio.example.mp3_music_converter">
+    xmlns:tools="http://schemas.android.com/tools" package="com.youtubeaudio.mp3_music_converter">
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
          calls FlutterMain.startInitialization(this); in its onCreate method.
@@ -20,7 +20,7 @@
 
 
 
-    <application android:name="io.flutter.app.FlutterApplication" android:label="Music Converter" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="false">
+    <application android:name="io.flutter.app.FlutterApplication" android:label="YT Audio" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="false">
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDbnaH3z7dOOvfEHrJWEET_BXH_zrOlNhs"/>
 
@@ -46,7 +46,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="youtubeaudio.example.mp3_music_converter.MainActivity" android:launchMode="standard" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
+        <activity android:name="com.youtubeaudio.mp3_music_converter.MainActivity" android:launchMode="standard" android:theme="@style/LaunchTheme" android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode" android:hardwareAccelerated="true" android:windowSoftInputMode="adjustResize">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues

@@ -54,8 +54,16 @@ class _ConvertState extends State<Convert> {
 
     _isLoading = true;
     _permissionReady = false;
+    
     _prepare();
     _setControllerText();
+
+    if (widget.sharedLinkText != null && widget.sharedLinkText.isNotEmpty) {
+      artist = '';
+      song = '';
+      _download('${widget.sharedLinkText.trim()}');
+    }
+
     super.initState();
   }
 
@@ -99,8 +107,10 @@ class _ConvertState extends State<Convert> {
                             Icons.arrow_back_ios_outlined,
                             color: AppColor.white,
                           ),
-                          onPressed: () => Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (_) => MainDashBoard())),
+                          onPressed: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => MainDashBoard())),
                         ),
                         text: 'Converter',
                       ),
@@ -261,11 +271,11 @@ class _ConvertState extends State<Convert> {
                                                                 _converterProvider
                                                                     ?.youtubeModel
                                                                     ?.url;
-                                                            Navigator
-                                                                .push(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder: (context) =>
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder:
+                                                                        (context) =>
                                                                             Downloads(
                                                                               localPath: _localPath,
                                                                               convert: {

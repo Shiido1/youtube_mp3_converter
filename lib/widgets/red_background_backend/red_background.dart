@@ -95,13 +95,13 @@ class _RedBackgroundState extends State<RedBackground> {
   Future getImage(BuildContext context, bool isCamera) async {
     if (isCamera) {
       var picture = await ImagePicker().getImage(source: ImageSource.camera);
-      if (picture != null && picture.path.isNotEmpty && picture.path != null) {
+      if (picture != null && picture.path != null && picture.path.isNotEmpty) {
         File image = File(picture.path);
         CloudStorage().imageUploadAndDownload(image: image, context: context);
       }
     } else {
       var picture = await ImagePicker().getImage(source: ImageSource.gallery);
-      if (picture != null && picture.path.isNotEmpty && picture.path != null) {
+      if (picture != null && picture.path != null && picture.path.isNotEmpty) {
         File image = File(picture.path);
         CloudStorage().imageUploadAndDownload(image: image, context: context);
       }

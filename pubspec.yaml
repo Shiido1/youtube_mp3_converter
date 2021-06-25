@@ -21,7 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  audioplayers: ^0.17.4
+  audioplayers:
   flutter_radio: ^0.1.8
   cached_network_image: ^2.5.0
   marquee: ^1.7.0

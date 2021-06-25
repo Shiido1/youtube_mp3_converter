@@ -29,7 +29,6 @@ bool debug = true;
 
 // ignore: must_be_immutable
 class DashBoard extends StatefulWidget with WidgetsBindingObserver {
-  int index;
   final TargetPlatform platform;
 
   DashBoard({Key key, this.platform}) : super(key: key);
@@ -41,9 +40,9 @@ class DashBoard extends StatefulWidget with WidgetsBindingObserver {
 class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
   List<String> _apiSplittedList = ['', ''];
-  String _sharedText = "";
   bool _permissionReady;
   static String _localPath;
+  String _sharedText = '';
   bool loading = false;
   CustomProgressIndicator _progressIndicator;
   FilePickerResult result;
@@ -51,13 +50,19 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     this._progressIndicator = CustomProgressIndicator(this.context);
-
     LinkShareAssistant()
       ..onDataReceived = _handleSharedData
       ..getSharedData().then(_handleSharedData);
     _permissionReady = false;
     _prepare();
     super.initState();
+  }
+
+  // Handles any shared data we may receive.
+  void _handleSharedData(String sharedData) {
+    setState(() {
+      _sharedText = sharedData;
+    });
   }
 
   String splitFileNameHere(String fileName) {
@@ -104,13 +109,6 @@ class _DashBoardState extends State<DashBoard> {
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
     return directory.path;
-  }
-
-  // Handles any shared data we may receive.
-  void _handleSharedData(String sharedData) {
-    setState(() {
-      _sharedText = sharedData;
-    });
   }
 
   void openRadio(String search) {

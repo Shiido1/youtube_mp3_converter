@@ -319,8 +319,8 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         ListTile(
                           onTap: () async {
-                            if (_provider?.drawerItem ==
-                                _provider?.currentSong) {
+                            if (_provider?.drawerItem.fileName ==
+                                _provider?.currentSong.fileName) {
                               Navigator.pop(context);
                               showToast(context,
                                   message:

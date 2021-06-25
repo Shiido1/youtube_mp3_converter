@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,6 +12,7 @@ import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_prov
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:provider/provider.dart';
 
 // ignore: must_be_immutable
@@ -40,6 +39,7 @@ class _MainDashBoardState extends State<MainDashBoard> {
   @override
   void initState() {
     init();
+
     _screens = [
       DashBoard(),
       PlayList(),

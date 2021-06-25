@@ -198,7 +198,6 @@ class _PlayListViewState extends State<PlayListView> {
                 repeat
                     ? _musicProvider.undoRepeat()
                     : _musicProvider.repeat(_musicProvider.drawerItem);
-                // _musicProvider.repeatAll();
               },
               child: Column(
                 children: [

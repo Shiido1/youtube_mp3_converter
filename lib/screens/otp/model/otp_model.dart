@@ -8,7 +8,9 @@ class OtpModel {
   int totalsplitsongs;
   String storage;
   String token;
+  String email;
   String name;
+  String id;
   Null background;
   Null color;
   String profilepic;
@@ -31,18 +33,21 @@ class OtpModel {
       this.about,
       this.totalplayed,
       this.followers,
-      this.following});
+      this.following,
+      this.email,
+      this.id});
 
   OtpModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {
-      invoices = new List<Null>();
+      invoices = [];
       json['invoices'].forEach((v) {
         invoices.add((v));
       });
     }
     totalsplitsongs = json['totalsplitsongs'];
+    id = json['userid'].toString();
     storage = json['storage'];
     token = json['token'];
     name = json['name'];
@@ -53,6 +58,7 @@ class OtpModel {
     totalplayed = json['totalplayed'];
     followers = json['followers'];
     following = json['following'];
+    email = json['email'];
   }
 
   static Map<String, dynamic> toJson({

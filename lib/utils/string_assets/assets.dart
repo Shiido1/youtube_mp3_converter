@@ -2,7 +2,11 @@ class AppAssets {
   AppAssets();
   static final String otpSuccessfulIcon = 'assets/images/successful_otp.png';
   static final String bgImage1 = 'assets/background.png';
-  static final String logo = 'assets/youtubelogo.png';
+  static final String dashlogo = 'assets/youtubemp3logo.png';
+  // static final String logo = 'assets/logogo.png';
+  static final String logo = 'assets/log.png';
+  static final String background = 'assets/rectangle.png';
+  // static final String logo1 = 'assets/svg/loggo.svg';
   static final String image1 = 'assets/mqdefault.png';
   static final String bgImage2 = 'assets/authentication.png';
   static final String playlist = 'assets/svg/playlists.svg';
@@ -21,7 +25,6 @@ class AppAssets {
   static final String radioWave = 'assets/svg/radio_wave.svg';
   static final String line = 'assets/svg/line.svg';
   static final String favorite = 'assets/svg/heart.svg';
-  static final String rect = 'assets/rect.png';
   static final String shuffle = 'assets/svg/shuffle.svg';
   static final String repeat = 'assets/svg/repeat.svg';
   static final String share = 'assets/svg/share.svg';
@@ -35,4 +38,7 @@ class AppAssets {
   static final String rubbish = 'assets/svg/rubbish.svg';
   static final String bookmark = 'assets/svg/bookmark.svg';
   static final String favourite = 'assets/svg/favourite-heart.svg';
+  static final String advance = 'assets/svg/advance_plan.svg';
+  static final String medium = 'assets/svg/medium_plan.svg';
+  static final String basic = 'assets/svg/basic_plan.svg';
 }

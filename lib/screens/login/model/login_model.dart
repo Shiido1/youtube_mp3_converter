@@ -7,7 +7,9 @@ class LoginModel {
   int totalsplitsongs;
   String storage;
   String token;
+  String email;
   String name;
+  String id;
   String background;
   String color;
   String profilepic;
@@ -29,14 +31,16 @@ class LoginModel {
       this.profilepic,
       this.about,
       this.totalplayed,
+      this.id,
       this.followers,
-      this.following});
+      this.following,
+      this.email});
 
   LoginModel.fromJson(Map<String, dynamic> json) {
     message = json['message'];
     totalsong = json['totalsong'];
     if (json['invoices'] != null) {
-      invoices = new List<Invoices>();
+      invoices = [];
       json['invoices'].forEach((v) {
         invoices.add(new Invoices.fromJson(v));
       });
@@ -44,14 +48,18 @@ class LoginModel {
     totalsplitsongs = json['totalsplitsongs'];
     storage = json['storage'];
     token = json['token'];
+    id = json['userid'].toString();
     name = json['name'];
     background = json['background'];
     color = json['color'];
-    profilepic = json['profilepic'];
+    profilepic = json['profilepic'] == null || json['profilepic'] == ''
+        ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+        : json['profilepic'];
     about = json['about'];
     totalplayed = json['totalplayed'];
     followers = json['followers'];
     following = json['following'];
+    email = json['email'];
   }
 
   static Map<String, dynamic> toJson(

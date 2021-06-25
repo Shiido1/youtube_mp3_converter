@@ -1,15 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/utils/page_router/navigator.dart';
+import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   @override
@@ -22,22 +22,15 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isEmail = false;
   bool _isPassword = false;
   LoginProviders _loginProviders;
-  SharedPreferences loginPref;
+  SharedPreferencesHelper preferencesHelper;
   bool newUser;
+  String email, password;
 
-  void checkLogin() async {
-    loginPref = await SharedPreferences.getInstance();
-    newUser = (loginPref.getBool('login') ?? true);
-
-    if (newUser == false) {
-      PageRouter.gotoNamed(Routes.DASHBOARD, context);
-    }
-  }
-
-  void signIn(String email, String password) {
+  void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
       _loginProviders.loginUser(
-          map: LoginModel.toJson(email: email, password: password));
+          map: LoginModel.toJson(email: email, password: password),
+          context: context);
   }
 
   bool _validateInputs() {
@@ -58,21 +51,26 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   void initState() {
-    // checkLogin();
     _loginProviders = Provider.of<LoginProviders>(context, listen: false);
     _loginProviders.initialize(context);
     super.initState();
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.black,
       body: Consumer<LoginProviders>(
         builder: (_, model, __) {
           return SingleChildScrollView(
             child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
               decoration: new BoxDecoration(
                 color: AppColor.black,
                 image: new DecorationImage(
@@ -149,7 +147,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           labelText: 'Password',
                           labelStyle: TextStyle(color: AppColor.white),
                           errorText: _isPassword
-                              ? 'Please enter correct password'
+                              ? 'Please enter a correct 8 alphanumeric password'
                               : null,
                         ),
                         autofocus: false,
@@ -162,17 +160,13 @@ class _SignInScreenState extends State<SignInScreen> {
                             color: AppColor.white,
                             size: 50.0,
                           )
-                        : FlatButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                            color: AppColor.bottomRed,
+                        : TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColor.bottomRed,
+                            ),
                             onPressed: () {
-                              signIn(_emailController.text,
-                                  _passwordController.text);
-                              // if (_emailController.text != '' &&
-                              //     _passwordController.text != '') {
-                              //   loginPref.setBool('login', false);
-                              // }
+                              signIn(context, _emailController.text.trim(),
+                                  _passwordController.text.trim());
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(
@@ -184,8 +178,25 @@ class _SignInScreenState extends State<SignInScreen> {
                                   fontSize: 22,
                                 ),
                               ),
-                            )),
-                    SizedBox(height: 75),
+                            ),
+                          ),
+                    SizedBox(height: 20),
+                    InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ForgotPassword()),
+                      ),
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: AppColor.bottomRed,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 45),
                     Text(
                       'Don\'t have an Account?',
                       style: TextStyle(
@@ -208,6 +219,7 @@ class _SignInScreenState extends State<SignInScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 20),
                   ],
                 ),
               ),

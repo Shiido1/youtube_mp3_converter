@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dar
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -44,9 +45,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return false;
     }
 
-    if (_confirmPasswordController.text.isEmpty &&
-            _confirmPasswordController != _passwordController ||
-        !isPasswordCompliant(_confirmPasswordController.text)) {
+    if (_confirmPasswordController.text.isEmpty ||
+        _confirmPasswordController.text != _passwordController.text) {
       setState(() => _isConPassword = true);
       return false;
     }
@@ -58,12 +58,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     if (!_validateInputs()) return;
 
-    email = _emailController.text;
+    email = _emailController.text.trim();
     password = _passwordController.text;
     _signUpProvider.signUp(
         map: SignupModel.toJson(
-      name: _nameController.text,
-      email: _emailController.text,
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
       password: _passwordController.text,
     ));
     setState(() {});
@@ -91,8 +91,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return Scaffold(
         body: SingleChildScrollView(
           child: Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
+            // width: MediaQuery.of(context).size.width,
+            // height: MediaQuery.of(context).size.height,
             decoration: new BoxDecoration(
               color: AppColor.black,
               image: new DecorationImage(
@@ -107,10 +107,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SizedBox(height: 65),
                   Image.asset(
-                    'assets/youtubelogo.png',
+                    AppAssets.logo,
                   ),
                   SizedBox(height: 35),
                   Text(
@@ -228,25 +229,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                   ),
                   SizedBox(height: 15),
-                  // isloading
-                  //     ? SpinKitCircle(
-                  //         color: AppColor.white,
-                  //         size: 50.0,
-                  //       )
-                  //     :
-                  FlatButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      color: Colors.redAccent,
+                  TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColor.bottomRed,
+                      ),
                       onPressed: () {
                         _signUpUser();
-                        // setState(() {
-                        //   isloading = true;
-                        // });
                       },
                       child: Padding(
                         padding: const EdgeInsets.only(
-                            top: 10.0, bottom: 10.0, right: 23, left: 23),
+                            top: 8, bottom: 8, right: 20, left: 20),
                         child: Text(
                           'Sign Up',
                           style: TextStyle(
@@ -278,6 +270,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 150),
                 ],
               ),
             ),

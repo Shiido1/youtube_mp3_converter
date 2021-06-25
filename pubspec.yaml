@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -21,7 +21,7 @@ environment:
   sdk: ">=2.7.0 <3.0.0"
 
 dependencies:
-  audioplayers: ^0.17.4
+  audioplayers:
   flutter_radio: ^0.1.8
   cached_network_image: ^2.5.0
   marquee: ^1.7.0
@@ -36,33 +36,60 @@ dependencies:
   pin_entry_text_field: ^0.1.4
   route_transitions: ^1.0.2
   image_picker: ^0.6.7+22
+  font_awesome_flutter: ^9.0.0
   toast: ^0.1.5
   flutter_spinkit: ^4.1.2+1
   jaynetwork: ^0.0.1
   provider: ^4.3.2+2
-  flutter_svg: ^0.19.1
+  video_thumbnail: 0.3.3
+  flutter_svg:
+  ntp: ^1.0.5
+  time_machine: ^0.9.16
+  hive_listener:
+  intl: ^0.16.0
   flutter:
     sdk: flutter
   shared_preferences: ^0.5.12+4
   downloads_path_provider: ^0.1.0
-
+  dots_indicator: ^2.0.0
+  geolocator: ^6.2.1
+  geocoder: ^0.2.1
+  intent: ^1.4.0
+  flutter_switch: ^0.3.1
+  rave_flutter: ^0.0.9-alpha+2
+  flutter_audio_recorder: ^0.5.5
+  audio_service: ^0.16.2
+  google_maps_flutter:
+  geocoding:
+  firebase_storage:
+  firebase_core:
+  cloud_functions:
+  google_mobile_ads: ^0.13.0
+  uuid:
+  flutter_speech: ^2.0.0
+  image_downloader: ^0.30.0
+  firebase_database: ^6.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
 
 dev_dependencies:
+  flutter_launcher_icons: "^0.8.0"
   flutter_test:
     sdk: flutter
   hive_generator: ^0.8.2
   build_runner:
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/youtubeaudiologo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

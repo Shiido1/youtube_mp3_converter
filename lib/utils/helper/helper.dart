@@ -6,9 +6,16 @@ import 'package:path_provider/path_provider.dart';
 import 'package:toast/toast.dart';
 
 void showToast(BuildContext context,
-    {@required String message, int gravity = 0}) {
+    {@required String message,
+    int gravity = 0,
+    Color backgroundColor = const Color(2852126720),
+    Color textColor = Colors.white}) {
   Toast.show(message, context,
-      backgroundRadius: 10, duration: 4, gravity: gravity);
+      backgroundRadius: 10,
+      duration: 4,
+      gravity: gravity,
+      backgroundColor: backgroundColor,
+      textColor: textColor);
 }
 
 double getWidth(BuildContext context) {

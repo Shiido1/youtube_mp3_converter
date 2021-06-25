@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
-import 'package:mp3_music_converter/database/songs/song_service.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
@@ -319,8 +316,8 @@ class _AppDrawerState extends State<AppDrawer> {
                         ),
                         ListTile(
                           onTap: () async {
-                            if (_provider?.drawerItem.fileName ==
-                                _provider?.currentSong.fileName) {
+                            if (_provider?.drawerItem?.fileName ==
+                                _provider?.currentSong?.fileName) {
                               Navigator.pop(context);
                               showToast(context,
                                   message:

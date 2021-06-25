@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -8,8 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../../utils/helper/instances.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }

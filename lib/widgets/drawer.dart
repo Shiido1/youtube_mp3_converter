@@ -448,7 +448,7 @@ Future<void> showSubscriptionMessage(BuildContext context) {
               child: Text('Yes',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
               onPressed: () {
-                Navigator.pushReplacement(context,
+                Navigator.push(context,
                     MaterialPageRoute(builder: (_) => PaymentScreen()));
               },
             ),

@@ -18,16 +18,13 @@ class RedBackground extends StatefulWidget {
   final IconButton iconButton;
   final VoidCallback callback;
   final Widget widgetContainer;
-  final bool showMic;
-  final Function openRadio;
 
-  RedBackground(
-      {this.text,
-      this.iconButton,
-      this.callback,
-      this.widgetContainer,
-      this.showMic = false,
-      this.openRadio});
+  RedBackground({
+    this.text,
+    this.iconButton,
+    this.callback,
+    this.widgetContainer,
+  });
 
   @override
   _RedBackgroundState createState() => _RedBackgroundState();
@@ -35,62 +32,6 @@ class RedBackground extends StatefulWidget {
 
 class _RedBackgroundState extends State<RedBackground> {
   String url;
-  SpeechRecognition _speech;
-  bool _speechRecognitionAvailable = false;
-  bool _isListening = false;
-  MusicProvider _provider;
-
-  void onSpeechAvailability(bool result) {
-    if (mounted) setState(() => _speechRecognitionAvailable = result);
-  }
-
-  void onRecognitionStarted() => setState(() => _isListening = true);
-  void onRecognitionResult(String result) {}
-
-  void onRecognitionComplete(String result) {
-    if (mounted)
-      setState(() {
-        _isListening = false;
-      });
-    if (result != null) decideAction(result);
-  }
-
-  void cancel() {
-    _speech.cancel().then((value) {
-      if (mounted) setState(() => _isListening = false);
-    });
-  }
-
-  void stop() {
-    _speech.stop().then((value) {
-      if (mounted) setState(() => _isListening = false);
-    });
-  }
-
-  void start() {
-    _speech.activate('en_US').then((_) {
-      return _speech.listen().then((value) {
-        if (mounted)
-          setState(() {
-            _isListening = value;
-          });
-      });
-    });
-  }
-
-  void errorHandler() => activateSpeechRecognizer();
-
-  void activateSpeechRecognizer() {
-    _speech = SpeechRecognition();
-    _speech.setAvailabilityHandler(onSpeechAvailability);
-    _speech.setRecognitionCompleteHandler(onRecognitionComplete);
-    _speech.setRecognitionResultHandler(onRecognitionResult);
-    _speech.setRecognitionStartedHandler(onRecognitionStarted);
-    _speech.setErrorHandler(errorHandler);
-    _speech.activate('en_US').then((value) {
-      if (mounted) setState(() => _speechRecognitionAvailable = value);
-    });
-  }
 
   Future getImage(BuildContext context, bool isCamera) async {
     if (isCamera) {
@@ -151,76 +92,9 @@ class _RedBackgroundState extends State<RedBackground> {
         });
   }
 
-  void decideAction(String input) async {
-    input = input.trim().toLowerCase();
-    await _provider.getSongs();
-
-    if (input.contains('play song')) {
-      final start = 'play song';
-      final startIndex = input.indexOf(start);
-      final end = 'by artist';
-
-      int endIndex;
-      if (input.contains(end)) endIndex = input.indexOf(end);
-
-      final songName = endIndex == null
-          ? input.substring(startIndex + start.length).trim()
-          : input.substring(startIndex + start.length, endIndex).trim();
-
-      final artistName = endIndex == null
-          ? null
-          : input.substring(endIndex + end.length).trim();
-
-      Song _song = searchSong(artistName: artistName, songName: songName);
-      if (_song.songName != null) {
-        _provider.songs = [_song];
-        _provider.playAudio(_song, force: true);
-      }
-      if (_song.songName == null)
-        showToast(context, message: 'Could not find song', gravity: 2);
-    } else if (input.contains('play radio')) {
-      final start = 'play radio';
-      final startIndex = input.indexOf(start);
-      final channel = input.substring(startIndex + start.length).trim();
-
-      if (channel != null && channel != '') widget.openRadio(channel);
-    } else
-      showToast(context, message: 'Invalid command', gravity: 2);
-  }
-
-  Song searchSong({@required String artistName, @required String songName}) {
-    List<Song> allSongs = _provider.allSongs;
-    Song _song = Song();
-
-    if (artistName == null) {
-      for (Song song in allSongs) {
-        if (song.songName.toLowerCase() == songName.toLowerCase() ||
-            song.songName.toLowerCase().contains(songName.toLowerCase())) {
-          _song = song;
-          break;
-        }
-      }
-    } else {
-      for (Song song in allSongs) {
-        if ((song.songName.toLowerCase() == songName.toLowerCase() ||
-                song.songName.toLowerCase().contains(songName.toLowerCase())) &&
-            (song.artistName.toLowerCase() == artistName.toLowerCase() ||
-                song.artistName
-                    .toLowerCase()
-                    .contains(artistName.toLowerCase()))) {
-          _song = song;
-          break;
-        }
-      }
-    }
-    return _song;
-  }
-
   @override
   void initState() {
     Provider.of<RedBackgroundProvider>(context, listen: false).getUrl();
-    activateSpeechRecognizer();
-    _provider = Provider.of<MusicProvider>(context, listen: false);
     super.initState();
   }
 
@@ -265,23 +139,6 @@ class _RedBackgroundState extends State<RedBackground> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     _widgetContainer(url),
-                    SizedBox(height: 20),
-                    if (widget.showMic)
-                      Container(
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _isListening
-                                ? Colors.black26
-                                : Colors.transparent),
-                        padding: EdgeInsets.all(5),
-                        child: IconButton(
-                            icon: Icon(Icons.mic,
-                                size: 35, color: AppColor.white),
-                            onPressed:
-                                _speechRecognitionAvailable && !_isListening
-                                    ? () => start()
-                                    : null),
-                      )
                   ],
                 )
               ],

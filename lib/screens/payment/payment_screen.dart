@@ -47,13 +47,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             RedBackground(
               iconButton: IconButton(
-                icon: Icon(
-                  Icons.arrow_back_ios_outlined,
-                  color: AppColor.white,
-                ),
-                onPressed: () => Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (_) => MainDashBoard())),
-              ),
+                  icon: Icon(
+                    Icons.arrow_back_ios_outlined,
+                    color: AppColor.white,
+                  ),
+                  onPressed: () => Navigator.pop(context)
+                  // MaterialPageRoute(builder: (_) => MainDashBoard())),
+                  ),
               text: 'Plan',
             ),
             Expanded(

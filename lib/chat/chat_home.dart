@@ -72,7 +72,14 @@ class _ChatHomeState extends State<ChatHome> {
         Map data = event.snapshot.value;
         if (data == null && event.snapshot.key == id) {
           setState(() {
-            users = [];
+            users = [
+              MessageData(
+                  id: null,
+                  message: null,
+                  peerId: null,
+                  time: null,
+                  unreadCount: null)
+            ];
           });
           return;
         }
@@ -101,6 +108,7 @@ class _ChatHomeState extends State<ChatHome> {
         for (int key in userIdKey) {
           userData.add(userIDs[key]);
         }
+
         if (mounted)
           setState(() {
             users = userData;
@@ -210,7 +218,7 @@ class _ChatHomeState extends State<ChatHome> {
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Stack(
               children: [
-                ListView(
+                Column(
                   children: [
                     if (search)
                       Padding(
@@ -228,102 +236,123 @@ class _ChatHomeState extends State<ChatHome> {
                         ),
                       ),
                     SizedBox(height: 20),
-                    ListView.builder(
-                        itemCount:
-                            search ? userSearchResult.length : users.length,
-                        shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          MessageData user =
-                              search ? userSearchResult[index] : users[index];
-                          UserDetails details = chats[user.peerId];
-                          String messageTime =
-                              user?.time != null ? checkDates(user.time) : '';
-                          return Card(
-                            color: AppColor.white,
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7))),
-                            margin: EdgeInsets.only(bottom: 20),
-                            child: ListTile(
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 10),
-                              onTap: () {
-                                search = false;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => ChatScreen(
-                                              peerName: details?.name,
-                                              imageUrl: details?.photoUrl,
-                                              id: user?.id,
-                                              pid: user?.peerId,
-                                            )));
-                              },
-                              leading: ClipOval(
-                                child: Container(
-                                  width: 50,
-                                  height: 50,
-                                  child: CachedNetworkImage(
-                                    imageUrl: details?.photoUrl ?? '',
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, index) => Container(
-                                      child: Center(
-                                          child: SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child:
-                                                  CircularProgressIndicator())),
-                                    ),
-                                    errorWidget: (context, url, error) =>
-                                        new Icon(Icons.error),
-                                  ),
-                                ),
-                              ),
-                              title: TextViewWidget(
-                                text: details?.name ?? '',
-                                color: AppColor.black,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              subtitle: Padding(
-                                padding: EdgeInsets.only(top: 8),
-                                child: Text(
-                                  user?.message ?? '',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      color: Color.fromRGBO(0, 0, 0, 0.5),
-                                      fontSize: 14),
-                                ),
-                              ),
-                              trailing: Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Text(messageTime ?? '',
-                                      style: TextStyle(color: Colors.black)),
-                                  if (user.unreadCount > 0)
-                                    Container(
-                                      decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(196, 196, 196, 1),
-                                          shape: BoxShape.circle),
-                                      padding: EdgeInsets.all(5),
-                                      child: Text(
-                                        user.unreadCount > 99
-                                            ? '99+'
-                                            : user?.unreadCount.toString(),
-                                        style: TextStyle(
-                                            color: AppColor.black,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 14),
+                    Expanded(
+                      child: users.isEmpty
+                          ? Center(child: CircularProgressIndicator())
+                          : users[0].id == null
+                              ? Center(
+                                  child: Text(
+                                      'No coversation. Start one by clicking the button below.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 18)))
+                              : ListView.builder(
+                                  itemCount: search
+                                      ? userSearchResult.length
+                                      : users.length,
+                                  itemBuilder: (context, index) {
+                                    MessageData user = search
+                                        ? userSearchResult[index]
+                                        : users[index];
+                                    UserDetails details = chats[user.peerId];
+                                    String messageTime = user?.time != null
+                                        ? checkDates(user.time)
+                                        : '';
+
+                                    return Card(
+                                      color: AppColor.white,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(7))),
+                                      margin: EdgeInsets.only(bottom: 20),
+                                      child: ListTile(
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                        onTap: () {
+                                          search = false;
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ChatScreen(
+                                                        peerName: details?.name,
+                                                        imageUrl:
+                                                            details?.photoUrl,
+                                                        id: user?.id,
+                                                        pid: user?.peerId,
+                                                      )));
+                                        },
+                                        leading: ClipOval(
+                                          child: Container(
+                                            width: 50,
+                                            height: 50,
+                                            child: CachedNetworkImage(
+                                              imageUrl: details?.photoUrl ?? '',
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, index) =>
+                                                  Container(
+                                                child: Center(
+                                                    child: SizedBox(
+                                                        width: 20,
+                                                        height: 20,
+                                                        child:
+                                                            CircularProgressIndicator())),
+                                              ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      new Icon(Icons.error),
+                                            ),
+                                          ),
+                                        ),
+                                        title: TextViewWidget(
+                                          text: details?.name ?? '',
+                                          color: AppColor.black,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        subtitle: Padding(
+                                          padding: EdgeInsets.only(top: 8),
+                                          child: Text(
+                                            user?.message ?? '',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                                color: Color.fromRGBO(
+                                                    0, 0, 0, 0.5),
+                                                fontSize: 14),
+                                          ),
+                                        ),
+                                        trailing: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          children: [
+                                            Text(messageTime ?? '',
+                                                style: TextStyle(
+                                                    color: Colors.black)),
+                                            if (user.unreadCount > 0)
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                    color: Color.fromRGBO(
+                                                        196, 196, 196, 1),
+                                                    shape: BoxShape.circle),
+                                                padding: EdgeInsets.all(5),
+                                                child: Text(
+                                                  user.unreadCount > 99
+                                                      ? '99+'
+                                                      : user?.unreadCount
+                                                          .toString(),
+                                                  style: TextStyle(
+                                                      color: AppColor.black,
+                                                      fontWeight:
+                                                          FontWeight.w700,
+                                                      fontSize: 14),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }),
+                                    );
+                                  }),
+                    ),
                   ],
                 ),
                 Positioned(

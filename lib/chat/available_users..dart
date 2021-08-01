@@ -53,15 +53,19 @@ class _AvailableUsersState extends State<AvailableUsers> {
             }
           }
         }
+        print(chattingUsers);
 
-        if (chattingUsers.isNotEmpty) if (mounted)
-          setState(() {
-            availableUsers = chattingUsers;
-          });
-        else if (mounted)
-          setState(() {
-            availableUsers = ['null'];
-          });
+        if (chattingUsers.isNotEmpty) {
+          if (mounted)
+            setState(() {
+              availableUsers = chattingUsers;
+            });
+        } else {
+          if (mounted)
+            setState(() {
+              availableUsers = ['null'];
+            });
+        }
       } else {
         if (mounted) {
           showToast(context,
@@ -87,6 +91,7 @@ class _AvailableUsersState extends State<AvailableUsers> {
 
   @override
   Widget build(BuildContext context) {
+    print('users availableL $availableUsers');
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(

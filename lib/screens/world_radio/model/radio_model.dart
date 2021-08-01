@@ -8,7 +8,7 @@ class RadioModel {
 
   RadioModel({this.message, this.radio, this.favourite, this.token});
 
-  RadioModel.fromJson(Map<String, dynamic> json, bool add) {
+  RadioModel.fromJson(Map<String, dynamic> json) {
     message = json['message'] == null ? "" : json['message'];
     token = json['token'] == null ? "" : json['token'];
 
@@ -16,7 +16,7 @@ class RadioModel {
       radio = <Radio>[];
       json['radio'].forEach((v) {
         try {
-          radio.add(new Radio.fromJson(v));
+          radio.add(Radio.fromJson(v));
         } catch (e) {}
       });
     }
@@ -45,11 +45,11 @@ class RadioModel {
 }
 
 class Radio {
-  int uid;
+  String uid;
   String id;
   String name;
   String slug;
-  Null website;
+  String website;
   String placeName;
   String placeLat;
   String placeLong;
@@ -78,7 +78,7 @@ class Radio {
 
   Radio.fromJson(Map<String, dynamic> json) {
     uid = json['uid'] == null ? null : json['uid'];
-    id = json['id'] == null ? null : json['id'];
+    id = json['id'] == null ? null : json['id'].toString();
     name = json['name'] == null ? null : json['name'];
     slug = json['slug'] == null ? null : json['slug'];
     website = json['website'] == null ? null : json['website'];
@@ -122,11 +122,11 @@ class Radio {
 }
 
 class Favourite {
-  int uid;
+  String uid;
   String id;
   String name;
   String slug;
-  Null website;
+  String website;
   String placeName;
   String placeLat;
   String placeLong;
@@ -156,7 +156,7 @@ class Favourite {
   Favourite.fromJson(Map<String, dynamic> json) {
     if (json == null) return;
     uid = json['uid'];
-    id = json['id'];
+    id = json['id'].toString();
     name = json['name'];
     slug = json['slug'];
     website = json['website'];

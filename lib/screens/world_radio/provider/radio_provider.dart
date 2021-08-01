@@ -9,31 +9,36 @@ final RadioRepo _repository = RadioRepo();
 
 class RadioProvider extends ChangeNotifier {
   BuildContext _context;
-  CustomProgressIndicator _progressIndicator;
   bool problem = false;
   RadioModel radioModels;
   RadioModel radioModelsItems;
   bool showAllChannels = false;
   LoginProviders login;
+  bool isLoading = true;
 
   updateShowAllChannels(bool value) {
     this.showAllChannels = value;
-    // notifyListeners();
+  }
+
+  updateIsLoading(bool isLoading) {
+    this.isLoading = isLoading;
+    notifyListeners();
+  }
+
+  updateIsLoadingWithoutListener(bool isLoading) {
+    this.isLoading = isLoading;
   }
 
   void init({
     BuildContext context,
     @required bool search,
     String searchData,
-    bool add = false,
   }) {
     this._context = context;
-    this._progressIndicator = CustomProgressIndicator(this._context);
     getRadio(
       search: search,
       searchData: searchData,
-      context: context,
-      add: add,
+      context: _context,
     );
   }
 
@@ -41,21 +46,18 @@ class RadioProvider extends ChangeNotifier {
     @required bool search,
     String searchData,
     @required BuildContext context,
-    bool add,
   }) async {
     if (search)
       radioX(
         search: true,
         searchData: searchData,
         context: context,
-        add: add,
       );
     if (search == false || radioModels == null)
       radioX(
         search: search,
         searchData: searchData,
         context: context,
-        add: add,
       );
   }
 
@@ -63,59 +65,43 @@ class RadioProvider extends ChangeNotifier {
     @required bool search,
     String searchData,
     @required BuildContext context,
-    @required bool add,
   }) async {
     String _token = await preferencesHelper.getStringValues(key: 'token');
-    if (add) {
+    if (search) {
+      if (radioModels != null) radioModelsItems = radioModels;
+      try {
+        radioModels = await _repository.radiox(
+          map: Radio.mapToJson(token: _token, searchData: searchData),
+          search: true,
+          context: context,
+        );
+
+        print('this is the model: ${radioModels.radio}');
+        isLoading = false;
+        notifyListeners();
+      } catch (e) {
+        isLoading = false;
+        notifyListeners();
+      }
+    } else {
       try {
         RadioModel myModel = await _repository.radiox(
-            map: Radio.mapToJson(token: _token, searchData: searchData),
-            search: true,
-            context: context,
-            add: true);
+            map: Radio.mapToJson(
+              token: _token,
+            ),
+            search: false,
+            context: context);
+
         if (radioModels == null)
           radioModels = myModel;
         else
           radioModels.radio.addAll(myModel.radio);
+        isLoading = false;
+        notifyListeners();
       } catch (e) {
-        print(e);
-      }
-    } else {
-      if (search) {
-        _progressIndicator.show();
-        if (radioModels != null) radioModelsItems = radioModels;
-        try {
-          radioModels = await _repository.radiox(
-              map: Radio.mapToJson(token: _token, searchData: searchData),
-              search: true,
-              context: context,
-              add: false);
-          _progressIndicator.dismiss();
-          notifyListeners();
-        } catch (e) {
-          _progressIndicator.dismiss();
-        }
-      } else {
-        _progressIndicator.show();
-        try {
-          RadioModel myModel = await _repository.radiox(
-              map: Radio.mapToJson(
-                token: _token,
-              ),
-              search: false,
-              add: false,
-              context: context);
-          _progressIndicator.dismiss();
-          if (radioModels == null)
-            radioModels = myModel;
-          else
-            radioModels.radio.addAll(myModel.radio);
-          notifyListeners();
-        } catch (e) {
-          _progressIndicator.dismiss();
-        }
+        isLoading = false;
+        notifyListeners();
       }
     }
-    notifyListeners();
   }
 }

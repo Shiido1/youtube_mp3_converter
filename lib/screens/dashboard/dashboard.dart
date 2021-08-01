@@ -20,6 +20,7 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -140,14 +141,14 @@ class _DashBoardState extends State<DashBoard> {
         backgroundColor: AppColor.background,
         body: Column(
           children: [
-            RedBackground(showMic: true, openRadio: openRadio),
+            RedBackground2(openRadio: openRadio),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(left: 16, right: 90),
                 child: ListView(
                   children: [
                     _buttonItem(
-                      title: "Converter",
+                      title: "Import Url",
                       item: HomeButtonItem.CONVERTER,
                       screen: Convert(),
                       assets: AppAssets.mpFile,
@@ -210,7 +211,7 @@ class _DashBoardState extends State<DashBoard> {
         });
         screen == null
             ? splitMethod()
-            : Navigator.pushReplacement(
+            : Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => screen),
               );
@@ -353,8 +354,8 @@ class DJMixer extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColor.bottomRed,
         leading: IconButton(
-          onPressed: () => Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => MainDashBoard())),
+          onPressed: () => Navigator.pop(context),
+          // context, MaterialPageRoute(builder: (_) => MainDashBoard())),
           icon: Icon(
             Icons.arrow_back_ios_sharp,
             color: AppColor.white,

@@ -8,25 +8,24 @@ import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:provider/provider.dart';
 
 class RadioRepo {
-  Future<RadioModel> radiox(
-      {@required Map map,
-      @required bool search,
-      @required BuildContext context,
-      @required bool add}) async {
+  Future<RadioModel> radiox({
+    @required Map map,
+    @required bool search,
+    @required BuildContext context,
+  }) async {
     try {
       final res = await jayNetworkClient
           .makePostRequest(search ? "searchradio" : "radiox", data: map);
       if (!search)
         Provider.of<RadioProvider>(context, listen: false)
             .updateShowAllChannels(true);
-
-      return RadioModel.fromJson(res.data, add);
+      print("this is the data: ${RadioModel.fromJson(res.data).radio}");
+      return RadioModel.fromJson(res.data);
     } catch (e) {
-      if (!add) CustomProgressIndicator(context).dismiss();
       if (!search)
         Provider.of<RadioProvider>(context, listen: false)
             .updateShowAllChannels(false);
-      showToast(context, message: 'An error occurred. Try again', gravity: 3);
+      showToast(context, message: 'An error occurred. Try again', gravity: 1);
       return throw e;
     }
   }

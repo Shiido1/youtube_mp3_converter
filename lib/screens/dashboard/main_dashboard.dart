@@ -29,23 +29,11 @@ class _MainDashBoardState extends State<MainDashBoard> {
   RecordProvider _recordProvider;
   List<Widget> _screens;
 
-  void setIndex(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
   @override
   void initState() {
     init();
 
-    _screens = [
-      DashBoard(),
-      PlayList(),
-      Library(setIndex),
-      Search(),
-      Setting()
-    ];
+    _screens = [DashBoard(), PlayList(), Library(), Search(), Setting()];
     super.initState();
   }
 
@@ -58,7 +46,6 @@ class _MainDashBoardState extends State<MainDashBoard> {
     await _recordProvider.initProvider();
     if (AudioService.queue == null || AudioService.queue.isEmpty)
       preferencesHelper.getCachedData(key: 'last_play').then((value) {
-        print('this is the value: $value');
         if (value != null) {
           MediaItem item = MediaItem(
               album: value['title'],
@@ -81,6 +68,7 @@ class _MainDashBoardState extends State<MainDashBoard> {
 
   @override
   Widget build(BuildContext context) {
+    _currentIndex = Provider.of<MusicProvider>(context).currentNavBarIndex;
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -94,7 +82,8 @@ class _MainDashBoardState extends State<MainDashBoard> {
         unselectedLabelStyle: Theme.of(context).textTheme.caption,
         unselectedFontSize: 30,
         onTap: (value) {
-          setState(() => _currentIndex = value);
+          Provider.of<MusicProvider>(context, listen: false)
+              .updateCurrentIndex(value);
         },
         items: [
           BottomNavigationBarItem(

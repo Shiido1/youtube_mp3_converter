@@ -28,7 +28,7 @@ class CloudStorage {
     try {
       UploadTask uploadTask = reference.putFile(image);
 
-      uploadTask.timeout((Duration(seconds: 90)), onTimeout: () async {
+      uploadTask.timeout((Duration(seconds: 120)), onTimeout: () async {
         showToast(context, message: 'Failed to save profile image. Try again');
         _progressIndicator.dismiss();
 

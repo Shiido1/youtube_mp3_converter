@@ -9,7 +9,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hive/hive.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
+import 'package:loading_overlay/loading_overlay.dart';
 import 'package:mp3_music_converter/screens/world_radio/model/radio_model.dart'
     as radioModel;
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
@@ -22,6 +22,7 @@ import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class RadioClass extends StatefulWidget {
   final String search;
@@ -55,9 +56,12 @@ class _RadioClassState extends State<RadioClass>
   Position location;
   bool showAllChannels;
   bool search = false;
-  CustomProgressIndicator _progressIndicator;
   Map<MarkerId, Marker> markers = {};
   String searchString;
+  bool notFound = false;
+  Timer _timer;
+  bool isLoading;
+  bool mapLoaded = false;
 
   @override
   void initState() {
@@ -66,7 +70,6 @@ class _RadioClassState extends State<RadioClass>
     _playProvider.initPlayer();
     _textController = TextEditingController()..addListener(() {});
     _textFocusNode = FocusNode();
-    this._progressIndicator = CustomProgressIndicator(this.context);
 
     _controller =
         AnimationController(vsync: this, duration: Duration(seconds: 2))
@@ -93,7 +96,7 @@ class _RadioClassState extends State<RadioClass>
     placeId = await preferencesHelper.getStringValues(key: 'placeId');
     placeLat = await preferencesHelper.getStringValues(key: 'placeLat');
     placeLong = await preferencesHelper.getStringValues(key: 'placeLong');
-    setState(() {});
+    checkFavourite();
   }
 
   @override
@@ -103,20 +106,31 @@ class _RadioClassState extends State<RadioClass>
     super.deactivate();
   }
 
+  _startTimer() {
+    Duration time = Duration(seconds: 5);
+    _timer = Timer(time, () {
+      setState(() {
+        notFound = false;
+      });
+    });
+  }
+
   @override
   void dispose() {
     if (isPlaying) _playProvider.playRadio(radioMp3);
+    _radioProvider.updateIsLoadingWithoutListener(true);
+    _timer?.cancel();
     _controller.dispose();
     _textController.dispose();
     _textFocusNode.dispose();
     _radioProvider.radioModels = null;
+    _mapController = null;
     super.dispose();
   }
 
   getFavourites() async {
     var box = await Hive.openBox('testBox');
     var _favourite = await box.get('fav');
-    print(_favourite);
     if (_favourite != null) {
       setState(() {
         favourite = _favourite;
@@ -124,24 +138,6 @@ class _RadioClassState extends State<RadioClass>
       checkFavourite();
     } else {
       box.put('fav', []);
-    }
-  }
-
-  checkStation() {
-    if (!(_radioProvider.radioModels.radio
-        .any((element) => element.id == placeId))) {
-      _radioProvider.init(
-          search: true, add: true, context: context, searchData: radioFile);
-    }
-    if (tap && !search) {
-      int index = _radioProvider.radioModels.radio
-          .indexWhere((element) => element.id == placeId);
-      if (index == null)
-        checkStation();
-      else
-        currentRadioIndex = index;
-
-      setState(() {});
     }
   }
 
@@ -166,39 +162,16 @@ class _RadioClassState extends State<RadioClass>
   addFavourite() async {
     var box = await Hive.openBox('testBox');
     var _favourite = box.get('fav');
-    var _radioLog;
-    // if (favourite == null || favourite.isEmpty) tap = true;
-    if (search)
-      for (radioModel.Radio item in _radioProvider.radioModelsItems.radio) {
-        if (item.name == radioFile && item.id == placeId) {
-          _radioLog = item;
-          break;
-        }
-      }
-    else
-      for (radioModel.Radio item in _radioProvider.radioModels.radio) {
-        if (item.name == radioFile && item.id == placeId) {
-          _radioLog = item;
-          break;
-        }
-      }
-
-    if (currentRadioIndex != null) {
+    if (radioFile != null) {
       if (_favourite != null) {
         if (_favourite.contains(json.encode({
-              'name': _radioLog.name,
-              'mp3': _radioLog.mp3,
-              'placeId': _radioLog.id,
-              'placename': _radioLog.placeName,
-              'placeLat': _radioLog.placeLat,
-              'placeLong': _radioLog.placeLong,
-            })) ||
-            _favourite.contains(json.encode({
-              'name': _radioLog.name,
-              'mp3': _radioLog.mp3,
-              'placeId': _radioLog.id,
-              'placename': _radioLog.placeName,
-            }))) {
+          'name': radioFile,
+          'mp3': radioMp3,
+          'placeId': placeId,
+          'placename': placeName,
+          'placeLat': placeLat,
+          'placeLong': placeLong,
+        }))) {
           for (var map in _favourite) {
             if (json.decode(map)["name"] == radioFile &&
                 json.decode(map)["placeId"] == placeId) {
@@ -212,18 +185,17 @@ class _RadioClassState extends State<RadioClass>
               });
               break;
             }
-            // print(json.decode(map));
           }
         } else {
           setState(() {
             favourite = _favourite;
             favourite.add(json.encode({
-              'name': _radioLog.name,
-              'mp3': _radioLog.mp3,
-              'placeId': _radioLog.id,
-              'placename': _radioLog.placeName,
-              // 'placeLat': _radioLog.placeLat,
-              // 'placeLong': _radioLog.placeLong,
+              'name': radioFile,
+              'mp3': radioMp3,
+              'placeId': placeId,
+              'placename': placeName,
+              'placeLat': placeLat,
+              'placeLong': placeLong,
             }));
           });
           box.put('fav', favourite);
@@ -273,7 +245,6 @@ class _RadioClassState extends State<RadioClass>
           target: LatLng(latitude, longitude), zoom: zoomLevel)));
 
       markers.remove(MarkerId('place'));
-      // markers.remove('place');
       _addLocationMarker(
           latitude: latitude, longitude: longitude, title: title);
     }
@@ -326,13 +297,11 @@ class _RadioClassState extends State<RadioClass>
         }
         if (permission == LocationPermission.always ||
             permission == LocationPermission.whileInUse) {
-          _progressIndicator.show();
           try {
             location = await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.best,
+                desiredAccuracy: LocationAccuracy.high,
                 timeLimit: Duration(seconds: 60),
                 forceAndroidLocationManager: true);
-            _progressIndicator.dismiss();
 
             setState(() {});
             GoogleMapController _controller = await _mapController.future;
@@ -344,14 +313,13 @@ class _RadioClassState extends State<RadioClass>
                 location.latitude, location.longitude);
 
             _radioProvider.init(
-              context: context,
-              search: true,
-              searchData: placemark[0].country,
-            );
+                context: context,
+                search: true,
+                searchData: placemark[0].country);
           } catch (e) {
-            _progressIndicator.dismiss();
+            _radioProvider.updateIsLoading(false);
             showToast(context,
-                message: 'An error occurred. Try again', gravity: 3);
+                message: 'An error occurred. Try again later', gravity: 1);
           }
         }
       }
@@ -403,397 +371,640 @@ class _RadioClassState extends State<RadioClass>
 
   @override
   Widget build(BuildContext context) {
-    if (_radioProvider.radioModels != null && search == false) checkStation();
     showAllChannels = Provider.of<RadioProvider>(context).showAllChannels;
     checkIsPlaying();
 
     return Consumer<RadioProvider>(builder: (_, radioProvider, __) {
-      playStationFromSpeech(radioProvider);
+      isLoading = radioProvider.isLoading;
+      if (searchString != null && radioProvider.radioModels != null)
+        playStationFromSpeech(radioProvider);
 
       return Scaffold(
-          backgroundColor: AppColor.background1,
+          backgroundColor: mapLoaded
+              ? Color.fromRGBO(240, 230, 230, 1)
+              : AppColor.background1,
           resizeToAvoidBottomInset: false,
-          body: GestureDetector(
-            onTap: () {
-              _textFocusNode.unfocus();
-            },
-            child: Stack(children: [
-              Center(
-                child: Column(children: [
-                  Stack(
-                    children: [
-                      RedBackground(
-                        iconButton: IconButton(
-                          icon: Icon(
-                            Icons.arrow_back_ios_outlined,
-                            color: AppColor.white,
-                          ),
-                          onPressed: () => Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => MainDashBoard())),
-                        ),
-                        text: 'Radio World Wide',
-                      ),
-                      Positioned(
-                        top: 35,
-                        bottom: 0,
-                        left: 35,
-                        child: Row(
-                          children: [
-                            FlutterSwitch(
-                              inactiveTextFontWeight: FontWeight.normal,
-                              activeTextFontWeight: FontWeight.normal,
-                              activeColor: Colors.red[200],
-                              activeToggleColor: AppColor.bottomRed,
-                              activeTextColor: Colors.black,
-                              showOnOff: true,
-                              value: showAllChannels,
-                              inactiveToggleColor: Colors.black,
-                              onToggle: (value) {
-                                if (showAllChannels == false) {
-                                  radioProvider.init(
-                                      context: context,
-                                      search: false,
-                                      searchData: '');
-                                  _textController.clear();
-                                  _textFocusNode.unfocus();
-
-                                  Provider.of<RadioProvider>(context,
-                                          listen: false)
-                                      .updateShowAllChannels(value);
-                                }
-                              },
-                              valueFontSize: 16,
-                              height: 25,
-                              width: 55,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text('Show all channels',
-                                style: TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold))
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Stack(
+          body: LoadingOverlay(
+            isLoading: isLoading,
+            color: Colors.white,
+            opacity: 0.5,
+            progressIndicator:
+                SpinKitCircle(itemBuilder: (BuildContext context, int index) {
+              return DecoratedBox(
+                decoration: BoxDecoration(
+                    color: index.isEven ? AppColor.white : AppColor.background,
+                    shape: BoxShape.circle),
+              );
+            }),
+            child: GestureDetector(
+              onTap: () {
+                _textFocusNode.unfocus();
+              },
+              child: Stack(children: [
+                Center(
+                  child: Column(children: [
+                    Stack(
+                      alignment: Alignment.topCenter,
                       children: [
-                        location == null
-                            ? Positioned(
-                                bottom: 5,
-                                right: 20,
-                                left: 20,
-                                child: AnimatedBuilder(
-                                    animation: _controller,
-                                    builder: (_, child) {
-                                      return Transform.rotate(
-                                        angle: _controller.value * 2 * 3.145,
-                                        child: child,
-                                      );
-                                    },
-                                    child: Image.asset(
-                                      AppAssets.globe,
-                                      height: 320,
-                                      width: 300,
-                                    )))
-                            : GoogleMap(
-                                initialCameraPosition: CameraPosition(
-                                    target: LatLng(
-                                        37.42796133580664, -122.085749655962),
-                                    tilt: 60,
-                                    bearing: 90),
-                                myLocationButtonEnabled: false,
-                                markers: Set<Marker>.of(markers.values),
-                                onMapCreated: (controller) {
-                                  _mapController.complete(controller);
-                                  _addLocationMarker(
-                                      latitude: location.latitude,
-                                      longitude: location.longitude,
-                                      title: "My Location");
-                                },
-                                zoomControlsEnabled: false,
+                        RedBackground(
+                          iconButton: IconButton(
+                              icon: Icon(
+                                Icons.arrow_back_ios_outlined,
+                                color: AppColor.white,
                               ),
-                        Positioned(
-                          top: 15,
-                          left: 40,
-                          right: 20,
-                          height: 50,
-                          child: Form(
-                            key: _formKey,
-                            child: TextFormField(
-                              onFieldSubmitted: (value) {
-                                if (_formKey.currentState.validate()) {
-                                  radioProvider.init(
-                                      context: context,
-                                      search: true,
-                                      searchData: _textController.text);
-                                }
-
-                                setState(() {
-                                  Provider.of<RadioProvider>(context,
-                                          listen: false)
-                                      .updateShowAllChannels(false);
-                                  showChannels = true;
-                                  showFaves = false;
-                                  search = true;
-                                });
-                              },
-                              cursorColor: AppColor.bottomRed,
-                              validator: (val) {
-                                return val.trim().length > 2 ? null : '';
-                              },
-                              style: TextStyle(
-                                  height: 1.5,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600),
-                              cursorHeight: 25,
-                              focusNode: _textFocusNode,
-                              textInputAction: TextInputAction.search,
-                              scrollPadding: EdgeInsets.zero,
-                              controller: _textController,
-                              decoration: InputDecoration(
-                                hintText: 'Enter location or channel name',
-                                fillColor: Colors.grey,
-                                filled: true,
-                                suffixIcon: IconButton(
-                                    color: AppColor.bottomRed,
-                                    icon: Icon(
-                                      Icons.search,
-                                      size: 30,
-                                    ),
-                                    onPressed: () {
-                                      if (_formKey.currentState.validate()) {
-                                        _textFocusNode.unfocus();
-                                        radioProvider.init(
-                                            context: context,
-                                            search: true,
-                                            searchData: _textController.text);
-
-                                        setState(() {
-                                          Provider.of<RadioProvider>(context,
-                                                  listen: false)
-                                              .updateShowAllChannels(false);
-                                          showChannels = true;
-                                          showFaves = false;
-                                          search = true;
-                                        });
-                                      }
-                                    }),
-                                contentPadding:
-                                    EdgeInsets.symmetric(horizontal: 12),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.red[300], width: 2),
-                                ),
-                                errorStyle: TextStyle(fontSize: 0),
-                                errorText: '',
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: AppColor.bottomRed, width: 2),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                      color: Colors.red[300], width: 2),
-                                ),
+                              onPressed: () => Navigator.pop(context)
+                              // MaterialPageRoute(
+                              // builder: (_) => MainDashBoard())),
                               ),
-                            ),
-                          ),
+                          text: 'Radio World Wide',
                         ),
                         Positioned(
+                          top: 35,
                           bottom: 0,
-                          right: 0,
-                          left: 0,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.end,
+                          left: 35,
+                          child: Row(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.red[200],
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(12),
-                                    )),
-                                height: 45,
-                                width: 230,
-                                child: Center(
-                                  child: TextViewWidget(
-                                    color: AppColor.white,
-                                    text: placeName ?? '',
-                                    textSize: 20,
+                              FlutterSwitch(
+                                inactiveTextFontWeight: FontWeight.normal,
+                                activeTextFontWeight: FontWeight.normal,
+                                activeColor: Colors.red[200],
+                                activeToggleColor: AppColor.bottomRed,
+                                activeTextColor: Colors.black,
+                                showOnOff: true,
+                                value: showAllChannels,
+                                inactiveToggleColor: Colors.black,
+                                onToggle: (value) {
+                                  if (showAllChannels == false) {
+                                    _radioProvider.updateIsLoading(true);
+                                    radioProvider.init(
+                                        context: context,
+                                        search: false,
+                                        searchData: '');
+                                    _textController.clear();
+                                    _textFocusNode.unfocus();
+
+                                    _radioProvider.updateShowAllChannels(value);
+                                  }
+                                },
+                                valueFontSize: 15,
+                                height: 25,
+                                width: 55,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text('Show all channels',
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold))
+                            ],
+                          ),
+                        ),
+                        if (notFound)
+                          Positioned(
+                            top: MediaQuery.of(context).viewPadding.top + 10,
+                            child: Container(
+                              height: 40,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: const Color(2852126720),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(15))),
+                              padding: EdgeInsets.symmetric(horizontal: 15),
+                              child: Text('Station not found',
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          location == null
+                              ? Positioned(
+                                  bottom: 5,
+                                  right: 20,
+                                  left: 20,
+                                  child: AnimatedBuilder(
+                                      animation: _controller,
+                                      builder: (_, child) {
+                                        return Transform.rotate(
+                                          angle: _controller.value * 2 * 3.145,
+                                          child: child,
+                                        );
+                                      },
+                                      child: Image.asset(
+                                        AppAssets.globe,
+                                        height: 320,
+                                        width: 300,
+                                      )))
+                              : GoogleMap(
+                                  initialCameraPosition: CameraPosition(
+                                      target: LatLng(
+                                          37.42796133580664, -122.085749655962),
+                                      tilt: 60,
+                                      bearing: 90),
+                                  myLocationButtonEnabled: false,
+                                  markers: Set<Marker>.of(markers.values),
+                                  onMapCreated: (controller) {
+                                    _mapController.complete(controller);
+                                    setState(() {
+                                      mapLoaded = true;
+                                    });
+                                    _addLocationMarker(
+                                        latitude: location.latitude,
+                                        longitude: location.longitude,
+                                        title: "My Location");
+                                  },
+                                  zoomControlsEnabled: false,
+                                ),
+                          Positioned(
+                            top: 15,
+                            left: 40,
+                            right: 20,
+                            height: 50,
+                            child: Form(
+                              key: _formKey,
+                              child: TextFormField(
+                                onFieldSubmitted: (value) {
+                                  if (_formKey.currentState.validate()) {
+                                    _radioProvider.updateIsLoading(true);
+                                    radioProvider.init(
+                                        context: context,
+                                        search: true,
+                                        searchData: _textController.text);
+                                  }
+
+                                  setState(() {
+                                    _radioProvider.updateShowAllChannels(false);
+                                    showChannels = true;
+                                    showFaves = false;
+                                    search = true;
+                                  });
+                                },
+                                cursorColor: AppColor.bottomRed,
+                                validator: (val) {
+                                  return val.trim().length > 2 ? null : '';
+                                },
+                                style: TextStyle(
+                                    height: 1.5,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600),
+                                cursorHeight: 25,
+                                focusNode: _textFocusNode,
+                                textInputAction: TextInputAction.search,
+                                scrollPadding: EdgeInsets.zero,
+                                controller: _textController,
+                                decoration: InputDecoration(
+                                  hintText: 'Enter location or channel name',
+                                  fillColor: Colors.grey,
+                                  filled: true,
+                                  suffixIcon: IconButton(
+                                      color: AppColor.bottomRed,
+                                      icon: Icon(
+                                        Icons.search,
+                                        size: 30,
+                                      ),
+                                      onPressed: () {
+                                        if (_formKey.currentState.validate()) {
+                                          _radioProvider.updateIsLoading(true);
+                                          _textFocusNode.unfocus();
+                                          radioProvider.init(
+                                              context: context,
+                                              search: true,
+                                              searchData: _textController.text);
+
+                                          setState(() {
+                                            _radioProvider
+                                                .updateShowAllChannels(false);
+                                            showChannels = true;
+                                            showFaves = false;
+                                            search = true;
+                                          });
+                                        }
+                                      }),
+                                  contentPadding:
+                                      EdgeInsets.symmetric(horizontal: 12),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: Colors.red[300], width: 2),
+                                  ),
+                                  errorStyle: TextStyle(fontSize: 0),
+                                  errorText: '',
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: AppColor.bottomRed, width: 2),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: Colors.red[300], width: 2),
                                   ),
                                 ),
                               ),
-                              if (showChannels == false && showFaves == false)
-                                Container(),
-                              if (showChannels)
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            left: 0,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
                                 Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.red[200],
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(12),
+                                      )),
+                                  height: 45,
+                                  width: 230,
+                                  child: Center(
+                                    child: TextViewWidget(
+                                      color: AppColor.white,
+                                      text: placeName ?? '',
+                                      textSize: 20,
+                                    ),
+                                  ),
+                                ),
+                                if (showChannels == false && showFaves == false)
+                                  Container(),
+                                if (showChannels)
+                                  Container(
+                                      height: 340,
+                                      width: 230,
+                                      color: AppColor.black2,
+                                      child: (radioProvider?.radioModels?.radio
+                                                      ?.length ??
+                                                  0) >
+                                              0
+                                          ? radioContainer(
+                                              false, null, radioProvider)
+                                          : buildCenter('No Station')),
+                                if (showFaves)
+                                  Container(
                                     height: 340,
                                     width: 230,
                                     color: AppColor.black2,
-                                    child: (radioProvider?.radioModels?.radio
-                                                    ?.length ??
-                                                0) >
-                                            0
-                                        ? radioContainer(
-                                            false, null, radioProvider)
-                                        : buildCenter('No Station')),
-                              if (showFaves)
+                                    child: favourite.length > 0
+                                        ? radioContainer(true, favourite, null)
+                                        : buildCenter('No Favorite Station'),
+                                  ),
                                 Container(
-                                  height: 340,
                                   width: 230,
-                                  color: AppColor.black2,
-                                  child: favourite.length > 0
-                                      ? radioContainer(true, favourite, null)
-                                      : buildCenter('No Favorite Station'),
+                                  height: 50,
+                                  color: Colors.red[400],
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            showChannels = !showChannels;
+                                            showFaves = false;
+                                          });
+                                        },
+                                        child: SvgPicture.asset(
+                                          AppAssets.bookmark,
+                                          height: 25,
+                                          width: 25,
+                                          color: showChannels
+                                              ? AppColor.white
+                                              : AppColor.black,
+                                        ),
+                                      ),
+                                      InkWell(
+                                          onTap: () {
+                                            setState(() {
+                                              showFaves = !showFaves;
+                                              showChannels = false;
+                                            });
+                                          },
+                                          child: SvgPicture.asset(
+                                            AppAssets.favourite,
+                                            height: 25,
+                                            width: 25,
+                                            color: showFaves
+                                                ? AppColor.white
+                                                : AppColor.black,
+                                          ))
+                                    ],
+                                  ),
                                 ),
-                              Container(
-                                width: 230,
-                                height: 50,
-                                color: Colors.red[400],
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      alignment: Alignment.bottomCenter,
+                      decoration: BoxDecoration(color: AppColor.black2),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 15.0, top: 10, bottom: 10),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: TextViewWidget(
+                                    text: radioFile ?? '',
+                                    color: AppColor.white,
+                                    textSize: 16,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              SizedBox(
+                                width: 2,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10.0),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          showChannels = !showChannels;
-                                          showFaves = false;
-                                        });
-                                      },
-                                      child: SvgPicture.asset(
-                                        AppAssets.bookmark,
-                                        height: 25,
-                                        width: 25,
-                                        color: showChannels
-                                            ? AppColor.white
-                                            : AppColor.black,
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.skip_previous_outlined,
+                                        color: AppColor.white,
+                                        size: 50,
                                       ),
-                                    ),
-                                    InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            showFaves = !showFaves;
-                                            showChannels = false;
-                                          });
-                                        },
-                                        child: SvgPicture.asset(
-                                          AppAssets.favourite,
-                                          height: 25,
-                                          width: 25,
-                                          color: showFaves
-                                              ? AppColor.white
-                                              : AppColor.black,
-                                        ))
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    alignment: Alignment.bottomCenter,
-                    decoration: BoxDecoration(color: AppColor.black2),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 15.0, top: 10, bottom: 10),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: TextViewWidget(
-                                  text: radioFile ?? '',
-                                  color: AppColor.white,
-                                  textSize: 16,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(
-                              width: 2,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.skip_previous_outlined,
-                                      color: AppColor.white,
-                                      size: 50,
-                                    ),
-                                    onPressed: () {
-                                      if (!tap) {
-                                        if (currentRadioIndex != null &&
-                                            currentRadioIndex > 0) {
-                                          var _radioLog = json.decode(
-                                              favourite[currentRadioIndex - 1]);
-                                          if (isPlaying)
-                                            _playProvider.playRadio(radioMp3);
-                                          setState(() {
-                                            radioFile = _radioLog["name"];
-                                            radioMp3 = _radioLog["mp3"];
-                                            placeName = _radioLog["placename"];
-                                            placeId = _radioLog["placeId"];
-                                            placeLat = _radioLog["placeLat"];
-                                            placeLong = _radioLog["placeLong"];
-                                            currentRadioIndex =
-                                                currentRadioIndex - 1;
-                                          });
-                                          if (location == null)
-                                            location = Position(
-                                                latitude: double.parse(
-                                                    _radioLog['placeLat']
-                                                        .toString()),
-                                                longitude: double.parse(
-                                                    _radioLog['placeLong']
-                                                        .toString()));
-                                          _changeLocationMarker(
-                                              latitude: double.parse(
+                                      onPressed: () {
+                                        if (!tap) {
+                                          if (currentRadioIndex != null &&
+                                              currentRadioIndex > 0) {
+                                            var _radioLog = json.decode(
+                                                favourite[
+                                                    currentRadioIndex - 1]);
+                                            if (isPlaying)
+                                              _playProvider.playRadio(radioMp3);
+                                            setState(() {
+                                              radioFile = _radioLog["name"];
+                                              radioMp3 = _radioLog["mp3"];
+                                              placeName =
+                                                  _radioLog["placename"];
+                                              placeId = _radioLog["placeId"];
+                                              placeLat = _radioLog["placeLat"];
+                                              placeLong =
+                                                  _radioLog["placeLong"];
+                                              currentRadioIndex =
+                                                  currentRadioIndex - 1;
+                                            });
+                                            if (location == null)
+                                              location = Position(
+                                                  latitude: double.parse(
                                                       _radioLog['placeLat']
-                                                          .toString()) ??
-                                                  location.latitude,
-                                              longitude: double.parse(
+                                                          .toString()),
+                                                  longitude: double.parse(
                                                       _radioLog['placeLong']
-                                                          .toString()) ??
-                                                  location.longitude,
-                                              title: _radioLog["name"]);
-                                          preferencesHelper.saveValue(
-                                              key: 'radiomp3', value: radioMp3);
-                                          preferencesHelper.saveValue(
-                                              key: 'radioFile',
-                                              value: radioFile);
-                                          preferencesHelper.saveValue(
-                                              key: 'placename',
-                                              value: placeName);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeId', value: placeId);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeLat', value: placeLat);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeLong',
-                                              value: placeLong);
-                                          _playProvider.playRadio(radioMp3);
-                                          checkFavourite();
+                                                          .toString()));
+                                            _changeLocationMarker(
+                                                latitude: double.parse(
+                                                        _radioLog['placeLat']
+                                                            .toString()) ??
+                                                    location.latitude,
+                                                longitude: double.parse(
+                                                        _radioLog['placeLong']
+                                                            .toString()) ??
+                                                    location.longitude,
+                                                title: _radioLog["name"]);
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLat',
+                                                value: placeLat);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLong',
+                                                value: placeLong);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
+                                        } else {
+                                          var _radioLog;
+                                          if (currentRadioIndex == null &&
+                                              _radioProvider.radioModels.radio
+                                                  .any((element) =>
+                                                      element.id == placeId)) {
+                                            currentRadioIndex = _radioProvider
+                                                .radioModels.radio
+                                                .indexWhere((element) =>
+                                                    element.id == placeId);
+                                          }
+                                          if (currentRadioIndex == null &&
+                                              _radioProvider.radioModels.radio
+                                                  .any((element) =>
+                                                      element.id == placeId)) {
+                                            currentRadioIndex = _radioProvider
+                                                .radioModels.radio
+                                                .indexWhere((element) =>
+                                                    element.id == placeId);
+                                          }
+                                          if (!(_radioProvider.radioModels.radio
+                                                  .any((element) =>
+                                                      element.id == placeId)) &&
+                                              !search) {
+                                            currentRadioIndex = 0;
+                                            _radioLog = radioProvider
+                                                .radioModels.radio[0];
+                                          } else if (currentRadioIndex !=
+                                                  null &&
+                                              currentRadioIndex > 0) {
+                                            _radioLog = search
+                                                ? radioProvider
+                                                        .radioModelsItems.radio[
+                                                    currentRadioIndex - 1]
+                                                : radioProvider
+                                                        .radioModels.radio[
+                                                    currentRadioIndex - 1];
+                                            if (isPlaying)
+                                              _playProvider.playRadio(radioMp3);
+                                            setState(() {
+                                              radioFile = _radioLog.name;
+                                              radioMp3 = _radioLog.mp3;
+                                              placeName = _radioLog.placeName;
+                                              placeId = _radioLog.id;
+                                              placeLat = _radioLog.placeLat;
+                                              placeLong = _radioLog.placeLong;
+                                              currentRadioIndex =
+                                                  currentRadioIndex - 1;
+                                            });
+                                            if (location == null)
+                                              location = Position(
+                                                  latitude: double.parse(
+                                                      _radioLog.placeLat
+                                                          .toString()),
+                                                  longitude: double.parse(
+                                                      _radioLog.placeLong
+                                                          .toString()));
+                                            _changeLocationMarker(
+                                                latitude: double.parse(_radioLog
+                                                    .placeLat
+                                                    .toString()),
+                                                longitude: double.parse(
+                                                    _radioLog.placeLong
+                                                        .toString()),
+                                                title: _radioLog.name);
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLat',
+                                                value: placeLat);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLong',
+                                                value: placeLong);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
                                         }
-                                      } else {
-                                        if (currentRadioIndex != null &&
-                                            currentRadioIndex > 0) {
-                                          var _radioLog = search
-                                              ? radioProvider.radioModelsItems
-                                                  .radio[currentRadioIndex - 1]
-                                              : radioProvider.radioModels
-                                                  .radio[currentRadioIndex - 1];
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: isPlaying
+                                          ? Icon(
+                                              Icons.pause_circle_outline,
+                                              size: 50,
+                                              color: AppColor.white,
+                                            )
+                                          : Icon(
+                                              Icons.play_circle_outline,
+                                              color: AppColor.white,
+                                              size: 50,
+                                            ),
+                                      onPressed: () {
+                                        _playProvider.playRadio(radioMp3);
+                                      },
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.skip_next_outlined,
+                                        size: 48,
+                                        color: AppColor.white,
+                                      ),
+                                      onPressed: () {
+                                        if (!tap) {
+                                          if (currentRadioIndex != null &&
+                                              currentRadioIndex <
+                                                  favourite.length - 1) {
+                                            var _radioLog = json.decode(
+                                                favourite[
+                                                    currentRadioIndex + 1]);
+                                            if (isPlaying)
+                                              _playProvider.playRadio(radioMp3);
+                                            setState(() {
+                                              radioFile = _radioLog["name"];
+                                              radioMp3 = _radioLog["mp3"];
+                                              placeName =
+                                                  _radioLog["placename"];
+                                              placeId = _radioLog['placeId'];
+                                              placeLat = _radioLog["placeLat"];
+                                              placeLong =
+                                                  _radioLog['placeLong'];
+                                              currentRadioIndex =
+                                                  currentRadioIndex + 1;
+                                            });
+                                            if (location == null)
+                                              location = Position(
+                                                  latitude: double.parse(
+                                                      _radioLog['placeLat']
+                                                          .toString()),
+                                                  longitude: double.parse(
+                                                      _radioLog['placeLong']
+                                                          .toString()));
+                                            _changeLocationMarker(
+                                                latitude: double.parse(
+                                                        _radioLog['placeLat']
+                                                            .toString()) ??
+                                                    location.latitude,
+                                                longitude: double.parse(
+                                                        _radioLog['placeLong']
+                                                            .toString()) ??
+                                                    location.longitude,
+                                                title: _radioLog["name"]);
+                                            preferencesHelper.saveValue(
+                                                key: 'radiomp3',
+                                                value: radioMp3);
+                                            preferencesHelper.saveValue(
+                                                key: 'radioFile',
+                                                value: radioFile);
+                                            preferencesHelper.saveValue(
+                                                key: 'placename',
+                                                value: placeName);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeId', value: placeId);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLat',
+                                                value: placeLat);
+                                            preferencesHelper.saveValue(
+                                                key: 'placeLong',
+                                                value: placeLong);
+                                            _playProvider.playRadio(radioMp3);
+                                            checkFavourite();
+                                          }
+                                        } else {
+                                          var _radioLog;
+                                          if (currentRadioIndex == null &&
+                                              _radioProvider.radioModels.radio
+                                                  .any((element) =>
+                                                      element.id == placeId)) {
+                                            currentRadioIndex = _radioProvider
+                                                .radioModels.radio
+                                                .indexWhere((element) =>
+                                                    element.id == placeId);
+                                          }
+                                          if (!(_radioProvider.radioModels.radio
+                                                  .any((element) =>
+                                                      element.id == placeId)) &&
+                                              !search) {
+                                            currentRadioIndex = 0;
+                                            _radioLog = radioProvider
+                                                .radioModels.radio[0];
+                                          } else if (search) {
+                                            if (currentRadioIndex != null &&
+                                                currentRadioIndex <
+                                                    radioProvider
+                                                            .radioModelsItems
+                                                            .radio
+                                                            .length -
+                                                        1) {
+                                              _radioLog = radioProvider
+                                                  .radioModelsItems
+                                                  .radio[currentRadioIndex + 1];
+                                            }
+                                          } else {
+                                            if (currentRadioIndex != null &&
+                                                currentRadioIndex <
+                                                    radioProvider.radioModels
+                                                            .radio.length -
+                                                        1) {
+                                              _radioLog = radioProvider
+                                                  .radioModels
+                                                  .radio[currentRadioIndex + 1];
+                                            }
+                                          }
                                           if (isPlaying)
                                             _playProvider.playRadio(radioMp3);
                                           setState(() {
@@ -804,7 +1015,7 @@ class _RadioClassState extends State<RadioClass>
                                             placeLat = _radioLog.placeLat;
                                             placeLong = _radioLog.placeLong;
                                             currentRadioIndex =
-                                                currentRadioIndex - 1;
+                                                currentRadioIndex + 1;
                                           });
                                           if (location == null)
                                             location = Position(
@@ -840,177 +1051,34 @@ class _RadioClassState extends State<RadioClass>
                                           _playProvider.playRadio(radioMp3);
                                           checkFavourite();
                                         }
-                                      }
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: isPlaying
-                                        ? Icon(
-                                            Icons.pause_circle_outline,
-                                            size: 50,
-                                            color: AppColor.white,
-                                          )
-                                        : Icon(
-                                            Icons.play_circle_outline,
-                                            color: AppColor.white,
-                                            size: 50,
-                                          ),
-                                    onPressed: () {
-                                      _playProvider.playRadio(radioMp3);
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(
-                                      Icons.skip_next_outlined,
-                                      size: 48,
-                                      color: AppColor.white,
-                                    ),
-                                    onPressed: () {
-                                      if (!tap) {
-                                        if (currentRadioIndex != null &&
-                                            currentRadioIndex <
-                                                favourite.length - 1) {
-                                          var _radioLog = json.decode(
-                                              favourite[currentRadioIndex + 1]);
-                                          if (isPlaying)
-                                            _playProvider.playRadio(radioMp3);
-                                          setState(() {
-                                            radioFile = _radioLog["name"];
-                                            radioMp3 = _radioLog["mp3"];
-                                            placeName = _radioLog["placename"];
-                                            placeId = _radioLog['placeId'];
-                                            placeLat = _radioLog["placeLat"];
-                                            placeLong = _radioLog['placeLong'];
-                                            currentRadioIndex =
-                                                currentRadioIndex + 1;
-                                          });
-                                          if (location == null)
-                                            location = Position(
-                                                latitude: double.parse(
-                                                    _radioLog['placeLat']
-                                                        .toString()),
-                                                longitude: double.parse(
-                                                    _radioLog['placeLong']
-                                                        .toString()));
-                                          _changeLocationMarker(
-                                              latitude: double.parse(
-                                                      _radioLog['placeLat']
-                                                          .toString()) ??
-                                                  location.latitude,
-                                              longitude: double.parse(
-                                                      _radioLog['placeLong']
-                                                          .toString()) ??
-                                                  location.longitude,
-                                              title: _radioLog["name"]);
-                                          preferencesHelper.saveValue(
-                                              key: 'radiomp3', value: radioMp3);
-                                          preferencesHelper.saveValue(
-                                              key: 'radioFile',
-                                              value: radioFile);
-                                          preferencesHelper.saveValue(
-                                              key: 'placename',
-                                              value: placeName);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeId', value: placeId);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeLat', value: placeLat);
-                                          preferencesHelper.saveValue(
-                                              key: 'placeLong',
-                                              value: placeLong);
-                                          _playProvider.playRadio(radioMp3);
-                                          checkFavourite();
-                                        }
-                                      } else {
-                                        var _radioLog;
-                                        if (search) {
-                                          if (currentRadioIndex != null &&
-                                              currentRadioIndex <
-                                                  radioProvider.radioModelsItems
-                                                          .radio.length -
-                                                      1) {
-                                            _radioLog = radioProvider
-                                                .radioModelsItems
-                                                .radio[currentRadioIndex + 1];
-                                          }
-                                        } else {
-                                          if (currentRadioIndex != null &&
-                                              currentRadioIndex <
-                                                  radioProvider.radioModels
-                                                          .radio.length -
-                                                      1) {
-                                            _radioLog = radioProvider
-                                                .radioModels
-                                                .radio[currentRadioIndex + 1];
-                                          }
-                                        }
-                                        if (isPlaying)
-                                          _playProvider.playRadio(radioMp3);
-                                        setState(() {
-                                          radioFile = _radioLog.name;
-                                          radioMp3 = _radioLog.mp3;
-                                          placeName = _radioLog.placeName;
-                                          placeId = _radioLog.id;
-                                          placeLat = _radioLog.placeLat;
-                                          placeLong = _radioLog.placeLong;
-                                          currentRadioIndex =
-                                              currentRadioIndex + 1;
-                                        });
-                                        if (location == null)
-                                          location = Position(
-                                              latitude: double.parse(_radioLog
-                                                  .placeLat
-                                                  .toString()),
-                                              longitude: double.parse(_radioLog
-                                                  .placeLong
-                                                  .toString()));
-                                        _changeLocationMarker(
-                                            latitude: double.parse(
-                                                _radioLog.placeLat.toString()),
-                                            longitude: double.parse(
-                                                _radioLog.placeLong.toString()),
-                                            title: _radioLog.name);
-                                        preferencesHelper.saveValue(
-                                            key: 'radiomp3', value: radioMp3);
-                                        preferencesHelper.saveValue(
-                                            key: 'radioFile', value: radioFile);
-                                        preferencesHelper.saveValue(
-                                            key: 'placename', value: placeName);
-                                        preferencesHelper.saveValue(
-                                            key: 'placeId', value: placeId);
-                                        preferencesHelper.saveValue(
-                                            key: 'placeLat', value: placeLat);
-                                        preferencesHelper.saveValue(
-                                            key: 'placeLong', value: placeLong);
-                                        _playProvider.playRadio(radioMp3);
-                                        checkFavourite();
-                                      }
-                                    },
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 10),
-                                    child: IconButton(
-                                      icon: Icon(Icons.favorite,
-                                          size: 34,
-                                          color: isFavourite
-                                              ? Colors.red
-                                              : AppColor.white),
-                                      onPressed: () {
-                                        addFavourite();
                                       },
                                     ),
-                                  ),
-                                ],
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: IconButton(
+                                        icon: Icon(Icons.favorite,
+                                            size: 34,
+                                            color: isFavourite
+                                                ? Colors.red
+                                                : AppColor.white),
+                                        onPressed: () {
+                                          addFavourite();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            // SizedBox(width:29,),
+                              // SizedBox(width:29,),
 
-                            SizedBox(width: 3),
-                          ]),
+                              SizedBox(width: 3),
+                            ]),
+                      ),
                     ),
-                  )
-                ]),
-              ),
-            ]),
+                  ]),
+                ),
+              ]),
+            ),
           ));
     });
   }
@@ -1027,9 +1095,7 @@ class _RadioClassState extends State<RadioClass>
               : radioProvider.radioModels.radio[index];
           bool currentStation = isFavorite
               ? _radioLog['placeId'] == placeId
-              : _radioLog.id == placeId
-                  ? true
-                  : false;
+              : _radioLog.id == placeId;
 
           return InkWell(
             onTap: () {
@@ -1043,7 +1109,6 @@ class _RadioClassState extends State<RadioClass>
                       longitude: !isFavorite
                           ? double.parse(_radioLog.placeLong.toString())
                           : double.parse(_radioLog['placeLong'].toString()));
-                // !isFavorite ? tap = true : tap = false;
                 tap = showFaves ? false : true;
                 search = false;
                 if (isPlaying) _playProvider.playRadio(radioMp3);
@@ -1059,6 +1124,12 @@ class _RadioClassState extends State<RadioClass>
                     ? _radioLog.placeLong
                     : _radioLog["placeLong"] ?? location.longitude.toString();
               });
+              print(isFavorite
+                  ? 'saved placeLat: ${_radioLog['placeLat']}'
+                  : 'placeLat is: ${_radioLog.placeLat}');
+
+              print('current placeLat $placeLat');
+
               _changeLocationMarker(
                   latitude: !isFavorite
                       ? double.parse(_radioLog.placeLat.toString())
@@ -1108,39 +1179,40 @@ class _RadioClassState extends State<RadioClass>
       );
 
   playStationFromSpeech(RadioProvider radioProvider) async {
-    if (searchString != null && radioProvider.radioModels != null) {
-      var _radioLog = radioProvider.radioModels.radio.length > 0
-          ? radioProvider?.radioModels?.radio[0]
-          : null;
+    var _radioLog = radioProvider.radioModels.radio.length > 0
+        ? radioProvider?.radioModels?.radio[0]
+        : null;
 
-      if (_radioLog == null) {
-        showToast(context, message: 'Station not found', gravity: 2);
-      } else {
-        radioFile = _radioLog.name;
-        radioMp3 = _radioLog.mp3;
-        placeName = _radioLog.placeName;
-        placeId = _radioLog.id;
-        placeLat = _radioLog.placeLat;
-        placeLong = _radioLog.placeLong;
-
-        preferencesHelper.saveValue(key: 'radiomp3', value: radioMp3);
-        preferencesHelper.saveValue(key: 'radioFile', value: radioFile);
-        preferencesHelper.saveValue(key: 'placename', value: placeName);
-        preferencesHelper.saveValue(key: 'placeId', value: placeId);
-        preferencesHelper.saveValue(key: 'placeLat', value: placeLat);
-        preferencesHelper.saveValue(key: 'placeLong', value: placeLong);
-
-        _playProvider.playRadio(radioMp3);
-        location = Position(
-            latitude: double.parse(placeLat),
-            longitude: double.parse(placeLong));
-        _changeLocationMarker(
-            latitude: location.latitude,
-            longitude: location.longitude,
-            title: placeName);
-      }
+    if (_radioLog == null) {
+      _startTimer();
       searchString = null;
       search = false;
+      notFound = true;
+    } else {
+      searchString = null;
+      search = false;
+      radioFile = _radioLog.name;
+      radioMp3 = _radioLog.mp3;
+      placeName = _radioLog.placeName;
+      placeId = _radioLog.id;
+      placeLat = _radioLog.placeLat;
+      placeLong = _radioLog.placeLong;
+      checkFavourite();
+
+      preferencesHelper.saveValue(key: 'radiomp3', value: radioMp3);
+      preferencesHelper.saveValue(key: 'radioFile', value: radioFile);
+      preferencesHelper.saveValue(key: 'placename', value: placeName);
+      preferencesHelper.saveValue(key: 'placeId', value: placeId);
+      preferencesHelper.saveValue(key: 'placeLat', value: placeLat);
+      preferencesHelper.saveValue(key: 'placeLong', value: placeLong);
+
+      _playProvider.playRadio(radioMp3);
+      location = Position(
+          latitude: double.parse(placeLat), longitude: double.parse(placeLong));
+      _changeLocationMarker(
+          latitude: location.latitude,
+          longitude: location.longitude,
+          title: placeName);
     }
   }
 }

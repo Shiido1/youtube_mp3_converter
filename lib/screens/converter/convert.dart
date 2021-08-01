@@ -119,7 +119,7 @@ class _ConvertState extends State<Convert> {
                             const EdgeInsets.only(top: 6, bottom: 6, left: 30),
                         child: TextViewWidget(
                             color: AppColor.white,
-                            text: 'Enter Youtube Url',
+                            text: 'Enter Url',
                             textSize: 23,
                             fontWeight: FontWeight.w500,
                             fontFamily: 'Montserrat'),
@@ -145,7 +145,7 @@ class _ConvertState extends State<Convert> {
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
                                 labelText: widget.sharedLinkText ??
-                                    'Enter Youtube Url',
+                                    'Enter Url',
                                 labelStyle: TextStyle(color: Colors.white),
                               ),
                               cursorColor: AppColor.white,

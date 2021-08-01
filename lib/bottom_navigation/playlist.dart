@@ -9,7 +9,7 @@ import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
-import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -71,9 +71,8 @@ class _PlayListState extends State<PlayList> {
       backgroundColor: AppColor.background,
       body: Column(
         children: [
-          RedBackground(
+          RedBackground2(
             text: 'Playlist',
-            showMic: true,
             openRadio: openRadio,
           ),
           InkWell(

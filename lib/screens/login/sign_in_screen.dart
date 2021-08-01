@@ -34,8 +34,8 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   bool _validateInputs() {
-    if (_emailController.text.isEmpty ||
-        !validateEmail(_emailController.text)) {
+    if (_emailController.text.trim().isEmpty ||
+        !validateEmail(_emailController.text.trim())) {
       setState(() => _isEmail = true);
       return false;
     }

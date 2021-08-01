@@ -1,15 +1,14 @@
-import 'dart:convert';
-
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
-import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -26,36 +25,50 @@ class MainDashBoard extends StatefulWidget {
 class _MainDashBoardState extends State<MainDashBoard> {
   int _currentIndex = 0;
   MusicProvider _musicProvider;
-  RadioPlayProvider _playProvider;
-
-  List<Widget> _screens = [
-    DashBoard(),
-    PlayList(),
-    Library(),
-    Search(),
-    Setting()
-  ];
+  SplittedSongProvider _repository;
+  RecordProvider _recordProvider;
+  List<Widget> _screens;
 
   @override
   void initState() {
-    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    _musicProvider.initProvider();
-    preferencesHelper.getStringValues(key: "last_play").then((value) {
-      if (value != null) {
-        _musicProvider.updateLocal(Song.fromMap(json.decode(value)));
-      }
-    }).catchError((error) {
-      print(error);
-    });
+    init();
 
-    _playProvider = Provider.of<RadioPlayProvider>(context, listen: false);
-    _playProvider.initPlayer();
-
+    _screens = [DashBoard(), PlayList(), Library(), Search(), Setting()];
     super.initState();
+  }
+
+  init() async {
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
+    await _musicProvider.initProvider();
+    _repository = Provider.of<SplittedSongProvider>(context, listen: false);
+    _repository.initProvider();
+    _recordProvider = Provider.of<RecordProvider>(context, listen: false);
+    await _recordProvider.initProvider();
+    if (AudioService.queue == null || AudioService.queue.isEmpty)
+      preferencesHelper.getCachedData(key: 'last_play').then((value) {
+        if (value != null) {
+          MediaItem item = MediaItem(
+              album: value['title'],
+              id: value['id'],
+              title: value['title'],
+              artist: value['artist'],
+              extras: {
+                'fileName': value['fileName'],
+                'filePath': value['filePath'],
+                'image': value['image'],
+                'favourite': value['favourite']
+              });
+
+          _musicProvider.updateLocal(item);
+        }
+      }).catchError((error) {
+        print(error);
+      });
   }
 
   @override
   Widget build(BuildContext context) {
+    _currentIndex = Provider.of<MusicProvider>(context).currentNavBarIndex;
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -69,7 +82,8 @@ class _MainDashBoardState extends State<MainDashBoard> {
         unselectedLabelStyle: Theme.of(context).textTheme.caption,
         unselectedFontSize: 30,
         onTap: (value) {
-          setState(() => _currentIndex = value);
+          Provider.of<MusicProvider>(context, listen: false)
+              .updateCurrentIndex(value);
         },
         items: [
           BottomNavigationBarItem(

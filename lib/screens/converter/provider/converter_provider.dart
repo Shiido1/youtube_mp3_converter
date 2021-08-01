@@ -9,19 +9,19 @@ final ConverterRepo _repository = ConverterRepo();
 
 class ConverterProvider extends ChangeNotifier {
   BuildContext _context;
-  CustomProgressIndicator _progressIndicator;
   YoutubeModel youtubeModel = YoutubeModel();
   bool problem = false;
+  CustomProgressIndicator _progressIndicator;
 
   void init(BuildContext context) {
     this._context = context;
     this._progressIndicator = CustomProgressIndicator(this._context);
   }
 
-  void convert(String url) async {
+  Future convert(String url) async {
     try {
       _progressIndicator.show();
-      final _response = await _repository.convert(YoutubeModel.mapToJson(
+      var _response = await _repository.convert(YoutubeModel.mapToJson(
         url: url,
       ));
       _response.when(success: (success, _, statusMessage) async {
@@ -32,11 +32,12 @@ class ConverterProvider extends ChangeNotifier {
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         await _progressIndicator.dismiss();
         problem = false;
-        showToast(this._context, message: statusMessage);
+        showToast(this._context,
+            message: NetworkExceptions.getErrorMessage(error));
         notifyListeners();
       });
     } catch (e) {
-      await _progressIndicator.dismiss();
+      _progressIndicator.dismiss();
       showToast(_context,
           message: "please check your url or internet connection");
       notifyListeners();

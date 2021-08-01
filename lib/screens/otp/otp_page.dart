@@ -46,10 +46,10 @@ class _OtpPageState extends State<OtpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background1,
+      backgroundColor: AppColor.background,
       appBar: AppBar(
         elevation: 0.0,
-        backgroundColor: AppColor.background,
+        backgroundColor: AppColor.black,
         automaticallyImplyLeading: true,
         leading: IconButton(
             icon: Platform.isAndroid
@@ -73,27 +73,13 @@ class _OtpPageState extends State<OtpPage> {
                   SizedBox(
                     height: 30,
                   ),
-                  // Container(
-                  //   height: 100,
-                  //   width: 100,
-                  //   decoration: BoxDecoration(
-                  //       shape: BoxShape.circle, color: Color(0xffD6EFFF)),
-                  //   child: Padding(
-                  //     padding: const EdgeInsets.only(top: 20.0),
-                  //     child: ImageLoader(
-                  //       path: AppAssets.otpIcon,
-                  //       width: 120,
-                  //       height: 106,
-                  //     ),
-                  //   ),
-                  // ),
                   SizedBox(
                     height: 30,
                   ),
                   TextViewWidget(
                     text:
                         'A verification code has been sent to your provided Email Address.',
-                    color: AppColor.background,
+                    color: AppColor.white,
                     textSize: 18,
                     textAlign: TextAlign.center,
                     fontWeight: FontWeight.bold,
@@ -105,7 +91,7 @@ class _OtpPageState extends State<OtpPage> {
                     margin: EdgeInsets.only(left: 77, right: 77),
                     child: TextViewWidget(
                       text: 'Please check your email and type the code below.',
-                      color: AppColor.background,
+                      color: AppColor.white,
                       textSize: 16,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.normal,
@@ -132,7 +118,7 @@ class _OtpPageState extends State<OtpPage> {
                             : 'I did\'t receive the code.  ',
                         style: TextStyle(
                             fontSize: 16,
-                            color: AppColor.background,
+                            color: AppColor.white,
                             fontWeight: FontWeight.normal),
                         children: <TextSpan>[
                           TextSpan(
@@ -174,8 +160,9 @@ class _OtpPageState extends State<OtpPage> {
       setState(() => userId = widget.userID);
       _otpProviders.verifyOtp(
           map: OtpModel.toJson(otp: int.parse(pin), email: email));
-    }else{
-      // _otpProviders.resendOtp(map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
+    } else {
+      _otpProviders.resendOtp(
+          map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
     }
   }
 }

@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "320378040514",
+    "firebase_url": "https://audio-312300-32d97.firebaseio.com",
+    "project_id": "youtubeaudio-312300",
+    "storage_bucket": "youtubeaudio-312300.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:320378040514:android:8612026c8c86f34eef4b5b",
+        "android_client_info": {
+          "package_name": "com.youtubeaudio.mp3_music_converter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "320378040514-h6m62v7utdfnof6va2oae1s7geuhsa2o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.youtubeaudio.mp3_music_converter",
+            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
+          }
+        },
+        {
+          "client_id": "320378040514-rsfo3km46rariue1jrru1bn83krosj7e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.youtubeaudio.mp3_music_converter",
+            "certificate_hash": "692a0a7bf5e8d6ae4cd1498c0f8d76d210139438"
+          }
+        },
+        {
+          "client_id": "320378040514-ujc4o1t0keu0lhoj219f0ok6rioktb4c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.youtubeaudio.mp3_music_converter",
+            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
+          }
+        },
+        {
+          "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByQI20rQD_NtlEeBSEz7Hd_Wkq2nRQjWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.youtubeaudio.mp3-music-converter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

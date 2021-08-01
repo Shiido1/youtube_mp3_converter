@@ -13,15 +13,15 @@ class RadioModel {
     token = json['token'] == null ? "" : json['token'];
 
     if (json['radio'] != null) {
-      radio = new List<Radio>();
+      radio = <Radio>[];
       json['radio'].forEach((v) {
         try {
-          radio.add(new Radio.fromJson(v));
+          radio.add(Radio.fromJson(v));
         } catch (e) {}
       });
     }
     if (json['favourite'] != null) {
-      favourite = new List<Favourite>();
+      favourite = <Favourite>[];
       json['favourite'].forEach((v) {
         try {
           favourite.add(new Favourite.fromJson(v));
@@ -45,11 +45,11 @@ class RadioModel {
 }
 
 class Radio {
-  int uid;
+  String uid;
   String id;
   String name;
   String slug;
-  Null website;
+  String website;
   String placeName;
   String placeLat;
   String placeLong;
@@ -78,12 +78,12 @@ class Radio {
 
   Radio.fromJson(Map<String, dynamic> json) {
     uid = json['uid'] == null ? null : json['uid'];
-    id = json['id'] == null ? null : json['id'];
+    id = json['id'] == null ? null : json['id'].toString();
     name = json['name'] == null ? null : json['name'];
     slug = json['slug'] == null ? null : json['slug'];
     website = json['website'] == null ? null : json['website'];
     placeName = json['place_name'] == null ? null : json['place_name'];
-    placeLat = json['place_lat'] == null ? null : json['plate_lat'];
+    placeLat = json['place_lat'] == null ? null : json['place_lat'];
     placeLong = json['place_long'] == null ? null : json['place_long'];
     functioning = json['functioning'] == null ? null : json['functioning'];
     secure = json['secure'] == null ? null : json['secure'];
@@ -112,20 +112,21 @@ class Radio {
     return data;
   }
 
-  static Map<String, dynamic> mapToJson({@required String token, String name}) {
+  static Map<String, dynamic> mapToJson(
+      {@required String token, String searchData}) {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['token'] = token;
-    data['name'] = name;
+    data['search'] = searchData;
     return data;
   }
 }
 
 class Favourite {
-  int uid;
+  String uid;
   String id;
   String name;
   String slug;
-  Null website;
+  String website;
   String placeName;
   String placeLat;
   String placeLong;
@@ -155,7 +156,7 @@ class Favourite {
   Favourite.fromJson(Map<String, dynamic> json) {
     if (json == null) return;
     uid = json['uid'];
-    id = json['id'];
+    id = json['id'].toString();
     name = json['name'];
     slug = json['slug'];
     website = json['website'];

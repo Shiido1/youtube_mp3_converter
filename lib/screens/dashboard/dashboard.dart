@@ -297,6 +297,10 @@ class _DashBoardState extends State<DashBoard> {
           'please subscribe to enjoy this service') {
         await _progressIndicator.dismiss();
         showSubscriptionMessage(context);
+      } else if (splittedFiles['data'] == 'insufficient storage') {
+        await _progressIndicator.dismiss();
+        insufficientStorageWarning(context);
+        
       } else {
         await _progressIndicator.dismiss();
         showToast(context, message: 'Please try again later');

@@ -53,7 +53,9 @@ class OtpModel {
     name = json['name'];
     background = json['background'];
     color = json['color'];
-    profilepic = json['profilepic'];
+    profilepic = json['profilepic'][0] == "/"
+        ? "https://youtubeaudio.com" + json['profilepic']
+        : json['profilepic'];
     about = json['about'];
     totalplayed = json['totalplayed'];
     followers = json['followers'];

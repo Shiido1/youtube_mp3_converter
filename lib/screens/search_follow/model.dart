@@ -1,7 +1,5 @@
-
-
 class SearchUser {
-  List<Users> users=[];
+  List<Users> users = [];
 
   SearchUser({this.users});
 
@@ -9,9 +7,9 @@ class SearchUser {
     if (json['users'] != null) {
       users = <Users>[];
       json['users'].forEach((v) {
-        try{
+        try {
           users.add(new Users.fromJson(v));
-        }catch(e){}
+        } catch (e) {}
       });
     }
   }
@@ -34,8 +32,12 @@ class Users {
 
   Users.fromJson(Map<String, dynamic> json) {
     name = json['name'] == null ? null : json['name'];
-    profilePic = json['profile_pic'] == null ? null : json['profile_pic'];
-    id = json['id'] ==null ? null : json['id'];
+    profilePic = json['profile_pic'] == null
+        ? null
+        : json['profile_pic'][0] == "/"
+            ? "https://youtubeaudio.com" + json['profile_pic']
+            : json['profile_pic'];
+    id = json['id'] == null ? null : json['id'];
   }
 
   Map<String, dynamic> toJson() {

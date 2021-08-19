@@ -49,7 +49,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: Providers.getProviders,
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'YT Audio',
         theme: ThemeData(
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),

@@ -133,7 +133,13 @@ class _AvailableUsersState extends State<AvailableUsers> {
                                             peerName: availableUsers[index]
                                                 ['name'],
                                             imageUrl: availableUsers[index]
-                                                ['profilepic'],
+                                                        ['profilepic'][0] ==
+                                                    "/"
+                                                ? "https://youtubeaudio.com" +
+                                                    availableUsers[index]
+                                                        ['profilepic']
+                                                : availableUsers[index]
+                                                    ['profilepic'],
                                             id: userId,
                                             pid: availableUsers[index]
                                                     ['followerid']

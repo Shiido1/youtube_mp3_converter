@@ -5,11 +5,12 @@ import 'package:flutter_speech/flutter_speech.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/profile.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
@@ -93,64 +94,21 @@ class _RedBackground2State extends State<RedBackground2> {
     });
   }
 
-  Future getImage(BuildContext context, bool isCamera) async {
-    if (isCamera) {
-      var picture = await ImagePicker().getImage(source: ImageSource.camera);
-      if (picture != null && picture.path != null && picture.path.isNotEmpty) {
-        File image = File(picture.path);
-        CloudStorage().imageUploadAndDownload(image: image, context: context);
-      }
-    } else {
-      var picture = await ImagePicker().getImage(source: ImageSource.gallery);
-      if (picture != null && picture.path != null && picture.path.isNotEmpty) {
-        File image = File(picture.path);
-        CloudStorage().imageUploadAndDownload(image: image, context: context);
-      }
-    }
-  }
-
-  Future<void> _showDialog(BuildContext parentContext) {
-    return showDialog(
-        context: parentContext,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: [
-                  GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(0, 0, 8, 8),
-                      child: TextViewWidget(
-                        text: 'Camera',
-                        color: AppColor.black,
-                        textSize: 18,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      getImage(parentContext, true);
-                    },
-                  ),
-                  GestureDetector(
-                    child: Container(
-                      padding: EdgeInsets.fromLTRB(0, 8, 8, 0),
-                      child: TextViewWidget(
-                        text: 'Gallery',
-                        color: AppColor.black,
-                        textSize: 18,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pop(context);
-                      getImage(parentContext, false);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
+  // Future getImage(BuildContext context, bool isCamera) async {
+  //   if (isCamera) {
+  //     var picture = await ImagePicker().getImage(source: ImageSource.camera);
+  //     if (picture != null && picture.path != null && picture.path.isNotEmpty) {
+  //       File image = File(picture.path);
+  //       CloudStorage().imageUploadAndDownload(image: image, context: context);
+  //     }
+  //   } else {
+  //     var picture = await ImagePicker().getImage(source: ImageSource.gallery);
+  //     if (picture != null && picture.path != null && picture.path.isNotEmpty) {
+  //       File image = File(picture.path);
+  //       CloudStorage().imageUploadAndDownload(image: image, context: context);
+  //     }
+  //   }
+  // }
 
   void decideAction(String input) async {
     input = input.trim().toLowerCase();
@@ -225,6 +183,7 @@ class _RedBackground2State extends State<RedBackground2> {
 
   @override
   void initState() {
+    getNewPicUrl(context);
     Provider.of<RedBackgroundProvider>(context, listen: false).getUrl();
     activateSpeechRecognizer();
     _provider = Provider.of<MusicProvider>(context, listen: false);
@@ -234,7 +193,9 @@ class _RedBackground2State extends State<RedBackground2> {
   @override
   Widget build(BuildContext context) {
     url = Provider.of<RedBackgroundProvider>(context).url;
+    double height = MediaQuery.of(context).size.height;
     return Container(
+      height: height < 540 ? 150 : null,
       child: Stack(
         children: [
           Image.asset(
@@ -243,7 +204,9 @@ class _RedBackground2State extends State<RedBackground2> {
             fit: BoxFit.fitWidth,
           ),
           Container(
-            margin: const EdgeInsets.only(left: 16, right: 16, top: 50),
+            margin: height >= 540
+                ? const EdgeInsets.only(left: 24, right: 16, top: 50)
+                : const EdgeInsets.only(left: 35, right: 16, top: 46),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,40 +227,26 @@ class _RedBackground2State extends State<RedBackground2> {
                             fontFamily: 'Montserrat')
                         : Image.asset(
                             AppAssets.dashlogo,
-                            height: 63,
+                            height: height >= 540 ? 63 : 50,
                           ),
                   ],
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    _widgetContainer(url),
-                    SizedBox(height: 20),
-                    Container(
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _isListening
-                              ? Colors.black26
-                              : Colors.transparent),
-                      padding: EdgeInsets.all(5),
-                      child: GestureDetector(
-                        onTap: () async {
-                          if (!(await preferencesHelper.doesExists(
-                              key: "oldUser")))
-                            showInstructions();
-                          else if (_speechRecognitionAvailable && !_isListening)
-                            start();
-                          else
-                            stop();
-                        },
-                        onLongPress: () {
-                          showInstructions();
-                        },
-                        child: Icon(Icons.mic, size: 35, color: AppColor.white),
-                      ),
-                    )
-                  ],
-                )
+                Row(children: [
+                  if (height < 540)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [micButton()],
+                    ),
+                  SizedBox(width: 0),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _widgetContainer(url, height),
+                      SizedBox(height: 20),
+                      if (height >= 540) micButton()
+                    ],
+                  )
+                ]),
               ],
             ),
           ),
@@ -306,9 +255,33 @@ class _RedBackground2State extends State<RedBackground2> {
     );
   }
 
-  Widget _widgetContainer(String picUrl) => InkWell(
+  Widget micButton() {
+    return Container(
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: _isListening ? Colors.black26 : Colors.transparent),
+      padding: EdgeInsets.all(5),
+      child: GestureDetector(
         onTap: () async {
-          await _showDialog(context);
+          if (!(await preferencesHelper.doesExists(key: "oldUser")))
+            showInstructions();
+          else if (_speechRecognitionAvailable && !_isListening)
+            start();
+          else
+            stop();
+        },
+        onLongPress: () {
+          showInstructions();
+        },
+        child: Icon(Icons.mic, size: 35, color: AppColor.white),
+      ),
+    );
+  }
+
+  Widget _widgetContainer(String picUrl, double height) => InkWell(
+        onTap: () async {
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => ProfilePage()));
         },
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -329,8 +302,8 @@ class _RedBackground2State extends State<RedBackground2> {
                   )
                 : ClipOval(
                     child: SizedBox(
-                      width: 65,
-                      height: 65,
+                      width: height < 540 ? 50 : 65,
+                      height: height < 540 ? 50 : 65,
                       child: CachedNetworkImage(
                         imageUrl: url,
                         fit: BoxFit.cover,

@@ -10,6 +10,7 @@ class RedBackgroundRepo {
 
   void saveImage(String imageUrl) async {
     String token = await preferencesHelper.getStringValues(key: 'token');
+    print("token is: $token");
     final map = {"token": token, "image": imageUrl};
 
     await image(map);
@@ -19,9 +20,10 @@ class RedBackgroundRepo {
     try {
       final response =
           await jayNetworkClient.makePostRequest("updatepic", data: map);
+      print(response);
       return ApiResponse.success(data: response);
     } catch (e) {
-      // image(map);
+      print('this guy error occured');
       return handleNetworkException(e);
     }
   }

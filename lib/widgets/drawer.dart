@@ -382,6 +382,9 @@ class _AppDrawerState extends State<AppDrawer> {
         'please subscribe to enjoy this service') {
       await _progressIndicator.dismiss();
       showSubscriptionMessage(context);
+    } else if (splittedFiles['data'] == "insufficient storage") {
+      await _progressIndicator.dismiss();
+      insufficientStorageWarning(context);
     } else {
       await _progressIndicator.dismiss();
       showToast(context, message: 'Please try again later');
@@ -448,6 +451,39 @@ Future<void> showSubscriptionMessage(BuildContext context) {
               child: Text('Yes',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
               onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => PaymentScreen()));
+              },
+            ),
+          ],
+        );
+      });
+}
+
+Future<void> insufficientStorageWarning(BuildContext context) {
+  return showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+          content: Text(
+            'Available storage is insufficient. Please purchase an additional plan. \n\nBuy now?',
+            style: TextStyle(color: Colors.white, fontSize: 17),
+          ),
+          actions: [
+            TextButton(
+              child: Text('No',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pop(_);
+              },
+            ),
+            TextButton(
+              child: Text('Yes',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pop(context);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (_) => PaymentScreen()));
               },

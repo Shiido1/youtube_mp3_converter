@@ -346,10 +346,11 @@ class _DownloadsState extends State<Downloads> {
                             ),
                             trailing: _download.status ==
                                         DownloadTaskStatus(3) ||
-                                    _download.status == DownloadTaskStatus(5) ||
                                     _download.status == DownloadTaskStatus(0)
                                 ? null
-                                : _download.status == DownloadTaskStatus(4)
+                                : _download.status == DownloadTaskStatus(5) ||
+                                        _download.status ==
+                                            DownloadTaskStatus(4)
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.replay,
@@ -359,6 +360,7 @@ class _DownloadsState extends State<Downloads> {
                                         onPressed: () async {
                                           await FlutterDownloader.retry(
                                               taskId: _download.taskId);
+
                                           await FlutterDownloader
                                               .registerCallback(
                                                   downloadCallback);
@@ -369,35 +371,35 @@ class _DownloadsState extends State<Downloads> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
                                         children: [
-                                          if (_download.status ==
-                                                  DownloadTaskStatus(2) ||
-                                              _download.status ==
-                                                  DownloadTaskStatus(6))
-                                            IconButton(
-                                                icon: Icon(
-                                                  _download.status ==
-                                                          DownloadTaskStatus(6)
-                                                      ? Icons.play_arrow
-                                                      : Icons.pause,
-                                                  color: AppColor.white,
-                                                  size: 30,
-                                                ),
-                                                onPressed: () async {
-                                                  if (_download.status ==
-                                                      DownloadTaskStatus(6)) {
-                                                    await FlutterDownloader
-                                                        .resume(
-                                                            taskId: _download
-                                                                .taskId);
-                                                    await FlutterDownloader
-                                                        .registerCallback(
-                                                            downloadCallback);
-                                                  } else
-                                                    await FlutterDownloader
-                                                        .pause(
-                                                            taskId: _download
-                                                                .taskId);
-                                                }),
+                                          // if (_download.status ==
+                                          //         DownloadTaskStatus(2) ||
+                                          //     _download.status ==
+                                          //         DownloadTaskStatus(6))
+                                          //   IconButton(
+                                          //       icon: Icon(
+                                          //         _download.status ==
+                                          //                 DownloadTaskStatus(6)
+                                          //             ? Icons.play_arrow
+                                          //             : Icons.pause,
+                                          //         color: AppColor.white,
+                                          //         size: 30,
+                                          //       ),
+                                          //       onPressed: () async {
+                                          //         if (_download.status ==
+                                          //             DownloadTaskStatus(6)) {
+                                          //           await FlutterDownloader
+                                          //               .resume(
+                                          //                   taskId: _download
+                                          //                       .taskId);
+                                          //           await FlutterDownloader
+                                          //               .registerCallback(
+                                          //                   downloadCallback);
+                                          //         } else
+                                          //           await FlutterDownloader
+                                          //               .pause(
+                                          //                   taskId: _download
+                                          //                       .taskId);
+                                          //       }),
                                           IconButton(
                                               icon: Icon(
                                                 Icons.stop,

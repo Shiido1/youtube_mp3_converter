@@ -69,7 +69,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.basic,
                           height: 60, width: 60),
                       text1: 'UNLIMITED BASIC',
-                      text2: '150MB DISK SPACE (MONTHLY)',
+                      text2: '150MB DISK SPACE',
                       text3: r'$0.99',
                       subWidgetButton: () async {
                         makePayment(amount: 0.99, storage: 150000000);
@@ -79,7 +79,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.medium,
                           height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
-                      text2: '1.5 GB DISK SPACE (MONTHLY)',
+                      text2: '1.5 GB DISK SPACE',
                       text3: r'$3.99',
                       subWidgetButton: () async {
                         makePayment(amount: 3.99, storage: 1500000000);
@@ -89,7 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.advance,
                           height: 60, width: 60),
                       text1: 'UNLIMITED ADVANCE',
-                      text2: '10GB DISK SPACE (6 MONTHLY)',
+                      text2: '10GB DISK SPACE',
                       text3: r'$20',
                       subWidgetButton: () async {
                         makePayment(amount: 20.0, storage: 10000000000);

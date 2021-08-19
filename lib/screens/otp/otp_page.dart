@@ -79,7 +79,7 @@ class _OtpPageState extends State<OtpPage> {
                   TextViewWidget(
                     text:
                         'A verification code has been sent to your provided Email Address.',
-                    color: AppColor.background,
+                    color: AppColor.white,
                     textSize: 18,
                     textAlign: TextAlign.center,
                     fontWeight: FontWeight.bold,
@@ -91,7 +91,7 @@ class _OtpPageState extends State<OtpPage> {
                     margin: EdgeInsets.only(left: 77, right: 77),
                     child: TextViewWidget(
                       text: 'Please check your email and type the code below.',
-                      color: AppColor.background,
+                      color: AppColor.white,
                       textSize: 16,
                       textAlign: TextAlign.center,
                       fontWeight: FontWeight.normal,
@@ -118,7 +118,7 @@ class _OtpPageState extends State<OtpPage> {
                             : 'I did\'t receive the code.  ',
                         style: TextStyle(
                             fontSize: 16,
-                            color: AppColor.background,
+                            color: AppColor.white,
                             fontWeight: FontWeight.normal),
                         children: <TextSpan>[
                           TextSpan(

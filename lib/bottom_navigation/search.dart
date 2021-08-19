@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import '../screens/song/provider/music_provider.dart';
@@ -79,9 +80,8 @@ class _SearchState extends State<Search> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              RedBackground(
+              RedBackground2(
                 text: 'Search',
-                showMic: true,
                 openRadio: openRadio,
               ),
               Column(

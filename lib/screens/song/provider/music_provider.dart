@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_radio/flutter_radio.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import '../../../utils/helper/instances.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
@@ -91,7 +92,6 @@ class AudioPlayerTask extends BackgroundAudioTask {
           AudioServiceBackground.mediaItem.copyWith(duration: duration));
       AudioServiceBackground.sendCustomEvent(
           {STATE_CHANGE2: audioPlayer.state});
-
       _broadcastState();
     });
 
@@ -437,6 +437,34 @@ class MusicProvider with ChangeNotifier {
   int get songNumber => _currentSongIndex + 1;
   String currentSongID = '';
   AudioPlayerState audioPlayerState;
+  String sharedText = '';
+  BuildContext context;
+
+  void setContext(BuildContext context) {
+    this.context = context;
+  }
+
+  void openRadioPage(String search) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => RadioClass(
+                  search: search,
+                )));
+  }
+
+  //this controls the navigation bar index
+  int currentNavBarIndex = 0;
+
+  //this function updates the currentIndex
+  void updateCurrentIndex(int index) {
+    this.currentNavBarIndex = index;
+    notifyListeners();
+  }
+
+  void updateSharedText(String shared) {
+    sharedText = shared;
+  }
 
   Future<void> initProvider() async {
     SongRepository.init();
@@ -613,16 +641,18 @@ class MusicProvider with ChangeNotifier {
   }
 
   void playAudio(Song song, {bool force = false}) async {
-    currentSong = song;
-    savePlayingSong(song);
-    if (song.file == currentSongID && force == false) return;
-    await addActionToAudioService(() async =>
-        await AudioService.updateQueue(convertSongToMediaItem(songs)));
-    await addActionToAudioService(
-        () async => await AudioService.skipToQueueItem(song.file));
-    await addActionToAudioService(() async =>
-        await AudioService.customAction(AudioPlayerTask.PLAY_ACTION));
-    notifyListeners();
+    if (song != null) {
+      currentSong = song;
+      savePlayingSong(song);
+      if (song.file == currentSongID && force == false) return;
+      await addActionToAudioService(() async =>
+          await AudioService.updateQueue(convertSongToMediaItem(songs)));
+      await addActionToAudioService(
+          () async => await AudioService.skipToQueueItem(song.file));
+      await addActionToAudioService(() async =>
+          await AudioService.customAction(AudioPlayerTask.PLAY_ACTION));
+      notifyListeners();
+    }
   }
 
   Future<dynamic> addActionToAudioService(Function callback) async {

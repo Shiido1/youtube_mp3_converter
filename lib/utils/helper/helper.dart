@@ -55,10 +55,8 @@ bool isPasswordCompliant(String password, [int minLength = 8]) {
     return false;
   }
 
-  // bool _hasUppercase = password.contains(new RegExp(r'[A-Z]'));
   bool _hasDigits = password.contains(new RegExp(r'[0-9]'));
   bool _hasLowercase = password.contains(new RegExp(r'[a-z]'));
-  // bool hasSpecialCharacters = password.contains(new RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
   bool _hasMinLength = password.length >= minLength;
   return _hasDigits & _hasLowercase & _hasMinLength;
 }

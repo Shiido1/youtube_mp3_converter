@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/favorite/favorite_songs.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
 import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
@@ -12,15 +13,15 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
 import '../screens/song/song_view_screen.dart';
 import '../utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/screens/splitted/sing_along.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 class Library extends StatefulWidget {
-  final Function setIndex;
-  Library(this.setIndex);
   @override
   _LibraryState createState() => _LibraryState();
 }
@@ -52,9 +53,8 @@ class _LibraryState extends State<Library> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RedBackground(
+            RedBackground2(
               text: 'Library',
-              showMic: true,
               openRadio: openRadio,
             ),
             Expanded(
@@ -63,7 +63,8 @@ class _LibraryState extends State<Library> {
                 child: ListView(children: [
                   ListTile(
                     onTap: () {
-                      widget.setIndex(1);
+                      Provider.of<MusicProvider>(context, listen: false)
+                          .updateCurrentIndex(1);
                     },
                     leading: SvgPicture.asset(AppAssets.library),
                     title: TextViewWidget(
@@ -104,15 +105,14 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => Recorded()),
-                      );
-                    },
-                    leading: SvgPicture.asset(AppAssets.record),
+                    onTap: () => PageRouter.gotoWidget(SingAlong(), context),
+                    leading: SvgPicture.asset(
+                      AppAssets.mpFile,
+                      color: Colors.white,
+                      height: 27,
+                    ),
                     title: TextViewWidget(
-                      text: 'Recorded',
+                      text: 'Sing Along',
                       color: AppColor.white,
                       textSize: 18,
                     ),
@@ -139,14 +139,15 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () => PageRouter.gotoWidget(SingAlong(), context),
-                    leading: SvgPicture.asset(
-                      AppAssets.mpFile,
-                      color: Colors.white,
-                      height: 27,
-                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => Recorded()),
+                      );
+                    },
+                    leading: SvgPicture.asset(AppAssets.record),
                     title: TextViewWidget(
-                      text: 'Sing Along',
+                      text: 'Recorded',
                       color: AppColor.white,
                       textSize: 18,
                     ),

@@ -51,6 +51,7 @@ class _SplitState extends State<Split> {
     if (_splittedSongProvider.playerState == PlayerState.PLAYING)
       _splittedSongProvider.stopAudio();
     if (_isRecording) _recorder.stop();
+    songAd?.dispose();
     _timer?.cancel();
     super.dispose();
   }

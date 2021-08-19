@@ -8,34 +8,34 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:320378040514:android:31f990422813a0f7ef4b5b",
+        "mobilesdk_app_id": "1:320378040514:android:78a13a25be3e21d8ef4b5b",
         "android_client_info": {
-          "package_name": "youtubeaudio.example.mp3_music_converter"
+          "package_name": "com.ytaudio.mp3_music_converter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "320378040514-0jqlm9fe1l2g6o9o8st8dhi3gsnj4hgq.apps.googleusercontent.com",
+          "client_id": "320378040514-5hsh0sjuijkg1m8564qrgb78n2818fnf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "youtubeaudio.example.mp3_music_converter",
-            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
+            "package_name": "com.ytaudio.mp3_music_converter",
+            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
           }
         },
         {
-          "client_id": "320378040514-arr4a0vtkgndiqqj736ph4i5qin78hvf.apps.googleusercontent.com",
+          "client_id": "320378040514-66ko9dns0l1giarr6pn1hda55ogk1u5l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "youtubeaudio.example.mp3_music_converter",
+            "package_name": "com.ytaudio.mp3_music_converter",
             "certificate_hash": "692a0a7bf5e8d6ae4cd1498c0f8d76d210139438"
           }
         },
         {
-          "client_id": "320378040514-ep61l8jlkmds7pdnuso8rnslodplmafs.apps.googleusercontent.com",
+          "client_id": "320378040514-gmt4c3gepra63p2c8pjet6lukddhfdhn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "youtubeaudio.example.mp3_music_converter",
-            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
+            "package_name": "com.ytaudio.mp3_music_converter",
+            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
           }
         },
         {
@@ -54,6 +54,13 @@
             {
               "client_id": "320378040514-8n9ub1h9r2645151gv02ke8e77b0g0cv.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.youtubeaudio.mp3-music-converter"
+              }
             }
           ]
         }

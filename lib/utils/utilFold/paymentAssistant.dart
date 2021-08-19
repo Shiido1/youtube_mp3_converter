@@ -49,9 +49,11 @@ class PaymentAssistant {
       @required String email,
       @required String name,
       @required String ref}) async {
-    Widget companyName = Text('Youtube Audio');
-    String publicKey = "FLWPUBK_TEST-916479768e98ba46f46d30c95b7589b2-X";
-    String encryptionKey = "FLWSECK_TESTe654c63ec08a";
+    Widget companyName = Text('YT Audio');
+    // String publicKey = "FLWPUBK_TEST-916479768e98ba46f46d30c95b7589b2-X";
+    // String encryptionKey = "FLWSECK_TESTe654c63ec08a";
+    String publicKey = "FLWPUBK-7fef3984e211df005895564ef9de4230-X";
+    String encryptionKey = "acbe6e050c01e3de032f788e";
     var initializer = RavePayInitializer(
         amount: amount, publicKey: publicKey, encryptionKey: encryptionKey)
       ..country = "NG"
@@ -68,7 +70,7 @@ class PaymentAssistant {
       ..acceptAchPayments = false
       ..acceptGHMobileMoneyPayments = false
       ..acceptUgMobileMoneyPayments = false
-      ..staging = true
+      ..staging = false
       ..companyName = companyName
       ..isPreAuth = false
       ..displayEmail = true

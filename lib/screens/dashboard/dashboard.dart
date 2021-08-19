@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,6 +8,7 @@ import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -20,9 +20,11 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 const String splitMusicPath = 'split';
 bool debug = true;
@@ -60,9 +62,19 @@ class _DashBoardState extends State<DashBoard> {
 
   // Handles any shared data we may receive.
   void _handleSharedData(String sharedData) {
-    setState(() {
-      _sharedText = sharedData;
-    });
+    MusicProvider _provider =
+        Provider.of<MusicProvider>(context, listen: false);
+    if (sharedData != null &&
+        sharedData.isNotEmpty &&
+        _provider.sharedText != sharedData) {
+      setState(() {
+        _sharedText = sharedData;
+      });
+      _provider.updateSharedText(sharedData);
+    } else
+      setState(() {
+        _sharedText = '';
+      });
   }
 
   String splitFileNameHere(String fileName) {
@@ -129,14 +141,14 @@ class _DashBoardState extends State<DashBoard> {
         backgroundColor: AppColor.background,
         body: Column(
           children: [
-            RedBackground(showMic: true, openRadio: openRadio),
+            RedBackground2(openRadio: openRadio),
             Expanded(
               child: Container(
                 margin: EdgeInsets.only(left: 16, right: 90),
                 child: ListView(
                   children: [
                     _buttonItem(
-                      title: "Converter",
+                      title: "Import Url",
                       item: HomeButtonItem.CONVERTER,
                       screen: Convert(),
                       assets: AppAssets.mpFile,
@@ -199,7 +211,7 @@ class _DashBoardState extends State<DashBoard> {
         });
         screen == null
             ? splitMethod()
-            : Navigator.pushReplacement(
+            : Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => screen),
               );
@@ -285,6 +297,10 @@ class _DashBoardState extends State<DashBoard> {
           'please subscribe to enjoy this service') {
         await _progressIndicator.dismiss();
         showSubscriptionMessage(context);
+      } else if (splittedFiles['data'] == 'insufficient storage') {
+        await _progressIndicator.dismiss();
+        insufficientStorageWarning(context);
+        
       } else {
         await _progressIndicator.dismiss();
         showToast(context, message: 'Please try again later');
@@ -342,8 +358,8 @@ class DJMixer extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColor.bottomRed,
         leading: IconButton(
-          onPressed: () => Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (_) => MainDashBoard())),
+          onPressed: () => Navigator.pop(context),
+          // context, MaterialPageRoute(builder: (_) => MainDashBoard())),
           icon: Icon(
             Icons.arrow_back_ios_sharp,
             color: AppColor.white,

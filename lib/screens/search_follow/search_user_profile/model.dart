@@ -9,25 +9,27 @@ class SearchUserProfile {
 
   SearchUserProfile(
       {this.totalfollowers,
-        this.totalfollowing,
-        this.user,
-        this.musics,
-        this.latest,
-        this.followers,
-        this.following});
+      this.totalfollowing,
+      this.user,
+      this.musics,
+      this.latest,
+      this.followers,
+      this.following});
 
   SearchUserProfile.fromJson(Map<String, dynamic> json) {
-    totalfollowers = json['totalfollowers']== null ? null : json['totalfollowers'];
-    totalfollowing = json['totalfollowing']== null ? null : json['totalfollowing'];
+    totalfollowers =
+        json['totalfollowers'] == null ? null : json['totalfollowers'];
+    totalfollowing =
+        json['totalfollowing'] == null ? null : json['totalfollowing'];
     user = json['user'] != null ? new User.fromJson(json['user']) : null;
     if (json['musics'] != null) {
-      musics =[];
+      musics = [];
       json['musics'].forEach((v) {
         musics.add((v));
       });
     }
     latest =
-    json['latest'] != null ? new Latest.fromJson(json['latest']) : null;
+        json['latest'] != null ? new Latest.fromJson(json['latest']) : null;
     if (json['followers'] != null) {
       followers = [];
       json['followers'].forEach((v) {
@@ -79,7 +81,9 @@ class User {
     createdAt = json['created_at'];
     hideprofile = json['hideprofile'];
     id = json['id'];
-    profilepic = json['profilepic'];
+    profilepic = json['profilepic'][0] == "/"
+        ? "https://youtubeaudio.com" + json['profilepic']
+        : json['profilepic'];
   }
 
   Map<String, dynamic> toJson() {
@@ -108,16 +112,16 @@ class Latest {
 
   Latest(
       {this.id,
-        this.top,
-        this.musicid,
-        this.userid,
-        this.type,
-        this.name,
-        this.mid,
-        this.public,
-        this.played,
-        this.category,
-        this.createdAt});
+      this.top,
+      this.musicid,
+      this.userid,
+      this.type,
+      this.name,
+      this.mid,
+      this.public,
+      this.played,
+      this.category,
+      this.createdAt});
 
   Latest.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -159,10 +163,10 @@ class Followers {
   Followers({this.id, this.followerid, this.userid, this.createdAt});
 
   Followers.fromJson(Map<String, dynamic> json) {
-    id = json['id']== null ? null : json['id'];
-    followerid = json['followerid']== null ? null : json['followerid'];
-    userid = json['userid']== null ? null : json['userid'];
-    createdAt = json['created_at']== null ? null : json['created_at'];
+    id = json['id'] == null ? null : json['id'];
+    followerid = json['followerid'] == null ? null : json['followerid'];
+    userid = json['userid'] == null ? null : json['userid'];
+    createdAt = json['created_at'] == null ? null : json['created_at'];
   }
 
   Map<String, dynamic> toJson() {
@@ -184,10 +188,10 @@ class Following {
   Following({this.id, this.followerid, this.userid, this.createdAt});
 
   Following.fromJson(Map<String, dynamic> json) {
-    id = json['id']== null ? null : json['id'];
-    followerid = json['followerid']== null ? null : json['followerid'];
-    userid = json['userid']== null ? null : json['userid'];
-    createdAt = json['created_at']== null ? null : json['created_at'];
+    id = json['id'] == null ? null : json['id'];
+    followerid = json['followerid'] == null ? null : json['followerid'];
+    userid = json['userid'] == null ? null : json['userid'];
+    createdAt = json['created_at'] == null ? null : json['created_at'];
   }
 
   Map<String, dynamic> toJson() {

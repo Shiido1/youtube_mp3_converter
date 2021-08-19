@@ -26,15 +26,15 @@ class _SettingState extends State<Setting> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  bodyContainer(
-                    text: 'Change Theme',
-                  ),
+                  // bodyContainer(
+                  //   text: 'Change Theme',
+                  // ),
                   bodyContainer(
                       text: 'Forgot Password', screen: ForgotPassword()),
                   bodyContainer(text: 'Search User', screen: SearchFollow()),
                   bodyContainer(text: 'Chat', screen: ChatHome()),
                   bodyContainer(text: 'Notification'),
-                  bodyContainer(text: 'Privacy'),
+                  // bodyContainer(text: 'Privacy'),
                 ])),
           ),
         ]),

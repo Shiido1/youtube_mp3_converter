@@ -529,6 +529,24 @@ class _RadioClassState extends State<RadioClass>
                             child: Form(
                               key: _formKey,
                               child: TextFormField(
+                                onChanged: (value){
+                                  if (_formKey.currentState.validate()) {
+                                    _radioProvider.updateIsLoading(true);
+                                    // _textFocusNode.unfocus();
+                                    radioProvider.init(
+                                        context: context,
+                                        search: true,
+                                        searchData: _textController.text);
+
+                                    setState(() {
+                                      _radioProvider
+                                          .updateShowAllChannels(false);
+                                      showChannels = true;
+                                      showFaves = false;
+                                      search = true;
+                                    });
+                                  }
+                                },
                                 onFieldSubmitted: (value) {
                                   if (_formKey.currentState.validate()) {
                                     _radioProvider.updateIsLoading(true);
@@ -1124,11 +1142,6 @@ class _RadioClassState extends State<RadioClass>
                     ? _radioLog.placeLong
                     : _radioLog["placeLong"] ?? location.longitude.toString();
               });
-              print(isFavorite
-                  ? 'saved placeLat: ${_radioLog['placeLat']}'
-                  : 'placeLat is: ${_radioLog.placeLat}');
-
-              print('current placeLat $placeLat');
 
               _changeLocationMarker(
                   latitude: !isFavorite

@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>youtubeaudio</string>
+	<string>YT-Audio</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -52,9 +52,13 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>This app needs to access your photos</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>This app needs to access your photos</string>
+	<string>Can i make use of your photos?</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This application needs the speech recognition permission</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This application needs the speech camera permission</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This application needs the speech microphone permission</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

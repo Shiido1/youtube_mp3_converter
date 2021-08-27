@@ -102,7 +102,8 @@ class _WrapperState extends State<Wrapper> {
           );
         },
       );
-    if (email == "") return SignInScreen();
+    // if (email == "")
+    return SignInScreen();
     return MainDashBoard();
   }
 }

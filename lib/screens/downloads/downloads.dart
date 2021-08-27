@@ -23,8 +23,16 @@ class Downloads extends StatefulWidget {
   final Song song;
   final Map convert;
   final String localPath;
+  final bool sync;
+  final Map syncData;
 
-  Downloads({this.apiSplittedList, this.convert, this.localPath, this.song});
+  Downloads(
+      {this.apiSplittedList,
+      this.convert,
+      this.localPath,
+      this.song,
+      this.sync = false,
+      this.syncData});
   @override
   _DownloadsState createState() => _DownloadsState();
 }
@@ -40,18 +48,41 @@ class _DownloadsState extends State<Downloads> {
   Timer _timer;
 
   init() async {
-    if (widget.apiSplittedList != null && widget.apiSplittedList.isNotEmpty) {
+    if (widget.sync) {
+      widget.syncData.forEach((key, value) async {
+        List<String> apiList = ['', ''];
+        apiList.insert(0, value['voice']);
+        apiList.insert(1, value['others']);
+        _apiSplittedList = apiList;
+
+        await _requestDownload(
+            link: _apiSplittedList[0],
+            saveToDownload: true,
+            fileName: key,
+            sync: true,
+            song: Song(fileName: key, image: value['image']));
+        await _requestDownload(
+            link: _apiSplittedList[1],
+            saveToDownload: true,
+            fileName: key,
+            sync: true,
+            song: Song(fileName: key, image: value['image']));
+      });
+    } else if (widget.apiSplittedList != null &&
+        widget.apiSplittedList.isNotEmpty) {
       _apiSplittedList = widget.apiSplittedList;
       _localPath = widget.localPath;
 
       await _requestDownload(
           link: _apiSplittedList[0],
           saveToDownload: true,
-          fileName: widget.song.fileName);
+          fileName: widget.song.fileName,
+          song: widget.song);
       await _requestDownload(
           link: _apiSplittedList[1],
           saveToDownload: true,
-          fileName: widget.song.fileName);
+          fileName: widget.song.fileName,
+          song: widget.song);
     } else if (widget.convert != null && widget.convert.isNotEmpty) {
       _localPath = widget.localPath;
       songData = widget.convert;
@@ -189,7 +220,9 @@ class _DownloadsState extends State<Downloads> {
   Future<void> _requestDownload(
       {@required String link,
       bool saveToDownload = false,
-      String fileName}) async {
+      String fileName,
+      Song song,
+      bool sync = false}) async {
     final status = await Permission.storage.request();
 
     if (status.isGranted) {
@@ -197,7 +230,9 @@ class _DownloadsState extends State<Downloads> {
         var downloadPath = await DownloadsPathProvider.downloadsDirectory;
         _localPath = downloadPath.path;
       }
-      String _fileName = fileName + '-' + getStringPathName(link);
+      String _fileName = sync
+          ? fileName + '-' + getStringPathNameFromWeb(link)
+          : fileName + '-' + getStringPathName(link);
 
       bool exists =
           await File(_localPath + Platform.pathSeparator + _fileName).exists();
@@ -208,9 +243,9 @@ class _DownloadsState extends State<Downloads> {
         await SplittedSongRepository.addDownload(
             key: fileName,
             song: Song(
-                image: widget.song.image,
-                artistName: widget.song.artistName,
-                songName: widget.song.songName));
+                image: song.image,
+                artistName: song.artistName,
+                songName: song.songName));
         await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
             url: link,

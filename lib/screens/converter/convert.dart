@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,7 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -16,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:http/http.dart' as http;
 
 const String musicPath = '.music';
 bool debug = true;
@@ -45,16 +48,21 @@ class _ConvertState extends State<Convert> {
   MusicProvider musicProvider;
   String artist = '';
   String song = '';
+  String token;
+
+  init() async {
+    token = await preferencesHelper.getStringValues(key: 'token');
+  }
 
   @override
   void initState() {
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
     musicProvider = Provider.of<MusicProvider>(context, listen: false);
-
+    init();
     _isLoading = true;
     _permissionReady = false;
-    
+
     _prepare();
     _setControllerText();
 
@@ -91,6 +99,7 @@ class _ConvertState extends State<Convert> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<ConverterProvider>(builder: (_, model, __) {
+        print(model.youtubeModel.id);
         return Container(
           color: AppColor.background,
           child: Column(
@@ -144,8 +153,7 @@ class _ConvertState extends State<Convert> {
                                   borderRadius: BorderRadius.circular(16.0),
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
-                                labelText: widget.sharedLinkText ??
-                                    'Enter Url',
+                                labelText: widget.sharedLinkText ?? 'Enter Url',
                                 labelStyle: TextStyle(color: Colors.white),
                               ),
                               cursorColor: AppColor.white,
@@ -319,6 +327,21 @@ class _ConvertState extends State<Convert> {
                                                                 _converterProvider
                                                                     ?.youtubeModel
                                                                     ?.url;
+                                                            try {
+                                                              print(token);
+                                                              final response =
+                                                                  await http.post(
+                                                                      'http://67.205.165.56/api/saveconvert',
+                                                                      body: jsonEncode({'token': token, 'id': model?.youtubeModel?.id}),
+                                                                      headers: {
+                                                                    'Content-Type':
+                                                                        'application/json'
+                                                                  });
+                                                              print(jsonDecode(
+                                                                  response
+                                                                      .body));
+                                                            } catch (e) {}
+
                                                             Navigator
                                                                 .pushReplacement(
                                                                     context,
@@ -472,7 +495,6 @@ class _ConvertState extends State<Convert> {
     if (!hasExisted) {
       savedDir.create();
     }
-    print('path is: $_localPath');
 
     setState(() {
       _isLoading = false;

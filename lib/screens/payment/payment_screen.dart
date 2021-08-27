@@ -208,15 +208,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
         amount: amount, context: context, email: email, name: name, ref: ref);
 
     if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
-      PaymentAssistant.storePayment(
+      bool status = await PaymentAssistant.storePayment(
           context: context,
           txRef: trxResponse['data']['txRef'],
           amount: amount,
           txId: trxResponse['data']['id'].toString(),
           storage: storage,
           userToken: userToken);
+      if (status) {
+        showToast(context, message: 'Transaction successful', gravity: 2);
+      } else
+        showToast(context, message: 'Transaction failed');
     } else if (trxResponse == 'Failed') {
-      showToast(context, message: 'Transaction Failed. Try again later');
+      showToast(context, message: 'Transaction failed. Try again later');
     } else
       showToast(context, message: 'Transaction cancelled');
   }

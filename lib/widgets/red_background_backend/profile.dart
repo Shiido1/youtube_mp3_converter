@@ -360,6 +360,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   borderSide:
                                       BorderSide(color: Colors.transparent),
                                 ),
+                                counterText: '',
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide:

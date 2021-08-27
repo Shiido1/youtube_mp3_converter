@@ -1,15 +1,20 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
 import 'package:mp3_music_converter/screens/splitted/split.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:http/http.dart' as http;
 
 class SplittedScreen extends StatefulWidget {
   @override
@@ -34,7 +39,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Splitted Songs',
+          text: 'Split Songs',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(
@@ -46,6 +51,19 @@ class _SplittedScreenState extends State<SplittedScreen> {
             color: AppColor.bottomRed,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: TextButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue)),
+                onPressed: () {
+                  synchronizeSong(context);
+                },
+                child: Text('Synchronize',
+                    style: TextStyle(color: Colors.white, fontSize: 17))),
+          )
+        ],
       ),
       body: Center(
         child: Column(
@@ -143,5 +161,69 @@ class _SplittedScreenState extends State<SplittedScreen> {
         },
       );
     });
+  }
+}
+
+synchronizeSong(BuildContext context) async {
+  String url = "http://67.205.165.56/api/mylib";
+  String token = await preferencesHelper.getStringValues(key: 'token');
+  SplittedSongProvider _provider =
+      Provider.of<SplittedSongProvider>(context, listen: false);
+  _provider.getSongs(true);
+  List<String> apiList = ['', ''];
+  final snackBar = SnackBar(
+    content: Text('Failed to synchronize songs. Please try again later'),
+    backgroundColor: Colors.red,
+  );
+
+  try {
+    final response = await http.post(url,
+        body: jsonEncode({'token': token}),
+        headers: {'Content-Type': 'application/json'});
+
+    if (response.statusCode == 200) {
+      Map data = jsonDecode(response.body);
+      // List<Song> splitSongs = _provider.allSongs;
+      List<Song> splitSongs = [Song(splittedFileName: '')];
+      List<String> songTitle = [];
+      Map<String, Map> songDetails = {};
+      for (Map item in data['sepratedsongs']) {
+        String voice, others, image;
+        int libid;
+        item['songs'].forEach((val) {
+          if (val['title'] == 'voice') {
+            voice = val['path'];
+            image = val['image'];
+          }
+          if (val['title'] == 'others') others = val['path'];
+        });
+        songDetails.putIfAbsent(
+            item['topsong']['title'],
+            () => {
+                  'voice': voice,
+                  'others': others,
+                  'image': image,
+                  'libid': libid
+                });
+        for (Song song in splitSongs) {
+          if (item['topsong']['title'] == song.splittedFileName) {
+            songTitle.add(song.splittedFileName);
+            break;
+          }
+        }
+      }
+      for (String title in songTitle) {
+        songDetails.remove(title);
+      }
+
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) =>
+      //             Downloads(syncData: songDetails, sync: true)));
+    } else
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

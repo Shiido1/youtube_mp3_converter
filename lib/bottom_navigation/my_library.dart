@@ -65,6 +65,7 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Provider.of<MusicProvider>(context, listen: false)
                           .updateCurrentIndex(1);
+                      
                     },
                     leading: SvgPicture.asset(AppAssets.library),
                     title: TextViewWidget(
@@ -130,7 +131,7 @@ class _LibraryState extends State<Library> {
                     },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
-                      text: 'Splitted',
+                      text: 'Split',
                       color: AppColor.white,
                       textSize: 18,
                     ),

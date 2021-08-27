@@ -35,7 +35,7 @@ class LoginProviders extends ChangeNotifier {
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {
         showToast(this._context,
-            message: NetworkExceptions.getErrorMessage(error));
+            message: statusMessage);
         isLoading = false;
         notifyListeners();
       });

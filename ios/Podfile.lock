@@ -92,6 +92,8 @@ PODS:
     - Flutter
   - flutter_isolate (0.0.1):
     - Flutter
+  - flutter_pay (0.0.1):
+    - Flutter
   - flutter_radio (0.0.1):
     - Flutter
   - flutter_speech (0.0.1):
@@ -214,6 +216,7 @@ DEPENDENCIES:
   - flutter_audio_recorder (from `.symlinks/plugins/flutter_audio_recorder/ios`)
   - flutter_downloader (from `.symlinks/plugins/flutter_downloader/ios`)
   - flutter_isolate (from `.symlinks/plugins/flutter_isolate/ios`)
+  - flutter_pay (from `.symlinks/plugins/flutter_pay/ios`)
   - flutter_radio (from `.symlinks/plugins/flutter_radio/ios`)
   - flutter_speech (from `.symlinks/plugins/flutter_speech/ios`)
   - geocoder (from `.symlinks/plugins/geocoder/ios`)
@@ -285,6 +288,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_downloader/ios"
   flutter_isolate:
     :path: ".symlinks/plugins/flutter_isolate/ios"
+  flutter_pay:
+    :path: ".symlinks/plugins/flutter_pay/ios"
   flutter_radio:
     :path: ".symlinks/plugins/flutter_radio/ios"
   flutter_speech:
@@ -344,6 +349,7 @@ SPEC CHECKSUMS:
   flutter_audio_recorder: eb998d4e75e59b39d9e3ca1818a5e0f3a82f5836
   flutter_downloader: 058b9c41564a90500f67f3e432e3524613a7fd83
   flutter_isolate: 0edf5081826d071adf21759d1eb10ff5c24503b5
+  flutter_pay: b9fda1c5be6ddc7af769f26553e9c648fc551263
   flutter_radio: 852f82f0ecb1ea21ce24bc3724e95196c6c7c936
   flutter_speech: d3db868ad1b390b5f6ac7308ec09b6b608545c03
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
@@ -379,4 +385,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: fe0e1ee7f3d1f7d00b11b474b62dd62134535aea
 
-COCOAPODS: 1.11.0.beta.2
+COCOAPODS: 1.10.1

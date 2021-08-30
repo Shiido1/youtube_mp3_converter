@@ -23,9 +23,9 @@ class _SettingState extends State<Setting> {
           ),
           Expanded(
             child: SingleChildScrollView(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   bodyContainer(
                     text: 'Change Theme',
                   ),
@@ -35,7 +35,9 @@ class _SettingState extends State<Setting> {
                   bodyContainer(text: 'Chat', screen: ChatHome()),
                   bodyContainer(text: 'Notification'),
                   bodyContainer(text: 'Privacy'),
-                ])),
+                ],
+              ),
+            ),
           ),
         ]),
       ),

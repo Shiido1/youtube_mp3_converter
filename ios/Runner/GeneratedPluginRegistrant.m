@@ -76,6 +76,12 @@
 @import flutter_isolate;
 #endif
 
+#if __has_include(<flutter_pay/FlutterPayPlugin.h>)
+#import <flutter_pay/FlutterPayPlugin.h>
+#else
+@import flutter_pay;
+#endif
+
 #if __has_include(<flutter_radio/FlutterRadioPlugin.h>)
 #import <flutter_radio/FlutterRadioPlugin.h>
 #else
@@ -199,6 +205,7 @@
   [FlutterAudioRecorderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterAudioRecorderPlugin"]];
   [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDownloaderPlugin"]];
   [FlutterIsolatePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterIsolatePlugin"]];
+  [FlutterPayPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPayPlugin"]];
   [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [FlutterSpeechRecognitionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterSpeechRecognitionPlugin"]];
   [GeocoderPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocoderPlugin"]];

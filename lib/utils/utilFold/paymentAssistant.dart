@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PaymentAssistant {
-  static Future<bool> storePayment(
-      {BuildContext context,
-      String txRef,
-      double amount,
-      String txId,
-      int storage,
-      String userToken}) async {
+  static Future<bool> storePayment({BuildContext context,
+    String txRef,
+    double amount,
+    String txId,
+    int storage,
+    String userToken,
+    String payment_method}) async {
     String baseUrl = "http://67.205.165.56/api/storepayment";
 
     var body = jsonEncode({
@@ -19,7 +19,8 @@ class PaymentAssistant {
       "amount": amount,
       "transaction_id": txId,
       "storage": storage,
-      "token": userToken
+      "token": userToken,
+      "payment_method": payment_method
     });
 
     try {
@@ -43,12 +44,11 @@ class PaymentAssistant {
     }
   }
 
-  static Future<dynamic> processTransaction(
-      {@required BuildContext context,
-      @required double amount,
-      @required String email,
-      @required String name,
-      @required String ref}) async {
+  static Future<dynamic> processTransaction({@required BuildContext context,
+    @required double amount,
+    @required String email,
+    @required String name,
+    @required String ref}) async {
     Widget companyName = Text('Youtube Audio');
     // String publicKey = "FLWPUBK_TEST-916479768e98ba46f46d30c95b7589b2-X";
     // String encryptionKey = "FLWSECK_TESTe654c63ec08a";
@@ -60,7 +60,9 @@ class PaymentAssistant {
       ..currency = 'USD'
       ..email = email
       ..fName = name.split(' ')[0]
-      ..lName = name.split(' ').length > 1 ? name.split(' ')[1] : ''
+      ..lName = name
+          .split(' ')
+          .length > 1 ? name.split(' ')[1] : ''
       ..narration = 'Subscription Plan'
       ..txRef = ref
       ..subAccounts = []

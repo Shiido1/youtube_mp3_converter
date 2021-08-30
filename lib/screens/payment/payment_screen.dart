@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pay/flutter_pay.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -22,6 +26,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String email = '';
   String name = '';
   String userToken = '';
+  FlutterPay flutterPay = FlutterPay();
 
   @override
   void initState() {
@@ -72,17 +77,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text2: '150MB DISK SPACE (MONTHLY)',
                       text3: r'$0.99',
                       subWidgetButton: () async {
-                        makePayment(amount: 0.99, storage: 150000000);
+                        makePayment(
+                            amount: 0.99,
+                            storage: 150000000,
+                            title:
+                                'UNLIMITED BASIC - 150MB DISK SPACE (MONTHLY)');
                       },
                     ),
                     paymentContainer(
                       picture: SvgPicture.asset(AppAssets.medium,
                           height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
-                      text2: '1.5 GB DISK SPACE (MONTHLY)',
+                      text2: '1.5 GB DISK SPACE Only',
                       text3: r'$3.99',
                       subWidgetButton: () async {
-                        makePayment(amount: 3.99, storage: 1500000000);
+                        makePayment(
+                            amount: 3.99,
+                            storage: 1500000000,
+                            title:
+                                'UNLIMITED MEDIUM - 1.5 GB DISK SPACE (MONTHLY)');
                       },
                     ),
                     paymentContainer(
@@ -92,7 +105,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text2: '10GB DISK SPACE (6 MONTHLY)',
                       text3: r'$20',
                       subWidgetButton: () async {
-                        makePayment(amount: 20.0, storage: 10000000000);
+                        makePayment(
+                            amount: 20.0,
+                            storage: 10000000000,
+                            title:
+                                'UNLIMITED ADVANCE - 10GB DISK SPACE (6 MONTHLY)');
                       },
                     ),
                   ],
@@ -200,7 +217,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
         ),
       );
 
-  void makePayment({@required double amount, @required int storage}) async {
+  void makePayment(
+      {@required double amount,
+      @required int storage,
+      @required String title}) async {
+    if (Platform.isAndroid) {
+      cardPayment(amount: amount, storage: storage);
+    } else if (Platform.isIOS) {
+      applePayment(amount: amount, storage: storage, title: title);
+    }
+  }
+
+  void cardPayment({@required double amount, @required int storage}) async {
     var uuid = Uuid();
     String ref = uuid.v4();
 
@@ -214,10 +242,58 @@ class _PaymentScreenState extends State<PaymentScreen> {
           amount: amount,
           txId: trxResponse['data']['id'].toString(),
           storage: storage,
-          userToken: userToken);
+          userToken: userToken,
+          payment_method:'card'
+      );
     } else if (trxResponse == 'Failed') {
       showToast(context, message: 'Transaction Failed. Try again later');
-    } else
+    } else {
       showToast(context, message: 'Transaction cancelled');
+    }
+  }
+
+  void applePayment(
+      {@required double amount,
+      @required int storage,
+      @required String title}) async {
+    List<PaymentItem> items = [PaymentItem(name: title, price: amount)];
+
+    try {
+      bool result = await flutterPay.canMakePayments();
+
+      if (result) {
+        flutterPay.setEnvironment(
+            environment: kReleaseMode
+                ? PaymentEnvironment.Production
+                : PaymentEnvironment.Test);
+
+        var paymentToken = await flutterPay.requestPayment(
+          appleParameters: AppleParameters(
+            merchantIdentifier: "merchant.youtubeaudio.app",
+          ),
+          currencyCode: "USD",
+          countryCode: "US",
+          paymentItems: items,
+        );
+
+        PaymentAssistant.storePayment(
+            context: context,
+            txRef: "",
+            amount: amount,
+            txId: "",
+            storage: storage,
+            userToken: userToken,
+            payment_method:'applepay'
+        );
+      } else {
+        showToast(context,
+            message:
+                "You are not allowed to make payment, please review your account settings.");
+      }
+    } catch (e) {
+      print(['applePayment exception', e.toString()]);
+
+      showToast(context, message: 'Transaction Failed. Try again later');
+    }
   }
 }

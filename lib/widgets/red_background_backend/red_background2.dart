@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speech/flutter_speech.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -14,7 +12,6 @@ import 'package:mp3_music_converter/widgets/red_background_backend/red_backgroun
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
-import 'package:mp3_music_converter/widgets/red_background_backend/cloud_storage.dart';
 
 class RedBackground2 extends StatefulWidget {
   final String text;

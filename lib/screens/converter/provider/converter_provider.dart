@@ -27,6 +27,7 @@ class ConverterProvider extends ChangeNotifier {
       _response.when(success: (success, _, statusMessage) async {
         await _progressIndicator.dismiss();
         youtubeModel = success;
+
         problem = true;
         notifyListeners();
       }, failure: (NetworkExceptions error, _, statusMessage) async {

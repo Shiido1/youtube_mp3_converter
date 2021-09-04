@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,9 @@ import 'package:mp3_music_converter/screens/recorded/provider/record_provider.da
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 class DeleteSongs {
   BuildContext context;
@@ -135,20 +138,25 @@ Future<void> deleteSong(
     @required BuildContext context,
     @required bool splitted,
     bool showAll}) async {
+  String token = await preferencesHelper.getStringValues(key: 'token');
   if (song != null) {
     var path = song.file.split('/');
     int index = path.indexOf(
         path.firstWhere((element) => element != '' && element != 'file:'));
     path.removeRange(0, index);
-    print('this is the path: ${path.join('/')}');
     var file = File(path.join('/'));
+
     if (song?.vocalName?.split('-')?.last == 'vocals.wav' ?? false) {
       var path2 = song.vocalName.split('/');
       int index = path2.indexOf(
           path2.firstWhere((element) => element != '' && element != 'file:'));
       path2.removeRange(0, index);
+
+      path.removeLast();
+      File file2 = File('${path.join('/')}/${path2.join('/')}');
+
       try {
-        await file.delete();
+        await file2.delete();
       } catch (_) {
         print(_);
       }
@@ -182,6 +190,13 @@ Future<void> deleteSong(
         Navigator.pop(context);
       }
     }
+
+    try {
+      var response = await http.post('https://youtubeaudio.com/api/deletesong',
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'token': token, 'id': song.musicId}));
+      print(jsonDecode(response.body));
+    } catch (e) {}
   }
   if (record != null) {
     var path = record.path.split('/');
@@ -198,5 +213,11 @@ Future<void> deleteSong(
       Provider.of<RecordProvider>(context, listen: false).getRecords();
       Navigator.pop(context);
     }
+    try {
+      var response = await http.post('https://youtubeaudio.com/api/deletesong',
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'token': token, 'id': record.musicid}));
+      print(jsonDecode(response.body));
+    } catch (e) {}
   }
 }

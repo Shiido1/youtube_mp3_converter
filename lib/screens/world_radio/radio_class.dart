@@ -18,7 +18,6 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
@@ -297,11 +296,12 @@ class _RadioClassState extends State<RadioClass>
         }
         if (permission == LocationPermission.always ||
             permission == LocationPermission.whileInUse) {
+          print('im here');
           try {
             location = await Geolocator.getCurrentPosition(
-                desiredAccuracy: LocationAccuracy.high,
-                timeLimit: Duration(seconds: 60),
-                forceAndroidLocationManager: true);
+              desiredAccuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 60),
+            );
 
             setState(() {});
             GoogleMapController _controller = await _mapController.future;

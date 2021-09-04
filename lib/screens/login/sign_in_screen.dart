@@ -69,8 +69,9 @@ class _SignInScreenState extends State<SignInScreen> {
       backgroundColor: AppColor.black,
       body: Consumer<LoginProviders>(
         builder: (_, model, __) {
-          return SingleChildScrollView(
-            child: Container(
+          return Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
               decoration: new BoxDecoration(
                 color: AppColor.black,
                 image: new DecorationImage(
@@ -82,149 +83,176 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
               ),
-              child: Center(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(height: 65),
-                    Image.asset(
-                      AppAssets.logo,
-                    ),
-                    SizedBox(height: 35),
-                    Text(
-                      'SIGN IN',
-                      style: TextStyle(
-                          color: AppColor.white,
-                          fontSize: 28,
-                          fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 105),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                      child: TextField(
-                        controller: _emailController,
-                        style: TextStyle(color: AppColor.white),
-                        decoration: new InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
+              child: LayoutBuilder(
+                builder: (context, constraint) {
+                  return SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints:
+                          BoxConstraints(minHeight: constraint.maxHeight),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 65),
+                          Image.asset(
+                            AppAssets.logo,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
+                          SizedBox(height: 35),
+                          Text(
+                            'SIGN IN',
+                            style: TextStyle(
+                                color: AppColor.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w500),
                           ),
-                          border: new OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
-                          ),
-                          labelText: 'Email Address',
-                          labelStyle: TextStyle(color: AppColor.white),
-                          errorText: _isEmail
-                              ? 'Please enter correct email address'
-                              : null,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 35),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                      child: TextField(
-                        controller: _passwordController,
-                        style: TextStyle(color: AppColor.white),
-                        decoration: new InputDecoration(
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
-                          ),
-                          border: new OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16.0),
-                            borderSide: BorderSide(color: AppColor.white),
-                          ),
-                          labelText: 'Password',
-                          labelStyle: TextStyle(color: AppColor.white),
-                          errorText: _isPassword
-                              ? 'Please enter a correct 8 alphanumeric password'
-                              : null,
-                        ),
-                        autofocus: false,
-                        obscureText: true,
-                      ),
-                    ),
-                    SizedBox(height: 35),
-                    model.isLoading
-                        ? SpinKitCircle(
-                            color: AppColor.white,
-                            size: 50.0,
-                          )
-                        : TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: AppColor.bottomRed,
-                            ),
-                            onPressed: () {
-                              signIn(context, _emailController.text.trim(),
-                                  _passwordController.text.trim());
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 10.0, bottom: 10.0, right: 23, left: 23),
-                              child: Text(
-                                'Login',
-                                style: TextStyle(
-                                  color: AppColor.white,
-                                  fontSize: 22,
+                          SizedBox(height: 55),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextField(
+                              onChanged: (val) {
+                                if (val.isNotEmpty)
+                                  setState(() {
+                                    _isEmail = false;
+                                  });
+                              },
+                              controller: _emailController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
                                 ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Email Address',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                errorText: _isEmail
+                                    ? 'Please enter correct email address'
+                                    : null,
                               ),
                             ),
                           ),
-                    SizedBox(height: 20),
-                    InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ForgotPassword()),
-                      ),
-                      child: Text(
-                        'Forgot Password?',
-                        style: TextStyle(
-                          color: AppColor.bottomRed,
-                          fontSize: 17,
-                          fontWeight: FontWeight.w600,
-                        ),
+                          SizedBox(height: 35),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextField(
+                              onChanged: (val) {
+                                if (val.isNotEmpty)
+                                  setState(() {
+                                    _isPassword = false;
+                                  });
+                              },
+                              controller: _passwordController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Password',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                errorText: _isPassword
+                                    ? 'Please enter a correct 8 alphanumeric password'
+                                    : null,
+                              ),
+                              autofocus: false,
+                              obscureText: true,
+                            ),
+                          ),
+                          SizedBox(height: 35),
+                          model.isLoading
+                              ? SpinKitCircle(
+                                  color: AppColor.white,
+                                  size: 50.0,
+                                )
+                              : TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: AppColor.bottomRed,
+                                  ),
+                                  onPressed: () {
+                                    signIn(
+                                        context,
+                                        _emailController.text.trim(),
+                                        _passwordController.text.trim());
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10.0,
+                                        bottom: 10.0,
+                                        right: 23,
+                                        left: 23),
+                                    child: Text(
+                                      'Login',
+                                      style: TextStyle(
+                                        color: AppColor.white,
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                          SizedBox(height: 20),
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ForgotPassword()),
+                            ),
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                color: AppColor.bottomRed,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 45),
+                          Text(
+                            'Don\'t have an Account?',
+                            style: TextStyle(
+                              color: AppColor.white,
+                              fontSize: 17,
+                            ),
+                          ),
+                          SizedBox(height: 35),
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignUpScreen()),
+                            ),
+                            child: Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                color: AppColor.bottomRed,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 45),
-                    Text(
-                      'Don\'t have an Account?',
-                      style: TextStyle(
-                        color: AppColor.white,
-                        fontSize: 17,
-                      ),
-                    ),
-                    SizedBox(height: 35),
-                    InkWell(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignUpScreen()),
-                      ),
-                      child: Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          color: AppColor.bottomRed,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            ),
-          );
+                  );
+                },
+              ));
         },
       ),
     );

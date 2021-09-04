@@ -90,7 +90,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   _init() async {
     try {
       if (await FlutterAudioRecorder.hasPermissions) {
-        String customPath = 'YoutubeMusicRecords';
+        String customPath = 'YTAudioMusicRecords';
         String date =
             "${DateTime.now()?.millisecondsSinceEpoch?.toString()}.wav";
         io.Directory appDocDirectory;
@@ -104,7 +104,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
             "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
 
         if (await youtubeRecordDirectory.exists()) {
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
           _recorder =
               FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
 
@@ -120,7 +120,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
           });
         } else {
           youtubeRecordDirectory.create(recursive: true);
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
           _recorder = FlutterAudioRecorder(alphaPath,
               audioFormat: AudioFormat.WAV, sampleRate: 18000);
 

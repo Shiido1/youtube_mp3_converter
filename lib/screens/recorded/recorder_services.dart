@@ -34,6 +34,17 @@ class RecorderServices {
     }
   }
 
+  Future<bool> editRecording(RecorderModel recording,
+      {String musicid, int libid}) async {
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    Map record = _box.get(recording.name);
+    record['libid'] = libid;
+    record['musicid'] = musicid;
+    await _box.delete(recording.name);
+    _box.put(record['name'], record);
+    return true;
+  }
+
   renameRecording({String oldName, String newName}) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
     Map recording = _box.get(oldName);

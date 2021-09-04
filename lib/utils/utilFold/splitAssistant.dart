@@ -47,7 +47,7 @@ class SplitAssistant {
     }
   }
 
-  static Future<bool> saveSplitFiles(
+  static Future<Map> saveSplitFiles(
       {var decodedData, BuildContext context, String userToken}) async {
     String baseUrl = "http://67.205.165.56/api/savesplit";
 
@@ -58,7 +58,7 @@ class SplitAssistant {
       "drum": decodedData['files']['drums'],
       "others": decodedData['files']['other'],
       "title": decodedData['title'],
-      "id": decodedData['id'],
+      "id": decodedData['id'].toString(),
     });
 
     try {
@@ -67,14 +67,37 @@ class SplitAssistant {
             'Content-Type': 'application/json',
           },
           body: body);
-
+      print('status code = ${_response.statusCode}');
       if (_response.statusCode == 200) {
-        return Future.value(true);
+        Map data = jsonDecode(_response.body);
+        int vocalid, othersid;
+        print(data);
+        print(data['message']);
+        if (data['message'].toString().toLowerCase().trim() ==
+            'inserted to library!!') {
+          for (Map name in data['musicid']) {
+            if (name['name'].toString().toLowerCase().trim() == 'voice')
+              vocalid = name['id'];
+            else if (name['name'].toString().toLowerCase().trim() == 'others')
+              othersid = name['id'];
+          }
+          return {
+            'reply': 'success',
+            'data': {'vocalid': vocalid, 'othersid': othersid}
+          };
+        } else
+          return {'reply': 'failed', 'data': data['message']};
       } else {
-        return Future.value(false);
+        return {
+          'reply': 'failed',
+          'data': jsonDecode(_response.body)['message']
+        };
       }
     } catch (e) {
-      return Future.value(false);
+      return {
+        'reply': 'failed',
+        'data': 'Could not get required details. Try again later'
+      };
     }
   }
 }

@@ -12,7 +12,6 @@ import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
-import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
@@ -65,7 +64,6 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Provider.of<MusicProvider>(context, listen: false)
                           .updateCurrentIndex(1);
-                      
                     },
                     leading: SvgPicture.asset(AppAssets.library),
                     title: TextViewWidget(
@@ -206,7 +204,17 @@ class _LibraryState extends State<Library> {
                                               context);
                                         },
                                         child: CachedNetworkImage(
-                                            imageUrl: e.image),
+                                          imageUrl: e.image,
+                                          errorWidget: (context, data, _) =>
+                                              Container(
+                                                  color: Colors.white54,
+                                                  height: 30,
+                                                  width: 150,
+                                                  child: Icon(
+                                                    Icons.error,
+                                                    size: 35,
+                                                  )),
+                                        ),
                                       ),
                                     ))
                                 .toList(),

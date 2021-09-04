@@ -14,13 +14,14 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
 
 
     <!--TODO: change android:resizeableActivity to false -->
 
-    <application android:name="io.flutter.app.FlutterApplication" android:label="YT Audio" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="true">
+    <application android:name="io.flutter.app.FlutterApplication" android:label="YT Audio" android:icon="@mipmap/ic_launcher" android:requestLegacyExternalStorage="true" android:usesCleartextTraffic="true" android:resizeableActivity="false">
 
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDbnaH3z7dOOvfEHrJWEET_BXH_zrOlNhs"/>
 

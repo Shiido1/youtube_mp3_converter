@@ -125,6 +125,7 @@ class SongServices implements SongInterface {
         .where((e) => e['favorite'] == true)
         .map((e) => Song.fromMap(e))
         .toList();
+
   }
 
   @override

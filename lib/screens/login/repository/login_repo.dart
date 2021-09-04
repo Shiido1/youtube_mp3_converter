@@ -17,6 +17,7 @@ class LoginApiRepository {
       final _response =
           await jayNetworkClient.makePostRequest("login", data: data);
       final _finalData = LoginModel.fromJson(_response.data);
+      print(_finalData.token);
 
       preferencesHelper.saveValue(key: 'name', value: _finalData.name);
       preferencesHelper.saveValue(key: 'email', value: _finalData.email);

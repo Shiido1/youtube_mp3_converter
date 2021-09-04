@@ -6,6 +6,9 @@ class Song {
   String songName = 'Unknown';
   String image;
   String vocalName;
+  int libid;
+  int vocalLibid;
+  String musicId;
   String artistName = 'Unknown';
   bool favorite = false;
   DateTime lastPlayDate;
@@ -18,12 +21,15 @@ class Song {
   Song(
       {this.filePath,
       this.fileName,
+      this.musicId,
       this.image,
       this.songName,
       this.artistName,
+      this.vocalLibid,
       this.favorite,
       this.lastPlayDate,
       this.splittedFileName,
+      this.libid,
       this.vocalName});
 
   Map<String, dynamic> toJson() {
@@ -33,11 +39,14 @@ class Song {
     songMap["songName"] = songName;
     songMap["artistName"] = artistName;
     songMap["image"] = image;
+    songMap['libid'] = libid;
+    songMap['vocalLibid'] = vocalLibid;
     songMap["file"] = file;
     songMap["favorite"] = favorite;
     songMap["lastPlayDate"] = lastPlayDate;
     songMap["splittedFileName"] = splittedFileName;
     songMap["vocalName"] = vocalName;
+    songMap["musicId"] = musicId;
     return songMap;
   }
 
@@ -47,6 +56,9 @@ class Song {
     this.artistName = songMap["artistName"];
     this.filePath = songMap["filePath"];
     this.image = songMap["image"];
+    this.musicId = songMap["musicId"];
+    this.vocalLibid = songMap['vocalLibid'];
+    this.libid = songMap['libid'];
     this.favorite = songMap["favorite"] == null ? false : songMap["favorite"];
     this.lastPlayDate =
         songMap["lastPlayDate"] == null ? null : songMap["lastPlayDate"];

@@ -85,7 +85,7 @@ class _SplitState extends State<Split> {
   _init() async {
     try {
       if (await FlutterAudioRecorder.hasPermissions) {
-        String customPath = 'YoutubeMusicRecords';
+        String customPath = 'YTAudioMusicRecords';
         String date =
             "${DateTime.now()?.millisecondsSinceEpoch?.toString()}.wav";
         io.Directory appDocDirectory;
@@ -99,22 +99,23 @@ class _SplitState extends State<Split> {
             "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
 
         if (await youtubeRecordDirectory.exists()) {
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
           _recorder =
               FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
 
           await _recorder.initialized;
+
+          print('new status: $_currentStatus');
 
           var current = await _recorder.current(channel: 0);
 
           setState(() {
             _current = current;
             _currentStatus = current.status;
-            print(_currentStatus);
           });
         } else {
           youtubeRecordDirectory.create(recursive: true);
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
           _recorder =
               FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
 
@@ -209,6 +210,7 @@ class _SplitState extends State<Split> {
 
   @override
   Widget build(BuildContext context) {
+    print(_currentStatus);
     return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(

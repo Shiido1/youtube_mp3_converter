@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_screen.dart';
 import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -26,10 +27,17 @@ class _RecordedState extends State<Recorded> {
   Directory appDir;
   List<String> records;
   RecordProvider _recordProvider;
+  RecorderModel selectedRecord;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  String url =
+      "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png";
 
   @override
   void initState() {
     init();
+
+    // RecorderServices().addRecording(RecorderModel(
+    //     name: 'New Song', path: '/data/user/0/downloads/whatever.mp3'));
     super.initState();
   }
 
@@ -59,22 +67,27 @@ class _RecordedState extends State<Recorded> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.background,
+      key: _scaffoldKey,
+      endDrawer: RecordedDrawer(
+        url: url,
+        model: selectedRecord,
+      ),
       appBar: AppBar(
-        backgroundColor: AppColor.black,
-        title: TextViewWidget(
-          text: 'Recorded Songs',
-          color: AppColor.bottomRed,
-        ),
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_sharp,
+          backgroundColor: AppColor.black,
+          title: TextViewWidget(
+            text: 'Recorded Songs',
             color: AppColor.bottomRed,
           ),
-        ),
-      ),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios_sharp,
+              color: AppColor.bottomRed,
+            ),
+          ),
+          actions: [Container()]),
       body: Center(
         child: Column(
           children: [
@@ -113,10 +126,8 @@ class _RecordedState extends State<Recorded> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // showOptions(record);
               GestureDetector(
-                onLongPress: () {
-                  showOptions(record);
-                },
                 onTap: () async {
                   _recordProvider.records = recordList;
                   _recordProvider.setCurrentIndex(index);
@@ -131,8 +142,7 @@ class _RecordedState extends State<Recorded> {
                       width: 95,
                       height: 150,
                       child: CachedNetworkImage(
-                        imageUrl:
-                            "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
+                        imageUrl: url,
                         placeholder: (context, index) => Container(
                           child: Center(
                               child: SizedBox(
@@ -149,11 +159,19 @@ class _RecordedState extends State<Recorded> {
                     textSize: 15,
                     fontFamily: 'Roboto-Regular',
                   ),
-                  trailing: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset(
-                      AppAssets.play,
-                      color: AppColor.white,
+                  trailing: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedRecord = record;
+                      });
+                      _scaffoldKey.currentState.openEndDrawer();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        AppAssets.dot,
+                        color: AppColor.white,
+                      ),
                     ),
                   ),
                 ),

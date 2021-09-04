@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +10,7 @@ import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/utils/helper/constant.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -16,6 +18,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:http/http.dart' as http;
 
 const String musicPath = '.music';
 bool debug = true;
@@ -45,16 +48,23 @@ class _ConvertState extends State<Convert> {
   MusicProvider musicProvider;
   String artist = '';
   String song = '';
+  String token;
+  int libid;
+  String musicId;
+
+  init() async {
+    token = await preferencesHelper.getStringValues(key: 'token');
+  }
 
   @override
   void initState() {
     _converterProvider = Provider.of<ConverterProvider>(context, listen: false);
     _converterProvider.init(context);
     musicProvider = Provider.of<MusicProvider>(context, listen: false);
-
+    init();
     _isLoading = true;
     _permissionReady = false;
-    
+
     _prepare();
     _setControllerText();
 
@@ -91,6 +101,7 @@ class _ConvertState extends State<Convert> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<ConverterProvider>(builder: (_, model, __) {
+        print(model.youtubeModel.id);
         return Container(
           color: AppColor.background,
           child: Column(
@@ -144,8 +155,7 @@ class _ConvertState extends State<Convert> {
                                   borderRadius: BorderRadius.circular(16.0),
                                   borderSide: BorderSide(color: Colors.white),
                                 ),
-                                labelText: widget.sharedLinkText ??
-                                    'Enter Url',
+                                labelText: widget.sharedLinkText ?? 'Enter Url',
                                 labelStyle: TextStyle(color: Colors.white),
                               ),
                               cursorColor: AppColor.white,
@@ -255,37 +265,8 @@ class _ConvertState extends State<Convert> {
                                                     children: [
                                                       ElevatedButton(
                                                         onPressed: () async {
-                                                          final result =
-                                                              await showDownloadDialog(
-                                                                  context:
-                                                                      context,
-                                                                  song: song,
-                                                                  artist:
-                                                                      artist);
-                                                          if (result != null) {
-                                                            song = result
-                                                                .split('+')[0];
-                                                            artist = result
-                                                                .split('+')[1];
-                                                            String url = base_url +
-                                                                _converterProvider
-                                                                    ?.youtubeModel
-                                                                    ?.url;
-                                                            Navigator.push(
-                                                                context,
-                                                                MaterialPageRoute(
-                                                                    builder:
-                                                                        (context) =>
-                                                                            Downloads(
-                                                                              localPath: _localPath,
-                                                                              convert: {
-                                                                                'url': url,
-                                                                                'artist': artist,
-                                                                                'song': song,
-                                                                                'image': _converterProvider?.youtubeModel?.image ?? ''
-                                                                              },
-                                                                            )));
-                                                          }
+                                                          saveAndDownloadSong(
+                                                              model);
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
@@ -303,37 +284,8 @@ class _ConvertState extends State<Convert> {
                                                       ),
                                                       ElevatedButton(
                                                         onPressed: () async {
-                                                          final result =
-                                                              await showDownloadDialog(
-                                                                  context:
-                                                                      context,
-                                                                  song: song,
-                                                                  artist:
-                                                                      artist);
-                                                          if (result != null) {
-                                                            song = result
-                                                                .split('+')[0];
-                                                            artist = result
-                                                                .split('+')[1];
-                                                            String url = base_url +
-                                                                _converterProvider
-                                                                    ?.youtubeModel
-                                                                    ?.url;
-                                                            Navigator
-                                                                .pushReplacement(
-                                                                    context,
-                                                                    MaterialPageRoute(
-                                                                        builder: (context) =>
-                                                                            Downloads(
-                                                                              localPath: _localPath,
-                                                                              convert: {
-                                                                                'url': url,
-                                                                                'artist': artist,
-                                                                                'song': song,
-                                                                                'image': _converterProvider?.youtubeModel?.image ?? ''
-                                                                              },
-                                                                            )));
-                                                          }
+                                                          saveAndDownloadSong(
+                                                              model);
                                                         },
                                                         style: TextButton
                                                             .styleFrom(
@@ -364,6 +316,84 @@ class _ConvertState extends State<Convert> {
         );
       }),
     );
+  }
+
+  saveAndDownloadSong(ConverterProvider model) async {
+    final result =
+        await showDownloadDialog(context: context, song: song, artist: artist);
+    if (result != null) {
+      song = result.split('+')[0];
+      artist = result.split('+')[1];
+      String url = base_url + _converterProvider?.youtubeModel?.url;
+      try {
+        final response = await http.post('http://67.205.165.56/api/saveconvert',
+            body: jsonEncode(
+                {'token': token, 'id': model?.youtubeModel?.id.toString()}),
+            headers: {'Content-Type': 'application/json'});
+
+        Map responseData = jsonDecode(response.body);
+        print(responseData['message']);
+        if (responseData['message'].toString().toLowerCase().trim() ==
+            'you cant add this song twice!!') {
+          try {
+            final data = await http.post('http://67.205.165.56/api/mylib',
+                body: jsonEncode({'token': token}),
+                headers: {'Content-Type': 'application/json'});
+            if (data.statusCode == 200) {
+              Map decodedData = jsonDecode(data.body);
+              Map song;
+              for (Map songData in decodedData['mainlib']) {
+                if (songData['title'] == model.youtubeModel.title) {
+                  song = songData;
+                  break;
+                }
+              }
+              libid = song['libid'];
+              musicId = song['musicid'].toString();
+            } else {
+              libid = null;
+              musicId = null;
+            }
+          } catch (e) {
+            libid = null;
+            musicId = null;
+          }
+        } else if (responseData['message'].toString().toLowerCase().trim() ==
+            'music saved to library') {
+          libid = responseData['libid'];
+          musicId = model?.youtubeModel?.id.toString();
+        } else {
+          libid = null;
+          musicId = null;
+        }
+      } catch (e) {
+        libid = null;
+        musicId = null;
+      }
+
+      if (libid != null && musicId != null)
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Downloads(
+              localPath: _localPath,
+              convert: {
+                'url': url,
+                'artist': artist,
+                'libid': libid,
+                'musicId': musicId,
+                'song': song,
+                'image': _converterProvider?.youtubeModel?.image ?? ''
+              },
+            ),
+          ),
+        );
+      else {
+        showToast(context,
+            message: 'Failed to process song details. Try again later');
+        _download(controller.text);
+      }
+    }
   }
 
   Widget _buildNoPermissionWarning() => Container(
@@ -472,7 +502,6 @@ class _ConvertState extends State<Convert> {
     if (!hasExisted) {
       savedDir.create();
     }
-    print('path is: $_localPath');
 
     setState(() {
       _isLoading = false;

@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
+import 'package:mp3_music_converter/screens/recorded/public_share.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -62,6 +65,7 @@ class _AppDrawerState extends State<AppDrawer> {
     _prepare();
     shuffle = _musicProvider.shuffleSong;
     repeat = _musicProvider.repeatSong;
+
     super.initState();
   }
 
@@ -112,6 +116,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    print(_musicProvider.drawerItem.libid);
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),
@@ -134,8 +139,17 @@ class _AppDrawerState extends State<AppDrawer> {
                                     height: 60,
                                     width: 50,
                                     child: CachedNetworkImage(
-                                        imageUrl:
-                                            _provider?.drawerItem?.image)))
+                                      imageUrl: _provider?.drawerItem?.image,
+                                      errorWidget: (context, data, _) =>
+                                          Container(
+                                        margin: EdgeInsets.only(right: 15),
+                                        color: Colors.white54,
+                                        child: Icon(
+                                          Icons.error,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    )))
                             : Container(),
                         _provider?.drawerItem?.songName?.isNotEmpty ?? false
                             ? Expanded(
@@ -225,11 +239,9 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () async {
-                          Share.shareFiles([
-                            File('${_provider.drawerItem.filePath}/${_provider.drawerItem.fileName}')
-                                .path
-                          ]);
                           PageRouter.goBack(context);
+                          buildShareOptions(context,
+                              song: _provider.drawerItem);
                         },
                         child: Column(
                           children: [
@@ -355,26 +367,34 @@ class _AppDrawerState extends State<AppDrawer> {
     var splittedFiles = await SplitAssistant.splitFile(
         filePath: result, context: context, userToken: userToken);
 
-    print(splittedFiles);
     if (splittedFiles['reply'] == "success") {
       await _progressIndicator.dismiss();
-      SplitAssistant.saveSplitFiles(
+      Map splitData = await SplitAssistant.saveSplitFiles(
           decodedData: splittedFiles['data'],
           context: context,
           userToken: userToken);
       if (_permissionReady) {
-        String voiceUrl = splittedFiles['data']["files"]["voice"];
-        String otherUrl = splittedFiles['data']["files"]["other"];
-        _apiSplittedList = ['', ''];
-        _apiSplittedList.insert(0, otherUrl);
-        _apiSplittedList.insert(1, voiceUrl);
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Downloads(
-                    apiSplittedList: _apiSplittedList,
-                    localPath: _localPath,
-                    song: _musicProvider?.drawerItem)));
+        if (splitData['reply'] == 'success') {
+          String voiceUrl = splittedFiles['data']["files"]["voice"];
+          String otherUrl = splittedFiles['data']["files"]["other"];
+          _apiSplittedList = ['', ''];
+          _apiSplittedList.insert(0, otherUrl);
+          _apiSplittedList.insert(1, voiceUrl);
+          Song newSong = _musicProvider?.drawerItem;
+          newSong.musicId = splittedFiles['data']['id'].toString();
+          newSong.vocalLibid = splitData['data']['vocalid'];
+          newSong.libid = splitData['data']['othersid'];
+
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Downloads(
+                      apiSplittedList: _apiSplittedList,
+                      localPath: _localPath,
+                      song: newSong)));
+        } else {
+          showToast(context, message: splitData['data']);
+        }
       } else {
         _buildNoPermissionWarning();
       }
@@ -489,6 +509,62 @@ Future<void> insufficientStorageWarning(BuildContext context) {
               },
             ),
           ],
+        );
+      });
+}
+
+Future<Widget> buildShareOptions(BuildContext context, {Song song}) {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextButton(
+                onPressed: () {
+                  showPrivateShareDialog(context, song);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Private share',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PublicShare(song.libid,
+                              vocalLibid: song.vocalLibid)));
+                },
+                child: Text(
+                  'Public share',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+              TextButton(
+                onPressed: () async {
+                  PageRouter.goBack(context);
+                  Share.shareFiles(
+                      [File('${song.filePath}/${song.fileName}').path]);
+                },
+                child: Text(
+                  'Share to other apps',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+            ],
+          ),
         );
       });
 }

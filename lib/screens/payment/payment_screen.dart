@@ -1,7 +1,7 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -22,11 +22,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String email = '';
   String name = '';
   String userToken = '';
+  String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
 
   @override
   void initState() {
     currentIndexPage = 0;
     pageLength = 3;
+
     init();
 
     super.initState();
@@ -36,6 +38,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     email = await preferencesHelper.getStringValues(key: 'email');
     name = await preferencesHelper.getStringValues(key: 'name');
     userToken = await preferencesHelper.getStringValues(key: 'token');
+    PaystackPlugin.initialize(publicKey: publicKey);
+  }
+
+  @override
+  void dispose() {
+    PaystackPlugin.dispose();
+    super.dispose();
   }
 
   @override
@@ -206,17 +215,22 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     var trxResponse = await PaymentAssistant.processTransaction(
         amount: amount, context: context, email: email, name: name, ref: ref);
+    print(trxResponse);
 
     if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
-      PaymentAssistant.storePayment(
+      bool status = await PaymentAssistant.storePayment(
           context: context,
-          txRef: trxResponse['data']['txRef'],
+          txRef: trxResponse['data']['reference'],
           amount: amount,
-          txId: trxResponse['data']['id'].toString(),
+          txId: trxResponse['data']['reference'],
           storage: storage,
           userToken: userToken);
+      if (status) {
+        showToast(context, message: 'Transaction successful');
+      } else
+        showToast(context, message: 'Transaction failed');
     } else if (trxResponse == 'Failed') {
-      showToast(context, message: 'Transaction Failed. Try again later');
+      showToast(context, message: 'Transaction failed. Try again later');
     } else
       showToast(context, message: 'Transaction cancelled');
   }

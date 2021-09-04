@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/splitted/split_song_drawer.dart';
+import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:mp3_music_converter/screens/splitted/mute_vocal_song_screen.dart';
-import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
 
 class SingAlong extends StatefulWidget {
   @override
@@ -18,6 +19,8 @@ class SingAlong extends StatefulWidget {
 
 class _SingAlongState extends State<SingAlong> {
   SplittedSongProvider _songProvider;
+  Song selectedSong;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -29,6 +32,7 @@ class _SingAlongState extends State<SingAlong> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: AppColor.background,
       appBar: AppBar(
         backgroundColor: AppColor.black,
@@ -45,7 +49,21 @@ class _SingAlongState extends State<SingAlong> {
             color: AppColor.bottomRed,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            child: TextButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue)),
+                onPressed: () {
+                  synchronizeSplitSong(context);
+                },
+                child: Text('Sync split',
+                    style: TextStyle(color: Colors.white, fontSize: 17))),
+          )
+        ],
       ),
+      endDrawer: SplitSongDrawer(selectedSong, false),
       body: Center(
         child: Column(
           children: [
@@ -73,10 +91,10 @@ class _SingAlongState extends State<SingAlong> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onLongPress: () {
-                  DeleteSongs(context).showDeleteDialog(
-                      song: _song, splitted: true, showAll: false);
-                },
+                // onLongPress: () {
+                //   DeleteSongs(context).showDeleteDialog(
+                //       song: _song, splitted: true, showAll: false);
+                // },
                 onTap: () {
                   int width = MediaQuery.of(context).size.width.floor();
                   Navigator.push(
@@ -89,22 +107,33 @@ class _SingAlongState extends State<SingAlong> {
                 },
                 child: ListTile(
                   leading: SizedBox(
-                      width: 95,
-                      height: 150,
-                      child: _song?.image != null && _song.image.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: _song.image,
-                              placeholder: (context, index) => Container(
-                                child: Center(
-                                    child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator())),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  new Icon(Icons.error),
-                            )
-                          : null),
+                    width: 95,
+                    height: 150,
+                    child: _song?.image != null && _song.image.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: _song.image,
+                            placeholder: (context, index) => Container(
+                              child: Center(
+                                  child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator())),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                new Icon(Icons.error),
+                          )
+                        : Container(
+                            color: Colors.white,
+                            alignment: Alignment.center,
+                            child: Text(
+                              _song.songName[0].toUpperCase() ?? 'U',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 45,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                  ),
                   title: ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: TextViewWidget(
@@ -120,12 +149,19 @@ class _SingAlongState extends State<SingAlong> {
                       fontFamily: 'Roboto-Regular',
                     ),
                   ),
-                  trailing: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SvgPicture.asset(
-                      AppAssets.mpFile,
-                      color: AppColor.white,
-                      height: 27,
+                  trailing: InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedSong = _song;
+                      });
+                      _scaffoldKey.currentState.openEndDrawer();
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SvgPicture.asset(
+                        AppAssets.dot,
+                        color: AppColor.white,
+                      ),
                     ),
                   ),
                 ),

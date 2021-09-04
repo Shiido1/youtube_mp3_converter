@@ -26,6 +26,8 @@ class _ImageFileState extends State<ImageFile> {
             child: CachedNetworkImage(
               imageUrl: _musicProvider?.currentSong?.image ?? '',
               fit: BoxFit.fitHeight,
+              errorWidget: (context, data, _) => Container(
+                  color: Colors.white54, child: Icon(Icons.error, size: 40)),
             ),
           )
         : Container();

@@ -1,5 +1,5 @@
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/screens/splitted/database/split_services.dart';
+import 'package:mp3_music_converter/screens/split/database/split_services.dart';
 
 import '../songs/song_service.dart';
 
@@ -34,12 +34,12 @@ class SongRepository {
           fileName: fileName, songName: songName, artistName: artistName);
 }
 
-class SplittedSongRepository {
-  static SplittedSongServices _services;
+class SplitSongRepository {
+  static SplitSongServices _services;
   static bool isHive;
 
   static init() {
-    _services = SplittedSongServices();
+    _services = SplitSongServices();
   }
 
   static addSong(Song song) => _services.addSong(song);

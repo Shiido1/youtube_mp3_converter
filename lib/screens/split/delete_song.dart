@@ -9,7 +9,7 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +21,7 @@ class DeleteSongs {
   Future<void> showDeleteDialog(
       {Song song,
       RecorderModel record,
-      bool splitted = false,
+      bool split = false,
       bool showAll = false}) {
     return showDialog(
         context: context,
@@ -40,7 +40,7 @@ class DeleteSongs {
                         song: song.songName,
                         artist: song.artistName,
                         context: context,
-                        fileName: song.splittedFileName,
+                        fileName: song.splitFileName,
                         download: false,
                         showAll: showAll);
                   },
@@ -67,7 +67,7 @@ class DeleteSongs {
                     showConfirmDeleteDialog(
                         song: song,
                         record: record,
-                        splitted: splitted,
+                        split: split,
                         showAll: showAll);
                   },
                   child: Container(
@@ -94,7 +94,7 @@ class DeleteSongs {
   }
 
   Future<void> showConfirmDeleteDialog(
-      {Song song, RecorderModel record, bool splitted = false, bool showAll}) {
+      {Song song, RecorderModel record, bool split = false, bool showAll}) {
     return showDialog(
         context: context,
         builder: (_) {
@@ -122,7 +122,7 @@ class DeleteSongs {
                       song: song,
                       record: record,
                       context: _,
-                      splitted: splitted,
+                      split: split,
                       showAll: showAll);
                 },
               ),
@@ -136,7 +136,7 @@ Future<void> deleteSong(
     {Song song,
     RecorderModel record,
     @required BuildContext context,
-    @required bool splitted,
+    @required bool split,
     bool showAll}) async {
   String token = await preferencesHelper.getStringValues(key: 'token');
   if (song != null) {
@@ -163,29 +163,29 @@ Future<void> deleteSong(
     }
     try {
       await file.delete();
-      if (!splitted) {
+      if (!split) {
         SongRepository.deleteSong(song.fileName);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
         SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
         Navigator.pop(context);
       }
-      if (splitted) {
-        SplittedSongRepository.deleteSong(song.splittedFileName);
-        Provider.of<SplittedSongProvider>(context, listen: false)
+      if (split) {
+        SplitSongRepository.deleteSong(song.splitFileName);
+        Provider.of<SplitSongProvider>(context, listen: false)
             .getSongs(showAll);
         Navigator.pop(context);
       }
     } catch (_) {
       print('couldn\'t delete');
-      if (!splitted) {
+      if (!split) {
         SongRepository.deleteSong(song.fileName);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
         SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
         Navigator.pop(context);
       }
-      if (splitted) {
-        SplittedSongRepository.deleteSong(song.splittedFileName);
-        Provider.of<SplittedSongProvider>(context, listen: false)
+      if (split) {
+        SplitSongRepository.deleteSong(song.splitFileName);
+        Provider.of<SplitSongProvider>(context, listen: false)
             .getSongs(showAll);
         Navigator.pop(context);
       }

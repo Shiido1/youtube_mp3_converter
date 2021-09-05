@@ -1,36 +1,31 @@
-import 'dart:convert';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/screens/downloads/downloads.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/split.dart';
-import 'package:mp3_music_converter/screens/splitted/split_song_drawer.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/split_song_drawer.dart';
+import 'package:mp3_music_converter/screens/split/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
-import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
+import 'package:mp3_music_converter/screens/split/mute_vocal_song_screen.dart';
 
-class SplittedScreen extends StatefulWidget {
+class SingAlong extends StatefulWidget {
   @override
-  _SplittedScreenState createState() => _SplittedScreenState();
+  _SingAlongState createState() => _SingAlongState();
 }
 
-class _SplittedScreenState extends State<SplittedScreen> {
-  SplittedSongProvider _splitSongProvider;
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+class _SingAlongState extends State<SingAlong> {
+  SplitSongProvider _songProvider;
   Song selectedSong;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    _splitSongProvider =
-        Provider.of<SplittedSongProvider>(context, listen: false);
-    _splitSongProvider.getSongs(true);
+    _songProvider = Provider.of<SplitSongProvider>(context, listen: false);
+    _songProvider.getSongs(false);
     super.initState();
   }
 
@@ -42,7 +37,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Split Songs',
+          text: 'Sing Along',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(
@@ -68,7 +63,7 @@ class _SplittedScreenState extends State<SplittedScreen> {
           )
         ],
       ),
-      endDrawer: SplitSongDrawer(selectedSong, true),
+      endDrawer: SplitSongDrawer(selectedSong, false),
       body: Center(
         child: Column(
           children: [
@@ -83,11 +78,10 @@ class _SplittedScreenState extends State<SplittedScreen> {
   }
 
   Widget buildSongList() {
-    return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
+    return Consumer<SplitSongProvider>(builder: (_, _provider, __) {
       if (_provider.allSongs.length < 1) {
         return Center(
-            child: TextViewWidget(
-                text: 'No Splitted Song', color: AppColor.white));
+            child: TextViewWidget(text: 'No Song', color: AppColor.white));
       }
       return ListView.builder(
         itemCount: _provider.allSongs.length,
@@ -99,14 +93,14 @@ class _SplittedScreenState extends State<SplittedScreen> {
               GestureDetector(
                 // onLongPress: () {
                 //   DeleteSongs(context).showDeleteDialog(
-                //       song: _song, splitted: true, showAll: true);
+                //       song: _song, split: true, showAll: false);
                 // },
                 onTap: () {
                   int width = MediaQuery.of(context).size.width.floor();
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (_) => Split(
+                          builder: (_) => MuteVocalsScreen(
                                 song: _song,
                                 width: width,
                               )));
@@ -184,77 +178,5 @@ class _SplittedScreenState extends State<SplittedScreen> {
         },
       );
     });
-  }
-}
-
-synchronizeSplitSong(BuildContext context) async {
-  String url = "http://67.205.165.56/api/mylib";
-  String token = await preferencesHelper.getStringValues(key: 'token');
-  SplittedSongProvider _provider =
-      Provider.of<SplittedSongProvider>(context, listen: false);
-  _provider.getSongs(true);
-  final snackBar = SnackBar(
-    content: Text('Failed to synchronize songs. Please try again later'),
-    backgroundColor: Colors.red,
-  );
-
-  try {
-    final response = await http.post(url,
-        body: jsonEncode({'token': token}),
-        headers: {'Content-Type': 'application/json'});
-    if (response.statusCode == 200) {
-      Map data = jsonDecode(response.body);
-      print(data);
-      List<Song> splitSongs = _provider.allSongs;
-      List<String> songTitle = [];
-      Map<String, Map> songDetails = {};
-
-      for (Map item in data['sepratedsongs']) {
-        String voice, others, image, musicId;
-        int vocalid, othersid;
-        musicId = item['topsong']['musicid'].toString();
-
-        item['songs'].forEach((val) {
-          if (val['title'] == 'voice') {
-            voice = val['path'];
-            image = val['image'][0] == "/"
-                ? "https://youtubeaudio.com" + val['image']
-                : val['image'];
-            vocalid = val['libid'];
-          } else if (val['title'] == 'others') {
-            others = val['path'];
-            othersid = val['libid'];
-          }
-        });
-        songDetails.putIfAbsent(
-            item['topsong']['title'],
-            () => {
-                  'voice': voice,
-                  'others': others,
-                  'image': image,
-                  'vocalid': vocalid,
-                  'othersid': othersid,
-                  'musicId': musicId
-                });
-        for (Song song in splitSongs) {
-          if (item['topsong']['title'] == song.splittedFileName) {
-            songTitle.add(song.splittedFileName);
-            break;
-          }
-        }
-      }
-      for (String title in songTitle) {
-        songDetails.remove(title);
-      }
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  Downloads(syncSplitData: songDetails, syncSplit: true)));
-    } else
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

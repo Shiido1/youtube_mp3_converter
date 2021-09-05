@@ -5,7 +5,7 @@ import 'package:mp3_music_converter/screens/otp/provider/otp_provider.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_play_provider.dart';
 import 'package:mp3_music_converter/screens/world_radio/provider/radio_provider.dart';
 import 'package:mp3_music_converter/utils/helper/timer_helper.dart';
@@ -27,8 +27,8 @@ class Providers {
     ChangeNotifierProvider<MusicProvider>(create: (_) => MusicProvider()),
     ChangeNotifierProvider<RadioPlayProvider>(
         create: (_) => RadioPlayProvider()),
-    ChangeNotifierProvider<SplittedSongProvider>(
-        create: (_) => SplittedSongProvider()),
+    ChangeNotifierProvider<SplitSongProvider>(
+        create: (_) => SplitSongProvider()),
     ChangeNotifierProvider<RecordProvider>(create: (_) => RecordProvider()),
     ChangeNotifierProvider<SearchProvider>(create: (_) => SearchProvider()),
     ChangeNotifierProvider<ChangePasswordProvider>(

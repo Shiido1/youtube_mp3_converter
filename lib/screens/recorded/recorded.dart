@@ -8,7 +8,7 @@ import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_screen.dart';
-import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';

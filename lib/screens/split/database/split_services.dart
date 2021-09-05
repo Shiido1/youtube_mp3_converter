@@ -5,7 +5,7 @@ import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/interface/song_interface.dart';
 
-class SplittedSongServices implements SplittedSongInterface {
+class SplitSongServices implements SplitSongInterface {
   Box<Map> _box;
   Box<Map> _box2;
 
@@ -20,8 +20,8 @@ class SplittedSongServices implements SplittedSongInterface {
   @override
   addSong(Song song) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    if (_box.containsKey(song.splittedFileName)) {
-      Map savedSong = _box.get(song.splittedFileName);
+    if (_box.containsKey(song.splitFileName)) {
+      Map savedSong = _box.get(song.splitFileName);
       String fileName = savedSong['fileName'];
       String vocalName = savedSong['vocalName'];
 
@@ -32,9 +32,9 @@ class SplittedSongServices implements SplittedSongInterface {
 
       print(song.vocalName);
 
-      return _box.put(song.splittedFileName, song.toJson());
+      return _box.put(song.splitFileName, song.toJson());
     }
-    return _box.put(song.splittedFileName, song.toJson());
+    return _box.put(song.splitFileName, song.toJson());
   }
 
   @override

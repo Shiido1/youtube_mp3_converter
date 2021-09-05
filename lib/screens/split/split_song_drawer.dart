@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
-import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -91,7 +91,7 @@ class _SplitSongDrawerState extends State<SplitSongDrawer> {
                           song: widget.song.songName,
                           artist: widget.song.artistName,
                           context: context,
-                          fileName: widget.song.splittedFileName,
+                          fileName: widget.song.splitFileName,
                           download: false,
                           showAll: widget.showAll);
                     },
@@ -132,7 +132,7 @@ class _SplitSongDrawerState extends State<SplitSongDrawer> {
                           Navigator.pop(context);
                           DeleteSongs(context).showConfirmDeleteDialog(
                               song: widget.song,
-                              splitted: true,
+                              split: true,
                               showAll: widget.showAll);
                         },
                         leading: Icon(

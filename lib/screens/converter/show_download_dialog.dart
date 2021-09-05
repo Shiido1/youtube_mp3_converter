@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:provider/provider.dart';
 
@@ -108,18 +108,16 @@ Future<String> showDownloadDialog(
                                             '${songController.text.trim()}+${artistController.text.trim()}');
                                       else {
                                         if (split) {
-                                          await SplittedSongRepository
-                                              .renameSong(
-                                                  fileName: fileName,
-                                                  artistName: artistController
-                                                      .text
-                                                      .trim(),
-                                                  songName: songController.text
-                                                      .trim());
+                                          await SplitSongRepository.renameSong(
+                                              fileName: fileName,
+                                              artistName:
+                                                  artistController.text.trim(),
+                                              songName:
+                                                  songController.text.trim());
                                           showToast(context,
                                               message:
                                                   'Song renamed successfully');
-                                          Provider.of<SplittedSongProvider>(
+                                          Provider.of<SplitSongProvider>(
                                                   context,
                                                   listen: false)
                                               .getSongs(showAll);

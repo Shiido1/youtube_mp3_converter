@@ -8,7 +8,7 @@ import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -25,7 +25,7 @@ class MainDashBoard extends StatefulWidget {
 class _MainDashBoardState extends State<MainDashBoard> {
   int _currentIndex = 0;
   MusicProvider _musicProvider;
-  SplittedSongProvider _repository;
+  SplitSongProvider _repository;
   RecordProvider _recordProvider;
   List<Widget> _screens;
 
@@ -40,7 +40,7 @@ class _MainDashBoardState extends State<MainDashBoard> {
   init() async {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     await _musicProvider.initProvider();
-    _repository = Provider.of<SplittedSongProvider>(context, listen: false);
+    _repository = Provider.of<SplitSongProvider>(context, listen: false);
     _repository.initProvider();
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
     await _recordProvider.initProvider();

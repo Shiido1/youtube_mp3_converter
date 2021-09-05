@@ -52,7 +52,7 @@ class PgHiveBoxes {
 }
 
 class SplitHiveBoxes {
-  static final songs = 'splittedSongs';
+  static final songs = 'splitSongs';
 
   static init() async {
     Directory dir = await getApplicationDocumentsDirectory();
@@ -97,4 +97,3 @@ class SplitHiveBoxes {
     }
   }
 }
-

@@ -9,7 +9,8 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -21,7 +22,7 @@ class DeleteSongs {
   Future<void> showDeleteDialog(
       {Song song,
       RecorderModel record,
-      bool splitted = false,
+      bool split = false,
       bool showAll = false}) {
     return showDialog(
         context: context,
@@ -40,7 +41,7 @@ class DeleteSongs {
                         song: song.songName,
                         artist: song.artistName,
                         context: context,
-                        fileName: song.splittedFileName,
+                        fileName: song.splitFileName,
                         download: false,
                         showAll: showAll);
                   },
@@ -67,7 +68,7 @@ class DeleteSongs {
                     showConfirmDeleteDialog(
                         song: song,
                         record: record,
-                        splitted: splitted,
+                        split: split,
                         showAll: showAll);
                   },
                   child: Container(
@@ -94,40 +95,79 @@ class DeleteSongs {
   }
 
   Future<void> showConfirmDeleteDialog(
-      {Song song, RecorderModel record, bool splitted = false, bool showAll}) {
+      {Song song, RecorderModel record, bool split = false, bool showAll}) {
+    bool removeFromLib = false;
     return showDialog(
         context: context,
         builder: (_) {
-          return AlertDialog(
-            backgroundColor: Color.fromRGBO(40, 40, 40, 1),
-            content: Text(
-              'Are you sure you want to delete this song?',
-              style: TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            actions: [
-              TextButton(
-                child: Text('No',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                onPressed: () {
-                  Navigator.pop(_);
-                },
+          return StatefulBuilder(builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Are you sure you want to delete this song?',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                  if ((song?.musicid != null && song.musicid.isNotEmpty) ||
+                      (record?.musicid != null && record.musicid.isNotEmpty))
+                    Container(
+                      margin: EdgeInsets.only(top: 10),
+                      alignment: Alignment.centerLeft,
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                            unselectedWidgetColor: Colors.white,
+                            splashColor: Colors.transparent,
+                            highlightColor: Colors.transparent),
+                        child: CheckboxListTile(
+                          value: removeFromLib,
+                          onChanged: (val) {
+                            setState(() {
+                              removeFromLib = val;
+                            });
+                          },
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(
+                            'Remove from library?',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                            ),
+                          ),
+                          activeColor: Colors.blue,
+                        ),
+                      ),
+                    )
+                ],
               ),
-              TextButton(
-                child: Text('Yes',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                onPressed: () {
-                  deleteSong(
-                      song: song,
-                      record: record,
-                      context: _,
-                      splitted: splitted,
-                      showAll: showAll);
-                },
-              ),
-            ],
-          );
+              actions: [
+                TextButton(
+                  child: Text('No',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  onPressed: () {
+                    Navigator.pop(_);
+                  },
+                ),
+                TextButton(
+                  child: Text('Yes',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  onPressed: () {
+                    deleteSong(
+                        song: song,
+                        record: record,
+                        context: _,
+                        split: split,
+                        showAll: showAll,
+                        removeFromLib: removeFromLib);
+                  },
+                ),
+              ],
+            );
+          });
         });
   }
 }
@@ -136,15 +176,63 @@ Future<void> deleteSong(
     {Song song,
     RecorderModel record,
     @required BuildContext context,
-    @required bool splitted,
-    bool showAll}) async {
+    @required bool split,
+    bool showAll,
+    bool removeFromLib = false}) async {
   String token = await preferencesHelper.getStringValues(key: 'token');
+
+  if (removeFromLib) {
+    try {
+      var response = await http.post('https://youtubeaudio.com/api/deletesong',
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'token': token, 'id': record.musicid}));
+      print(jsonDecode(response.body));
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        if (responseData['message'].toString().toLowerCase().trim() ==
+            'deleted') {
+          deleteSong2(
+              song: song,
+              record: record,
+              context: context,
+              split: split,
+              showAll: showAll);
+        } else if (responseData['message'].toString().toLowerCase().trim() ==
+            'song not found')
+          showToast(context, message: 'Song not found in library');
+        else
+          showToast(context,
+              message: 'Failed to delete song from library. Try again');
+      } else
+        showToast(context,
+            message: 'Failed to delete song from library. Try again');
+    } catch (e) {
+      showToast(context,
+          message:
+              'Failed to delete song from library. Please check your internet connection and try again.');
+    }
+  } else {
+    deleteSong2(
+        song: song,
+        record: record,
+        context: context,
+        split: split,
+        showAll: showAll);
+  }
+}
+
+Future<void> deleteSong2(
+    {@required Song song,
+    @required RecorderModel record,
+    @required BuildContext context,
+    @required bool split,
+    @required bool showAll}) async {
   if (song != null) {
     var path = song.file.split('/');
     int index = path.indexOf(
         path.firstWhere((element) => element != '' && element != 'file:'));
     path.removeRange(0, index);
-    var file = File(path.join('/'));
+    var file = File(Uri.decodeFull(path.join('/')));
 
     if (song?.vocalName?.split('-')?.last == 'vocals.wav' ?? false) {
       var path2 = song.vocalName.split('/');
@@ -153,7 +241,7 @@ Future<void> deleteSong(
       path2.removeRange(0, index);
 
       path.removeLast();
-      File file2 = File('${path.join('/')}/${path2.join('/')}');
+      File file2 = File(Uri.decodeFull('${path.join('/')}/${path2.join('/')}'));
 
       try {
         await file2.delete();
@@ -163,40 +251,21 @@ Future<void> deleteSong(
     }
     try {
       await file.delete();
-      if (!splitted) {
+      if (!split) {
         SongRepository.deleteSong(song.fileName);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
         SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
         Navigator.pop(context);
       }
-      if (splitted) {
-        SplittedSongRepository.deleteSong(song.splittedFileName);
-        Provider.of<SplittedSongProvider>(context, listen: false)
+      if (split) {
+        SplitSongRepository.deleteSong(song.splitFileName);
+        Provider.of<SplitSongProvider>(context, listen: false)
             .getSongs(showAll);
         Navigator.pop(context);
       }
     } catch (_) {
-      print('couldn\'t delete');
-      if (!splitted) {
-        SongRepository.deleteSong(song.fileName);
-        Provider.of<MusicProvider>(context, listen: false).getSongs();
-        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
-        Navigator.pop(context);
-      }
-      if (splitted) {
-        SplittedSongRepository.deleteSong(song.splittedFileName);
-        Provider.of<SplittedSongProvider>(context, listen: false)
-            .getSongs(showAll);
-        Navigator.pop(context);
-      }
+      showToast(context, message: 'Failed to delete song');
     }
-
-    try {
-      var response = await http.post('https://youtubeaudio.com/api/deletesong',
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'token': token, 'id': song.musicId}));
-      print(jsonDecode(response.body));
-    } catch (e) {}
   }
   if (record != null) {
     var path = record.path.split('/');
@@ -213,11 +282,5 @@ Future<void> deleteSong(
       Provider.of<RecordProvider>(context, listen: false).getRecords();
       Navigator.pop(context);
     }
-    try {
-      var response = await http.post('https://youtubeaudio.com/api/deletesong',
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'token': token, 'id': record.musicid}));
-      print(jsonDecode(response.body));
-    } catch (e) {}
   }
 }

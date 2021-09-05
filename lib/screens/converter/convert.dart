@@ -50,7 +50,7 @@ class _ConvertState extends State<Convert> {
   String song = '';
   String token;
   int libid;
-  String musicId;
+  String musicid;
 
   init() async {
     token = await preferencesHelper.getStringValues(key: 'token');
@@ -349,29 +349,29 @@ class _ConvertState extends State<Convert> {
                 }
               }
               libid = song['libid'];
-              musicId = song['musicid'].toString();
+              musicid = song['musicid'].toString();
             } else {
               libid = null;
-              musicId = null;
+              musicid = null;
             }
           } catch (e) {
             libid = null;
-            musicId = null;
+            musicid = null;
           }
         } else if (responseData['message'].toString().toLowerCase().trim() ==
             'music saved to library') {
           libid = responseData['libid'];
-          musicId = model?.youtubeModel?.id.toString();
+          musicid = model?.youtubeModel?.id.toString();
         } else {
           libid = null;
-          musicId = null;
+          musicid = null;
         }
       } catch (e) {
         libid = null;
-        musicId = null;
+        musicid = null;
       }
 
-      if (libid != null && musicId != null)
+      if (libid != null && musicid != null)
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -381,7 +381,7 @@ class _ConvertState extends State<Convert> {
                 'url': url,
                 'artist': artist,
                 'libid': libid,
-                'musicId': musicId,
+                'musicid': musicid,
                 'song': song,
                 'image': _converterProvider?.youtubeModel?.image ?? ''
               },

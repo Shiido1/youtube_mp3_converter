@@ -18,6 +18,7 @@ import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class UploadSong extends StatefulWidget {
   final bool isRecord;
@@ -172,7 +173,7 @@ class _UploadSongState extends State<UploadSong> {
       Song(
         artistName: artistName,
         favorite: false,
-        musicId: musicid,
+        musicid: musicid,
         songName: songName,
         libid: libid,
         image: image,
@@ -253,6 +254,50 @@ class _UploadSongState extends State<UploadSong> {
                 child: ListView(
                   children: [
                     SizedBox(height: 20),
+                    if (!widget.isRecord)
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            child: TextButton(
+                              onPressed: () async {
+                                selectedSong = await pickFile('audio');
+                                setState(() {
+                                  showSongName =
+                                      selectedSong != null ? true : false;
+                                  _selectedSongController.text = songName;
+                                });
+                              },
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all(Colors.white)),
+                              child: Text(
+                                'Choose Song',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ),
+                          if (showSongName)
+                            Container(
+                              margin: EdgeInsets.only(bottom: 20),
+                              child: TextFormField(
+                                controller: _selectedSongController,
+                                decoration: decoration.copyWith(
+                                  enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 3),
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                                readOnly: true,
+                                minLines: 1,
+                                maxLines: 3,
+                                style: TextStyle(color: Colors.white54),
+                              ),
+                            ),
+                        ],
+                      ),
                     TextFormField(
                       textCapitalization: TextCapitalization.words,
                       controller: _songNameController,
@@ -278,29 +323,104 @@ class _UploadSongState extends State<UploadSong> {
                       },
                     ),
                     SizedBox(height: 20),
-                    DropdownButtonFormField(
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                        items: genre
-                            .map((e) => DropdownMenuItem(
-                                  child: Text(e['name']),
-                                  value: e,
-                                ))
-                            .toList(),
-                        value: selectedVal,
-                        dropdownColor: Colors.brown[800],
-                        decoration:
-                            decoration.copyWith(hintText: 'Select song genre'),
-                        autovalidateMode: AutovalidateMode.onUserInteraction,
-                        onChanged: (val) {
-                          setState(() {
-                            selectedVal = val;
-                          });
-                        },
-                        validator: (val) {
-                          return val == null ? 'Select a genre' : null;
-                        }),
+                    DropdownSearch(
+                      mode: Mode.MENU,
+                      label: 'Song genre',
+                      items: genre.map((e) => e['name']).toList(),
+                      hint: 'Select song genre',
+                      maxHeight: 500,
+                      popupShape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      dropdownSearchDecoration: decoration.copyWith(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 12)),
+                      autoValidateMode: AutovalidateMode.onUserInteraction,
+                      popupBackgroundColor: Colors.black,
+
+                      popupItemBuilder: (context, data, val) {
+                        return Container(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          child: Text(
+                            data,
+                            style: TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                        );
+                      },
+                      validator: (val) {
+                        return val == null ? 'Select a genre' : null;
+                      },
+                      onChanged: (val) {
+                        setState(() {
+                          selectedVal = genre
+                              .firstWhere((element) => element['name'] == val);
+                        });
+                      },
+                      emptyBuilder: (context, data) {
+                        return Container(
+                          alignment: Alignment.topCenter,
+                          padding: EdgeInsets.only(top: 10),
+                          child: Text(
+                            'No result',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        );
+                      },
+
+                      dropdownBuilder: (context, data, val) {
+                        return Text(
+                          val == null || val.isEmpty
+                              ? 'Select song genre'
+                              : val,
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        );
+                      },
+                      dropDownButton: Icon(Icons.arrow_drop_down,
+                          color: Colors.white, size: 30),
+                      searchFieldProps: TextFieldProps(
+                          decoration: decoration.copyWith(
+                            hintText: 'Search song genre',
+                            hintStyle: TextStyle(color: Colors.white54),
+                          ),
+                          style: TextStyle(color: Colors.white)),
+                      //   .copyWith(
+                      //       border: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: AppColor.black),
+                      //       ),
+                      //       focusedBorder: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: AppColor.black),
+                      //       ),
+                      //       enabledBorder: OutlineInputBorder(
+                      //         borderSide: BorderSide(color: AppColor.black),
+                      //       ),
+                      //       hintText: 'Enter song genre',
+                      //       hintStyle: TextStyle(color: Colors.black54)),
+                      // ),
+                      showSearchBox: true,
+                    ),
+                    // DropdownButtonFormField(
+                    //     style: TextStyle(
+                    //       color: Colors.white,
+                    //     ),
+                    //     items: genre
+                    //         .map((e) => DropdownMenuItem(
+                    //               child: Text(e['name']),
+                    //               value: e,
+                    //             ))
+                    //         .toList(),
+                    //     value: selectedVal,
+                    //     dropdownColor: Colors.brown[800],
+                    //     decoration:
+                    //         decoration.copyWith(hintText: 'Select song genre'),
+                    //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                    //     onChanged: (val) {
+                    //       setState(() {
+                    //         selectedVal = val;
+                    //       });
+                    //     },
+                    //     validator: (val) {
+                    //       return val == null ? 'Select a genre' : null;
+                    //     }),
                     SizedBox(height: 20),
                     TextFormField(
                       textCapitalization: TextCapitalization.sentences,
@@ -367,42 +487,7 @@ class _UploadSongState extends State<UploadSong> {
                           ),
                         ),
                       ),
-                    if (!widget.isRecord)
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TextButton(
-                            onPressed: () async {
-                              selectedSong = await pickFile('audio');
-                              setState(() {
-                                showSongName =
-                                    selectedSong != null ? true : false;
-                                _selectedSongController.text = songName;
-                              });
-                            },
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.white)),
-                            child: Text(
-                              'Choose Song',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          if (showSongName)
-                            Container(
-                              margin: EdgeInsets.only(top: 10),
-                              child: TextFormField(
-                                controller: _selectedSongController,
-                                decoration: decoration,
-                                readOnly: true,
-                                minLines: 1,
-                                maxLines: 3,
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                        ],
-                      ),
+
                     SizedBox(height: 40),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

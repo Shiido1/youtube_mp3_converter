@@ -9,7 +9,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -34,7 +34,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   bool _isRecording = false;
   bool _playVocals = true;
   asp.AudioSession audioSession;
-  SplittedSongProvider _songProvider;
+  SplitSongProvider _songProvider;
   Timer _timer;
   BannerAd songAd;
 
@@ -44,7 +44,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   void initState() {
-    _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
+    _songProvider = Provider.of<SplitSongProvider>(context, listen: false);
     _init();
     showAd(widget.width);
     startTimer();
@@ -218,7 +218,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
+    return Consumer<SplitSongProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.grey,

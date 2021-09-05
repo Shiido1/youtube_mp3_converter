@@ -39,7 +39,7 @@ class DashBoard extends StatefulWidget with WidgetsBindingObserver {
 
 class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
-  List<String> _apiSplittedList = ['', ''];
+  List<String> _apiSplitList = ['', ''];
   bool _permissionReady;
   static String _localPath;
   String _sharedText = '';
@@ -263,24 +263,24 @@ class _DashBoardState extends State<DashBoard> {
     if (result != null && result.files.isNotEmpty) {
       _progressIndicator.show();
       String nameOfFile = result.files.single.name.split(' ').join('_');
-      var splittedFiles = await SplitAssistant.splitFile(
+      var splitFiles = await SplitAssistant.splitFile(
           filePath: result.files.single.path,
           context: context,
           userToken: userToken);
-      if (splittedFiles['reply'] == "success") {
+      if (splitFiles['reply'] == "success") {
         await _progressIndicator.dismiss();
         Map splitData = await SplitAssistant.saveSplitFiles(
-            decodedData: splittedFiles['data'],
+            decodedData: splitFiles['data'],
             context: context,
             userToken: userToken);
         if (_permissionReady) {
           if (splitData['reply'] == 'success') {
-            String voiceUrl = splittedFiles['data']["files"]["voice"];
-            String otherUrl = splittedFiles['data']["files"]["other"];
+            String voiceUrl = splitFiles['data']["files"]["voice"];
+            String otherUrl = splitFiles['data']["files"]["other"];
 
-            _apiSplittedList = ['', ''];
-            _apiSplittedList.insert(0, otherUrl);
-            _apiSplittedList.insert(1, voiceUrl);
+            _apiSplitList = ['', ''];
+            _apiSplitList.insert(0, otherUrl);
+            _apiSplitList.insert(1, voiceUrl);
 
             print(splitData['data']['vocalid']);
             print(splitData['data']['othersid']);
@@ -288,11 +288,11 @@ class _DashBoardState extends State<DashBoard> {
               context,
               MaterialPageRoute(
                 builder: (context) => Downloads(
-                  apiSplittedList: _apiSplittedList,
+                  apiSplitList: _apiSplitList,
                   localPath: _localPath,
                   song: Song(
                       fileName: nameOfFile,
-                      musicId: splittedFiles['data']['id'].toString(),
+                      musicid: splitFiles['data']['id'].toString(),
                       vocalLibid: splitData['data']['vocalid'],
                       libid: splitData['data']['othersid']),
                 ),
@@ -304,14 +304,14 @@ class _DashBoardState extends State<DashBoard> {
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
         }
-      } else if (splittedFiles['data'] ==
+      } else if (splitFiles['data'] ==
           'please subscribe to enjoy this service') {
         await _progressIndicator.dismiss();
         showSubscriptionMessage(context);
-      } else if (splittedFiles['data'] == 'insufficient storage') {
+      } else if (splitFiles['data'] == 'insufficient storage') {
         await _progressIndicator.dismiss();
         insufficientStorageWarning(context);
-      } else if (splittedFiles['data'] == "Invalid Song Provided!") {
+      } else if (splitFiles['data'] == "Invalid Song Provided!") {
         await _progressIndicator.dismiss();
         showToast(context, message: 'Invalid Song Selected');
       } else {

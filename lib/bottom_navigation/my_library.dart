@@ -7,7 +7,7 @@ import 'package:mp3_music_converter/screens/favorite/favorite_songs.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
-import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
+import 'package:mp3_music_converter/screens/split/split_songs.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
@@ -17,7 +17,7 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import '../screens/song/song_view_screen.dart';
 import '../utils/page_router/navigator.dart';
-import 'package:mp3_music_converter/screens/splitted/sing_along.dart';
+import 'package:mp3_music_converter/screens/split/sing_along.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 class Library extends StatefulWidget {
@@ -123,13 +123,12 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => SplittedScreen()),
+                        MaterialPageRoute(builder: (context) => SplitScreen()),
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
-                      text: 'Split',
+                      text: 'Voiceover',
                       color: AppColor.white,
                       textSize: 18,
                     ),

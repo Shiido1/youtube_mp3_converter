@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:file/local.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -33,13 +33,13 @@ class _SplitState extends State<Split> {
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
   bool _isRecording = false;
-  SplittedSongProvider _splittedSongProvider;
+  SplitSongProvider _splitSongProvider;
   Timer _timer;
   BannerAd songAd;
 
   @override
   void initState() {
-    _splittedSongProvider = Provider.of(context, listen: false);
+    _splitSongProvider = Provider.of(context, listen: false);
     _init();
     showAd(widget.width);
     startTimer();
@@ -48,8 +48,8 @@ class _SplitState extends State<Split> {
 
   @override
   void dispose() {
-    if (_splittedSongProvider.playerState == PlayerState.PLAYING)
-      _splittedSongProvider.stopAudio();
+    if (_splitSongProvider.playerState == PlayerState.PLAYING)
+      _splitSongProvider.stopAudio();
     if (_isRecording) _recorder.stop();
     songAd?.dispose();
     _timer?.cancel();
@@ -146,7 +146,7 @@ class _SplitState extends State<Split> {
       setState(() {
         _current = recording;
         _isRecording = true;
-        _splittedSongProvider.updateState(PlayerState.NONE);
+        _splitSongProvider.updateState(PlayerState.NONE);
       });
 
       const tick = const Duration(milliseconds: 50);
@@ -211,7 +211,7 @@ class _SplitState extends State<Split> {
   @override
   Widget build(BuildContext context) {
     print(_currentStatus);
-    return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
+    return Consumer<SplitSongProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.grey,

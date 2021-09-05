@@ -23,6 +23,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String name = '';
   String userToken = '';
   String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
+  // String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
 
   @override
   void initState() {
@@ -79,9 +80,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           height: 60, width: 60),
                       text1: 'UNLIMITED BASIC',
                       text2: '150MB DISK SPACE',
-                      text3: r'$0.99',
+                      // text3: r'$0.99',
+                      text3: '\u{20A6} 514.8',
                       subWidgetButton: () async {
-                        makePayment(amount: 0.99, storage: 150000000);
+                        makePayment(amount: 514.80, storage: 150000000);
                       },
                     ),
                     paymentContainer(
@@ -89,9 +91,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
                       text2: '1.5 GB DISK SPACE',
-                      text3: r'$3.99',
+                      // text3: r'$3.99',
+                      text3: '\u{20A6} 2,074.8',
                       subWidgetButton: () async {
-                        makePayment(amount: 3.99, storage: 1500000000);
+                        makePayment(amount: 2074.80, storage: 1500000000);
                       },
                     ),
                     paymentContainer(
@@ -99,9 +102,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           height: 60, width: 60),
                       text1: 'UNLIMITED ADVANCE',
                       text2: '10GB DISK SPACE',
-                      text3: r'$20',
+                      // text3: r'$20',
+                      text3: '\u{20A6} 10,400',
                       subWidgetButton: () async {
-                        makePayment(amount: 20.0, storage: 10000000000);
+                        makePayment(amount: 10400.0, storage: 10000000000);
                       },
                     ),
                   ],

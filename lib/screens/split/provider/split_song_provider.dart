@@ -9,14 +9,14 @@ enum PlayerType { ALL, SHUFFLE, REPEAT }
 
 enum PlayerState { NONE, PLAYING, PAUSED }
 
-class SplittedSongProvider with ChangeNotifier {
+class SplitSongProvider with ChangeNotifier {
   Duration totalDuration = Duration();
   Duration progress = Duration();
   Song currentSong;
   List<Song> songs = [];
   List<Song> allSongs = [];
-  List splittedSongName = [];
-  List splittedSongItems = [];
+  List splitSongName = [];
+  List splitSongItems = [];
   List emptyNames = [];
   List noVocals = [];
   bool shuffleSong = false;
@@ -30,12 +30,12 @@ class SplittedSongProvider with ChangeNotifier {
   PlayerState playerState = PlayerState.NONE;
 
   initProvider() {
-    SplittedSongRepository.init();
+    SplitSongRepository.init();
     initPlayer();
   }
 
   getSongs(bool showAll) async {
-    allSongs = await SplittedSongRepository.getSongs();
+    allSongs = await SplitSongRepository.getSongs();
     for (Song song in allSongs)
       if (song.fileName == '' || song.fileName == null) emptyNames.add(song);
     if (emptyNames.isNotEmpty)

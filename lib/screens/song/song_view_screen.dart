@@ -45,7 +45,7 @@ class _SongViewScreenState extends State<SongViewScreen> {
     _musicProvider.updateDrawer(widget.song);
     repeat = _musicProvider.repeatSong;
     print(widget.song.libid);
-    print(widget.song.musicId);
+    print(widget.song.musicid);
     startTimer();
     super.initState();
     showAd(widget.width);

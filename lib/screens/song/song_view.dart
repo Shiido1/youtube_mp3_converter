@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/song/song_view_screen.dart';
@@ -32,21 +30,21 @@ class SongViewCLass extends StatefulWidget {
 class _SongViewCLassState extends State<SongViewCLass> {
   MusicProvider _musicProvider;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
-  Map<String, BannerAd> loadedAds = {};
+  // Map<String, BannerAd> loadedAds = {};
   Timer _timer;
 
   @override
   void initState() {
     init();
-    startTimer();
+    // startTimer();
     super.initState();
   }
 
   @override
   void dispose() {
-    loadedAds.values.forEach((element) {
-      element?.dispose();
-    });
+    // loadedAds.values.forEach((element) {
+    //   element?.dispose();
+    // });
     _timer?.cancel();
     super.dispose();
   }
@@ -54,42 +52,42 @@ class _SongViewCLassState extends State<SongViewCLass> {
   init() async {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     await _musicProvider.getSongs();
-    createAd(widget.width);
+    // createAd(widget.width);
   }
 
-  void startTimer() async {
-    const time = const Duration(seconds: 10);
-    _timer = new Timer.periodic(time, (timer) async {
-      createAd(widget.width);
-      setState(() {});
-    });
-  }
+  // void startTimer() async {
+  //   const time = const Duration(seconds: 10);
+  //   _timer = new Timer.periodic(time, (timer) async {
+  //     // createAd(widget.width);
+  //     setState(() {});
+  //   });
+  // }
 
   //creates all ads that needs to be displayed. Enusure this is same as the number in the listview.separator
-  createAd(int width) {
-    for (int i = 0; i < _musicProvider.allSongs.length; i++) {
-      if ((i + 1) % 5 == 0) {
-        if (loadedAds['appAd$i'] == null) {
-          BannerAd ads = BannerAd(
-            size: AdSize(width: width, height: 70),
-            adUnitId: Platform.isAndroid
-                ? 'ca-app-pub-4279408488674166/9228377666'
-                : 'ca-app-pub-4279408488674166/6018640831',
-            listener: BannerAdListener(
-              onAdFailedToLoad: (ad, error) => ad?.dispose(),
-              onAdLoaded: (ad) => setState(
-                () {
-                  loadedAds['appAd$i'] = ad as BannerAd;
-                },
-              ),
-            ),
-            request: AdRequest(),
-          );
-          ads.load();
-        }
-      }
-    }
-  }
+  // createAd(int width) {
+  //   for (int i = 0; i < _musicProvider.allSongs.length; i++) {
+  //     if ((i + 1) % 5 == 0) {
+  //       if (loadedAds['appAd$i'] == null) {
+  //         BannerAd ads = BannerAd(
+  //           size: AdSize(width: width, height: 70),
+  //           adUnitId: Platform.isAndroid
+  //               ? 'ca-app-pub-4279408488674166/9228377666'
+  //               : 'ca-app-pub-4279408488674166/6018640831',
+  //           listener: BannerAdListener(
+  //             onAdFailedToLoad: (ad, error) => ad?.dispose(),
+  //             onAdLoaded: (ad) => setState(
+  //               () {
+  //                 loadedAds['appAd$i'] = ad as BannerAd;
+  //               },
+  //             ),
+  //           ),
+  //           request: AdRequest(),
+  //         );
+  //         ads.load();
+  //       }
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -176,35 +174,35 @@ class _SongViewCLassState extends State<SongViewCLass> {
         itemBuilder: (BuildContext context, int index) {
           Song _song = _provider.allSongs[index];
 
-          if ((index + 1) % 5 == 0) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                itemBuilder(song: _song, index: index, provider: _provider),
-                if (_provider.allSongs.length - 1 != index)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 115.0, right: 15),
-                    child: Divider(
-                      color: AppColor.white,
-                    ),
-                  ),
-                if (loadedAds['appAd$index'] != null)
-                  Container(
-                      child: AdWidget(ad: loadedAds['appAd$index']),
-                      alignment: Alignment.center,
-                      height: loadedAds['appAd$index'].size.height.toDouble(),
-                      width: loadedAds['appAd$index'].size.width.toDouble()),
-                if (loadedAds['appAd$index'] != null &&
-                    _provider.allSongs.length - 1 != index)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 115.0, right: 15),
-                    child: Divider(
-                      color: AppColor.white,
-                    ),
-                  ),
-              ],
-            );
-          }
+          // if ((index + 1) % 5 == 0) {
+          //   return Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     children: [
+          //       itemBuilder(song: _song, index: index, provider: _provider),
+          //       if (_provider.allSongs.length - 1 != index)
+          //         Padding(
+          //           padding: const EdgeInsets.only(left: 115.0, right: 15),
+          //           child: Divider(
+          //             color: AppColor.white,
+          //           ),
+          //         ),
+          //       // if (loadedAds['appAd$index'] != null)
+          //       //   Container(
+          //       //       child: AdWidget(ad: loadedAds['appAd$index']),
+          //       //       alignment: Alignment.center,
+          //       //       height: loadedAds['appAd$index'].size.height.toDouble(),
+          //       //       width: loadedAds['appAd$index'].size.width.toDouble()),
+          //       // if (loadedAds['appAd$index'] != null &&
+          //       //     _provider.allSongs.length - 1 != index)
+          //       //   Padding(
+          //       //     padding: const EdgeInsets.only(left: 115.0, right: 15),
+          //       //     child: Divider(
+          //       //       color: AppColor.white,
+          //       //     ),
+          //       //   ),
+          //     ],
+          //   );
+          // }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

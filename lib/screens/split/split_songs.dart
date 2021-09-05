@@ -41,7 +41,7 @@ class _SplitScreenState extends State<SplitScreen> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Split Songs',
+          text: 'Voiceover',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(

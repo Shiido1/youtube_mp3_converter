@@ -128,7 +128,7 @@ class _LibraryState extends State<Library> {
                     },
                     leading: SvgPicture.asset(AppAssets.split),
                     title: TextViewWidget(
-                      text: 'Split',
+                      text: 'Voiceover',
                       color: AppColor.white,
                       textSize: 18,
                     ),

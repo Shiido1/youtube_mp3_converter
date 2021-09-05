@@ -380,7 +380,7 @@ class _AppDrawerState extends State<AppDrawer> {
           _apiSplitList.insert(0, otherUrl);
           _apiSplitList.insert(1, voiceUrl);
           Song newSong = _musicProvider?.drawerItem;
-          newSong.musicId = splitFiles['data']['id'].toString();
+          newSong.musicid = splitFiles['data']['id'].toString();
           newSong.vocalLibid = splitData['data']['vocalid'];
           newSong.libid = splitData['data']['othersid'];
 

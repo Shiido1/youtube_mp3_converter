@@ -8,7 +8,7 @@ class Song {
   String vocalName;
   int libid;
   int vocalLibid;
-  String musicId;
+  String musicid;
   String artistName = 'Unknown';
   bool favorite = false;
   DateTime lastPlayDate;
@@ -21,7 +21,7 @@ class Song {
   Song(
       {this.filePath,
       this.fileName,
-      this.musicId,
+      this.musicid,
       this.image,
       this.songName,
       this.artistName,
@@ -46,7 +46,7 @@ class Song {
     songMap["lastPlayDate"] = lastPlayDate;
     songMap["splitFileName"] = splitFileName;
     songMap["vocalName"] = vocalName;
-    songMap["musicId"] = musicId;
+    songMap["musicid"] = musicid;
     return songMap;
   }
 
@@ -56,7 +56,7 @@ class Song {
     this.artistName = songMap["artistName"];
     this.filePath = songMap["filePath"];
     this.image = songMap["image"];
-    this.musicId = songMap["musicId"];
+    this.musicid = songMap["musicid"];
     this.vocalLibid = songMap['vocalLibid'];
     this.libid = songMap['libid'];
     this.favorite = songMap["favorite"] == null ? false : songMap["favorite"];

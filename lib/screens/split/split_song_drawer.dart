@@ -21,7 +21,7 @@ class _SplitSongDrawerState extends State<SplitSongDrawer> {
   Widget build(BuildContext context) {
     print(widget.song.libid);
     print(widget.song.vocalLibid);
-    print(widget.song.musicId);
+    print(widget.song.musicid);
     return Container(
       height: 300,
       child: Drawer(

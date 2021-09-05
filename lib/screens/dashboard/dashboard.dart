@@ -292,7 +292,7 @@ class _DashBoardState extends State<DashBoard> {
                   localPath: _localPath,
                   song: Song(
                       fileName: nameOfFile,
-                      musicId: splitFiles['data']['id'].toString(),
+                      musicid: splitFiles['data']['id'].toString(),
                       vocalLibid: splitData['data']['vocalid'],
                       libid: splitData['data']['othersid']),
                 ),

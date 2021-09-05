@@ -173,7 +173,7 @@ class _UploadSongState extends State<UploadSong> {
       Song(
         artistName: artistName,
         favorite: false,
-        musicId: musicid,
+        musicid: musicid,
         songName: songName,
         libid: libid,
         image: image,

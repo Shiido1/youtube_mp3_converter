@@ -110,7 +110,7 @@ class DeleteSongs {
                     'Are you sure you want to delete this song?',
                     style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
-                  if ((song?.musicId != null && song.musicId.isNotEmpty) ||
+                  if ((song?.musicid != null && song.musicid.isNotEmpty) ||
                       (record?.musicid != null && record.musicid.isNotEmpty))
                     Container(
                       margin: EdgeInsets.only(top: 10),

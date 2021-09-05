@@ -320,7 +320,7 @@ synchronizeSong(context) async {
                       ? "https://youtubeaudio.com" + item['image']
                       : item['image'],
                   'libid': item['libid'],
-                  'musicId': item['musicId']
+                  'musicid': item['musicid']
                 });
         for (Song song in songs) {
           if (item['title'] == song.fileName) {

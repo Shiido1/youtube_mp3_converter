@@ -69,7 +69,7 @@ class _DownloadsState extends State<Downloads> {
                 image: value['image'],
                 libid: value['othersid'],
                 vocalLibid: value['vocalid'],
-                musicId: value['musicId']));
+                musicid: value['musicid']));
         await _requestDownload(
             link: _apiSplitList[1],
             saveToDownload: true,
@@ -80,7 +80,7 @@ class _DownloadsState extends State<Downloads> {
                 image: value['image'],
                 libid: value['othersid'],
                 vocalLibid: value['vocalid'],
-                musicId: value['musicId']));
+                musicid: value['musicid']));
       });
     } else if (widget.syncSong) {
       final status = await Permission.storage.request();
@@ -98,7 +98,7 @@ class _DownloadsState extends State<Downloads> {
                 key: key,
                 song: Song(
                     libid: value['libid'],
-                    musicId: value['musicId'],
+                    musicid: value['musicid'],
                     image: value['image'],
                     artistName: 'Unknown Artist',
                     songName: 'Unknown'));
@@ -118,7 +118,7 @@ class _DownloadsState extends State<Downloads> {
               filePath: _localPath,
               image: value['image'] ?? '',
               libid: value['libid'] ?? null,
-              musicId: value['musicId'],
+              musicid: value['musicid'],
               favorite: false,
               lastPlayDate: DateTime.now(),
             ));
@@ -155,7 +155,7 @@ class _DownloadsState extends State<Downloads> {
               key: fileName,
               song: Song(
                   libid: widget.convert['libid'],
-                  musicId: widget.convert['musicId'],
+                  musicid: widget.convert['musicid'],
                   image: widget.convert['image'],
                   artistName: widget.convert['artist'],
                   songName: widget.convert['song']));
@@ -235,7 +235,7 @@ class _DownloadsState extends State<Downloads> {
             filePath: path,
             image: song.image ?? '',
             libid: song.libid,
-            musicId: song.musicId,
+            musicid: song.musicid,
             vocalLibid: song.vocalLibid,
             splitFileName: splitFileNameHere(name),
             artistName: song.artistName ?? 'Unknown Artist',
@@ -248,7 +248,7 @@ class _DownloadsState extends State<Downloads> {
             image: song.image ?? '',
             vocalLibid: song.vocalLibid,
             libid: song.libid,
-            musicId: song.musicId,
+            musicid: song.musicid,
             splitFileName: splitFileNameHere(name),
             artistName: song.artistName ?? 'Unknown Artist',
             songName: song.songName ?? 'Unknown',
@@ -261,7 +261,7 @@ class _DownloadsState extends State<Downloads> {
             filePath: path,
             image: song.image ?? '',
             libid: song.libid,
-            musicId: song.musicId,
+            musicid: song.musicid,
             favorite: false,
             lastPlayDate: DateTime.now(),
           ));
@@ -312,23 +312,23 @@ class _DownloadsState extends State<Downloads> {
         else {
           if (_fileName.split('-').last == 'vocals') {
             await SplitSongRepository.addSong(Song(
-              vocalName: song.fileName,
+              vocalName: _fileName,
               filePath: _localPath,
               image: song.image ?? '',
               vocalLibid: song.vocalLibid,
-              musicId: song.musicId,
-              splitFileName: _fileName,
+              musicid: song.musicid,
+              splitFileName: fileName,
               artistName: song.artistName ?? 'Unknown Artist',
               songName: song.songName ?? 'Unknown',
             ));
           } else {
             await SplitSongRepository.addSong(Song(
-              fileName: song.fileName,
+              fileName: _fileName,
               filePath: _localPath,
               image: song.image ?? '',
               libid: song.libid,
-              musicId: song.musicId,
-              splitFileName: _fileName,
+              musicid: song.musicid,
+              splitFileName: fileName,
               artistName: song.artistName ?? 'Unknown Artist',
               songName: song.songName ?? 'Unknown',
             ));
@@ -343,7 +343,7 @@ class _DownloadsState extends State<Downloads> {
                 songName: song.songName ?? 'Unknown',
                 libid: song.libid,
                 vocalLibid: song.vocalLibid,
-                musicId: song.musicId));
+                musicid: song.musicid));
         await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
             url: link,

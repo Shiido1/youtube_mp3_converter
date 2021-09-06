@@ -507,6 +507,8 @@ class _DownloadsState extends State<Downloads> {
                                           size: 30,
                                         ),
                                         onPressed: () async {
+                                          FlutterDownloader.registerCallback(
+                                              downloadCallback);
                                           await FlutterDownloader.retry(
                                               taskId: _download.taskId);
                                         },
@@ -532,6 +534,9 @@ class _DownloadsState extends State<Downloads> {
                                                 onPressed: () async {
                                                   if (_download.status ==
                                                       DownloadTaskStatus(6)) {
+                                                    FlutterDownloader
+                                                        .registerCallback(
+                                                            downloadCallback);
                                                     await FlutterDownloader
                                                         .resume(
                                                             taskId: _download

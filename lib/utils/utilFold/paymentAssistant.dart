@@ -58,7 +58,7 @@ class PaymentAssistant {
     DataSnapshot secretKey = await FirebaseDatabase.instance
         .reference()
         .child('keys')
-        .child('test')
+        .child('live')
         .once();
 
 // Secret: sk_test_024d9f465d18b515259d28b1518471c0c230156d

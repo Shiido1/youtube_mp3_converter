@@ -103,9 +103,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED ADVANCE',
                       text2: '10GB DISK SPACE',
                       // text3: r'$20',
-                      text3: '\u{20A6} 4,999',
+                      text3: '\u{20A6} 9,999',
                       subWidgetButton: () async {
-                        makePayment(amount: 4999.00, storage: 10000000000);
+                        makePayment(amount: 9999.00, storage: 10000000000);
                       },
                     ),
                   ],

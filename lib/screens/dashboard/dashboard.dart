@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
@@ -19,7 +18,6 @@ import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
-import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
@@ -41,7 +39,7 @@ class DashBoard extends StatefulWidget with WidgetsBindingObserver {
 
 class _DashBoardState extends State<DashBoard> {
   HomeButtonItem _homeButtonItem = HomeButtonItem.NON;
-  List<String> _apiSplittedList = ['', ''];
+  List<String> _apiSplitList = ['', ''];
   bool _permissionReady;
   static String _localPath;
   String _sharedText = '';
@@ -265,38 +263,57 @@ class _DashBoardState extends State<DashBoard> {
     if (result != null && result.files.isNotEmpty) {
       _progressIndicator.show();
       String nameOfFile = result.files.single.name.split(' ').join('_');
-      var splittedFiles = await SplitAssistant.splitFile(
+      var splitFiles = await SplitAssistant.splitFile(
           filePath: result.files.single.path,
           context: context,
           userToken: userToken);
-      if (splittedFiles['reply'] == "success") {
+      if (splitFiles['reply'] == "success") {
         await _progressIndicator.dismiss();
-        SplitAssistant.saveSplitFiles(
-            decodedData: splittedFiles['data'],
+        Map splitData = await SplitAssistant.saveSplitFiles(
+            decodedData: splitFiles['data'],
             context: context,
             userToken: userToken);
         if (_permissionReady) {
-          String voiceUrl = splittedFiles['data']["files"]["voice"];
-          String otherUrl = splittedFiles['data']["files"]["other"];
+          if (splitData['reply'] == 'success') {
+            String voiceUrl = splitFiles['data']["files"]["voice"];
+            String otherUrl = splitFiles['data']["files"]["other"];
 
-          _apiSplittedList = ['', ''];
-          _apiSplittedList.insert(0, otherUrl);
-          _apiSplittedList.insert(1, voiceUrl);
+            _apiSplitList = ['', ''];
+            _apiSplitList.insert(0, otherUrl);
+            _apiSplitList.insert(1, voiceUrl);
 
-          Navigator.push(
+            print(splitData['data']['vocalid']);
+            print(splitData['data']['othersid']);
+            Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => Downloads(
-                      apiSplittedList: _apiSplittedList,
-                      localPath: _localPath,
-                      song: Song(fileName: nameOfFile))));
+                builder: (context) => Downloads(
+                  apiSplitList: _apiSplitList,
+                  localPath: _localPath,
+                  song: Song(
+                      fileName: nameOfFile,
+                      musicid: splitFiles['data']['id'].toString(),
+                      vocalLibid: splitData['data']['vocalid'],
+                      libid: splitData['data']['othersid']),
+                ),
+              ),
+            );
+          } else {
+            showToast(context, message: splitData['data']);
+          }
         } else if (!_permissionReady) {
           _buildNoPermissionWarning();
         }
-      } else if (splittedFiles['data'] ==
+      } else if (splitFiles['data'] ==
           'please subscribe to enjoy this service') {
         await _progressIndicator.dismiss();
         showSubscriptionMessage(context);
+      } else if (splitFiles['data'] == 'insufficient storage') {
+        await _progressIndicator.dismiss();
+        insufficientStorageWarning(context);
+      } else if (splitFiles['data'] == "Invalid Song Provided!") {
+        await _progressIndicator.dismiss();
+        showToast(context, message: 'Invalid Song Selected');
       } else {
         await _progressIndicator.dismiss();
         showToast(context, message: 'Please try again later');

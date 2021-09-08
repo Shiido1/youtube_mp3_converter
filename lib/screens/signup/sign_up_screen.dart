@@ -15,6 +15,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _nameController = new TextEditingController();
+  TextEditingController _userNameController = new TextEditingController();
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _confirmPasswordController =
@@ -25,11 +26,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isEmail = false;
   bool _isPassword = false;
   bool _isConPassword = false;
+  bool _isUsername = false;
   SignUpProviders _signUpProvider;
 
   bool _validateInputs() {
     if (_nameController.text.isEmpty) {
       setState(() => _isName = true);
+      return false;
+    }
+
+    if (_userNameController.text.isEmpty) {
+      setState(() {
+        _isUsername = true;
+      });
       return false;
     }
 
@@ -65,6 +74,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
       password: _passwordController.text,
+      username: _userNameController.text.trim(),
     ));
     setState(() {});
   }
@@ -82,6 +92,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _userNameController.dispose();
     super.dispose();
   }
 
@@ -89,10 +100,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Consumer<SignUpProviders>(builder: (_, model, __) {
       return Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            // width: MediaQuery.of(context).size.width,
-            // height: MediaQuery.of(context).size.height,
+        body: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
             decoration: new BoxDecoration(
               color: AppColor.black,
               image: new DecorationImage(
@@ -104,178 +114,250 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            child: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(height: 65),
-                  Image.asset(
-                    AppAssets.logo,
-                  ),
-                  SizedBox(height: 35),
-                  Text(
-                    'CREATE AN ACCOUNT',
-                    style: TextStyle(
-                        color: AppColor.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  SizedBox(height: 65),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                    child: TextField(
-                      controller: _nameController,
-                      style: TextStyle(color: AppColor.white),
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
+            child: LayoutBuilder(
+              builder: (context, constraint) {
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraint.maxHeight),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 65),
+                        Image.asset(
+                          AppAssets.logo,
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        labelText: 'Name',
-                        labelStyle: TextStyle(color: AppColor.white),
-                        errorText: _isName ? 'Please enter your name' : null,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 23),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                    child: TextField(
-                      controller: _emailController,
-                      style: TextStyle(color: AppColor.white),
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        labelText: 'Email Address',
-                        labelStyle: TextStyle(color: AppColor.white),
-                        errorText:
-                            _isEmail ? 'Please enter your email address' : null,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 23),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                    child: TextField(
-                      controller: _passwordController,
-                      style: TextStyle(color: AppColor.white),
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        labelText: 'Password',
-                        labelStyle: TextStyle(color: AppColor.white),
-                        errorText: _isPassword ? 'Please enter password' : null,
-                      ),
-                      autofocus: false,
-                      obscureText: true,
-                    ),
-                  ),
-                  SizedBox(height: 23),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 35.0, left: 35.0),
-                    child: TextField(
-                      controller: _confirmPasswordController,
-                      style: TextStyle(color: AppColor.white),
-                      decoration: new InputDecoration(
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        border: new OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16.0),
-                          borderSide: BorderSide(color: AppColor.white),
-                        ),
-                        labelText: 'Confirm Password',
-                        labelStyle: TextStyle(color: AppColor.white),
-                        errorText: _isConPassword
-                            ? 'Please enter correct password'
-                            : null,
-                      ),
-                      autofocus: false,
-                      obscureText: true,
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: AppColor.bottomRed,
-                      ),
-                      onPressed: () {
-                        _signUpUser();
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            top: 8, bottom: 8, right: 20, left: 20),
-                        child: Text(
-                          'Sign Up',
+                        SizedBox(height: 35),
+                        Text(
+                          'CREATE AN ACCOUNT',
                           style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 22,
+                              color: AppColor.white,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(height: 45),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 35.0, left: 35.0),
+                          child: TextField(
+                            onChanged: (val) {
+                              if (val.isNotEmpty)
+                                setState(() {
+                                  _isName = false;
+                                });
+                            },
+                            controller: _nameController,
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              labelText: 'Name',
+                              labelStyle: TextStyle(color: AppColor.white),
+                              errorText:
+                                  _isName ? 'Please enter your name' : null,
+                            ),
                           ),
                         ),
-                      )),
-                  SizedBox(height: 65),
-                  Text(
-                    'Already have an Account?',
-                    style: TextStyle(
-                      color: AppColor.white,
-                      fontSize: 17,
+                        SizedBox(height: 23),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 35.0, left: 35.0),
+                          child: TextField(
+                            onChanged: (val) {
+                              if (val.isNotEmpty)
+                                setState(() {
+                                  _isUsername = false;
+                                });
+                            },
+                            controller: _userNameController,
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              labelText: 'Username',
+                              labelStyle: TextStyle(color: AppColor.white),
+                              errorText: _isUsername
+                                  ? 'Please enter your username'
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 23),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 35.0, left: 35.0),
+                          child: TextField(
+                            onChanged: (val) {
+                              if (val.isNotEmpty)
+                                setState(() {
+                                  _isEmail = false;
+                                });
+                            },
+                            controller: _emailController,
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              labelText: 'Email Address',
+                              labelStyle: TextStyle(color: AppColor.white),
+                              errorText: _isEmail
+                                  ? 'Please enter your email address'
+                                  : null,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 23),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 35.0, left: 35.0),
+                          child: TextField(
+                            onChanged: (val) {
+                              if (val.isNotEmpty)
+                                setState(() {
+                                  _isPassword = false;
+                                });
+                            },
+                            controller: _passwordController,
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              labelText: 'Password',
+                              labelStyle: TextStyle(color: AppColor.white),
+                              errorText:
+                                  _isPassword ? 'Please enter password' : null,
+                            ),
+                            autofocus: false,
+                            obscureText: true,
+                          ),
+                        ),
+                        SizedBox(height: 23),
+                        Padding(
+                          padding:
+                              const EdgeInsets.only(right: 35.0, left: 35.0),
+                          child: TextField(
+                            onChanged: (val) {
+                              if (val.isNotEmpty)
+                                setState(() {
+                                  _isConPassword = false;
+                                });
+                            },
+                            controller: _confirmPasswordController,
+                            style: TextStyle(color: AppColor.white),
+                            decoration: new InputDecoration(
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              border: new OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16.0),
+                                borderSide: BorderSide(color: AppColor.white),
+                              ),
+                              labelText: 'Confirm Password',
+                              labelStyle: TextStyle(color: AppColor.white),
+                              errorText: _isConPassword
+                                  ? 'Please enter correct password'
+                                  : null,
+                            ),
+                            autofocus: false,
+                            obscureText: true,
+                          ),
+                        ),
+                        SizedBox(height: 35),
+                        TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColor.bottomRed,
+                            ),
+                            onPressed: () {
+                              _signUpUser();
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 8, bottom: 8, right: 20, left: 20),
+                              child: Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  color: AppColor.white,
+                                  fontSize: 22,
+                                ),
+                              ),
+                            )),
+                        SizedBox(height: 25),
+                        Text(
+                          'Already have an Account?',
+                          style: TextStyle(
+                            color: AppColor.white,
+                            fontSize: 17,
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        InkWell(
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignInScreen()),
+                          ),
+                          child: Text(
+                            'Login',
+                            style: TextStyle(
+                              color: AppColor.bottomRed,
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 35),
-                  InkWell(
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignInScreen()),
-                    ),
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        color: AppColor.bottomRed,
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 150),
-                ],
-              ),
-            ),
-          ),
-        ),
+                );
+              },
+            )),
       );
     });
   }

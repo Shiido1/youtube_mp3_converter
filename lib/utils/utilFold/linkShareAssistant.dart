@@ -29,7 +29,7 @@ class LinkShareAssistant {
   /// Invoke a method on our platform, telling it to give us any shared data
   /// it has
   Future<String> getSharedData() async {
-    return Platform.isAndroid ? await MethodChannel('com.youtubeaudio.mp3_music_converter')
+    return await MethodChannel('com.ytaudio.mp3_music_converter')
         .invokeMethod("getSharedData") ??
         "" : "";
   }

@@ -54,7 +54,9 @@ class LoginModel {
     color = json['color'];
     profilepic = json['profilepic'] == null || json['profilepic'] == ''
         ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
-        : json['profilepic'];
+        : json['profilepic'][0] == "/"
+            ? "https://youtubeaudio.com" + json['profilepic']
+            : json['profilepic'];
     about = json['about'];
     totalplayed = json['totalplayed'];
     followers = json['followers'];

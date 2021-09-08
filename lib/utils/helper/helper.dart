@@ -66,6 +66,10 @@ String getStringPathName(String name) {
   return _link.last;
 }
 
+String getStringPathNameFromWeb(String name) {
+  return name.contains('vocals.wav') ? 'vocals.wav' : 'accompaniment.wav';
+}
+
 //* finds available space for storage on users device
 Future<String> findLocalPath() async {
   final directory = Platform.isAndroid

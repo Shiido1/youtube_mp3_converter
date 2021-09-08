@@ -44,9 +44,11 @@ class _SongViewScreenState extends State<SongViewScreen> {
     _musicProvider.playAudio(widget.song);
     _musicProvider.updateDrawer(widget.song);
     repeat = _musicProvider.repeatSong;
-    // startTimer();
+    print(widget.song.libid);
+    print(widget.song.musicid);
+    startTimer();
     super.initState();
-    // showAd(widget.width);
+    showAd(widget.width);
   }
 
   @override
@@ -133,7 +135,11 @@ class _SongViewScreenState extends State<SongViewScreen> {
                     ),
                     placeholder: (context, url) =>
                         Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    errorWidget: (context, url, error) => Container(
+                        color: Colors.white54,
+                        width: 280.0,
+                        height: 320.0,
+                        child: Icon(Icons.error, size: 60)),
                   ),
                 ),
                 SizedBox(

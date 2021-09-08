@@ -8,34 +8,34 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:320378040514:android:8612026c8c86f34eef4b5b",
+        "mobilesdk_app_id": "1:320378040514:android:78a13a25be3e21d8ef4b5b",
         "android_client_info": {
-          "package_name": "com.youtubeaudio.mp3_music_converter"
+          "package_name": "com.ytaudio.mp3_music_converter"
         }
       },
       "oauth_client": [
         {
-          "client_id": "320378040514-h6m62v7utdfnof6va2oae1s7geuhsa2o.apps.googleusercontent.com",
+          "client_id": "320378040514-5hsh0sjuijkg1m8564qrgb78n2818fnf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.youtubeaudio.mp3_music_converter",
-            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
+            "package_name": "com.ytaudio.mp3_music_converter",
+            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
           }
         },
         {
-          "client_id": "320378040514-rsfo3km46rariue1jrru1bn83krosj7e.apps.googleusercontent.com",
+          "client_id": "320378040514-66ko9dns0l1giarr6pn1hda55ogk1u5l.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.youtubeaudio.mp3_music_converter",
+            "package_name": "com.ytaudio.mp3_music_converter",
             "certificate_hash": "692a0a7bf5e8d6ae4cd1498c0f8d76d210139438"
           }
         },
         {
-          "client_id": "320378040514-ujc4o1t0keu0lhoj219f0ok6rioktb4c.apps.googleusercontent.com",
+          "client_id": "320378040514-gmt4c3gepra63p2c8pjet6lukddhfdhn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.youtubeaudio.mp3_music_converter",
-            "certificate_hash": "b8c433c4f269e28c33568f9c4402d8fb55bc6d1a"
+            "package_name": "com.ytaudio.mp3_music_converter",
+            "certificate_hash": "e4acc2171b5dc977b7d858ad831ac53af5274548"
           }
         },
         {

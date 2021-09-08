@@ -6,45 +6,40 @@ import 'dart:async';
 import 'package:file/local.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
-import 'package:mp3_music_converter/screens/recorded/recorded.dart';
-import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
-import 'package:mp3_music_converter/screens/splitted/provider/splitted_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
-import 'package:audio_session/audio_session.dart' as asp;
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:provider/provider.dart';
 
-class MuteVocalsScreen extends StatefulWidget {
+class Split extends StatefulWidget {
   final LocalFileSystem localFileSystem;
   final Song song;
   final int width;
 
-  MuteVocalsScreen({localFileSystem, @required this.song, @required this.width})
+  Split({localFileSystem, @required this.song, @required this.width})
       : this.localFileSystem = localFileSystem ?? LocalFileSystem();
-
   @override
-  _MuteVocalsScreenState createState() => _MuteVocalsScreenState();
+  _SplitState createState() => _SplitState();
 }
 
-class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
-  bool _isRecording = false;
-  bool _playVocals = true;
-  asp.AudioSession audioSession;
-  SplittedSongProvider _songProvider;
-  Timer _timer;
-  BannerAd songAd;
-
+class _SplitState extends State<Split> {
+  double val = 0.0;
   FlutterAudioRecorder _recorder;
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
+  bool _isRecording = false;
+  SplitSongProvider _splitSongProvider;
+  Timer _timer;
+  BannerAd songAd;
 
   @override
   void initState() {
-    _songProvider = Provider.of<SplittedSongProvider>(context, listen: false);
+    _splitSongProvider = Provider.of(context, listen: false);
     _init();
     showAd(widget.width);
     startTimer();
@@ -53,11 +48,11 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   void dispose() {
-    if (_songProvider.playerState != PlayerState.NONE)
-      _songProvider.stopAudio();
+    if (_splitSongProvider.playerState == PlayerState.PLAYING)
+      _splitSongProvider.stopAudio();
     if (_isRecording) _recorder.stop();
-    _timer?.cancel();
     songAd?.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -90,7 +85,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   _init() async {
     try {
       if (await FlutterAudioRecorder.hasPermissions) {
-        String customPath = 'YoutubeMusicRecords';
+        String customPath = 'YTAudioMusicRecords';
         String date =
             "${DateTime.now()?.millisecondsSinceEpoch?.toString()}.wav";
         io.Directory appDocDirectory;
@@ -104,25 +99,25 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
             "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
 
         if (await youtubeRecordDirectory.exists()) {
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
           _recorder =
               FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
 
           await _recorder.initialized;
+
+          print('new status: $_currentStatus');
 
           var current = await _recorder.current(channel: 0);
 
           setState(() {
             _current = current;
             _currentStatus = current.status;
-
-            print(_currentStatus);
           });
         } else {
           youtubeRecordDirectory.create(recursive: true);
-          String alphaPath = "${youtubeRecordDirectory.path}$date";
-          _recorder = FlutterAudioRecorder(alphaPath,
-              audioFormat: AudioFormat.WAV, sampleRate: 18000);
+          String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
+          _recorder =
+              FlutterAudioRecorder(alphaPath, audioFormat: AudioFormat.WAV);
 
           await _recorder.initialized;
 
@@ -143,7 +138,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
     }
   }
 
-  Future<void> _startRecorder() async {
+  _start() async {
     try {
       await _recorder.start();
       var recording = await _recorder.current(channel: 0);
@@ -151,6 +146,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
       setState(() {
         _current = recording;
         _isRecording = true;
+        _splitSongProvider.updateState(PlayerState.NONE);
       });
 
       const tick = const Duration(milliseconds: 50);
@@ -160,29 +156,29 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
         }
 
         var current = await _recorder.current(channel: 0);
-        if (mounted)
-          setState(() {
-            _current = current;
-            _currentStatus = _current.status;
-          });
+        setState(() {
+          _current = current;
+          _currentStatus = _current.status;
+        });
       });
     } catch (e) {
       print(e);
     }
   }
 
-  Future<void> _stopRecorder() async {
-    var result = await _recorder.stop();
+  _resume() async {
+    await _recorder.resume();
+    setState(() {});
+  }
 
+  _stop() async {
+    var result = await _recorder.stop();
     RecorderServices().addRecording(RecorderModel(path: result.path));
-    _songProvider.stopAudio();
     setState(() {
       _current = result;
       _currentStatus = _current.status;
       _isRecording = false;
     });
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => Recorded()));
     _init();
   }
 
@@ -190,25 +186,21 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
     IconData icon;
     switch (_currentStatus) {
       case RecordingStatus.Initialized:
-        {
-          icon = Icons.mic;
-          break;
-        }
+        icon = Icons.mic;
+        break;
+
       case RecordingStatus.Recording:
-        {
-          icon = Icons.stop;
-          break;
-        }
+        icon = Icons.stop;
+        break;
+
       case RecordingStatus.Paused:
-        {
-          icon = Icons.mic;
-          break;
-        }
+        icon = Icons.mic;
+        break;
+
       case RecordingStatus.Stopped:
-        {
-          icon = Icons.mic_none;
-          break;
-        }
+        icon = Icons.mic_none;
+        break;
+
       default:
         icon = Icons.mic;
         break;
@@ -218,7 +210,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SplittedSongProvider>(builder: (_, _provider, __) {
+    print(_currentStatus);
+    return Consumer<SplitSongProvider>(builder: (_, _provider, __) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: AppColor.grey,
@@ -290,11 +283,12 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     TextViewWidget(
-                      text: _provider.progress.toString().split('.')[0],
+                      text: _provider.progress.toString().split(".")[0],
                       textSize: 16,
                       color: AppColor.white,
                       textAlign: TextAlign.center,
                     ),
+                    //try and remove the expanded and see
                     Expanded(
                       child: Slider(
                           activeColor: AppColor.bottomRed,
@@ -302,17 +296,13 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                           value: _provider.progress.inSeconds.toDouble(),
                           min: 0.0,
                           max: _provider.totalDuration.inSeconds.toDouble(),
-                          onChanged: (double value) async {
+                          onChanged: (double value) {
                             Duration newDuration =
                                 Duration(seconds: value.toInt());
-                            if (_provider.playerState == PlayerState.PLAYING ||
-                                _provider.playerState == PlayerState.PAUSED)
-                              await Future.wait([
-                                _provider.seekToSecond(
-                                    second: newDuration.inSeconds,
-                                    playVocals: true),
-                              ]);
-                            setState(() {});
+                            setState(() {
+                              _provider.seekToSecond(
+                                  second: newDuration.inSeconds);
+                            });
                           }),
                     ),
                     TextViewWidget(
@@ -329,109 +319,63 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
               ),
               Center(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     if (!_isRecording)
                       IconButton(
                           icon: Icon(
-                              _provider.playerState == PlayerState.PLAYING &&
-                                      !_isRecording
+                              _provider.playerState == PlayerState.PLAYING
                                   ? Icons.pause_circle_outline_rounded
                                   : Icons.play_circle_outline_rounded,
                               size: 65,
                               color: AppColor.white),
                           onPressed: () async {
-                            if (!_isRecording &&
-                                _provider.playerState == PlayerState.PLAYING) {
-                              await Future.wait([
-                                _provider.pauseAudio(),
-                              ]);
+                            if (_provider.playerState == PlayerState.NONE) {
+                              _provider.playAudio(song: widget.song);
                             } else if (_provider.playerState ==
-                                    PlayerState.NONE &&
-                                !_isRecording) {
-                              await Future.wait([
-                                _provider.playAudio(
-                                    song: widget.song,
-                                    file:
-                                        '${widget.song.filePath}/${widget.song.vocalName}',
-                                    playVocals: true),
-                              ]);
+                                PlayerState.PAUSED) {
+                              _provider.resumeAudio();
                             } else if (_provider.playerState ==
-                                    PlayerState.PAUSED &&
-                                !_isRecording) {
-                              await Future.wait([
-                                _provider.resumeAudio(),
-                              ]);
+                                PlayerState.PLAYING) {
+                              _provider.pauseAudio();
                             }
                           }),
                     IconButton(
                         icon: Icon(
-                            _playVocals
-                                ? Icons.volume_up_outlined
-                                : Icons.volume_off_outlined,
-                            size: 60,
-                            color: AppColor.white),
-                        onPressed: () async {
-                          _playVocals
-                              ? await _provider.setVocalVolume(0)
-                              : _isRecording
-                                  ? await _provider.setVocalVolume(0.5)
-                                  : await _provider.setVocalVolume(1);
-                          setState(() {
-                            _playVocals = !_playVocals;
-                          });
-                        }),
-                    Column(
-                      children: [
-                        Container(
-                          width: 80,
-                          child: IconButton(
-                              icon: Icon(
-                                _buildIcon(_currentStatus),
-                                size: 60,
-                                color: AppColor.white,
-                              ),
-                              onPressed: () async {
-                                if (_currentStatus ==
-                                        RecordingStatus.Initialized &&
-                                    _provider.playerState == PlayerState.NONE) {
-                                  await Future.wait([
-                                    _provider.playAudio(
-                                        song: widget.song,
-                                        file:
-                                            '${widget.song.filePath}/${widget.song.vocalName}',
-                                        playVocals: true),
-                                    _startRecorder()
-                                  ]);
-
-                                  setState(() {
-                                    _isRecording = true;
-                                  });
-                                } else if (_currentStatus ==
-                                        RecordingStatus.Initialized &&
-                                    _provider.playerState ==
-                                        PlayerState.PLAYING) {
-                                  await _startRecorder();
-                                  if (_playVocals)
-                                    await _provider.setVocalVolume(0.5);
-                                  await _provider.setVolume(0.5);
-                                } else
-                                  await _stopRecorder();
-                              }),
+                          _buildIcon(_currentStatus),
+                          size: 65,
+                          color: AppColor.white,
                         ),
-                        SizedBox(height: 30),
-                        Text(
-                            _current?.duration.toString().split('.')[0] ??
-                                '0:0:00',
-                            style: TextStyle(color: AppColor.white)),
-                      ],
-                    ),
+                        onPressed: () async {
+                          switch (_currentStatus) {
+                            case RecordingStatus.Initialized:
+                              _provider.playAudio(song: widget.song);
+                              _start();
+                              break;
+
+                            case RecordingStatus.Recording:
+                              _provider.stopAudio();
+                              _stop();
+                              break;
+
+                            case RecordingStatus.Paused:
+                              _provider.resumeAudio();
+                              _resume();
+                              break;
+
+                            case RecordingStatus.Stopped:
+                              _init();
+                              break;
+
+                            default:
+                              break;
+                          }
+                        }),
                   ],
                 ),
               ),
               SizedBox(
-                height: 70,
+                height: 100,
               ),
             ],
           ),

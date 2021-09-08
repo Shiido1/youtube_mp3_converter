@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pay/flutter_pay.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -32,6 +31,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   void initState() {
     currentIndexPage = 0;
     pageLength = 3;
+
     init();
 
     super.initState();
@@ -41,6 +41,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
     email = await preferencesHelper.getStringValues(key: 'email');
     name = await preferencesHelper.getStringValues(key: 'name');
     userToken = await preferencesHelper.getStringValues(key: 'token');
+    PaystackPlugin.initialize(publicKey: publicKey);
+  }
+
+  @override
+  void dispose() {
+    PaystackPlugin.dispose();
+    super.dispose();
   }
 
   @override
@@ -74,8 +81,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.basic,
                           height: 60, width: 60),
                       text1: 'UNLIMITED BASIC',
-                      text2: '150MB DISK SPACE (MONTHLY)',
-                      text3: r'$0.99',
+                      text2: '150MB DISK SPACE',
+                      // text3: r'$0.99',
+                      text3: '\u{20A6} 499',
                       subWidgetButton: () async {
                         makePayment(
                             amount: 0.99,
@@ -102,8 +110,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.advance,
                           height: 60, width: 60),
                       text1: 'UNLIMITED ADVANCE',
-                      text2: '10GB DISK SPACE (6 MONTHLY)',
-                      text3: r'$20',
+                      text2: '10GB DISK SPACE',
+                      // text3: r'$20',
+                      text3: '\u{20A6} 9,999',
                       subWidgetButton: () async {
                         makePayment(
                             amount: 20.0,
@@ -234,13 +243,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     var trxResponse = await PaymentAssistant.processTransaction(
         amount: amount, context: context, email: email, name: name, ref: ref);
+    print(trxResponse);
 
     if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
-      PaymentAssistant.storePayment(
+      bool status = await PaymentAssistant.storePayment(
           context: context,
-          txRef: trxResponse['data']['txRef'],
+          txRef: trxResponse['data']['reference'],
           amount: amount,
-          txId: trxResponse['data']['id'].toString(),
+          txId: trxResponse['data']['reference'],
           storage: storage,
           userToken: userToken,
           payment_method:'card'

@@ -8,23 +8,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/song/song_view.dart';
-import 'package:mp3_music_converter/screens/splitted/sing_along.dart';
-import 'package:mp3_music_converter/screens/splitted/split_songs.dart';
+import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/sing_along.dart';
+import 'package:mp3_music_converter/screens/split/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 bool debug = true;
 
 class Downloads extends StatefulWidget {
-  final List apiSplittedList;
+  final List apiSplitList;
   final Song song;
   final Map convert;
   final String localPath;
+  final bool syncSplit;
+  final Map syncSplitData;
+  final bool syncSong;
+  final Map syncSongData;
 
-  Downloads({this.apiSplittedList, this.convert, this.localPath, this.song});
+  Downloads(
+      {this.apiSplitList,
+      this.convert,
+      this.localPath,
+      this.song,
+      this.syncSplit = false,
+      this.syncSplitData,
+      this.syncSong = false,
+      this.syncSongData});
   @override
   _DownloadsState createState() => _DownloadsState();
 }
@@ -33,25 +48,100 @@ class _DownloadsState extends State<Downloads> {
   List<DownloadTask> downloads = [];
   ReceivePort _port = ReceivePort();
   List<dynamic> dataList = [];
-  List<String> _apiSplittedList = ['', ''];
-  List<String> splittedSongIDList = ['', ''];
+  List<String> _apiSplitList = ['', ''];
+  List<String> splitSongIDList = ['', ''];
   Map songData = {};
   static String _localPath;
   Timer _timer;
 
   init() async {
-    if (widget.apiSplittedList != null && widget.apiSplittedList.isNotEmpty) {
-      _apiSplittedList = widget.apiSplittedList;
+    if (widget.syncSplit) {
+      await Permission.storage.request();
+      widget.syncSplitData.forEach((key, value) async {
+        List<String> apiList = ['', ''];
+        apiList.insert(0, value['voice']);
+        apiList.insert(1, value['others']);
+        _apiSplitList = apiList;
+
+        await _requestDownload(
+            link: _apiSplitList[0],
+            saveToDownload: true,
+            fileName: key,
+            sync: true,
+            song: Song(
+                fileName: key,
+                image: value['image'],
+                libid: value['othersid'],
+                vocalLibid: value['vocalid'],
+                musicid: value['musicid']));
+        await _requestDownload(
+            link: _apiSplitList[1],
+            saveToDownload: true,
+            fileName: key,
+            sync: true,
+            song: Song(
+                fileName: key,
+                image: value['image'],
+                libid: value['othersid'],
+                vocalLibid: value['vocalid'],
+                musicid: value['musicid']));
+      });
+    } else if (widget.syncSong) {
+      final status = await Permission.storage.request();
+
+      if (status.isGranted) {
+        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
+        _localPath = downloadPath.path;
+
+        widget.syncSongData.forEach((key, value) async {
+          bool exists =
+              await File(_localPath + Platform.pathSeparator + key).exists();
+
+          if (!exists) {
+            await SplitSongRepository.addDownload(
+                key: key,
+                song: Song(
+                    libid: value['libid'],
+                    musicid: value['musicid'],
+                    image: value['image'],
+                    artistName: 'Unknown Artist',
+                    songName: 'Unknown'));
+            await FlutterDownloader.registerCallback(downloadCallback);
+            await FlutterDownloader.enqueue(
+                url: value['path'],
+                savedDir: _localPath,
+                fileName: key,
+                headers: {"auth": "test_for_sql_encoding"},
+                showNotification: true,
+                openFileFromNotification: false);
+          } else
+            await SongRepository.addSong(Song(
+              fileName: key,
+              songName: 'Unknown',
+              artistName: 'Unknown Artist',
+              filePath: _localPath,
+              image: value['image'] ?? '',
+              libid: value['libid'] ?? null,
+              musicid: value['musicid'],
+              favorite: false,
+              lastPlayDate: DateTime.now(),
+            ));
+        });
+      }
+    } else if (widget.apiSplitList != null && widget.apiSplitList.isNotEmpty) {
+      _apiSplitList = widget.apiSplitList;
       _localPath = widget.localPath;
 
       await _requestDownload(
-          link: _apiSplittedList[0],
+          link: _apiSplitList[0],
           saveToDownload: true,
-          fileName: widget.song.fileName);
+          fileName: widget.song.fileName,
+          song: widget.song);
       await _requestDownload(
-          link: _apiSplittedList[1],
+          link: _apiSplitList[1],
           saveToDownload: true,
-          fileName: widget.song.fileName);
+          fileName: widget.song.fileName,
+          song: widget.song);
     } else if (widget.convert != null && widget.convert.isNotEmpty) {
       _localPath = widget.localPath;
       songData = widget.convert;
@@ -65,9 +155,11 @@ class _DownloadsState extends State<Downloads> {
             await File(_localPath + Platform.pathSeparator + fileName).exists();
 
         if (!exists) {
-          await SplittedSongRepository.addDownload(
+          await SplitSongRepository.addDownload(
               key: fileName,
               song: Song(
+                  libid: widget.convert['libid'],
+                  musicid: widget.convert['musicid'],
                   image: widget.convert['image'],
                   artistName: widget.convert['artist'],
                   songName: widget.convert['song']));
@@ -87,10 +179,14 @@ class _DownloadsState extends State<Downloads> {
     setState(() {});
   }
 
-  @override
-  void initState() {
+  registerDownload() {
     IsolateNameServer.removePortNameMapping('audio_downloader');
     _bindBackgroundIsolate();
+  }
+
+  @override
+  void initState() {
+    registerDownload();
     init();
     startTimer();
     super.initState();
@@ -118,55 +214,75 @@ class _DownloadsState extends State<Downloads> {
       _bindBackgroundIsolate();
       return;
     }
-    _port.listen((dynamic data) async {
-      if (debug) {
-        print('UI Isolate Callback: $data');
-        dataList.add(data);
-      }
-      DownloadTaskStatus status = data[1];
+    _port.listen(
+      (dynamic data) async {
+        if (debug) {
+          print('UI Isolate Callback: $data');
+          dataList.add(data);
+        }
+        DownloadTaskStatus status = data[1];
 
-      if (status == DownloadTaskStatus.complete ||
-          status == DownloadTaskStatus(3)) {
-        DownloadTask specificDownload = downloads.firstWhere(
-            (element) => element.taskId.toString() == data[0].toString());
+        if (status == DownloadTaskStatus.complete ||
+            status == DownloadTaskStatus(3)) {
+          DownloadTask specificDownload = downloads.firstWhere(
+              (element) => element.taskId.toString() == data[0].toString());
 
-        String name = specificDownload.filename;
-        String splittedName = name.split('-').last;
-        Song song = splittedName == 'accompaniment.wav' ||
-                splittedName == 'vocals.wav'
-            ? await SplittedSongRepository.getDownload(splitFileNameHere(name))
-            : await SplittedSongRepository.getDownload(name);
-        String path = specificDownload.savedDir;
-        if (splittedName == 'accompaniment.wav')
-          await SplittedSongRepository.addSong(Song(
-            fileName: name,
-            filePath: path,
-            image: song.image ?? '',
-            splittedFileName: splitFileNameHere(name),
-            artistName: song.artistName ?? 'Unknown Artist',
-            songName: song.songName ?? 'Unknown',
-          ));
-        else if (splittedName == 'vocals.wav')
-          await SplittedSongRepository.addSong(Song(
-            vocalName: name,
-            filePath: path,
-            image: song.image ?? '',
-            splittedFileName: splitFileNameHere(name),
-            artistName: song.artistName ?? 'Unknown Artist',
-            songName: song.songName ?? 'Unknown',
-          ));
-        else
-          await SongRepository.addSong(Song(
-            fileName: name,
-            songName: song.songName ?? 'Unknown',
-            artistName: song.artistName ?? 'Unknown Artist',
-            filePath: path,
-            image: song.image ?? '',
-            favorite: false,
-            lastPlayDate: DateTime.now(),
-          ));
-      }
-    });
+          String name = specificDownload.filename;
+          String splitName = name.split('-').last;
+          Song song = splitName == 'accompaniment.wav' ||
+                  splitName == 'vocals.wav'
+              ? await SplitSongRepository.getDownload(splitFileNameHere(name))
+              : await SplitSongRepository.getDownload(name);
+          String path = specificDownload.savedDir;
+          if (splitName == 'accompaniment.wav') {
+            await SplitSongRepository.addSong(
+              Song(
+                fileName: name,
+                filePath: path,
+                image: song.image ?? '',
+                libid: song.libid,
+                musicid: song.musicid,
+                vocalLibid: song.vocalLibid,
+                splitFileName: splitFileNameHere(name),
+                artistName: song.artistName ?? 'Unknown Artist',
+                songName: song.songName ?? 'Unknown',
+              ),
+            );
+            Provider.of<SplitSongProvider>(context).getSongs(false);
+          } else if (splitName == 'vocals.wav') {
+            await SplitSongRepository.addSong(
+              Song(
+                vocalName: name,
+                filePath: path,
+                image: song.image ?? '',
+                vocalLibid: song.vocalLibid,
+                libid: song.libid,
+                musicid: song.musicid,
+                splitFileName: splitFileNameHere(name),
+                artistName: song.artistName ?? 'Unknown Artist',
+                songName: song.songName ?? 'Unknown',
+              ),
+            );
+            Provider.of<SplitSongProvider>(context).getSongs(true);
+          } else {
+            await SongRepository.addSong(
+              Song(
+                fileName: name,
+                songName: song.songName ?? 'Unknown',
+                artistName: song.artistName ?? 'Unknown Artist',
+                filePath: path,
+                image: song.image ?? '',
+                libid: song.libid,
+                musicid: song.musicid,
+                favorite: false,
+                lastPlayDate: DateTime.now(),
+              ),
+            );
+            Provider.of<MusicProvider>(context).getSongs();
+          }
+        }
+      },
+    );
   }
 
   String splitFileNameHere(String fileName) {
@@ -189,28 +305,61 @@ class _DownloadsState extends State<Downloads> {
   Future<void> _requestDownload(
       {@required String link,
       bool saveToDownload = false,
-      String fileName}) async {
-    final status = await Permission.storage.request();
+      String fileName,
+      Song song,
+      bool sync = false}) async {
+    final status = await Permission.storage.status;
 
     if (status.isGranted) {
       if (saveToDownload == true) {
         var downloadPath = await DownloadsPathProvider.downloadsDirectory;
         _localPath = downloadPath.path;
       }
-      String _fileName = fileName + '-' + getStringPathName(link);
+      String _fileName = sync
+          ? fileName + '-' + getStringPathNameFromWeb(link)
+          : fileName + '-' + getStringPathName(link);
 
       bool exists =
           await File(_localPath + Platform.pathSeparator + _fileName).exists();
 
-      if (exists)
-        showToast(context, message: 'File already exists');
-      else {
-        await SplittedSongRepository.addDownload(
+      if (exists) {
+        if (!sync)
+          showToast(context, message: 'File already exists');
+        else {
+          if (_fileName.split('-').last == 'vocals.wav') {
+            await SplitSongRepository.addSong(Song(
+              vocalName: _fileName,
+              filePath: _localPath,
+              image: song.image ?? '',
+              vocalLibid: song.vocalLibid,
+              musicid: song.musicid,
+              splitFileName: fileName,
+              artistName: song.artistName ?? 'Unknown Artist',
+              songName: song.songName ?? 'Unknown',
+            ));
+          } else {
+            await SplitSongRepository.addSong(Song(
+              fileName: _fileName,
+              filePath: _localPath,
+              image: song.image ?? '',
+              libid: song.libid,
+              musicid: song.musicid,
+              splitFileName: fileName,
+              artistName: song.artistName ?? 'Unknown Artist',
+              songName: song.songName ?? 'Unknown',
+            ));
+          }
+        }
+      } else {
+        await SplitSongRepository.addDownload(
             key: fileName,
             song: Song(
-                image: widget.song.image,
-                artistName: widget.song.artistName,
-                songName: widget.song.songName));
+                image: song.image,
+                artistName: song.artistName ?? 'Unknown Artist',
+                songName: song.songName ?? 'Unknown',
+                libid: song.libid,
+                vocalLibid: song.vocalLibid,
+                musicid: song.musicid));
         await FlutterDownloader.registerCallback(downloadCallback);
         await FlutterDownloader.enqueue(
             url: link,
@@ -313,7 +462,7 @@ class _DownloadsState extends State<Downloads> {
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (_) => SplittedScreen()));
+                                        builder: (_) => SplitScreen()));
                               else if (_download.filename.split('-').last ==
                                       'vocals.wav' &&
                                   await checkName(_download))
@@ -346,10 +495,11 @@ class _DownloadsState extends State<Downloads> {
                             ),
                             trailing: _download.status ==
                                         DownloadTaskStatus(3) ||
-                                    _download.status == DownloadTaskStatus(5) ||
                                     _download.status == DownloadTaskStatus(0)
                                 ? null
-                                : _download.status == DownloadTaskStatus(4)
+                                : _download.status == DownloadTaskStatus(5) ||
+                                        _download.status ==
+                                            DownloadTaskStatus(4)
                                     ? IconButton(
                                         icon: Icon(
                                           Icons.replay,
@@ -357,11 +507,10 @@ class _DownloadsState extends State<Downloads> {
                                           size: 30,
                                         ),
                                         onPressed: () async {
+                                          FlutterDownloader.registerCallback(
+                                              downloadCallback);
                                           await FlutterDownloader.retry(
                                               taskId: _download.taskId);
-                                          await FlutterDownloader
-                                              .registerCallback(
-                                                  downloadCallback);
                                         },
                                       )
                                     : Row(
@@ -385,13 +534,13 @@ class _DownloadsState extends State<Downloads> {
                                                 onPressed: () async {
                                                   if (_download.status ==
                                                       DownloadTaskStatus(6)) {
+                                                    FlutterDownloader
+                                                        .registerCallback(
+                                                            downloadCallback);
                                                     await FlutterDownloader
                                                         .resume(
                                                             taskId: _download
                                                                 .taskId);
-                                                    await FlutterDownloader
-                                                        .registerCallback(
-                                                            downloadCallback);
                                                   } else
                                                     await FlutterDownloader
                                                         .pause(

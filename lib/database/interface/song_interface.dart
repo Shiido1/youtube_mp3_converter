@@ -21,7 +21,7 @@ abstract class SongInterface {
       @required String songName});
 }
 
-abstract class SplittedSongInterface {
+abstract class SplitSongInterface {
   addSong(Song log);
   Future<List<Song>> getSongs();
   deleteSong(String key);

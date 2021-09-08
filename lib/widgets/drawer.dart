@@ -5,6 +5,8 @@ import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
+import 'package:mp3_music_converter/screens/recorded/public_share.dart';
+import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -25,7 +27,7 @@ import 'dart:ui';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/color_assets/color.dart';
 import '../utils/page_router/navigator.dart';
-import 'package:mp3_music_converter/screens/splitted/delete_song.dart';
+import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 
 const String splitMusicPath = 'split';
@@ -43,7 +45,7 @@ class AppDrawer extends StatefulWidget with WidgetsBindingObserver {
 }
 
 class _AppDrawerState extends State<AppDrawer> {
-  List<String> _apiSplittedList = ['', ''];
+  List<String> _apiSplitList = ['', ''];
   MusicProvider _musicProvider;
   int id;
   bool _permissionReady;
@@ -62,6 +64,7 @@ class _AppDrawerState extends State<AppDrawer> {
     _prepare();
     shuffle = _musicProvider.shuffleSong;
     repeat = _musicProvider.repeatSong;
+
     super.initState();
   }
 
@@ -112,6 +115,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    print(_musicProvider.drawerItem.libid);
     return Consumer<MusicProvider>(builder: (_, _provider, __) {
       return Padding(
         padding: const EdgeInsets.only(top: 150, bottom: 120),
@@ -134,8 +138,17 @@ class _AppDrawerState extends State<AppDrawer> {
                                     height: 60,
                                     width: 50,
                                     child: CachedNetworkImage(
-                                        imageUrl:
-                                            _provider?.drawerItem?.image)))
+                                      imageUrl: _provider?.drawerItem?.image,
+                                      errorWidget: (context, data, _) =>
+                                          Container(
+                                        margin: EdgeInsets.only(right: 15),
+                                        color: Colors.white54,
+                                        child: Icon(
+                                          Icons.error,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    )))
                             : Container(),
                         _provider?.drawerItem?.songName?.isNotEmpty ?? false
                             ? Expanded(
@@ -225,11 +238,9 @@ class _AppDrawerState extends State<AppDrawer> {
                       ),
                       InkWell(
                         onTap: () async {
-                          Share.shareFiles([
-                            File('${_provider.drawerItem.filePath}/${_provider.drawerItem.fileName}')
-                                .path
-                          ]);
                           PageRouter.goBack(context);
+                          buildShareOptions(context,
+                              song: _provider.drawerItem);
                         },
                         child: Column(
                           children: [
@@ -321,7 +332,9 @@ class _AppDrawerState extends State<AppDrawer> {
                               Navigator.pop(context);
                               showToast(context,
                                   message:
-                                      'Cannot delete currently playing song');
+                                      'Cannot delete currently playing song',
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black);
                             } else {
                               Navigator.pop(context);
                               DeleteSongs(context).showConfirmDeleteDialog(
@@ -352,36 +365,46 @@ class _AppDrawerState extends State<AppDrawer> {
     _progressIndicator.show();
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
-    var splittedFiles = await SplitAssistant.splitFile(
+    var splitFiles = await SplitAssistant.splitFile(
         filePath: result, context: context, userToken: userToken);
 
-    print(splittedFiles);
-    if (splittedFiles['reply'] == "success") {
+    if (splitFiles['reply'] == "success") {
       await _progressIndicator.dismiss();
-      SplitAssistant.saveSplitFiles(
-          decodedData: splittedFiles['data'],
+      Map splitData = await SplitAssistant.saveSplitFiles(
+          decodedData: splitFiles['data'],
           context: context,
           userToken: userToken);
       if (_permissionReady) {
-        String voiceUrl = splittedFiles['data']["files"]["voice"];
-        String otherUrl = splittedFiles['data']["files"]["other"];
-        _apiSplittedList = ['', ''];
-        _apiSplittedList.insert(0, otherUrl);
-        _apiSplittedList.insert(1, voiceUrl);
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Downloads(
-                    apiSplittedList: _apiSplittedList,
-                    localPath: _localPath,
-                    song: _musicProvider?.drawerItem)));
+        if (splitData['reply'] == 'success') {
+          String voiceUrl = splitFiles['data']["files"]["voice"];
+          String otherUrl = splitFiles['data']["files"]["other"];
+          _apiSplitList = ['', ''];
+          _apiSplitList.insert(0, otherUrl);
+          _apiSplitList.insert(1, voiceUrl);
+          Song newSong = _musicProvider?.drawerItem;
+          newSong.musicid = splitFiles['data']['id'].toString();
+          newSong.vocalLibid = splitData['data']['vocalid'];
+          newSong.libid = splitData['data']['othersid'];
+
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => Downloads(
+                      apiSplitList: _apiSplitList,
+                      localPath: _localPath,
+                      song: newSong)));
+        } else {
+          showToast(context, message: splitData['data']);
+        }
       } else {
         _buildNoPermissionWarning();
       }
-    } else if (splittedFiles['data'] ==
-        'please subscribe to enjoy this service') {
+    } else if (splitFiles['data'] == 'please subscribe to enjoy this service') {
       await _progressIndicator.dismiss();
       showSubscriptionMessage(context);
+    } else if (splitFiles['data'] == "insufficient storage") {
+      await _progressIndicator.dismiss();
+      insufficientStorageWarning(context);
     } else {
       await _progressIndicator.dismiss();
       showToast(context, message: 'Please try again later');
@@ -448,11 +471,100 @@ Future<void> showSubscriptionMessage(BuildContext context) {
               child: Text('Yes',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
               onPressed: () {
+                Navigator.pop(context);
                 Navigator.push(context,
                     MaterialPageRoute(builder: (_) => PaymentScreen()));
               },
             ),
           ],
+        );
+      });
+}
+
+Future<void> insufficientStorageWarning(BuildContext context) {
+  return showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+          content: Text(
+            'Available storage is insufficient. Please purchase an additional plan. \n\nBuy now?',
+            style: TextStyle(color: Colors.white, fontSize: 17),
+          ),
+          actions: [
+            TextButton(
+              child: Text('No',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pop(_);
+              },
+            ),
+            TextButton(
+              child: Text('Yes',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => PaymentScreen()));
+              },
+            ),
+          ],
+        );
+      });
+}
+
+Future<Widget> buildShareOptions(BuildContext context, {Song song}) {
+  return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextButton(
+                onPressed: () {
+                  showPrivateShareDialog(context, song);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  'Private share',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PublicShare(song.libid,
+                              vocalLibid: song.vocalLibid)));
+                },
+                child: Text(
+                  'Public share',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+              Divider(
+                color: Colors.white,
+              ),
+              TextButton(
+                onPressed: () async {
+                  PageRouter.goBack(context);
+                  Share.shareFiles(
+                      [File('${song.filePath}/${song.fileName}').path]);
+                },
+                child: Text(
+                  'Share to other apps',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ),
+            ],
+          ),
         );
       });
 }

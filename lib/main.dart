@@ -11,7 +11,6 @@ import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
-import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: Providers.getProviders,
       child: MaterialApp(
-        title: 'Flutter Demo',
+        title: 'YT Audio',
         theme: ThemeData(
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),

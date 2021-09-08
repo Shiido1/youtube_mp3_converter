@@ -39,6 +39,8 @@
 	<string>This app requires access to play music</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>YT Audio would like to access your calender</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This application needs the speech camera permission</string>
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -46,7 +48,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs to access your location to get radio channels</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This application needs to access your microphone</string>
+	<string>This application needs the speech microphone permission</string>
 	<key>NSMotionUsageDescription</key>
 	<string>This app needs to be able to access your motion use</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -55,10 +57,6 @@
 	<string>Can i make use of your photos?</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>This application needs the speech recognition permission</string>
-	<key>NSCameraUsageDescription</key>
-	<string>This application needs the speech camera permission</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This application needs the speech microphone permission</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

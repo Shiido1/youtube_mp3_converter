@@ -1088,11 +1088,6 @@ class _RadioClassState extends State<RadioClass>
                     ? _radioLog.placeLong
                     : _radioLog["placeLong"] ?? location.longitude.toString();
               });
-              print(isFavorite
-                  ? 'saved placeLat: ${_radioLog['placeLat']}'
-                  : 'placeLat is: ${_radioLog.placeLat}');
-
-              print('current placeLat $placeLat');
 
               _changeLocationMarker(
                   latitude: !isFavorite

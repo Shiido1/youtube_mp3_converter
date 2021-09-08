@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 /// This service is responsible for talking with the OS to see if anything was
@@ -29,6 +31,6 @@ class LinkShareAssistant {
   Future<String> getSharedData() async {
     return await MethodChannel('com.ytaudio.mp3_music_converter')
         .invokeMethod("getSharedData") ??
-        "";
+        "" : "";
   }
 }

@@ -8,13 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PaymentAssistant {
-  static Future<bool> storePayment(
-      {BuildContext context,
-      String txRef,
-      double amount,
-      String txId,
-      int storage,
-      String userToken}) async {
+  static Future<bool> storePayment({BuildContext context,
+    String txRef,
+    double amount,
+    String txId,
+    int storage,
+    String userToken,
+    String payment_method}) async {
     String baseUrl = "http://67.205.165.56/api/storepayment";
 
     var body = jsonEncode({
@@ -22,7 +22,8 @@ class PaymentAssistant {
       "amount": amount,
       "transaction_id": txId,
       "storage": storage,
-      "token": userToken
+      "token": userToken,
+      "payment_method": payment_method
     });
 
     try {

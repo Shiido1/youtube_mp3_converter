@@ -46,6 +46,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
   void initState() {
     _songProvider = Provider.of<SplitSongProvider>(context, listen: false);
     _init();
+    print(widget.song.fileName);
+    print(widget.song.vocalName);
     showAd(widget.width);
     startTimer();
     super.initState();

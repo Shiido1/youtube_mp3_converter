@@ -332,7 +332,9 @@ class _AppDrawerState extends State<AppDrawer> {
                               Navigator.pop(context);
                               showToast(context,
                                   message:
-                                      'Cannot delete currently playing song');
+                                      'Cannot delete currently playing song',
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black);
                             } else {
                               Navigator.pop(context);
                               DeleteSongs(context).showConfirmDeleteDialog(

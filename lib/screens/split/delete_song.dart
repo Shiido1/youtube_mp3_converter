@@ -185,7 +185,10 @@ Future<void> deleteSong(
     try {
       var response = await http.post('https://youtubeaudio.com/api/deletesong',
           headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'token': token, 'id': record.musicid}));
+          body: jsonEncode({
+            'token': token,
+            'id': song != null ? song.musicid : record.musicid
+          }));
       print(jsonDecode(response.body));
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -251,6 +254,10 @@ Future<void> deleteSong2(
     }
     try {
       await file.delete();
+      showToast(context,
+          message: 'Song deleted',
+          backgroundColor: Colors.white,
+          textColor: Colors.black);
       if (!split) {
         SongRepository.deleteSong(song.fileName);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
@@ -270,17 +277,19 @@ Future<void> deleteSong2(
   if (record != null) {
     var path = record.path.split('/');
     path.removeAt(0);
-    var file = File(path.join('/'));
+    var file = File(Uri.decodeFull(path.join('/')));
     try {
       await file.delete();
       RecorderServices().deleteRecording(record.name);
+      showToast(context,
+          message: 'Recording deleted',
+          backgroundColor: Colors.white,
+          textColor: Colors.black);
       Provider.of<RecordProvider>(context, listen: false).getRecords();
       Navigator.pop(context);
     } catch (_) {
       print(_);
-      RecorderServices().deleteRecording(record.name);
-      Provider.of<RecordProvider>(context, listen: false).getRecords();
-      Navigator.pop(context);
+      showToast(context, message: 'Failed to delete recording.');
     }
   }
 }

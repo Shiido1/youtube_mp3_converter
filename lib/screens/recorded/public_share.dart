@@ -53,12 +53,13 @@ class _PublicShareState extends State<PublicShare> {
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
         if (responseBody['message'].toString().toLowerCase().trim() ==
-            'shared to public!')
+            'shared to public!') {
           showToast(context,
               message: 'Song successfully shared to public',
               backgroundColor: Colors.white,
               textColor: Colors.black);
-        else
+          Navigator.pop(context);
+        } else
           showToast(context,
               message: 'Fail to share song. Try again later.',
               backgroundColor: Colors.white,
@@ -69,6 +70,7 @@ class _PublicShareState extends State<PublicShare> {
             message: responseBody['message'],
             backgroundColor: Colors.white,
             textColor: Colors.black);
+        Navigator.pop(context);
       }
     } catch (e) {
       print(e);

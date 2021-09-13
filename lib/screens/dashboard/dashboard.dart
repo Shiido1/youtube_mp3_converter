@@ -177,14 +177,14 @@ class _DashBoardState extends State<DashBoard> {
                       screen: DJMixer(),
                       assets: AppAssets.djMixer,
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _buttonItem(
-                        title: "Plan",
-                        item: HomeButtonItem.PLAN,
-                        screen: PaymentScreen(),
-                        assets: AppAssets.plan),
+                     SizedBox(
+                       height: 20,
+                     ),
+                     _buttonItem(
+                         title: "Plan",
+                         item: HomeButtonItem.PLAN,
+                         screen: PaymentScreen(),
+                         assets: AppAssets.plan),
                     SizedBox(height: 15),
                   ],
                 ),

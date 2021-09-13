@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>320378040514-0c7npllfgjjbs9esq87e51b8chiff8bo.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDObdwm8efcv2WzopgKuXWcgMY6NN6ZOBk</string>
+	<key>GCM_SENDER_ID</key>
+	<string>320378040514</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.youtubeaudio.mp3-music-converter</string>
+	<key>PROJECT_ID</key>
+	<string>youtubeaudio-312300</string>
+	<key>STORAGE_BUCKET</key>
+	<string>youtubeaudio-312300.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:320378040514:ios:e41b53c4f3db87c4ef4b5b</string>
+	<key>DATABASE_URL</key>
+	<string>https://audio-312300-32d97.firebaseio.com</string>
+</dict>
+</plist>

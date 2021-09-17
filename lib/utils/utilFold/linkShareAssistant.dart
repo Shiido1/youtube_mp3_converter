@@ -30,7 +30,7 @@ class LinkShareAssistant {
   /// it has
   Future<String> getSharedData() async {
     return await MethodChannel('com.ytaudio.mp3_music_converter')
-        .invokeMethod("getSharedData") ??
-        "" : "";
+            .invokeMethod("getSharedData") ??
+        "";
   }
 }

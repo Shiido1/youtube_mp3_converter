@@ -11,6 +11,7 @@ import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/utils/utilFold/paymentAssistant.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
+import 'package:flutter_paystack/flutter_paystack.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:uuid/uuid.dart';
 
@@ -25,6 +26,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String email = '';
   String name = '';
   String userToken = '';
+  String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
   FlutterPay flutterPay = FlutterPay();
 
   @override
@@ -253,8 +255,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           txId: trxResponse['data']['reference'],
           storage: storage,
           userToken: userToken,
-          payment_method:'card'
-      );
+          payment_method: 'card');
     } else if (trxResponse == 'Failed') {
       showToast(context, message: 'Transaction Failed. Try again later');
     } else {
@@ -293,8 +294,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             txId: "",
             storage: storage,
             userToken: userToken,
-            payment_method:'applepay'
-        );
+            payment_method: 'applepay');
       } else {
         showToast(context,
             message:

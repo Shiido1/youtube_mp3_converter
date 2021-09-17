@@ -161,7 +161,7 @@ class _LibraryState extends State<Library> {
                       size: 30,
                     ),
                     title: TextViewWidget(
-                      text: 'Downloads',
+                      text: 'History',
                       color: AppColor.white,
                       textSize: 18,
                     ),
@@ -190,32 +190,33 @@ class _LibraryState extends State<Library> {
                           return ListView(
                             scrollDirection: Axis.horizontal,
                             children: snapshot.data
-                                .map((e) => Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: InkWell(
-                                        onTap: () {
-                                          int width = MediaQuery.of(context)
-                                              .size
-                                              .width
-                                              .floor();
-                                          PageRouter.gotoWidget(
-                                              SongViewScreen(e, width),
-                                              context);
-                                        },
-                                        child: CachedNetworkImage(
-                                          imageUrl: e.image,
-                                          errorWidget: (context, data, _) =>
-                                              Container(
-                                                  color: Colors.white54,
-                                                  height: 30,
-                                                  width: 150,
-                                                  child: Icon(
-                                                    Icons.error,
-                                                    size: 35,
-                                                  )),
-                                        ),
+                                .map(
+                                  (e) => Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: () {
+                                        int width = MediaQuery.of(context)
+                                            .size
+                                            .width
+                                            .floor();
+                                        PageRouter.gotoWidget(
+                                            SongViewScreen(e, width), context);
+                                      },
+                                      child: CachedNetworkImage(
+                                        imageUrl: e.image,
+                                        errorWidget: (context, data, _) =>
+                                            Container(
+                                                color: Colors.white54,
+                                                height: 30,
+                                                width: 150,
+                                                child: Icon(
+                                                  Icons.error,
+                                                  size: 35,
+                                                )),
                                       ),
-                                    ))
+                                    ),
+                                  ),
+                                )
                                 .toList(),
                           );
                         }),

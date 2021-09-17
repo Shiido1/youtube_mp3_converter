@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/signup/model/signup_model.dart';
 import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dart';
@@ -28,6 +30,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isConPassword = false;
   bool _isUsername = false;
   SignUpProviders _signUpProvider;
+
+  void googleSignIn() async {
+    GoogleSignIn googleSign = GoogleSignIn(scopes: ['email', 'profile']);
+
+    try {
+      await googleSign.signIn();
+
+      print(googleSign.currentUser.photoUrl);
+      print(googleSign.currentUser.email);
+      print(googleSign.currentUser.id);
+      print(googleSign.currentUser.displayName);
+    } catch (e) {
+      print(e);
+    }
+  }
 
   bool _validateInputs() {
     if (_nameController.text.isEmpty) {
@@ -309,24 +326,40 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         SizedBox(height: 35),
-                        TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: AppColor.bottomRed,
-                            ),
-                            onPressed: () {
-                              _signUpUser();
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(
-                                  top: 8, bottom: 8, right: 20, left: 20),
-                              child: Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  color: AppColor.white,
-                                  fontSize: 22,
-                                ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                googleSignIn();
+                              },
+                              icon: Icon(
+                                FontAwesomeIcons.google,
+                                color: AppColor.bottomRed,
+                                size: 40,
                               ),
-                            )),
+                            ),
+                            SizedBox(width: 50),
+                            TextButton(
+                                style: TextButton.styleFrom(
+                                  backgroundColor: AppColor.bottomRed,
+                                ),
+                                onPressed: () {
+                                  _signUpUser();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      top: 8, bottom: 8, right: 20, left: 20),
+                                  child: Text(
+                                    'Sign Up',
+                                    style: TextStyle(
+                                      color: AppColor.white,
+                                      fontSize: 22,
+                                    ),
+                                  ),
+                                )),
+                          ],
+                        ),
                         SizedBox(height: 25),
                         Text(
                           'Already have an Account?',

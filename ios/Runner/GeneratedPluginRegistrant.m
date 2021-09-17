@@ -82,6 +82,12 @@
 @import flutter_pay;
 #endif
 
+#if __has_include(<flutter_paystack/FlutterPaystackPlugin.h>)
+#import <flutter_paystack/FlutterPaystackPlugin.h>
+#else
+@import flutter_paystack;
+#endif
+
 #if __has_include(<flutter_radio/FlutterRadioPlugin.h>)
 #import <flutter_radio/FlutterRadioPlugin.h>
 #else
@@ -122,6 +128,12 @@
 #import <google_mobile_ads/FLTGoogleMobileAdsPlugin.h>
 #else
 @import google_mobile_ads;
+#endif
+
+#if __has_include(<google_sign_in/FLTGoogleSignInPlugin.h>)
+#import <google_sign_in/FLTGoogleSignInPlugin.h>
+#else
+@import google_sign_in;
 #endif
 
 #if __has_include(<image_downloader/ImageDownloaderPlugin.h>)
@@ -206,6 +218,7 @@
   [FlutterDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterDownloaderPlugin"]];
   [FlutterIsolatePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterIsolatePlugin"]];
   [FlutterPayPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPayPlugin"]];
+  [FlutterPaystackPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPaystackPlugin"]];
   [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [FlutterSpeechRecognitionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterSpeechRecognitionPlugin"]];
   [GeocoderPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocoderPlugin"]];
@@ -213,6 +226,7 @@
   [GeolocatorPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeolocatorPlugin"]];
   [FLTGoogleMapsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleMapsPlugin"]];
   [FLTGoogleMobileAdsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleMobileAdsPlugin"]];
+  [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
   [ImageDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageDownloaderPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];

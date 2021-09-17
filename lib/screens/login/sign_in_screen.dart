@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
@@ -31,6 +33,21 @@ class _SignInScreenState extends State<SignInScreen> {
       _loginProviders.loginUser(
           map: LoginModel.toJson(email: email, password: password),
           context: context);
+  }
+
+  void googleSignIn() async {
+    GoogleSignIn googleSign = GoogleSignIn(scopes: ['email', 'profile']);
+
+    try {
+      await googleSign.signIn();
+
+      print(googleSign.currentUser.photoUrl);
+      print(googleSign.currentUser.email);
+      print(googleSign.currentUser.id);
+      print(googleSign.currentUser.displayName);
+    } catch (e) {
+      print(e);
+    }
   }
 
   bool _validateInputs() {
@@ -176,36 +193,52 @@ class _SignInScreenState extends State<SignInScreen> {
                             ),
                           ),
                           SizedBox(height: 35),
-                          model.isLoading
-                              ? SpinKitCircle(
-                                  color: AppColor.white,
-                                  size: 50.0,
-                                )
-                              : TextButton(
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: AppColor.bottomRed,
-                                  ),
-                                  onPressed: () {
-                                    signIn(
-                                        context,
-                                        _emailController.text.trim(),
-                                        _passwordController.text.trim());
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 10.0,
-                                        bottom: 10.0,
-                                        right: 23,
-                                        left: 23),
-                                    child: Text(
-                                      'Login',
-                                      style: TextStyle(
-                                        color: AppColor.white,
-                                        fontSize: 22,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  googleSignIn();
+                                },
+                                icon: Icon(
+                                  FontAwesomeIcons.google,
+                                  color: AppColor.bottomRed,
+                                  size: 40,
+                                ),
+                              ),
+                              SizedBox(width: 50),
+                              model.isLoading
+                                  ? SpinKitCircle(
+                                      color: AppColor.white,
+                                      size: 50.0,
+                                    )
+                                  : TextButton(
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: AppColor.bottomRed,
+                                      ),
+                                      onPressed: () {
+                                        signIn(
+                                            context,
+                                            _emailController.text.trim(),
+                                            _passwordController.text.trim());
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 10.0,
+                                            bottom: 10.0,
+                                            right: 23,
+                                            left: 23),
+                                        child: Text(
+                                          'Login',
+                                          style: TextStyle(
+                                            color: AppColor.white,
+                                            fontSize: 22,
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
+                            ],
+                          ),
                           SizedBox(height: 20),
                           InkWell(
                             onTap: () => Navigator.push(
@@ -252,7 +285,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     ),
                   );
                 },
-              ));
+              ),);
         },
       ),
     );

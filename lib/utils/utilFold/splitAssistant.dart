@@ -4,7 +4,12 @@ import 'package:http/http.dart' as http;
 
 class SplitAssistant {
   static Future<Map<String, dynamic>> splitFile(
-      {String filePath, BuildContext context, String userToken}) async {
+      {String filePath,
+      BuildContext context,
+      String userToken,
+      @required songName,
+      @required artistName,
+      @required title}) async {
     print(userToken);
     print('In the split function');
     print(filePath);
@@ -15,6 +20,9 @@ class SplitAssistant {
       var request = new http.MultipartRequest("POST", postUri);
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] = userToken;
+      request.fields['artist'] = artistName;
+      request.fields['title'] = title;
+      request.fields['songname'] = songName;
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       var response = await request.send();

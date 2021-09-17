@@ -209,9 +209,11 @@ synchronizeSplitSong(BuildContext context) async {
       Map<String, Map> songDetails = {};
 
       for (Map item in data['sepratedsongs']) {
-        String voice, others, image, musicid;
+        String voice, others, image, musicid, artistName, songName;
         int vocalid, othersid;
         musicid = item['topsong']['musicid'].toString();
+        artistName = item['topsong']['artist'] ?? 'Unknown Artist';
+        songName = item['topsong']['songname'] ?? 'Unknown';
 
         item['songs'].forEach((val) {
           if (val['title'] == 'voice') {
@@ -233,6 +235,8 @@ synchronizeSplitSong(BuildContext context) async {
                   'image': image,
                   'vocalid': vocalid,
                   'othersid': othersid,
+                  'songName': songName,
+                  'artistName': artistName,
                   'musicid': musicid
                 });
         for (Song song in splitSongs) {

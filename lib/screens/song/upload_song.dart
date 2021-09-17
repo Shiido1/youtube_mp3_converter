@@ -96,6 +96,7 @@ class _UploadSongState extends State<UploadSong> {
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] = token;
       request.fields['title'] = _songNameController.text;
+      request.fields['songname'] = _songNameController.text;
       request.fields['artist'] = _artistNameController.text;
       request.fields['comment'] = _commentController.text;
       request.fields['genre'] = selectedVal['name'];

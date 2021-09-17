@@ -366,7 +366,12 @@ class _AppDrawerState extends State<AppDrawer> {
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
     var splitFiles = await SplitAssistant.splitFile(
-        filePath: result, context: context, userToken: userToken);
+        filePath: result,
+        context: context,
+        userToken: userToken,
+        songName: _musicProvider?.drawerItem?.songName,
+        artistName: _musicProvider?.drawerItem?.artistName,
+        title: _musicProvider?.drawerItem?.fileName);
 
     if (splitFiles['reply'] == "success") {
       await _progressIndicator.dismiss();

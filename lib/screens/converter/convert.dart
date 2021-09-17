@@ -46,8 +46,8 @@ class _ConvertState extends State<Convert> {
   bool _permissionReady;
   static String _localPath;
   MusicProvider musicProvider;
-  String artist = '';
-  String song = '';
+  String artistName = '';
+  String songName = '';
   String token;
   int libid;
   String musicid;
@@ -69,8 +69,8 @@ class _ConvertState extends State<Convert> {
     _setControllerText();
 
     if (widget.sharedLinkText != null && widget.sharedLinkText.isNotEmpty) {
-      artist = '';
-      song = '';
+      artistName = '';
+      songName = '';
       _download('${widget.sharedLinkText.trim()}');
     }
 
@@ -181,8 +181,8 @@ class _ConvertState extends State<Convert> {
                                         size: 35,
                                       )),
                                   onTap: () {
-                                    artist = '';
-                                    song = '';
+                                    artistName = '';
+                                    songName = '';
                                     _download('${controller.text.trim()}');
                                   },
                                 ),
@@ -319,16 +319,21 @@ class _ConvertState extends State<Convert> {
   }
 
   saveAndDownloadSong(ConverterProvider model) async {
-    final result =
-        await showDownloadDialog(context: context, song: song, artist: artist);
+    final result = await showDownloadDialog(
+        context: context, song: songName, artist: artistName);
     if (result != null) {
-      song = result.split('+')[0];
-      artist = result.split('+')[1];
+      songName = result.split('+')[0];
+      artistName = result.split('+')[1];
       String url = base_url + _converterProvider?.youtubeModel?.url;
       try {
         final response = await http.post('http://67.205.165.56/api/saveconvert',
-            body: jsonEncode(
-                {'token': token, 'id': model?.youtubeModel?.id.toString()}),
+            body: jsonEncode({
+              'token': token,
+              'id': model?.youtubeModel?.id.toString(),
+              'songname': songName,
+              'artist': artistName,
+              'title': model?.youtubeModel?.title
+            }),
             headers: {'Content-Type': 'application/json'});
 
         Map responseData = jsonDecode(response.body);
@@ -379,10 +384,10 @@ class _ConvertState extends State<Convert> {
               localPath: _localPath,
               convert: {
                 'url': url,
-                'artist': artist,
+                'artist': artistName,
                 'libid': libid,
                 'musicid': musicid,
-                'song': song,
+                'song': songName,
                 'image': _converterProvider?.youtubeModel?.image ?? ''
               },
             ),

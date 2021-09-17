@@ -16,6 +16,7 @@ import 'package:mp3_music_converter/screens/split/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -64,33 +65,43 @@ class _DownloadsState extends State<Downloads> {
         _apiSplitList = apiList;
 
         await _requestDownload(
-            link: _apiSplitList[0],
-            saveToDownload: true,
+          link: _apiSplitList[0],
+          saveToDownload: true,
+          fileName: key,
+          sync: true,
+          song: Song(
             fileName: key,
-            sync: true,
-            song: Song(
-                fileName: key,
-                image: value['image'],
-                libid: value['othersid'],
-                vocalLibid: value['vocalid'],
-                musicid: value['musicid']));
+            image: value['image'],
+            libid: value['othersid'],
+            artistName: value['artistName'],
+            songName: value['songName'],
+            vocalLibid: value['vocalid'],
+            musicid: value['musicid'],
+          ),
+        );
         await _requestDownload(
-            link: _apiSplitList[1],
-            saveToDownload: true,
+          link: _apiSplitList[1],
+          saveToDownload: true,
+          fileName: key,
+          sync: true,
+          song: Song(
             fileName: key,
-            sync: true,
-            song: Song(
-                fileName: key,
-                image: value['image'],
-                libid: value['othersid'],
-                vocalLibid: value['vocalid'],
-                musicid: value['musicid']));
+            image: value['image'],
+            libid: value['othersid'],
+            artistName: value['artistName'],
+            songName: value['songName'],
+            vocalLibid: value['vocalid'],
+            musicid: value['musicid'],
+          ),
+        );
       });
     } else if (widget.syncSong) {
       final status = await Permission.storage.request();
 
       if (status.isGranted) {
-        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
+        var downloadPath = Platform.isAndroid
+            ? await DownloadsPathProvider.downloadsDirectory
+            : await getApplicationDocumentsDirectory();
         _localPath = downloadPath.path;
 
         widget.syncSongData.forEach((key, value) async {
@@ -99,13 +110,15 @@ class _DownloadsState extends State<Downloads> {
 
           if (!exists) {
             await SplitSongRepository.addDownload(
-                key: key,
-                song: Song(
-                    libid: value['libid'],
-                    musicid: value['musicid'],
-                    image: value['image'],
-                    artistName: 'Unknown Artist',
-                    songName: 'Unknown'));
+              key: key,
+              song: Song(
+                libid: value['libid'],
+                musicid: value['musicid'],
+                image: value['image'],
+                artistName: value['artistName'],
+                songName: value['songName'],
+              ),
+            );
             await FlutterDownloader.registerCallback(downloadCallback);
             await FlutterDownloader.enqueue(
                 url: value['path'],
@@ -117,8 +130,8 @@ class _DownloadsState extends State<Downloads> {
           } else
             await SongRepository.addSong(Song(
               fileName: key,
-              songName: 'Unknown',
-              artistName: 'Unknown Artist',
+              songName: value['songName'],
+              artistName: value['artistName'],
               filePath: _localPath,
               image: value['image'] ?? '',
               libid: value['libid'] ?? null,
@@ -312,7 +325,9 @@ class _DownloadsState extends State<Downloads> {
 
     if (status.isGranted) {
       if (saveToDownload == true) {
-        var downloadPath = await DownloadsPathProvider.downloadsDirectory;
+        var downloadPath = Platform.isAndroid
+            ? await DownloadsPathProvider.downloadsDirectory
+            : await getApplicationDocumentsDirectory();
         _localPath = downloadPath.path;
       }
       String _fileName = sync

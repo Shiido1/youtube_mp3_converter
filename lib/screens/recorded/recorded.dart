@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:equalizer/equalizer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
@@ -31,11 +32,20 @@ class _RecordedState extends State<Recorded> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   String url =
       "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png";
+  bool enabled = false;
+
+  getEqualizerSettings() async {
+    bool exists = await preferencesHelper.doesExists(key: 'enabled');
+    Equalizer.init(0);
+    if (exists) {
+      enabled = await preferencesHelper.getBoolValues(key: 'enabled');
+    }
+  }
 
   @override
   void initState() {
     init();
-
+    getEqualizerSettings();
     // RecorderServices().addRecording(RecorderModel(
     //     name: 'New Song', path: '/data/user/0/downloads/whatever.mp3'));
     super.initState();
@@ -60,6 +70,8 @@ class _RecordedState extends State<Recorded> {
   void dispose() {
     if (_recordProvider.audioPlayerState != AudioPlayerState.STOPPED)
       _recordProvider.stopAudio();
+    Equalizer.setEnabled(false);
+    Equalizer.release();
     super.dispose();
   }
 
@@ -73,21 +85,22 @@ class _RecordedState extends State<Recorded> {
         model: selectedRecord,
       ),
       appBar: AppBar(
-          backgroundColor: AppColor.black,
-          title: TextViewWidget(
-            text: 'Recorded Songs',
+        backgroundColor: AppColor.black,
+        title: TextViewWidget(
+          text: 'Recorded Songs',
+          color: AppColor.bottomRed,
+        ),
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_sharp,
             color: AppColor.bottomRed,
           ),
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.arrow_back_ios_sharp,
-              color: AppColor.bottomRed,
-            ),
-          ),
-          actions: [Container()]),
+        ),
+        // actions: [Container()],
+      ),
       body: Center(
         child: Column(
           children: [
@@ -96,6 +109,7 @@ class _RecordedState extends State<Recorded> {
             ),
             BottomPlayingIndicator(
               isMusic: false,
+              enabled: enabled,
             )
           ],
         ),
@@ -131,9 +145,11 @@ class _RecordedState extends State<Recorded> {
                 onTap: () async {
                   _recordProvider.records = recordList;
                   _recordProvider.setCurrentIndex(index);
+                  Equalizer.setEnabled(enabled);
                   PageRouter.gotoWidget(
                       RecordedScreen(
                         record: record,
+                        enabled: enabled,
                       ),
                       context);
                 },

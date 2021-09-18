@@ -14,8 +14,9 @@ import 'package:provider/provider.dart';
 
 class BottomPlayingIndicator extends StatefulWidget {
   final bool isMusic;
+  final bool enabled;
 
-  BottomPlayingIndicator({this.isMusic = true});
+  BottomPlayingIndicator({this.isMusic = true, this.enabled = false});
 
   @override
   _BottomPlayingIndicatorState createState() => _BottomPlayingIndicatorState();
@@ -112,7 +113,7 @@ class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
                   ),
                   Column(
                     children: [
-                      IconButt2(),
+                      IconButt2(widget.enabled),
                       SizedBox(
                         height: 20,
                       )

@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:equalizer/equalizer.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -39,6 +40,8 @@ class _IconButtState extends State<IconButt> {
 }
 
 class IconButt2 extends StatefulWidget {
+  final bool enabled;
+  IconButt2(this.enabled);
   @override
   _IconButt2State createState() => _IconButt2State();
 }
@@ -63,6 +66,7 @@ class _IconButt2State extends State<IconButt2> {
         size: 56,
       ),
       onPressed: () {
+        Equalizer.setEnabled(widget.enabled);
         _recordProvider.handlePlaying();
       },
       color: AppColor.white,

@@ -72,6 +72,8 @@ dependencies:
   flutter_paystack: ^1.0.4+1
   dropdown_search: ^0.6.3
   google_sign_in: ^4.5.9
+  equalizer: 0.0.2+2
+  flutter_xlider: ^3.4.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

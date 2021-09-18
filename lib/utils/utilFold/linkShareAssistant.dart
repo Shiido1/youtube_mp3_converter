@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/services.dart';
 
 /// This service is responsible for talking with the OS to see if anything was

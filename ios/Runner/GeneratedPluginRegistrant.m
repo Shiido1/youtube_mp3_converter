@@ -34,6 +34,12 @@
 @import downloads_path_provider;
 #endif
 
+#if __has_include(<equalizer/EqualizerPlugin.h>)
+#import <equalizer/EqualizerPlugin.h>
+#else
+@import equalizer;
+#endif
+
 #if __has_include(<file_picker/FilePickerPlugin.h>)
 #import <file_picker/FilePickerPlugin.h>
 #else
@@ -210,6 +216,7 @@
   [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
   [FLTFirebaseFunctionsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseFunctionsPlugin"]];
   [DownloadsPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"DownloadsPathProviderPlugin"]];
+  [EqualizerPlugin registerWithRegistrar:[registry registrarForPlugin:@"EqualizerPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
   [FLTFirebaseCorePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseCorePlugin"]];
   [FLTFirebaseDatabasePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseDatabasePlugin"]];

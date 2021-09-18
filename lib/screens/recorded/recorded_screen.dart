@@ -12,7 +12,8 @@ import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 
 class RecordedScreen extends StatefulWidget {
   final RecorderModel record;
-  RecordedScreen({@required this.record});
+  final bool enabled;
+  RecordedScreen({@required this.record, @required this.enabled});
   @override
   _RecordedScreenState createState() => _RecordedScreenState();
 }
@@ -116,7 +117,7 @@ class _RecordedScreenState extends State<RecordedScreen> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 20),
-                      child: IconButt2(),
+                      child: IconButt2(widget.enabled),
                     ),
                     SizedBox(
                       width: 28,

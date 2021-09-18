@@ -1,9 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
-import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
-import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
-import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:provider/provider.dart';
 
 Future<String> showNameSong(BuildContext context) {
   TextEditingController songController = TextEditingController();

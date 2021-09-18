@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/equalizer.dart';
 import 'package:mp3_music_converter/screens/recorded/public_share.dart';
 import 'package:mp3_music_converter/screens/song/upload_song.dart';
 import 'package:mp3_music_converter/screens/split/delete_song.dart';
@@ -33,7 +34,7 @@ class _RecordedDrawerState extends State<RecordedDrawer> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 300,
+      height: 500,
       child: Drawer(
         child: Container(
           decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
@@ -131,6 +132,26 @@ class _RecordedDrawerState extends State<RecordedDrawer> {
                           text: 'Delete Recording',
                           color: AppColor.white,
                           textSize: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Wrap(
+                    children: [
+                      Divider(color: AppColor.white),
+                      ListTile(
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: (_) => Equalizer()));
+                        },
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: TextViewWidget(
+                            text: 'Equalizer',
+                            color: AppColor.white,
+                            textSize: 18,
+                          ),
                         ),
                       ),
                     ],

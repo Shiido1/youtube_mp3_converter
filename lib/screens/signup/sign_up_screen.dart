@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:http/http.dart' as http;
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
 import 'package:mp3_music_converter/screens/signup/model/signup_model.dart';
 import 'package:mp3_music_converter/screens/signup/provider/sign_up_provider.dart';
@@ -33,14 +36,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void googleSignIn() async {
     GoogleSignIn googleSign = GoogleSignIn(scopes: ['email', 'profile']);
+    String url = 'https://youtubeaudio.com/api/google_callback_api';
 
     try {
-      await googleSign.signIn();
+      final gresult = await googleSign.signIn();
+      final auth = await gresult.authentication;
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+          {'token': auth.idToken},
+        ),
+      );
 
-      print(googleSign.currentUser.photoUrl);
-      print(googleSign.currentUser.email);
-      print(googleSign.currentUser.id);
-      print(googleSign.currentUser.displayName);
+      print(auth.idToken);
+      print(auth.accessToken);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print(data);
+      } else {
+        print(response.statusCode);
+        final data = jsonDecode(response.body);
+        print(data);
+        showToast(context,
+            message: 'Failed to login. Please try another method.');
+      }
     } catch (e) {
       print(e);
     }

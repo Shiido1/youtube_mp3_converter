@@ -39,6 +39,9 @@ class AudioPlayerTask extends BackgroundAudioTask {
   static const SEEK_TO = 'seek_to';
   static const VOLUME = 'volume';
   static const VOCAL_VOLUME = 'vocal_volume';
+  static const SET_SESSION = 'set_session';
+  static const END_SESSION = 'end_session';
+
   int index;
   PlayerType playerType = PlayerType.ALL;
   asp.AudioSession audioSession;
@@ -338,8 +341,11 @@ class AudioPlayerTask extends BackgroundAudioTask {
         handleInterruptions(audioSession, true);
 
         if (await audioSession.setActive(true)) {
-          await audioPlayer.play(mediaItem.id,
-              isLocal: true, position: Duration(seconds: 0));
+          await audioPlayer.play(
+            mediaItem.id,
+            isLocal: true,
+            position: Duration(seconds: 0),
+          );
         } else {
           print('could not play');
         }
@@ -363,6 +369,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (audioPlayer.state == AudioPlayerState.PLAYING)
         await audioPlayer.pause();
       audioSession2 = await asp.AudioSession.instance;
+
       audioSession2
           .configure(asp.AudioSessionConfiguration.music())
           .then((value) async {
@@ -403,6 +410,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
     if (name == VOCAL_VOLUME) {
       await vocalPlayer.setVolume(arguments);
     }
+
     _broadcastState();
     return super.onCustomAction(name, arguments);
   }

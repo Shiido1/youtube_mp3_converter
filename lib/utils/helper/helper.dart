@@ -9,10 +9,11 @@ void showToast(BuildContext context,
     {@required String message,
     int gravity = 0,
     Color backgroundColor = const Color(2852126720),
-    Color textColor = Colors.white}) {
+    Color textColor = Colors.white,
+    int duration = 4}) {
   Toast.show(message, context,
       backgroundRadius: 10,
-      duration: 4,
+      duration: duration,
       gravity: gravity,
       backgroundColor: backgroundColor,
       textColor: textColor);

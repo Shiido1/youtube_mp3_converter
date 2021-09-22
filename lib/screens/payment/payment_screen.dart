@@ -27,6 +27,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String name = '';
   String userToken = '';
   String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
+  // String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
   FlutterPay flutterPay = FlutterPay();
 
   @override
@@ -61,13 +62,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
           children: [
             RedBackground(
               iconButton: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios_outlined,
-                    color: AppColor.white,
-                  ),
-                  onPressed: () => Navigator.pop(context)
-                  // MaterialPageRoute(builder: (_) => MainDashBoard())),
-                  ),
+                icon: Icon(
+                  Icons.arrow_back_ios_outlined,
+                  color: AppColor.white,
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
               text: 'Plan',
             ),
             Expanded(
@@ -85,10 +85,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED BASIC',
                       text2: '150MB DISK SPACE',
                       // text3: r'$0.99',
-                      text3: '\u{20A6} 499',
+                      text3: Platform.isAndroid ? '\u{20A6} 499' : r'$0.99',
                       subWidgetButton: () async {
                         makePayment(
-                            amount: 0.99,
+                            amount: Platform.isAndroid ? 499.0 : 0.99,
                             storage: 150000000,
                             title:
                                 'UNLIMITED BASIC - 150MB DISK SPACE (MONTHLY)');
@@ -99,10 +99,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
                       text2: '1.5 GB DISK SPACE Only',
-                      text3: r'$3.99',
+                      text3: Platform.isAndroid ? '\u{20A6} 1,499' : r'$3.99',
                       subWidgetButton: () async {
                         makePayment(
-                            amount: 3.99,
+                            amount: Platform.isAndroid ? 1499.0 : 3.99,
                             storage: 1500000000,
                             title:
                                 'UNLIMITED MEDIUM - 1.5 GB DISK SPACE (MONTHLY)');
@@ -114,10 +114,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       text1: 'UNLIMITED ADVANCE',
                       text2: '10GB DISK SPACE',
                       // text3: r'$20',
-                      text3: '\u{20A6} 9,999',
+                      text3: Platform.isAndroid ? '\u{20A6} 9,999' : r'$20',
                       subWidgetButton: () async {
                         makePayment(
-                            amount: 20.0,
+                            amount: Platform.isAndroid ? 9999.0 : 20.0,
                             storage: 10000000000,
                             title:
                                 'UNLIMITED ADVANCE - 10GB DISK SPACE (6 MONTHLY)');
@@ -255,7 +255,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
           txId: trxResponse['data']['reference'],
           storage: storage,
           userToken: userToken,
-          payment_method: 'card');
+          paymentMethod: 'card');
+      if (status)
+        showToast(context, message: 'Payment successful');
+      else
+        showToast(context, message: 'Payment failed');
     } else if (trxResponse == 'Failed') {
       showToast(context, message: 'Transaction Failed. Try again later');
     } else {
@@ -294,7 +298,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             txId: "",
             storage: storage,
             userToken: userToken,
-            payment_method: 'applepay');
+            paymentMethod: 'applepay');
       } else {
         showToast(context,
             message:

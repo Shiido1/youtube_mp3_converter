@@ -366,12 +366,20 @@ class _ConvertState extends State<Convert> {
           }
         } else if (responseData['message'].toString().toLowerCase().trim() ==
             'music saved to library') {
+          showToast(context,
+              message:
+                  'Song has been successfully saved to Library. If download fails, you can retry from the history page or use the sync button in songs to pull your changes.',
+              duration: 15,
+              backgroundColor: Colors.blue[400],
+              textColor: Colors.black);
           libid = responseData['libid'];
           musicid = model?.youtubeModel?.id.toString();
         } else {
           libid = null;
           musicid = null;
-          print(json.decode(response.body));
+          print(
+            json.decode(response.body),
+          );
         }
       } catch (e) {
         libid = null;

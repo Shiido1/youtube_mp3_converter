@@ -7,13 +7,16 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
+import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
 import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
-import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
+import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
 import 'package:provider/provider.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -27,9 +30,9 @@ class _SignInScreenState extends State<SignInScreen> {
   bool _isEmail = false;
   bool _isPassword = false;
   LoginProviders _loginProviders;
-  SharedPreferencesHelper preferencesHelper;
   bool newUser;
   String email, password;
+  CustomProgressIndicator _progressIndicator;
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
@@ -46,26 +49,63 @@ class _SignInScreenState extends State<SignInScreen> {
 
     try {
       final gresult = await googleSign.signIn();
-      final auth = await gresult.authentication;
-      final response = await http.post(
-        url,
-        body: jsonEncode({'token': auth.accessToken}),
-        headers: {'Content-Type': 'application/json'},
-      );
+      final auth = await gresult?.authentication;
+      if (auth != null) {
+        _progressIndicator.show();
+        final response = await http.post(
+          url,
+          body: jsonEncode({'token': auth.accessToken}),
+          headers: {'Content-Type': 'application/json'},
+        );
+        _progressIndicator.dismiss();
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        showToast(context, message: 'success');
-        print(data);
-      } else {
-        // showToast(context,
-        //     message: 'Failed to login. Please try another method.');
-        final data = jsonDecode(response.body);
-        showToast(context, message: data['message']);
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          if (data['message'].toString().toLowerCase().trim() ==
+              'Login went success!'.toLowerCase()) {
+            showToast(context, message: 'Login was successful');
+            preferencesHelper.saveValue(key: 'email', value: data['email']);
+            preferencesHelper.saveValue(key: 'token', value: data['token']);
+            preferencesHelper.saveValue(
+                key: 'id', value: data['userid'].toString());
+            preferencesHelper.saveValue(key: 'name', value: data['name']);
+
+            String picUrl = data['profilepic'] == null ||
+                    data['profilepic'] == ''
+                ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
+                : data['profilepic'][0] == "/"
+                    ? "https://youtubeaudio.com" + data['profilepic']
+                    : data['profilepic'];
+            Provider.of<RedBackgroundProvider>(context, listen: false)
+                .updateUrl(picUrl);
+
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MainDashBoard(),
+                ),
+                (route) => false);
+          }
+          if (data['message'].toString().toLowerCase().trim() ==
+              'User Already Exists!'.toLowerCase()) {
+            showToast(context,
+                message: 'User already exists. Try another login method.',
+                backgroundColor: Colors.white,
+                textColor: Colors.black);
+          }
+        } else {
+          showToast(context,
+              message: 'Failed to login. Try again later',
+              backgroundColor: Colors.white,
+              textColor: Colors.black);
+        }
       }
     } catch (e) {
+      _progressIndicator.dismiss();
       showToast(context,
-          message: 'Failed to login. Check your internet connection');
+          message: 'An error. Check your internet connection',
+          backgroundColor: Colors.white,
+          textColor: Colors.black);
       print(e);
     }
   }
@@ -90,6 +130,7 @@ class _SignInScreenState extends State<SignInScreen> {
   void initState() {
     _loginProviders = Provider.of<LoginProviders>(context, listen: false);
     _loginProviders.initialize(context);
+    _progressIndicator = CustomProgressIndicator(context);
     super.initState();
   }
 

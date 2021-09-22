@@ -259,6 +259,7 @@ class _DashBoardState extends State<DashBoard> {
 
   Future splitMethod() async {
     String userToken = await preferencesHelper.getStringValues(key: 'token');
+    print(userToken);
     result = await FilePicker.platform.pickFiles(type: FileType.audio);
     String artistName, songName;
 
@@ -270,21 +271,26 @@ class _DashBoardState extends State<DashBoard> {
 
         _progressIndicator.show();
         String nameOfFile = result.files.single.name.split(' ').join('_');
-        var splitFiles = await SplitAssistant.splitFile(
-            filePath: result.files.single.path,
-            context: context,
-            artistName: artistName,
-            songName: songName,
-            title: songName,
-            userToken: userToken);
+        var splitFiles =
+            // <String, dynamic>{'reply': 'failure'};
+            await SplitAssistant.splitFile(
+                filePath: result.files.single.path,
+                artistName: artistName,
+                songName: songName,
+                title: songName,
+                userToken: userToken);
         if (splitFiles['reply'] == "success") {
           await _progressIndicator.dismiss();
           Map splitData = await SplitAssistant.saveSplitFiles(
-              decodedData: splitFiles['data'],
-              context: context,
-              userToken: userToken);
+              decodedData: splitFiles['data'], userToken: userToken);
           if (_permissionReady) {
             if (splitData['reply'] == 'success') {
+              showToast(context,
+                  message:
+                      'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
+                  duration: 15,
+                  backgroundColor: Colors.blue[400],
+                  textColor: Colors.black);
               String voiceUrl = splitFiles['data']["files"]["voice"];
               String otherUrl = splitFiles['data']["files"]["other"];
 
@@ -304,7 +310,9 @@ class _DashBoardState extends State<DashBoard> {
                         fileName: nameOfFile,
                         musicid: splitFiles['data']['id'].toString(),
                         vocalLibid: splitData['data']['vocalid'],
-                        libid: splitData['data']['othersid']),
+                        libid: splitData['data']['othersid'],
+                        artistName: artistName,
+                        songName: songName),
                   ),
                 ),
               );
@@ -326,7 +334,7 @@ class _DashBoardState extends State<DashBoard> {
           showToast(context, message: 'Invalid Song Selected');
         } else {
           await _progressIndicator.dismiss();
-          showToast(context, message: 'Please try again later');
+          showToast(context, message: 'An unknown error occurred.');
         }
       }
     }

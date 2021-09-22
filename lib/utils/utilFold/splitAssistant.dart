@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 class SplitAssistant {
   static Future<Map<String, dynamic>> splitFile(
       {String filePath,
-      BuildContext context,
       String userToken,
       @required songName,
       @required artistName,
@@ -55,8 +54,7 @@ class SplitAssistant {
     }
   }
 
-  static Future<Map> saveSplitFiles(
-      {var decodedData, BuildContext context, String userToken}) async {
+  static Future<Map> saveSplitFiles({var decodedData, String userToken}) async {
     String baseUrl = "http://67.205.165.56/api/savesplit";
 
     var body = jsonEncode({

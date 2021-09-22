@@ -7,8 +7,6 @@ import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
-
-import '../../utils/page_router/navigator.dart';
 import '../song/provider/music_provider.dart';
 import '../song/song_view_screen.dart';
 

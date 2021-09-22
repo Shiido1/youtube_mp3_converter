@@ -8,13 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class PaymentAssistant {
-  static Future<bool> storePayment({BuildContext context,
-    String txRef,
-    double amount,
-    String txId,
-    int storage,
-    String userToken,
-    String payment_method}) async {
+  static Future<bool> storePayment(
+      {BuildContext context,
+      String txRef,
+      double amount,
+      String txId,
+      int storage,
+      String userToken,
+      String paymentMethod}) async {
     String baseUrl = "http://67.205.165.56/api/storepayment";
 
     var body = jsonEncode({
@@ -23,7 +24,7 @@ class PaymentAssistant {
       "transaction_id": txId,
       "storage": storage,
       "token": userToken,
-      "payment_method": payment_method
+      "payment_method": paymentMethod
     });
 
     try {
@@ -32,11 +33,12 @@ class PaymentAssistant {
             'Content-Type': 'application/json',
           },
           body: body);
-      print(_response.statusCode);
-      print('this isthe response: ${_response.body}');
-      print('this is the decoded response: ${json.decode(_response.body)}');
 
-      if (_response.statusCode == 200) {
+      final decodedResponse = jsonDecode(_response.body);
+
+      if (_response.statusCode == 200 &&
+          decodedResponse['message'].toString().toLowerCase().trim() ==
+              'Saved SuccessFully!!'.toLowerCase()) {
         return Future.value(true);
       } else {
         return Future.value(false);

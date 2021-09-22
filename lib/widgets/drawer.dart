@@ -366,7 +366,6 @@ class _AppDrawerState extends State<AppDrawer> {
         '${_musicProvider.drawerItem.fileName}';
     var splitFiles = await SplitAssistant.splitFile(
         filePath: result,
-        context: context,
         userToken: userToken,
         songName: _musicProvider?.drawerItem?.songName,
         artistName: _musicProvider?.drawerItem?.artistName,
@@ -375,11 +374,15 @@ class _AppDrawerState extends State<AppDrawer> {
     if (splitFiles['reply'] == "success") {
       await _progressIndicator.dismiss();
       Map splitData = await SplitAssistant.saveSplitFiles(
-          decodedData: splitFiles['data'],
-          context: context,
-          userToken: userToken);
+          decodedData: splitFiles['data'], userToken: userToken);
       if (_permissionReady) {
         if (splitData['reply'] == 'success') {
+          showToast(context,
+              message:
+                  'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
+              duration: 15,
+              backgroundColor: Colors.blue[400],
+              textColor: Colors.black);
           String voiceUrl = splitFiles['data']["files"]["voice"];
           String otherUrl = splitFiles['data']["files"]["other"];
           _apiSplitList = ['', ''];

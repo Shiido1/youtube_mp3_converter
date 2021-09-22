@@ -22,6 +22,8 @@ class RecordProvider with ChangeNotifier {
   int _currentRecordIndex = -1;
   int get length => records.length;
   int get songNumber => _currentRecordIndex + 1;
+  RecorderModel drawerRecord;
+  bool equalizer = false;
 
   AudioPlayerState audioPlayerState;
   PlayerControlCommand playerControlCommand;
@@ -112,7 +114,7 @@ class RecordProvider with ChangeNotifier {
   void completion() async {
     switch (playerType) {
       case PlayerType.ALL:
-        if (!canNextRecord) playAudio(nextRecord);
+        if (!canNextRecord && !equalizer) playAudio(nextRecord);
         break;
       case PlayerType.SHUFFLE:
         shuffle(false);

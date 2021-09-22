@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -80,8 +81,13 @@ class _FavoriteSongsState extends State<FavoriteSongs> {
                             _musicProvider.songs = _musicProvider.favoriteSongs;
                             int width =
                                 MediaQuery.of(context).size.width.floor();
-                            PageRouter.gotoWidget(
-                                SongViewScreen(_song, width), context);
+
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => SongViewScreen(_song, width),
+                              ),
+                            );
                           },
                           child: ListTile(
                             contentPadding: EdgeInsets.zero,

@@ -324,6 +324,7 @@ class _ConvertState extends State<Convert> {
     if (result != null) {
       songName = result.split('+')[0];
       artistName = result.split('+')[1];
+
       String url = base_url + _converterProvider?.youtubeModel?.url;
       try {
         final response = await http.post('http://67.205.165.56/api/saveconvert',
@@ -370,10 +371,12 @@ class _ConvertState extends State<Convert> {
         } else {
           libid = null;
           musicid = null;
+          print(json.decode(response.body));
         }
       } catch (e) {
         libid = null;
         musicid = null;
+        print(e);
       }
 
       if (libid != null && musicid != null)

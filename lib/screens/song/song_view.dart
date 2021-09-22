@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -18,6 +19,7 @@ import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 // ignore: must_be_immutable
 class SongViewCLass extends StatefulWidget {
@@ -32,6 +34,7 @@ class _SongViewCLassState extends State<SongViewCLass> {
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   // Map<String, BannerAd> loadedAds = {};
   Timer _timer;
+  RefreshController _refreshController = RefreshController();
 
   @override
   void initState() {
@@ -89,10 +92,16 @@ class _SongViewCLassState extends State<SongViewCLass> {
   //   }
   // }
 
+  void _onRefresh() async {
+    await _musicProvider.getSongs();
+    _refreshController.refreshCompleted();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      endDrawerEnableOpenDragGesture: false,
       backgroundColor: AppColor.background,
       appBar: AppBar(
         actions: [
@@ -168,59 +177,63 @@ class _SongViewCLassState extends State<SongViewCLass> {
         return Center(
             child: TextViewWidget(text: 'No Song', color: AppColor.white));
       }
-      return ListView.builder(
-        itemCount: _provider.allSongs.length,
-        shrinkWrap: true,
-        itemBuilder: (BuildContext context, int index) {
-          Song _song = _provider.allSongs[index];
+      return SmartRefresher(
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+          itemCount: _provider.allSongs.length,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            Song _song = _provider.allSongs[index];
 
-          // if ((index + 1) % 5 == 0) {
-          //   return Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       itemBuilder(song: _song, index: index, provider: _provider),
-          //       if (_provider.allSongs.length - 1 != index)
-          //         Padding(
-          //           padding: const EdgeInsets.only(left: 115.0, right: 15),
-          //           child: Divider(
-          //             color: AppColor.white,
-          //           ),
-          //         ),
-          //       // if (loadedAds['appAd$index'] != null)
-          //       //   Container(
-          //       //       child: AdWidget(ad: loadedAds['appAd$index']),
-          //       //       alignment: Alignment.center,
-          //       //       height: loadedAds['appAd$index'].size.height.toDouble(),
-          //       //       width: loadedAds['appAd$index'].size.width.toDouble()),
-          //       // if (loadedAds['appAd$index'] != null &&
-          //       //     _provider.allSongs.length - 1 != index)
-          //       //   Padding(
-          //       //     padding: const EdgeInsets.only(left: 115.0, right: 15),
-          //       //     child: Divider(
-          //       //       color: AppColor.white,
-          //       //     ),
-          //       //   ),
-          //     ],
-          //   );
-          // }
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              itemBuilder(song: _song, index: index, provider: _provider),
-              if (_provider.allSongs.length - 1 != index)
-                Padding(
-                  padding: const EdgeInsets.only(left: 115.0, right: 15),
-                  child: Divider(
-                    color: AppColor.white,
+            // if ((index + 1) % 5 == 0) {
+            //   return Column(
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       itemBuilder(song: _song, index: index, provider: _provider),
+            //       if (_provider.allSongs.length - 1 != index)
+            //         Padding(
+            //           padding: const EdgeInsets.only(left: 115.0, right: 15),
+            //           child: Divider(
+            //             color: AppColor.white,
+            //           ),
+            //         ),
+            //       // if (loadedAds['appAd$index'] != null)
+            //       //   Container(
+            //       //       child: AdWidget(ad: loadedAds['appAd$index']),
+            //       //       alignment: Alignment.center,
+            //       //       height: loadedAds['appAd$index'].size.height.toDouble(),
+            //       //       width: loadedAds['appAd$index'].size.width.toDouble()),
+            //       // if (loadedAds['appAd$index'] != null &&
+            //       //     _provider.allSongs.length - 1 != index)
+            //       //   Padding(
+            //       //     padding: const EdgeInsets.only(left: 115.0, right: 15),
+            //       //     child: Divider(
+            //       //       color: AppColor.white,
+            //       //     ),
+            //       //   ),
+            //     ],
+            //   );
+            // }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                itemBuilder(song: _song, index: index, provider: _provider),
+                if (_provider.allSongs.length - 1 != index)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 115.0, right: 15),
+                    child: Divider(
+                      color: AppColor.white,
+                    ),
                   ),
-                ),
-              if (_provider.allSongs.length == index + 1)
-                SizedBox(
-                  height: 60,
-                )
-            ],
-          );
-        },
+                if (_provider.allSongs.length == index + 1)
+                  SizedBox(
+                    height: 60,
+                  )
+              ],
+            );
+          },
+        ),
       );
     });
   }
@@ -252,7 +265,12 @@ class _SongViewCLassState extends State<SongViewCLass> {
           _musicProvider.songs = _musicProvider.allSongs;
           _musicProvider.setCurrentIndex(index);
           int width = MediaQuery.of(context).size.width.floor();
-          PageRouter.gotoWidget(SongViewScreen(song, width), context);
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (_) => SongViewScreen(song, width),
+            ),
+          );
         },
         child: ListTile(
           contentPadding: EdgeInsets.zero,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:equalizer/equalizer.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
@@ -25,7 +26,6 @@ class Recorded extends StatefulWidget {
 }
 
 class _RecordedState extends State<Recorded> {
-  Directory appDir;
   List<String> records;
   RecordProvider _recordProvider;
   RecorderModel selectedRecord;
@@ -39,6 +39,7 @@ class _RecordedState extends State<Recorded> {
     Equalizer.init(0);
     if (exists) {
       enabled = await preferencesHelper.getBoolValues(key: 'enabled');
+      Equalizer.setEnabled(enabled);
     }
   }
 
@@ -46,8 +47,6 @@ class _RecordedState extends State<Recorded> {
   void initState() {
     init();
     getEqualizerSettings();
-    // RecorderServices().addRecording(RecorderModel(
-    //     name: 'New Song', path: '/data/user/0/downloads/whatever.mp3'));
     super.initState();
   }
 
@@ -72,12 +71,14 @@ class _RecordedState extends State<Recorded> {
       _recordProvider.stopAudio();
     Equalizer.setEnabled(false);
     Equalizer.release();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawerEnableOpenDragGesture: false,
       backgroundColor: AppColor.background,
       key: _scaffoldKey,
       endDrawer: RecordedDrawer(
@@ -99,7 +100,7 @@ class _RecordedState extends State<Recorded> {
             color: AppColor.bottomRed,
           ),
         ),
-        // actions: [Container()],
+        actions: [Container()],
       ),
       body: Center(
         child: Column(
@@ -118,90 +119,97 @@ class _RecordedState extends State<Recorded> {
   }
 
   Widget buildSongList() {
-    return Consumer<RecordProvider>(builder: (_, _provider, __) {
-      if (_provider.allRecords.length < 1) {
-        return Center(
-            child: TextViewWidget(
-                text: 'No Recorded Song', color: AppColor.white));
-      }
-      return ListView.separated(
-        itemCount: _provider.allRecords.length,
-        itemBuilder: (_, int index) {
-          List<RecorderModel> recordList = _provider.allRecords;
-          recordList.sort((b, a) {
-            return a.path
-                .split('/')
-                .last
-                .split('.')
-                .first
-                .compareTo(b.path.split('/').last.split('.').first);
-          });
-          RecorderModel record = recordList[index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // showOptions(record);
-              GestureDetector(
-                onTap: () async {
-                  _recordProvider.records = recordList;
-                  _recordProvider.setCurrentIndex(index);
-                  Equalizer.setEnabled(enabled);
-                  PageRouter.gotoWidget(
-                      RecordedScreen(
-                        record: record,
-                        enabled: enabled,
-                      ),
-                      context);
-                },
-                child: ListTile(
-                  leading: SizedBox(
-                      width: 95,
-                      height: 150,
-                      child: CachedNetworkImage(
-                        imageUrl: url,
-                        placeholder: (context, index) => Container(
-                          child: Center(
-                              child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator())),
+    return Consumer<RecordProvider>(
+      builder: (_, _provider, __) {
+        if (_provider.allRecords.length < 1) {
+          return Center(
+              child: TextViewWidget(
+                  text: 'No Recorded Song', color: AppColor.white));
+        }
+        return ListView.separated(
+          itemCount: _provider.allRecords.length,
+          itemBuilder: (_, int index) {
+            List<RecorderModel> recordList = _provider.allRecords;
+            recordList.sort((b, a) {
+              return a.path
+                  .split('/')
+                  .last
+                  .split('.')
+                  .first
+                  .compareTo(b.path.split('/').last.split('.').first);
+            });
+            RecorderModel record = recordList[index];
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // showOptions(record);
+                GestureDetector(
+                  onTap: () async {
+                    _recordProvider.records = recordList;
+                    _recordProvider.setCurrentIndex(index);
+                    Equalizer.setEnabled(enabled);
+
+                    Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => RecordedScreen(
+                          record: record,
+                          enabled: enabled,
                         ),
-                        errorWidget: (context, url, error) =>
-                            new Icon(Icons.error),
-                      )),
-                  title: TextViewWidget(
-                    text: record.name,
-                    color: AppColor.white,
-                    textSize: 15,
-                    fontFamily: 'Roboto-Regular',
-                  ),
-                  trailing: InkWell(
-                    onTap: () {
-                      setState(() {
-                        selectedRecord = record;
-                      });
-                      _scaffoldKey.currentState.openEndDrawer();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SvgPicture.asset(
-                        AppAssets.dot,
-                        color: AppColor.white,
+                      ),
+                    );
+                  },
+                  child: ListTile(
+                    leading: SizedBox(
+                        width: 95,
+                        height: 150,
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          placeholder: (context, index) => Container(
+                            child: Center(
+                                child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator())),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                        )),
+                    title: TextViewWidget(
+                      text: record.name,
+                      color: AppColor.white,
+                      textSize: 15,
+                      fontFamily: 'Roboto-Regular',
+                    ),
+                    trailing: InkWell(
+                      onTap: () {
+                        setState(() {
+                          selectedRecord = record;
+                        });
+                        _scaffoldKey.currentState.openEndDrawer();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SvgPicture.asset(
+                          AppAssets.dot,
+                          color: AppColor.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
-        separatorBuilder: (_, int index) => Padding(
+              ],
+            );
+          },
+          separatorBuilder: (_, int index) => Padding(
             padding: const EdgeInsets.only(left: 115.0, right: 15),
             child: Divider(
               color: AppColor.white,
-            )),
-      );
-    });
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> showOptions(RecorderModel record) {

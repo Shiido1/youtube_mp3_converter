@@ -57,12 +57,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         print(data);
       } else {
         print(response.statusCode);
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(jsonEncode(response.body));
         print(data);
         showToast(context,
             message: 'Failed to login. Please try another method.');
       }
     } catch (e) {
+      showToast(context,
+          message: 'Failed to login. Check your internet connection');
       print(e);
     }
   }

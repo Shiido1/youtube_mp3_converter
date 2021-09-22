@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -66,6 +67,7 @@ class _PlayListViewState extends State<PlayListView> {
     getPlaylistSongDetails();
     return Scaffold(
       key: _scaffoldKey,
+      endDrawerEnableOpenDragGesture: false,
       backgroundColor: AppColor.background,
       appBar: AppBar(
         actions: [Container()],
@@ -236,7 +238,12 @@ class _PlayListViewState extends State<PlayListView> {
                 _musicProvider.stopShuffle();
                 _musicProvider.setCurrentIndex(0);
                 int width = MediaQuery.of(context).size.width.floor();
-                PageRouter.gotoWidget(SongViewScreen(_song[0], width), context);
+                Navigator.push(
+                  context,
+                  CupertinoPageRoute(
+                    builder: (_) => SongViewScreen(_song[0], width),
+                  ),
+                );
               },
               child: Container(
                 height: 40,
@@ -319,8 +326,12 @@ class _PlayListViewState extends State<PlayListView> {
                       _musicProvider.songs = _song;
                       _musicProvider.setCurrentIndex(index);
                       int width = MediaQuery.of(context).size.width.floor();
-                      PageRouter.gotoWidget(
-                          SongViewScreen(_currentSong, width), context);
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => SongViewScreen(_currentSong, width),
+                        ),
+                      );
                     },
                     child: ListTile(
                       contentPadding: EdgeInsets.zero,

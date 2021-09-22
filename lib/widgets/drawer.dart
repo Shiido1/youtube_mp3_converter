@@ -64,7 +64,6 @@ class _AppDrawerState extends State<AppDrawer> {
     _prepare();
     shuffle = _musicProvider.shuffleSong;
     repeat = _musicProvider.repeatSong;
-
     super.initState();
   }
 
@@ -90,7 +89,7 @@ class _AppDrawerState extends State<AppDrawer> {
     return false;
   }
 
-//* prepares the items we wish to download
+// prepares the items we wish to download
   Future<Null> _prepare() async {
     _permissionReady = await _checkPermission(); // checks for users permission
 

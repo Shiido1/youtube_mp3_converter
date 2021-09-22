@@ -96,7 +96,7 @@ class _SplitState extends State<Split> {
         }
 
         io.Directory youtubeRecordDirectory = io.Directory(
-            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
+            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath");
 
         if (await youtubeRecordDirectory.exists()) {
           String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
@@ -173,6 +173,7 @@ class _SplitState extends State<Split> {
 
   _stop() async {
     var result = await _recorder.stop();
+    print(result.path);
     RecorderServices().addRecording(RecorderModel(path: result.path));
     setState(() {
       _current = result;

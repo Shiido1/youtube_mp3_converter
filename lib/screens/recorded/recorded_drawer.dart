@@ -7,6 +7,7 @@ import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/equalizer.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/recorded/public_share.dart';
 import 'package:mp3_music_converter/screens/song/upload_song.dart';
 import 'package:mp3_music_converter/screens/split/delete_song.dart';
@@ -16,6 +17,7 @@ import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:share/share.dart';
 
 class RecordedDrawer extends StatefulWidget {
@@ -30,6 +32,13 @@ class RecordedDrawer extends StatefulWidget {
 class _RecordedDrawerState extends State<RecordedDrawer> {
   String token;
   int id;
+
+  @override
+  void initState() {
+    Provider.of<RecordProvider>(context, listen: false).drawerRecord =
+        widget.model;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

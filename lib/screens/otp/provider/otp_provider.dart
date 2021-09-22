@@ -9,6 +9,8 @@ import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
+import 'package:provider/provider.dart';
 
 final OtpApiRepository _repository = OtpApiRepository();
 
@@ -41,6 +43,8 @@ class OtpProviders extends ChangeNotifier {
         preferencesHelper.saveValue(key: 'id', value: success.id);
         preferencesHelper.saveValue(key: 'name', value: success.name);
         preferencesHelper.saveValue(key: 'email', value: success.email);
+        Provider.of<RedBackgroundProvider>(this._context, listen: false)
+            .updateUrl(success.profilepic);
         showToast(this._context, message: success.message);
 
         Navigator.pushAndRemoveUntil(

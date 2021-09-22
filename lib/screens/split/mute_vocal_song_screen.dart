@@ -103,7 +103,7 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
         }
 
         io.Directory youtubeRecordDirectory = io.Directory(
-            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath/");
+            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath");
 
         if (await youtubeRecordDirectory.exists()) {
           String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -78,7 +79,13 @@ class _LibraryState extends State<Library> {
                   ListTile(
                     onTap: () {
                       int width = MediaQuery.of(context).size.width.floor();
-                      PageRouter.gotoWidget(SongViewCLass(width), context);
+
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => SongViewCLass(width),
+                        ),
+                      );
                     },
                     leading: SvgPicture.asset(AppAssets.music),
                     title: TextViewWidget(
@@ -91,8 +98,12 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () =>
-                        PageRouter.gotoWidget(FavoriteSongs(), context),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => FavoriteSongs(),
+                      ),
+                    ),
                     leading: SvgPicture.asset(AppAssets.favorite),
                     title: TextViewWidget(
                       text: 'Favorite',
@@ -104,7 +115,12 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () => PageRouter.gotoWidget(SingAlong(), context),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => SingAlong(),
+                      ),
+                    ),
                     leading: SvgPicture.asset(
                       AppAssets.mpFile,
                       color: Colors.white,
@@ -123,7 +139,9 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SplitScreen()),
+                        CupertinoPageRoute(
+                          builder: (_) => SplitScreen(),
+                        ),
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.split),
@@ -140,7 +158,9 @@ class _LibraryState extends State<Library> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Recorded()),
+                        CupertinoPageRoute(
+                          builder: (_) => Recorded(),
+                        ),
                       );
                     },
                     leading: SvgPicture.asset(AppAssets.record),
@@ -154,7 +174,12 @@ class _LibraryState extends State<Library> {
                     color: AppColor.white,
                   ),
                   ListTile(
-                    onTap: () => PageRouter.gotoWidget(Downloads(), context),
+                    onTap: () => Navigator.push(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => Downloads(),
+                      ),
+                    ),
                     leading: Icon(
                       Icons.download_rounded,
                       color: Colors.white,

@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:equalizer/equalizer.dart' as equ;
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:hive/hive.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
+import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
+import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
 
 class Equalizer extends StatefulWidget {
   Equalizer({Key key}) : super(key: key);
@@ -24,6 +28,9 @@ class _EqualizerState extends State<Equalizer> {
   TextEditingController _equalizerNameController;
   Box equalizerBox;
   List<String> customEqualizers = [];
+  List<RecorderModel> recordedSongs = [];
+  RecordProvider _recordProvider;
+  RecorderModel selectedRecord;
 
   getCurrentEqualizer() async {
     bool exists = await preferencesHelper.doesExists(key: 'currentEqualizer');
@@ -95,7 +102,14 @@ class _EqualizerState extends State<Equalizer> {
   @override
   void initState() {
     equ.Equalizer.init(0);
+
     _equalizerNameController = TextEditingController();
+    _recordProvider = Provider.of<RecordProvider>(context, listen: false);
+    _recordProvider.stopAudio();
+    recordedSongs = _recordProvider.allRecords;
+    selectedRecord = _recordProvider.drawerRecord;
+    _recordProvider.currentRecord = selectedRecord;
+    _recordProvider.equalizer = true;
     getEnabledStatus();
     getCustomEqualizers();
     getCurrentEqualizer();
@@ -105,6 +119,7 @@ class _EqualizerState extends State<Equalizer> {
   @override
   void dispose() {
     _equalizerNameController.dispose();
+    _recordProvider.equalizer = false;
     super.dispose();
   }
 
@@ -154,86 +169,103 @@ class _EqualizerState extends State<Equalizer> {
       future: equ.Equalizer.getCenterBandFreqs(),
       builder: (context, snapshot) {
         return snapshot.connectionState == ConnectionState.done
-            ? ListView(
+            ? Column(
                 children: [
-                  SwitchListTile(
-                    value: enabled,
-                    onChanged: (val) {
-                      equ.Equalizer.setEnabled(val);
-                      preferencesHelper.saveValue(key: 'enabled', value: val);
-                      setState(() {
-                        enabled = val;
-                      });
-                    },
-                    activeTrackColor: Colors.blue[300],
-                    inactiveTrackColor: Colors.white24,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 30),
-                    title: Text(
-                      'Enable Equalizer',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18),
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: snapshot.data
-                        .map((freq) => _buildSliderBand(freq, bandId++))
-                        .toList(),
-                  ),
-                  Divider(),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: _buildPresets(),
-                  ),
-                  SizedBox(height: 20),
-                  if (_selectedValue == 'Custom')
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: TextButton(
-                          onPressed: () {
-                            print(currentVal);
-                            showSaveDialog();
-                          },
-                          child: Text(
-                            'Save Settings',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
-                        ),
-                      ),
-                    ),
-                  if (presets != null &&
-                      !(presets.contains(_selectedValue)) &&
-                      _selectedValue != 'Custom')
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: TextButton(
-                          onPressed: () {
-                            equalizerBox.delete(_selectedValue);
-                            _selectedValue = null;
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        SwitchListTile(
+                          value: enabled,
+                          onChanged: (val) {
+                            equ.Equalizer.setEnabled(val);
                             preferencesHelper.saveValue(
-                                key: 'currentEqualizer', value: '');
-                            getCustomEqualizers();
-                            getCurrentEqualizer();
+                                key: 'enabled', value: val);
+                            setState(() {
+                              enabled = val;
+                            });
                           },
-                          child: Text(
-                            'Delete',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                          activeTrackColor: Colors.blue[300],
+                          inactiveTrackColor: Colors.white24,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 30),
+                          title: Text(
+                            'Enable Equalizer',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18),
                           ),
-                          style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.red)),
                         ),
-                      ),
+                        if (recordedSongs != null && recordedSongs.isNotEmpty)
+                          _buildRecordedSongList(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: snapshot.data
+                              .map((freq) => _buildSliderBand(freq, bandId++))
+                              .toList(),
+                        ),
+                        Divider(),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: _buildPresets(),
+                        ),
+                        SizedBox(height: 20),
+                        if (_selectedValue == 'Custom')
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: TextButton(
+                                onPressed: () {
+                                  print(currentVal);
+                                  showSaveDialog();
+                                },
+                                child: Text(
+                                  'Save Settings',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.red)),
+                              ),
+                            ),
+                          ),
+                        if (presets != null &&
+                            !(presets.contains(_selectedValue)) &&
+                            _selectedValue != 'Custom')
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 10),
+                              child: TextButton(
+                                onPressed: () {
+                                  equalizerBox.delete(_selectedValue);
+                                  _selectedValue = null;
+                                  preferencesHelper.saveValue(
+                                      key: 'currentEqualizer', value: '');
+                                  getCustomEqualizers();
+                                  getCurrentEqualizer();
+                                },
+                                child: Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                                style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all(Colors.red)),
+                              ),
+                            ),
+                          ),
+                        SizedBox(height: 30),
+                      ],
                     ),
+                  ),
+                  if (recordedSongs != null && recordedSongs.isNotEmpty)
+                    BottomPlayingIndicator(
+                      isMusic: false,
+                      enabled: enabled,
+                    )
                 ],
               )
             : CircularProgressIndicator();
@@ -326,6 +358,7 @@ class _EqualizerState extends State<Equalizer> {
               style: TextStyle(color: Colors.white),
             );
           return DropdownButtonFormField(
+            iconEnabledColor: Colors.white,
             decoration: InputDecoration(
               labelText: 'Available Presets',
               labelStyle:
@@ -344,10 +377,12 @@ class _EqualizerState extends State<Equalizer> {
                     } else {
                       Map data = equalizerBox.get(value);
 
-                      data.entries.forEach((element) {
-                        equ.Equalizer.setBandLevel(element.key,
-                            double.parse(element.value.toString()).toInt());
-                      });
+                      data.entries.forEach(
+                        (element) {
+                          equ.Equalizer.setBandLevel(element.key,
+                              double.parse(element.value.toString()).toInt());
+                        },
+                      );
                     }
                     preferencesHelper.saveValue(
                         key: 'currentEqualizer', value: value);
@@ -358,7 +393,7 @@ class _EqualizerState extends State<Equalizer> {
                     );
                   }
                 : null,
-            dropdownColor: Colors.black,
+            dropdownColor: Colors.grey[800],
             items: presets.map(
               (String value) {
                 return DropdownMenuItem<String>(
@@ -464,5 +499,55 @@ class _EqualizerState extends State<Equalizer> {
         );
       },
     );
+  }
+
+  _buildRecordedSongList() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          DropdownButtonFormField(
+            decoration: InputDecoration(
+              labelText: 'Choose song',
+              labelStyle: TextStyle(
+                  color: enabled ? Colors.white : Colors.white54, fontSize: 20),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white)),
+            ),
+            iconEnabledColor: Colors.white,
+            dropdownColor: Colors.grey[800],
+            items: recordedSongs.map(
+              (e) {
+                return DropdownMenuItem(
+                  child: Text(
+                    '${e.name}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  value: e,
+                );
+              },
+            ).toList(),
+            value: selectedRecord,
+            onChanged: (val) {
+              updateRecordProvider(val);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  updateRecordProvider(RecorderModel model) {
+    _recordProvider.stopAudio();
+    _recordProvider.currentRecord = model;
+    _recordProvider.totalDuration = Duration();
+
+    setState(() {
+      selectedRecord = model;
+    });
   }
 }

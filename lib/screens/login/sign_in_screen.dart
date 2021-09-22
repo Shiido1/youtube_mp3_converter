@@ -39,7 +39,9 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void googleSignIn() async {
-    GoogleSignIn googleSign = GoogleSignIn(scopes: ['email', 'profile']);
+    GoogleSignIn googleSign = GoogleSignIn(
+      scopes: ['email', 'profile'],
+    );
     String url = 'https://youtubeaudio.com/api/google_callback_api';
 
     try {
@@ -47,18 +49,23 @@ class _SignInScreenState extends State<SignInScreen> {
       final auth = await gresult.authentication;
       final response = await http.post(
         url,
-        body: jsonEncode({'token': auth.idToken}),
+        body: jsonEncode({'token': auth.accessToken}),
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        showToast(context, message: 'success');
         print(data);
       } else {
-        showToast(context,
-            message: 'Failed to login. Please try another method.');
+        // showToast(context,
+        //     message: 'Failed to login. Please try another method.');
+        final data = jsonDecode(response.body);
+        showToast(context, message: data['message']);
       }
     } catch (e) {
+      showToast(context,
+          message: 'Failed to login. Check your internet connection');
       print(e);
     }
   }

@@ -104,42 +104,46 @@ class _DownloadsState extends State<Downloads> {
             : await getApplicationDocumentsDirectory();
         _localPath = downloadPath.path;
 
-        widget.syncSongData.forEach((key, value) async {
-          bool exists =
-              await File(_localPath + Platform.pathSeparator + key).exists();
+        widget.syncSongData.forEach(
+          (key, value) async {
+            bool exists =
+                await File(_localPath + Platform.pathSeparator + key).exists();
 
-          if (!exists) {
-            await SplitSongRepository.addDownload(
-              key: key,
-              song: Song(
-                libid: value['libid'],
-                musicid: value['musicid'],
-                image: value['image'],
-                artistName: value['artistName'],
-                songName: value['songName'],
-              ),
-            );
-            await FlutterDownloader.registerCallback(downloadCallback);
-            await FlutterDownloader.enqueue(
-                url: value['path'],
-                savedDir: _localPath,
-                fileName: key,
-                headers: {"auth": "test_for_sql_encoding"},
-                showNotification: true,
-                openFileFromNotification: false);
-          } else
-            await SongRepository.addSong(Song(
-              fileName: key,
-              songName: value['songName'],
-              artistName: value['artistName'],
-              filePath: _localPath,
-              image: value['image'] ?? '',
-              libid: value['libid'] ?? null,
-              musicid: value['musicid'],
-              favorite: false,
-              lastPlayDate: DateTime.now(),
-            ));
-        });
+            if (!exists) {
+              await SplitSongRepository.addDownload(
+                key: key,
+                song: Song(
+                  libid: value['libid'],
+                  musicid: value['musicid'],
+                  image: value['image'],
+                  artistName: value['artistName'],
+                  songName: value['songName'],
+                ),
+              );
+              await FlutterDownloader.registerCallback(downloadCallback);
+              await FlutterDownloader.enqueue(
+                  url: value['path'],
+                  savedDir: _localPath,
+                  fileName: key,
+                  headers: {"auth": "test_for_sql_encoding"},
+                  showNotification: true,
+                  openFileFromNotification: false);
+            } else
+              await SongRepository.addSong(
+                Song(
+                  fileName: key,
+                  songName: value['songName'],
+                  artistName: value['artistName'],
+                  filePath: _localPath,
+                  image: value['image'] ?? '',
+                  libid: value['libid'] ?? null,
+                  musicid: value['musicid'],
+                  favorite: false,
+                  lastPlayDate: DateTime.now(),
+                ),
+              );
+          },
+        );
       }
     } else if (widget.apiSplitList != null && widget.apiSplitList.isNotEmpty) {
       _apiSplitList = widget.apiSplitList;
@@ -261,7 +265,8 @@ class _DownloadsState extends State<Downloads> {
                 songName: song.songName ?? 'Unknown',
               ),
             );
-            Provider.of<SplitSongProvider>(context).getSongs(false);
+            Provider.of<SplitSongProvider>(context, listen: false)
+                .getSongs(false);
           } else if (splitName == 'vocals.wav') {
             await SplitSongRepository.addSong(
               Song(
@@ -276,7 +281,8 @@ class _DownloadsState extends State<Downloads> {
                 songName: song.songName ?? 'Unknown',
               ),
             );
-            Provider.of<SplitSongProvider>(context).getSongs(true);
+            Provider.of<SplitSongProvider>(context, listen: false)
+                .getSongs(true);
           } else {
             await SongRepository.addSong(
               Song(
@@ -291,7 +297,7 @@ class _DownloadsState extends State<Downloads> {
                 lastPlayDate: DateTime.now(),
               ),
             );
-            Provider.of<MusicProvider>(context).getSongs();
+            Provider.of<MusicProvider>(context, listen: false).getSongs();
           }
         }
       },

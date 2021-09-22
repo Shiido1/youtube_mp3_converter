@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
@@ -131,11 +132,14 @@ class _PlayListState extends State<PlayList> {
                       children: [
                         InkWell(
                           onTap: () async {
-                            PageRouter.gotoWidget(
-                                PlayListView(
+                            Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                builder: (_) => PlayListView(
                                     playListName: playlist[index],
                                     playlistImage: playlistImage[index]),
-                                context);
+                              ),
+                            );
                           },
                           onLongPress: () async {
                             await showPlayListOptions(

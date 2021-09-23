@@ -16,18 +16,6 @@
 		<string>YT-Audio</string>
 		<key>CFBundlePackageType</key>
 		<string>APPL</string>
-		<key>CFBundleURLTypes</key>
-		<array>
-			<dict>
-				<key>CFBundleTypeRole</key>
-				<string>Editor</string>
-				<key>CFBundleURLSchemes</key>
-				<array>
-					<key>REVERSED_CLIENT_ID</key>
-					<string>com.googleusercontent.apps.320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf</string>
-				</array>
-			</dict>
-		</array>
 		<key>CFBundleShortVersionString</key>
 		<string>$(MARKETING_VERSION)</string>
 		<key>CFBundleSignature</key>
@@ -44,7 +32,104 @@
 		<true/>
 		<key>NSAppTransportSecurity</key>
 		<dict>
-			<key>NSAllowsArbitraryLoads</key>
+			<key>CFBundleDevelopmentRegion</key>
+			<string>$(DEVELOPMENT_LANGUAGE)</string>
+			<key>CFBundleDisplayName</key>
+			<string>YT Audio</string>
+			<key>CFBundleExecutable</key>
+			<string>$(EXECUTABLE_NAME)</string>
+			<key>CFBundleIdentifier</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleInfoDictionaryVersion</key>
+			<string>6.0</string>
+			<key>CFBundleName</key>
+			<string>YT-Audio</string>
+			<key>CFBundlePackageType</key>
+			<string>APPL</string>
+			<key>CFBundleURLTypes</key>
+			<array>
+				<dict>
+					<key>CFBundleTypeRole</key>
+					<string>Editor</string>
+					<key>CFBundleURLSchemes</key>
+					<array>
+						<key>REVERSED_CLIENT_ID</key>
+						<string>com.googleusercontent.apps.320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf</string>
+					</array>
+				</dict>
+			</array>
+			<key>CFBundleShortVersionString</key>
+			<string>$(MARKETING_VERSION)</string>
+			<key>CFBundleSignature</key>
+			<string>????</string>
+			<key>CFBundleVersion</key>
+			<string>$(CURRENT_PROJECT_VERSION)</string>
+			<key>FDAllFilesDownloadedMessage</key>
+			<string>All files have been downloaded</string>
+			<key>FDMaximumConcurrentTasks</key>
+			<integer>2</integer>
+			<key>GADApplicationIdentifier</key>
+			<string>ca-app-pub-4279408488674166~2519499082</string>
+			<key>LSRequiresIPhoneOS</key>
+			<true/>
+			<key>NSAppTransportSecurity</key>
+			<dict>
+				<key>NSAllowsArbitraryLoads</key>
+				<true/>
+			</dict>
+			<key>NSAppleMusicUsageDescription</key>
+			<string>This app requires access to play music</string>
+			<key>NSCalendarsUsageDescription</key>
+			<string>YT Audio would like to access your calender</string>
+			<key>NSCameraUsageDescription</key>
+			<string>This application needs the speech camera permission</string>
+			<key>NSContactsUsageDescription</key>
+			<string>This app requires contacts access to function properly.</string>
+			<key>NSLocationAlwaysUsageDescription</key>
+			<string>This app needs to access your location to get radio channels</string>
+			<key>NSLocationWhenInUseUsageDescription</key>
+			<string>This app needs to access your location to get radio channels</string>
+			<key>NSMicrophoneUsageDescription</key>
+			<string>This application needs the speech microphone permission</string>
+			<key>NSMotionUsageDescription</key>
+			<string>This app needs to be able to access your motion use</string>
+			<key>NSPhotoLibraryAddUsageDescription</key>
+			<string>This app needs to access your photos</string>
+			<key>NSPhotoLibraryUsageDescription</key>
+			<string>Can i make use of your photos?</string>
+			<key>NSSpeechRecognitionUsageDescription</key>
+			<string>This application needs the speech recognition permission</string>
+			<key>SKAdNetworkItems</key>
+			<array>
+				<dict>
+					<key>SKAdNetworkIdentifier</key>
+					<string>cstr6suwn9.skadnetwork</string>
+				</dict>
+			</array>
+			<key>UIBackgroundModes</key>
+			<array>
+				<string>audio</string>
+			</array>
+			<key>UILaunchStoryboardName</key>
+			<string>LaunchScreen</string>
+			<key>UIMainStoryboardFile</key>
+			<string>Main</string>
+			<key>UISupportedInterfaceOrientations</key>
+			<array>
+				<string>UIInterfaceOrientationPortrait</string>
+				<string>UIInterfaceOrientationLandscapeLeft</string>
+				<string>UIInterfaceOrientationLandscapeRight</string>
+			</array>
+			<key>UISupportedInterfaceOrientations~ipad</key>
+			<array>
+				<string>UIInterfaceOrientationPortrait</string>
+				<string>UIInterfaceOrientationPortraitUpsideDown</string>
+				<string>UIInterfaceOrientationLandscapeLeft</string>
+				<string>UIInterfaceOrientationLandscapeRight</string>
+			</array>
+			<key>UIViewControllerBasedStatusBarAppearance</key>
+			<false/>
+			<key>io.flutter.embedded_views_preview</key>
 			<true/>
 		</dict>
 		<key>NSAppleMusicUsageDescription</key>

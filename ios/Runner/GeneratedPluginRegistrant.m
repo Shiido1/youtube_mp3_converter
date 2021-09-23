@@ -91,7 +91,7 @@
 #if __has_include(<flutter_paystack/FlutterPaystackPlugin.h>)
 #import <flutter_paystack/FlutterPaystackPlugin.h>
 #else
-@import flutter_paystack;
+@import flutter_pay;
 #endif
 
 #if __has_include(<flutter_radio/FlutterRadioPlugin.h>)

@@ -20,6 +20,7 @@ import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding.instance.addObserver(LifeCycleHandler());
   await FlutterDownloader.initialize();
   await MobileAds.instance.initialize();
   await Firebase.initializeApp();
@@ -103,5 +104,25 @@ class _WrapperState extends State<Wrapper> {
       );
     if (email == "") return SignInScreen();
     return MainDashBoard();
+  }
+}
+
+class LifeCycleHandler extends WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print('resumed');
+        break;
+      case AppLifecycleState.inactive:
+        print('inactive');
+        break;
+      case AppLifecycleState.paused:
+        print('paused');
+        break;
+      case AppLifecycleState.detached:
+        print('detached');
+        break;
+    }
   }
 }

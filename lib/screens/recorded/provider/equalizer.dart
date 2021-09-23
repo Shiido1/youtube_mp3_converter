@@ -323,6 +323,8 @@ class _EqualizerState extends State<Equalizer> {
                     currentVal.remove(bandId);
                     currentVal.putIfAbsent(bandId, () => lowerValue.toInt());
                     equalizerBox.put('Custom', currentVal);
+                    preferencesHelper.saveValue(
+                        key: 'currentEqualizer', value: 'Custom');
                   },
                   tooltip: FlutterSliderTooltip(
                       textStyle: TextStyle(

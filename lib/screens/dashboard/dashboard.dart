@@ -274,15 +274,15 @@ class _DashBoardState extends State<DashBoard> {
         var splitFiles =
             // <String, dynamic>{'reply': 'failure'};
             await SplitAssistant.splitFile(
-                filePath: result.files.single.path,
-                artistName: artistName,
-                songName: songName,
-                title: songName,
-                userToken: userToken);
+                filePath: result.files.single.path, userToken: userToken);
+        await _progressIndicator.dismiss();
         if (splitFiles['reply'] == "success") {
-          await _progressIndicator.dismiss();
           Map splitData = await SplitAssistant.saveSplitFiles(
-              decodedData: splitFiles['data'], userToken: userToken);
+            decodedData: splitFiles['data'],
+            userToken: userToken,
+            artistName: artistName,
+            songName: songName,
+          );
           if (_permissionReady) {
             if (splitData['reply'] == 'success') {
               showToast(context,
@@ -324,16 +324,16 @@ class _DashBoardState extends State<DashBoard> {
           }
         } else if (splitFiles['data'] ==
             'please subscribe to enjoy this service') {
-          await _progressIndicator.dismiss();
+          // await _progressIndicator.dismiss();
           showSubscriptionMessage(context);
         } else if (splitFiles['data'] == 'insufficient storage') {
-          await _progressIndicator.dismiss();
+          // await _progressIndicator.dismiss();
           insufficientStorageWarning(context);
         } else if (splitFiles['data'] == "Invalid Song Provided!") {
-          await _progressIndicator.dismiss();
+          // await _progressIndicator.dismiss();
           showToast(context, message: 'Invalid Song Selected');
         } else {
-          await _progressIndicator.dismiss();
+          // await _progressIndicator.dismiss();
           showToast(context, message: 'An unknown error occurred.');
         }
       }

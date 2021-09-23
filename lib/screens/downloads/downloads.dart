@@ -54,6 +54,8 @@ class _DownloadsState extends State<Downloads> {
   Map songData = {};
   static String _localPath;
   Timer _timer;
+  SplitSongProvider _splitSongProvider;
+  MusicProvider _musicProvider;
 
   init() async {
     if (widget.syncSplit) {
@@ -204,6 +206,8 @@ class _DownloadsState extends State<Downloads> {
   @override
   void initState() {
     registerDownload();
+    _splitSongProvider = Provider.of<SplitSongProvider>(context, listen: false);
+    _musicProvider = Provider.of<MusicProvider>(context, listen: false);
     init();
     startTimer();
     super.initState();
@@ -265,8 +269,8 @@ class _DownloadsState extends State<Downloads> {
                 songName: song.songName ?? 'Unknown',
               ),
             );
-            Provider.of<SplitSongProvider>(context, listen: false)
-                .getSongs(false);
+
+            _splitSongProvider.getSongs(false);
           } else if (splitName == 'vocals.wav') {
             await SplitSongRepository.addSong(
               Song(
@@ -281,8 +285,7 @@ class _DownloadsState extends State<Downloads> {
                 songName: song.songName ?? 'Unknown',
               ),
             );
-            Provider.of<SplitSongProvider>(context, listen: false)
-                .getSongs(true);
+            _splitSongProvider.getSongs(true);
           } else {
             await SongRepository.addSong(
               Song(
@@ -297,7 +300,7 @@ class _DownloadsState extends State<Downloads> {
                 lastPlayDate: DateTime.now(),
               ),
             );
-            Provider.of<MusicProvider>(context, listen: false).getSongs();
+            _musicProvider.getSongs();
           }
         }
       },

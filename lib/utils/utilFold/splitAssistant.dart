@@ -3,15 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class SplitAssistant {
-  static Future<Map<String, dynamic>> splitFile(
-      {String filePath,
-      String userToken,
-      @required songName,
-      @required artistName,
-      @required title}) async {
-    print(userToken);
-    print('In the split function');
-    print(filePath);
+  static Future<Map<String, dynamic>> splitFile({
+    String filePath,
+    String userToken,
+  }) async {
     String baseUrl = "http://67.205.165.56/api/splitter?";
 
     try {
@@ -19,9 +14,7 @@ class SplitAssistant {
       var request = new http.MultipartRequest("POST", postUri);
       request.headers['Content-Type'] = 'multipart/form-data';
       request.fields['token'] = userToken;
-      request.fields['artist'] = artistName;
-      request.fields['title'] = title;
-      request.fields['songname'] = songName;
+
       request.files.add(await http.MultipartFile.fromPath('file', filePath));
 
       var response = await request.send();
@@ -54,18 +47,26 @@ class SplitAssistant {
     }
   }
 
-  static Future<Map> saveSplitFiles({var decodedData, String userToken}) async {
+  static Future<Map> saveSplitFiles(
+      {var decodedData,
+      String userToken,
+      @required String songName,
+      @required String artistName}) async {
     String baseUrl = "http://67.205.165.56/api/savesplit";
 
-    var body = jsonEncode({
-      "token": userToken,
-      "bass": decodedData['files']['bass'],
-      "voice": decodedData['files']['voice'],
-      "drum": decodedData['files']['drums'],
-      "others": decodedData['files']['other'],
-      "title": decodedData['title'],
-      "id": decodedData['id'].toString(),
-    });
+    var body = jsonEncode(
+      {
+        "token": userToken,
+        "bass": decodedData['files']['bass'],
+        "voice": decodedData['files']['voice'],
+        "drum": decodedData['files']['drums'],
+        "others": decodedData['files']['other'],
+        "title": decodedData['title'],
+        "id": decodedData['id'].toString(),
+        'songname': songName,
+        'artistname': artistName
+      },
+    );
 
     try {
       final _response = await http.post(baseUrl,

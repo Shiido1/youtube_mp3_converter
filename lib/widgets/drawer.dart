@@ -115,248 +115,255 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     print(_musicProvider.drawerItem.libid);
-    return Consumer<MusicProvider>(builder: (_, _provider, __) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 150, bottom: 120),
-        child: Drawer(
-          child: Container(
-            decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        _provider?.drawerItem?.image?.isNotEmpty ?? false
-                            ? Expanded(
-                                child: Container(
-                                    height: 60,
-                                    width: 50,
-                                    child: CachedNetworkImage(
-                                      imageUrl: _provider?.drawerItem?.image,
-                                      errorWidget: (context, data, _) =>
-                                          Container(
-                                        margin: EdgeInsets.only(right: 15),
-                                        color: Colors.white54,
-                                        child: Icon(
-                                          Icons.error,
-                                          size: 40,
+    return Consumer<MusicProvider>(
+      builder: (_, _provider, __) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 150, bottom: 120),
+          child: Drawer(
+            child: Container(
+              decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          _provider?.drawerItem?.image?.isNotEmpty ?? false
+                              ? Expanded(
+                                  child: Container(
+                                      height: 60,
+                                      width: 50,
+                                      child: CachedNetworkImage(
+                                        imageUrl: _provider?.drawerItem?.image,
+                                        errorWidget: (context, data, _) =>
+                                            Container(
+                                          margin: EdgeInsets.only(right: 15),
+                                          color: Colors.white54,
+                                          child: Icon(
+                                            Icons.error,
+                                            size: 40,
+                                          ),
                                         ),
-                                      ),
-                                    )))
-                            : Container(),
-                        _provider?.drawerItem?.songName?.isNotEmpty ?? false
-                            ? Expanded(
-                                child: ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  title: TextViewWidget(
-                                    text: _provider?.drawerItem?.songName ?? '',
-                                    color: AppColor.white,
-                                    textSize: 16.5,
-                                    fontWeight: FontWeight.w500,
+                                      )))
+                              : Container(),
+                          _provider?.drawerItem?.songName?.isNotEmpty ?? false
+                              ? Expanded(
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    title: TextViewWidget(
+                                      text:
+                                          _provider?.drawerItem?.songName ?? '',
+                                      color: AppColor.white,
+                                      textSize: 16.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    subtitle: TextViewWidget(
+                                      text: _provider?.drawerItem?.artistName ??
+                                          '',
+                                      color: AppColor.white,
+                                      textSize: 12.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                  subtitle: TextViewWidget(
-                                    text:
-                                        _provider?.drawerItem?.artistName ?? '',
-                                    color: AppColor.white,
-                                    textSize: 12.5,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
+                                )
+                              : Container()
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        InkWell(
+                          onTap: () => _provider.updateSong(_provider.drawerItem
+                            ..favorite =
+                                _provider.drawerItem.favorite ? false : true),
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.favorite,
+                                height: 20.8,
+                                color: _provider.drawerItem.favorite
+                                    ? AppColor.red
+                                    : AppColor.white,
+                              ),
+                              TextViewWidget(
+                                text: 'Favorite',
+                                color: AppColor.white,
                               )
-                            : Container()
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            shuffle
+                                ? _musicProvider.stopShuffle()
+                                : _musicProvider.shuffle(false);
+                            PageRouter.goBack(context);
+                          },
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(
+                                AppAssets.shuffle,
+                                color: shuffle
+                                    ? AppColor.bottomRed
+                                    : AppColor.white,
+                              ),
+                              TextViewWidget(
+                                  text: 'Shuffle', color: AppColor.white)
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            repeat
+                                ? _provider.undoRepeat()
+                                : _provider.repeat(_provider.drawerItem);
+                            PageRouter.goBack(context);
+                          },
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(AppAssets.repeat,
+                                  color: repeat
+                                      ? AppColor.bottomRed
+                                      : AppColor.white),
+                              TextViewWidget(
+                                  text: 'Repeat', color: AppColor.white)
+                            ],
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            PageRouter.goBack(context);
+                            buildShareOptions(context,
+                                song: _provider.drawerItem);
+                          },
+                          child: Column(
+                            children: [
+                              SvgPicture.asset(AppAssets.share),
+                              TextViewWidget(
+                                  text: 'Share', color: AppColor.white)
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      InkWell(
-                        onTap: () => _provider.updateSong(_provider.drawerItem
-                          ..favorite =
-                              _provider.drawerItem.favorite ? false : true),
-                        child: Column(
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.favorite,
-                              height: 20.8,
-                              color: _provider.drawerItem.favorite
-                                  ? AppColor.red
-                                  : AppColor.white,
-                            ),
-                            TextViewWidget(
-                              text: 'Favorite',
-                              color: AppColor.white,
-                            )
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          shuffle
-                              ? _musicProvider.stopShuffle()
-                              : _musicProvider.shuffle(false);
-                          PageRouter.goBack(context);
-                        },
-                        child: Column(
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.shuffle,
-                              color:
-                                  shuffle ? AppColor.bottomRed : AppColor.white,
-                            ),
-                            TextViewWidget(
-                                text: 'Shuffle', color: AppColor.white)
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          repeat
-                              ? _provider.undoRepeat()
-                              : _provider.repeat(_provider.drawerItem);
-                          PageRouter.goBack(context);
-                        },
-                        child: Column(
-                          children: [
-                            SvgPicture.asset(AppAssets.repeat,
-                                color: repeat
-                                    ? AppColor.bottomRed
-                                    : AppColor.white),
-                            TextViewWidget(
-                                text: 'Repeat', color: AppColor.white)
-                          ],
-                        ),
-                      ),
-                      InkWell(
-                        onTap: () async {
-                          PageRouter.goBack(context);
-                          buildShareOptions(context,
-                              song: _provider.drawerItem);
-                        },
-                        child: Column(
-                          children: [
-                            SvgPicture.asset(AppAssets.share),
-                            TextViewWidget(text: 'Share', color: AppColor.white)
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () => splitSongMethod(),
-                    leading: SvgPicture.asset(AppAssets.split),
-                    title: TextViewWidget(
-                      text: 'Split Song',
+                    Divider(
                       color: AppColor.white,
-                      textSize: 18,
                     ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  Wrap(
-                    children: [
-                      ListTile(
-                        onTap: () async {
-                          await _musicProvider.getPlayListNames();
-                          PageRouter.goBack(context);
-                          _musicProvider.playLists.isEmpty
-                              ? createPlayListScreen(
-                                  context: context,
-                                  songName: _musicProvider.drawerItem.fileName,
-                                  showToastMessage: true)
-                              : selectPlayListScreen(
-                                  context: context,
-                                  songName: _musicProvider.drawerItem.fileName);
-                        },
-                        leading: Icon(
-                          Icons.add_box_outlined,
-                          color: AppColor.white,
-                        ),
-                        title: TextViewWidget(
-                          text: 'Add to Playlist',
-                          color: AppColor.white,
-                          textSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Wrap(
-                    children: [
-                      Divider(
+                    ListTile(
+                      onTap: () => splitSongMethod(),
+                      leading: SvgPicture.asset(AppAssets.split),
+                      title: TextViewWidget(
+                        text: 'Split Song',
                         color: AppColor.white,
+                        textSize: 18,
                       ),
-                      ListTile(
-                        onTap: () async {
-                          Song song = _provider?.drawerItem;
-                          Navigator.pop(context);
-                          showDownloadDialog(
-                              context: context,
-                              artist: song.artistName,
-                              song: song.songName,
-                              fileName: song.fileName,
-                              download: false,
-                              split: false);
-                        },
-                        leading: Icon(Icons.edit, color: AppColor.white),
-                        title: TextViewWidget(
-                          text: 'Rename Song',
-                          color: AppColor.white,
-                          textSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Wrap(
+                    ),
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    Wrap(
                       children: [
-                        Divider(
-                          color: AppColor.white,
-                        ),
                         ListTile(
                           onTap: () async {
-                            if (_provider?.drawerItem?.fileName ==
-                                _provider?.currentSong?.fileName) {
-                              Navigator.pop(context);
-                              showToast(context,
-                                  message:
-                                      'Cannot delete currently playing song',
-                                  backgroundColor: Colors.white,
-                                  textColor: Colors.black);
-                            } else {
-                              Navigator.pop(context);
-                              DeleteSongs(context).showConfirmDeleteDialog(
-                                  song: _provider?.drawerItem);
-                            }
+                            await _musicProvider.getPlayListNames();
+                            PageRouter.goBack(context);
+                            _musicProvider.playLists.isEmpty
+                                ? createPlayListScreen(
+                                    context: context,
+                                    songName:
+                                        _musicProvider.drawerItem.fileName,
+                                    showToastMessage: true)
+                                : selectPlayListScreen(
+                                    context: context,
+                                    songName:
+                                        _musicProvider.drawerItem.fileName);
                           },
-                          leading: SvgPicture.asset(AppAssets.rubbish),
+                          leading: Icon(
+                            Icons.add_box_outlined,
+                            color: AppColor.white,
+                          ),
                           title: TextViewWidget(
-                            text: 'Delete Song',
+                            text: 'Add to Playlist',
                             color: AppColor.white,
                             textSize: 18,
                           ),
                         ),
                       ],
                     ),
-                  )
-                ],
+                    Wrap(
+                      children: [
+                        Divider(
+                          color: AppColor.white,
+                        ),
+                        ListTile(
+                          onTap: () async {
+                            Song song = _provider?.drawerItem;
+                            Navigator.pop(context);
+                            showDownloadDialog(
+                                context: context,
+                                artist: song.artistName,
+                                song: song.songName,
+                                fileName: song.fileName,
+                                download: false,
+                                split: false);
+                          },
+                          leading: Icon(Icons.edit, color: AppColor.white),
+                          title: TextViewWidget(
+                            text: 'Rename Song',
+                            color: AppColor.white,
+                            textSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Wrap(
+                        children: [
+                          Divider(
+                            color: AppColor.white,
+                          ),
+                          ListTile(
+                            onTap: () async {
+                              if (_provider?.drawerItem?.fileName ==
+                                  _provider?.currentSong?.fileName) {
+                                Navigator.pop(context);
+                                showToast(context,
+                                    message:
+                                        'Cannot delete currently playing song',
+                                    backgroundColor: Colors.white,
+                                    textColor: Colors.black);
+                              } else {
+                                Navigator.pop(context);
+                                DeleteSongs(context).showConfirmDeleteDialog(
+                                    song: _provider?.drawerItem);
+                              }
+                            },
+                            leading: SvgPicture.asset(AppAssets.rubbish),
+                            title: TextViewWidget(
+                              text: 'Delete Song',
+                              color: AppColor.white,
+                              textSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Future splitSongMethod() async {
@@ -365,16 +372,17 @@ class _AppDrawerState extends State<AppDrawer> {
     String result = '${_musicProvider.drawerItem.filePath}/'
         '${_musicProvider.drawerItem.fileName}';
     var splitFiles = await SplitAssistant.splitFile(
-        filePath: result,
-        userToken: userToken,
-        songName: _musicProvider?.drawerItem?.songName,
-        artistName: _musicProvider?.drawerItem?.artistName,
-        title: _musicProvider?.drawerItem?.fileName);
-
+      filePath: result,
+      userToken: userToken,
+    );
+    await _progressIndicator.dismiss();
     if (splitFiles['reply'] == "success") {
-      await _progressIndicator.dismiss();
       Map splitData = await SplitAssistant.saveSplitFiles(
-          decodedData: splitFiles['data'], userToken: userToken);
+        decodedData: splitFiles['data'],
+        userToken: userToken,
+        artistName: _musicProvider?.drawerItem?.artistName,
+        songName: _musicProvider?.drawerItem?.songName,
+      );
       if (_permissionReady) {
         if (splitData['reply'] == 'success') {
           showToast(context,
@@ -407,14 +415,14 @@ class _AppDrawerState extends State<AppDrawer> {
         _buildNoPermissionWarning();
       }
     } else if (splitFiles['data'] == 'please subscribe to enjoy this service') {
-      await _progressIndicator.dismiss();
+      // await _progressIndicator.dismiss();
       showSubscriptionMessage(context);
     } else if (splitFiles['data'] == "insufficient storage") {
-      await _progressIndicator.dismiss();
+      // await _progressIndicator.dismiss();
       insufficientStorageWarning(context);
     } else {
-      await _progressIndicator.dismiss();
-      showToast(context, message: 'Please try again later');
+      // await _progressIndicator.dismiss();
+      showToast(context, message: 'An error occurred');
     }
   }
 

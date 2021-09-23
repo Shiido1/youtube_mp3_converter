@@ -271,7 +271,18 @@ Future<void> deleteSong2(
         Navigator.pop(context);
       }
     } catch (_) {
-      showToast(context, message: 'Failed to delete song');
+      if (!split) {
+        SongRepository.deleteSong(song.fileName);
+        Provider.of<MusicProvider>(context, listen: false).getSongs();
+        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
+        Navigator.pop(context);
+      }
+      if (split) {
+        SplitSongRepository.deleteSong(song.splitFileName);
+        Provider.of<SplitSongProvider>(context, listen: false)
+            .getSongs(showAll);
+        Navigator.pop(context);
+      }
     }
   }
   if (record != null) {
@@ -289,7 +300,12 @@ Future<void> deleteSong2(
       Navigator.pop(context);
     } catch (_) {
       print(_);
-      showToast(context, message: 'Failed to delete recording.');
+      RecorderServices().deleteRecording(record.name);
+      showToast(context,
+          message: 'Recording deleted',
+          backgroundColor: Colors.white,
+          textColor: Colors.black);
+      Provider.of<RecordProvider>(context, listen: false).getRecords();
     }
   }
 }

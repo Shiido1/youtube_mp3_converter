@@ -387,8 +387,26 @@ class _ConvertState extends State<Convert> {
         print(e);
       }
 
-      if (libid != null && musicid != null)
-        Navigator.pushReplacement(
+      if (libid != null && musicid != null) {
+        // if (widget.sharedLinkText == null || widget.sharedLinkText.isEmpty)
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => Downloads(
+        //         localPath: _localPath,
+        //         convert: {
+        //           'url': url,
+        //           'artist': artistName,
+        //           'libid': libid,
+        //           'musicid': musicid,
+        //           'song': songName,
+        //           'image': _converterProvider?.youtubeModel?.image ?? ''
+        //         },
+        //       ),
+        //     ),
+        //   );
+        // else
+        Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => Downloads(
@@ -404,7 +422,7 @@ class _ConvertState extends State<Convert> {
             ),
           ),
         );
-      else {
+      } else {
         showToast(context,
             message: 'Failed to process song details. Try again later');
         _download(controller.text);

@@ -60,193 +60,197 @@ class _LibraryState extends State<Library> {
             Expanded(
               child: Container(
                 margin: const EdgeInsets.only(left: 16, right: 16),
-                child: ListView(children: [
-                  ListTile(
-                    onTap: () {
-                      Provider.of<MusicProvider>(context, listen: false)
-                          .updateCurrentIndex(1);
-                    },
-                    leading: SvgPicture.asset(AppAssets.library),
-                    title: TextViewWidget(
-                      text: 'Playlists',
-                      color: AppColor.white,
-                      textSize: 18,
+                child: ListView(
+                  children: [
+                    ListTile(
+                      onTap: () {
+                        Provider.of<MusicProvider>(context, listen: false)
+                            .updateCurrentIndex(1);
+                      },
+                      leading: SvgPicture.asset(AppAssets.library),
+                      title: TextViewWidget(
+                        text: 'Playlists',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
                     ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () {
-                      int width = MediaQuery.of(context).size.width.floor();
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    ListTile(
+                      onTap: () {
+                        int width = MediaQuery.of(context).size.width.floor();
 
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (_) => SongViewCLass(width),
-                        ),
-                      );
-                    },
-                    leading: SvgPicture.asset(AppAssets.music),
-                    title: TextViewWidget(
-                      text: 'Song',
-                      color: AppColor.white,
-                      textSize: 18,
-                    ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => FavoriteSongs(),
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (_) => SongViewCLass(width),
+                          ),
+                        );
+                      },
+                      leading: SvgPicture.asset(AppAssets.music),
+                      title: TextViewWidget(
+                        text: 'Song',
+                        color: AppColor.white,
+                        textSize: 18,
                       ),
                     ),
-                    leading: SvgPicture.asset(AppAssets.favorite),
-                    title: TextViewWidget(
-                      text: 'Favorite',
+                    Divider(
                       color: AppColor.white,
-                      textSize: 18,
                     ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => SingAlong(),
-                      ),
-                    ),
-                    leading: SvgPicture.asset(
-                      AppAssets.mpFile,
-                      color: Colors.white,
-                      height: 27,
-                    ),
-                    title: TextViewWidget(
-                      text: 'Sing Along',
-                      color: AppColor.white,
-                      textSize: 18,
-                    ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () {
-                      Navigator.push(
+                    ListTile(
+                      onTap: () => Navigator.push(
                         context,
                         CupertinoPageRoute(
-                          builder: (_) => SplitScreen(),
+                          builder: (_) => FavoriteSongs(),
                         ),
-                      );
-                    },
-                    leading: SvgPicture.asset(AppAssets.split),
-                    title: TextViewWidget(
-                      text: 'Voiceover',
-                      color: AppColor.white,
-                      textSize: 18,
-                    ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                          builder: (_) => Recorded(),
-                        ),
-                      );
-                    },
-                    leading: SvgPicture.asset(AppAssets.record),
-                    title: TextViewWidget(
-                      text: 'Recorded',
-                      color: AppColor.white,
-                      textSize: 18,
-                    ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  ListTile(
-                    onTap: () => Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => Downloads(),
+                      ),
+                      leading: SvgPicture.asset(AppAssets.favorite),
+                      title: TextViewWidget(
+                        text: 'Favorite',
+                        color: AppColor.white,
+                        textSize: 18,
                       ),
                     ),
-                    leading: Icon(
-                      Icons.download_rounded,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                    title: TextViewWidget(
-                      text: 'History',
+                    Divider(
                       color: AppColor.white,
-                      textSize: 18,
                     ),
-                  ),
-                  Divider(
-                    color: AppColor.white,
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  TextViewWidget(
-                    text: 'Recently Added',
-                    color: AppColor.white,
-                    textSize: 20,
-                    fontFamily: 'Montserrat',
-                  ),
-                  Container(
-                    height: 100,
-                    margin: EdgeInsets.only(top: 10),
-                    child: StreamBuilder<List<Song>>(
-                        stream: SongRepository.streamAllSongs(),
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            return Container();
-                          }
-                          return ListView(
-                            scrollDirection: Axis.horizontal,
-                            children: snapshot.data
-                                .map(
-                                  (e) => Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        int width = MediaQuery.of(context)
-                                            .size
-                                            .width
-                                            .floor();
-                                        PageRouter.gotoWidget(
-                                            SongViewScreen(e, width), context);
-                                      },
-                                      child: CachedNetworkImage(
-                                        imageUrl: e.image,
-                                        errorWidget: (context, data, _) =>
-                                            Container(
-                                                color: Colors.white54,
-                                                height: 30,
-                                                width: 150,
-                                                child: Icon(
-                                                  Icons.error,
-                                                  size: 35,
-                                                )),
+                    ListTile(
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => SingAlong(),
+                        ),
+                      ),
+                      leading: SvgPicture.asset(
+                        AppAssets.mpFile,
+                        color: Colors.white,
+                        height: 27,
+                      ),
+                      title: TextViewWidget(
+                        text: 'Sing Along',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
+                    ),
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (_) => SplitScreen(),
+                          ),
+                        );
+                      },
+                      leading: SvgPicture.asset(AppAssets.split),
+                      title: TextViewWidget(
+                        text: 'Voiceover',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
+                    ),
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    ListTile(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (_) => Recorded(),
+                          ),
+                        );
+                      },
+                      leading: SvgPicture.asset(AppAssets.record),
+                      title: TextViewWidget(
+                        text: 'Recorded',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
+                    ),
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    ListTile(
+                      onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => Downloads(),
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.download_rounded,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                      title: TextViewWidget(
+                        text: 'History',
+                        color: AppColor.white,
+                        textSize: 18,
+                      ),
+                    ),
+                    Divider(
+                      color: AppColor.white,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    TextViewWidget(
+                      text: 'Recently Added',
+                      color: AppColor.white,
+                      textSize: 20,
+                      fontFamily: 'Montserrat',
+                    ),
+                    Container(
+                      height: 100,
+                      margin: EdgeInsets.only(top: 10),
+                      child: StreamBuilder<List<Song>>(
+                          stream: SongRepository.streamAllSongs(),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return Container();
+                            }
+                            return ListView(
+                              scrollDirection: Axis.horizontal,
+                              children: snapshot.data
+                                  .map(
+                                    (e) => Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: InkWell(
+                                        onTap: () {
+                                          int width = MediaQuery.of(context)
+                                              .size
+                                              .width
+                                              .floor();
+                                          PageRouter.gotoWidget(
+                                              SongViewScreen(e, width),
+                                              context);
+                                        },
+                                        child: CachedNetworkImage(
+                                          imageUrl: e.image,
+                                          errorWidget: (context, data, _) =>
+                                              Container(
+                                            color: Colors.white54,
+                                            height: 30,
+                                            width: 150,
+                                            child: Icon(
+                                              Icons.error,
+                                              size: 35,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                )
-                                .toList(),
-                          );
-                        }),
-                  )
-                ]),
+                                  )
+                                  .toList(),
+                            );
+                          }),
+                    )
+                  ],
+                ),
               ),
             ),
             BottomPlayingIndicator(),

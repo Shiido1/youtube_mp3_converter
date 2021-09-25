@@ -33,7 +33,7 @@ class _SettingState extends State<Setting> {
                       text: 'Forgot Password', screen: ForgotPassword()),
                   bodyContainer(text: 'Search User', screen: SearchFollow()),
                   bodyContainer(text: 'Chat', screen: ChatHome()),
-                  bodyContainer(text: 'Notification'),
+                  // bodyContainer(text: 'Notification'),
                   // bodyContainer(text: 'Privacy'),
                 ])),
           ),

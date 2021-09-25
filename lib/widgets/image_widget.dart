@@ -30,6 +30,6 @@ class _ImageFileState extends State<ImageFile> {
                   color: Colors.white54, child: Icon(Icons.error, size: 40)),
             ),
           )
-        : Container();
+        : Image.asset('assets/log.png');
   }
 }

@@ -19,14 +19,13 @@ class SplitSongDrawer extends StatefulWidget {
 class _SplitSongDrawerState extends State<SplitSongDrawer> {
   @override
   Widget build(BuildContext context) {
-    print(widget.song.libid);
-    print(widget.song.vocalLibid);
-    print(widget.song.musicid);
     return Container(
       height: 300,
       child: Drawer(
         child: Container(
-          decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
+          decoration: BoxDecoration(
+            color: AppColor.black.withOpacity(0.9),
+          ),
           child: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Column(
@@ -39,26 +38,14 @@ class _SplitSongDrawerState extends State<SplitSongDrawer> {
                       children: [
                         Expanded(
                           child: Container(
-                            height: 60,
-                            width: 50,
-                            margin: EdgeInsets.only(left: 15),
-                            child: widget.song.image != null &&
-                                    widget.song.image.isNotEmpty
-                                ? CachedNetworkImage(
-                                    imageUrl: widget.song.image)
-                                : Container(
-                                    color: Colors.white,
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      widget.song.songName[0].toUpperCase() ??
-                                          'U',
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 45,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                          ),
+                              height: 60,
+                              width: 50,
+                              margin: EdgeInsets.only(left: 15),
+                              child: widget.song.image != null &&
+                                      widget.song.image.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: widget.song.image)
+                                  : Image.asset('assets/log.png')),
                         ),
                         SizedBox(width: 15),
                         Expanded(

@@ -20,7 +20,6 @@ import 'package:firebase_core/firebase_core.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  WidgetsBinding.instance.addObserver(LifeCycleHandler());
   await FlutterDownloader.initialize();
   await MobileAds.instance.initialize();
   await Firebase.initializeApp();
@@ -42,10 +41,19 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+
+    WidgetsBinding.instance.addObserver(LifeCycleHandler());
+
+    // print('man man man');
     return MultiProvider(
       providers: Providers.getProviders,
       child: MaterialApp(

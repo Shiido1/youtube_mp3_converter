@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
@@ -47,10 +46,6 @@ class _RecordedScreenState extends State<RecordedScreen> {
               ),
             ),
           ),
-          endDrawer: RecordedDrawer(
-              model: widget.record,
-              url:
-                  "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png"),
           body: Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
@@ -70,21 +65,18 @@ class _RecordedScreenState extends State<RecordedScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  CachedNetworkImage(
-                    imageUrl:
-                        "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
-                    imageBuilder: (context, imageProvider) => Container(
-                      width: 280.0,
-                      height: 320.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        image: DecorationImage(
-                            image: imageProvider, fit: BoxFit.cover),
-                      ),
+                  Container(
+                    width: 280.0,
+                    height: 320.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      image: DecorationImage(
+                          image: AssetImage(
+                            'assets/log.png',
+                          ),
+                          fit: BoxFit.contain),
                     ),
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) => Icon(Icons.error),
                   ),
                   SizedBox(
                     height: 30,

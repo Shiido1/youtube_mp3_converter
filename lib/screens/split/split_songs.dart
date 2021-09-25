@@ -46,7 +46,7 @@ class _SplitScreenState extends State<SplitScreen> {
     return Scaffold(
       key: _scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.05),
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
@@ -67,7 +67,8 @@ class _SplitScreenState extends State<SplitScreen> {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             child: TextButton(
                 style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.blue)),
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.red[700])),
                 onPressed: () {
                   synchronizeSplitSong(context);
                 },
@@ -137,17 +138,7 @@ class _SplitScreenState extends State<SplitScreen> {
                               errorWidget: (context, url, error) =>
                                   new Icon(Icons.error),
                             )
-                          : Container(
-                              color: Colors.white,
-                              alignment: Alignment.center,
-                              child: Text(
-                                _song.songName[0].toUpperCase() ?? 'U',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 45,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
+                          : Image.asset('assets/log.png'),
                     ),
                     title: ListTile(
                       contentPadding: EdgeInsets.zero,

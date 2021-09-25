@@ -48,14 +48,14 @@ class _SearchState extends State<Search> {
       songs.addAll(dummyListData);
       if (songs.length > 0)
         songs.sort((a, b) => a.songName.compareTo(b.songName));
-      setState(() {});
+      if (mounted) setState(() {});
       return;
     } else {
       songs.clear();
       songs.addAll(songDuplicate);
       if (songs.length > 0)
         songs.sort((a, b) => a.songName.compareTo(b.songName));
-      setState(() {});
+      if (mounted) setState(() {});
     }
   }
 

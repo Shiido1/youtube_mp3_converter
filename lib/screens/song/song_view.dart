@@ -101,14 +101,15 @@ class _SongViewCLassState extends State<SongViewCLass> {
     return Scaffold(
       key: _scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.05),
       appBar: AppBar(
         actions: [
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
             child: TextButton(
                 style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all(Colors.blue)),
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.red[700])),
                 onPressed: () {
                   synchronizeSong(context);
                 },

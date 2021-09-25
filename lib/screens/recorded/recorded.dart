@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:equalizer/equalizer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:mp3_music_converter/screens/recorded/recorded_screen.dart';
 import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
-import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -29,8 +27,8 @@ class _RecordedState extends State<Recorded> {
   RecordProvider _recordProvider;
   RecorderModel selectedRecord;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String url =
-      "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png";
+  // String url =
+  //     "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png";
   bool enabled = false;
 
   getEqualizerSettings() async {
@@ -78,10 +76,9 @@ class _RecordedState extends State<Recorded> {
   Widget build(BuildContext context) {
     return Scaffold(
       endDrawerEnableOpenDragGesture: false,
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.05),
       key: _scaffoldKey,
       endDrawer: RecordedDrawer(
-        url: url,
         model: selectedRecord,
       ),
       appBar: AppBar(
@@ -160,20 +157,10 @@ class _RecordedState extends State<Recorded> {
                   },
                   child: ListTile(
                     leading: SizedBox(
-                        width: 95,
-                        height: 150,
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          placeholder: (context, index) => Container(
-                            child: Center(
-                                child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator())),
-                          ),
-                          errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                        )),
+                      width: 75,
+                      height: 100,
+                      child: Image.asset('assets/log.png'),
+                    ),
                     title: TextViewWidget(
                       text: record.name,
                       color: AppColor.white,

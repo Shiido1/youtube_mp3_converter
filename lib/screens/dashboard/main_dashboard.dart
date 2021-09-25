@@ -31,11 +31,25 @@ class _MainDashBoardState extends State<MainDashBoard> {
 
   @override
   void initState() {
+    // LinkShareAssistant()
+    //   ..onDataReceived = _handleSharedData
+    //   ..getSharedData().then(_handleSharedData);
     init();
 
     _screens = [DashBoard(), PlayList(), Library(), Search(), Setting()];
     super.initState();
   }
+
+  // void _handleSharedData(String sharedData) {
+  //   print('sharedData is $sharedData');
+  //   MusicProvider _provider =
+  //       Provider.of<MusicProvider>(context, listen: false);
+  //   if (sharedData != null &&
+  //       sharedData.isNotEmpty &&
+  //       _provider.sharedText != sharedData) {
+// _provider.updateCurrentIndex(0);
+  //   }
+  // }
 
   init() async {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);

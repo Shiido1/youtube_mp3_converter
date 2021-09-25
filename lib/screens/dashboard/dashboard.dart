@@ -66,14 +66,17 @@ class _DashBoardState extends State<DashBoard> {
     if (sharedData != null &&
         sharedData.isNotEmpty &&
         _provider.sharedText != sharedData) {
-      setState(() {
-        _sharedText = sharedData;
-      });
+      if (mounted)
+        setState(() {
+          _sharedText = sharedData;
+        });
       _provider.updateSharedText(sharedData);
-    } else
-      setState(() {
-        _sharedText = '';
-      });
+    } else {
+      if (mounted)
+        setState(() {
+          _sharedText = '';
+        });
+    }
   }
 
   String splitFileNameHere(String fileName) {
@@ -178,14 +181,14 @@ class _DashBoardState extends State<DashBoard> {
                       screen: DJMixer(),
                       assets: AppAssets.djMixer,
                     ),
-                     SizedBox(
-                       height: 20,
-                     ),
-                     _buttonItem(
-                         title: "Plan",
-                         item: HomeButtonItem.PLAN,
-                         screen: PaymentScreen(),
-                         assets: AppAssets.plan),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _buttonItem(
+                        title: "Plan",
+                        item: HomeButtonItem.PLAN,
+                        screen: PaymentScreen(),
+                        assets: AppAssets.plan),
                     SizedBox(height: 15),
                   ],
                 ),
@@ -262,6 +265,8 @@ class _DashBoardState extends State<DashBoard> {
     print(userToken);
     result = await FilePicker.platform.pickFiles(type: FileType.audio);
     String artistName, songName;
+    print(result.files.single.name);
+    print(result.files.single.path);
 
     if (result != null && result.files.isNotEmpty) {
       final splitSongDetails = await showNameSong(context);

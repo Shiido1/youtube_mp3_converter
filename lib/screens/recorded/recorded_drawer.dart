@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
@@ -22,8 +21,8 @@ import 'package:share/share.dart';
 
 class RecordedDrawer extends StatefulWidget {
   final RecorderModel model;
-  final String url;
-  RecordedDrawer({@required this.model, @required this.url});
+
+  RecordedDrawer({@required this.model});
 
   @override
   _RecordedDrawerState createState() => _RecordedDrawerState();
@@ -46,7 +45,7 @@ class _RecordedDrawerState extends State<RecordedDrawer> {
       height: 500,
       child: Drawer(
         child: Container(
-          decoration: BoxDecoration(color: AppColor.black.withOpacity(0.5)),
+          decoration: BoxDecoration(color: AppColor.black.withOpacity(0.9)),
           child: Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Column(
@@ -61,7 +60,9 @@ class _RecordedDrawerState extends State<RecordedDrawer> {
                           child: Container(
                             height: 60,
                             width: 50,
-                            child: CachedNetworkImage(imageUrl: widget.url),
+                            child: Image.asset(
+                              'assets/log.png',
+                            ),
                           ),
                         ),
                         Expanded(
@@ -108,7 +109,6 @@ class _RecordedDrawerState extends State<RecordedDrawer> {
                           Navigator.pop(context);
                           buildShareOptions(
                             context,
-                            url: widget.url,
                             model: widget.model,
                           );
                         },
@@ -407,8 +407,7 @@ privateShareSong(
   }
 }
 
-Future<Widget> buildShareOptions(BuildContext context,
-    {String url, RecorderModel model}) {
+Future<Widget> buildShareOptions(BuildContext context, {RecorderModel model}) {
   return showDialog(
       context: context,
       builder: (context) {
@@ -464,19 +463,19 @@ Future<Widget> buildShareOptions(BuildContext context,
                   style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ),
-              Divider(
-                color: Colors.white,
-              ),
-              TextButton(
-                onPressed: () async {
-                  Share.shareFiles([File(model.path).path]);
-                  PageRouter.goBack(context);
-                },
-                child: Text(
-                  'Share to other apps',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
+              // Divider(
+              //   color: Colors.white,
+              // ),
+              // TextButton(
+              //   onPressed: () async {
+              //     Share.shareFiles([File(model.path).path]);
+              //     PageRouter.goBack(context);
+              //   },
+              //   child: Text(
+              //     'Share to other apps',
+              //     style: TextStyle(color: Colors.white, fontSize: 18),
+              //   ),
+              // ),
             ],
           ),
         );

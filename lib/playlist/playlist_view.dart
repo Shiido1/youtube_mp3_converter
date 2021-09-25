@@ -68,7 +68,7 @@ class _PlayListViewState extends State<PlayListView> {
     return Scaffold(
       key: _scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.05),
       appBar: AppBar(
         actions: [Container()],
         backgroundColor: AppColor.black,

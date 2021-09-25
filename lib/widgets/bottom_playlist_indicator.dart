@@ -112,21 +112,7 @@ class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
                   SizedBox(
                     height: 75,
                     width: 75,
-                    child: CachedNetworkImage(
-                      imageUrl:
-                          "https://www.techjockey.com/blog/wp-content/uploads/2019/09/Best-Call-Recording-Apps_feature.png",
-                      placeholder: (context, index) => Container(
-                        child: Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
-                    ),
+                    child: Image.asset('assets/log.png'),
                   ),
                   Expanded(
                     child: Padding(

@@ -199,9 +199,9 @@ class _EqualizerState extends State<Equalizer> {
                           _buildRecordedSongList(),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: snapshot.data
-                              .map((freq) => _buildSliderBand(freq, bandId++))
-                              .toList(),
+                          children: snapshot?.data
+                              ?.map((freq) => _buildSliderBand(freq, bandId++))
+                              ?.toList(),
                         ),
                         Divider(),
                         Padding(
@@ -396,7 +396,7 @@ class _EqualizerState extends State<Equalizer> {
                   }
                 : null,
             dropdownColor: Colors.grey[800],
-            items: presets.map(
+            items: presets?.map(
               (String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -406,7 +406,7 @@ class _EqualizerState extends State<Equalizer> {
                   ),
                 );
               },
-            ).toList(),
+            )?.toList(),
           );
         } else if (snapshot.hasError)
           return Text(
@@ -522,7 +522,7 @@ class _EqualizerState extends State<Equalizer> {
             ),
             iconEnabledColor: Colors.white,
             dropdownColor: Colors.grey[800],
-            items: recordedSongs.map(
+            items: recordedSongs?.map(
               (e) {
                 return DropdownMenuItem(
                   child: Text(
@@ -532,7 +532,7 @@ class _EqualizerState extends State<Equalizer> {
                   value: e,
                 );
               },
-            ).toList(),
+            )?.toList(),
             value: selectedRecord,
             onChanged: (val) {
               updateRecordProvider(val);

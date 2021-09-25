@@ -430,7 +430,7 @@ class _DownloadsState extends State<Downloads> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.07),
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(

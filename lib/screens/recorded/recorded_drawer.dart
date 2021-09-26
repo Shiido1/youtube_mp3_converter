@@ -479,5 +479,5 @@ Future<Widget> buildShareOptions(BuildContext context, {RecorderModel model}) {
             ],
           ),
         );
-      });
+      },);
 }

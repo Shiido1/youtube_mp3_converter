@@ -126,7 +126,7 @@ class _EqualizerState extends State<Equalizer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.background,
+      backgroundColor: AppColor.white.withOpacity(0.05),
       appBar: AppBar(
         actions: [Container()],
         backgroundColor: AppColor.black,
@@ -184,7 +184,8 @@ class _EqualizerState extends State<Equalizer> {
                               enabled = val;
                             });
                           },
-                          activeTrackColor: Colors.blue[300],
+                          activeTrackColor: Colors.red,
+                          activeColor: Colors.red[800],
                           inactiveTrackColor: Colors.white24,
                           contentPadding: EdgeInsets.symmetric(horizontal: 30),
                           title: Text(
@@ -299,14 +300,15 @@ class _EqualizerState extends State<Equalizer> {
                     activeTrackBar: BoxDecoration(
                       color: Colors.red,
                     ),
-                    inactiveTrackBar: BoxDecoration(color: Colors.white),
+                    inactiveTrackBar:
+                        BoxDecoration(color: Colors.white.withOpacity(0.6)),
                     activeTrackBarHeight: 5,
                     inactiveTrackBarHeight: 5,
                   ),
                   handlerWidth: 25,
                   handlerHeight: 10,
                   handler: FlutterSliderHandler(
-                    child: Container(color: Colors.blue[300]),
+                    child: Container(color: Colors.red[900]),
                   ),
                   max: max,
                   values: [snapshot.hasData ? snapshot.data.toDouble() : 0],

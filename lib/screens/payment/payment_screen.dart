@@ -257,13 +257,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
           userToken: userToken,
           paymentMethod: 'card');
       if (status)
-        showToast(context, message: 'Payment successful');
+        showToast(context, message: 'Payment successful', duration: 7);
       else
-        showToast(context, message: 'Payment failed');
+        showToast(context, message: 'Payment failed', duration: 7);
     } else if (trxResponse == 'Failed') {
-      showToast(context, message: 'Transaction Failed. Try again later');
+      showToast(context,
+          message: 'Transaction Failed. Try again later', duration: 5);
     } else {
-      showToast(context, message: 'Transaction cancelled');
+      showToast(context, message: 'Transaction cancelled', duration: 5);
     }
   }
 

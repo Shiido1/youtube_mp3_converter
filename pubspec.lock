@@ -429,10 +429,10 @@ packages:
   flutter_paystack:
     dependency: "direct main"
     description:
-      name: flutter_pay
+      name: flutter_paystack
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.4+1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

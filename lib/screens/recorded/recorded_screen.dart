@@ -73,7 +73,7 @@ class _RecordedScreenState extends State<RecordedScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       image: DecorationImage(
                           image: AssetImage(
-                            'assets/log.png',
+                            'assets/new_icon.png',
                           ),
                           fit: BoxFit.contain),
                     ),

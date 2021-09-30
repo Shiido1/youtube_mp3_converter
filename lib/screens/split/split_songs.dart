@@ -205,7 +205,7 @@ synchronizeSplitSong(BuildContext context) async {
         headers: {'Content-Type': 'application/json'});
     if (response.statusCode == 200) {
       Map data = jsonDecode(response.body);
-      print(data);
+      print(data['sepratedsongs']);
       List<Song> splitSongs = _provider.allSongs;
       List<String> songTitle = [];
       Map<String, Map> songDetails = {};

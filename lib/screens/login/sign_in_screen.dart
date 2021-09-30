@@ -59,10 +59,12 @@ class _SignInScreenState extends State<SignInScreen> {
         );
         _progressIndicator.dismiss();
 
+        print(jsonDecode(response.body));
+
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           if (data['message'].toString().toLowerCase().trim() ==
-              'Login went success!'.toLowerCase()) {
+              'Login is successful!'.toLowerCase()) {
             showToast(context, message: 'Login was successful');
             preferencesHelper.saveValue(key: 'email', value: data['email']);
             preferencesHelper.saveValue(key: 'token', value: data['token']);
@@ -85,11 +87,15 @@ class _SignInScreenState extends State<SignInScreen> {
                   builder: (_) => MainDashBoard(),
                 ),
                 (route) => false);
-          }
-          if (data['message'].toString().toLowerCase().trim() ==
+          } else if (data['message'].toString().toLowerCase().trim() ==
               'User Already Exists!'.toLowerCase()) {
             showToast(context,
                 message: 'User already exists. Try another login method.',
+                backgroundColor: Colors.white,
+                textColor: Colors.black);
+          } else {
+            showToast(context,
+                message: 'Failed to login. Try again later',
                 backgroundColor: Colors.white,
                 textColor: Colors.black);
           }
@@ -103,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
     } catch (e) {
       _progressIndicator.dismiss();
       showToast(context,
-          message: 'An error. Check your internet connection',
+          message: 'An error occurred. Check your internet connection',
           backgroundColor: Colors.white,
           textColor: Colors.black);
       print(e);

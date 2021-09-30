@@ -83,11 +83,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   builder: (_) => MainDashBoard(),
                 ),
                 (route) => false);
-          }
-          if (data['message'].toString().toLowerCase().trim() ==
+          } else if (data['message'].toString().toLowerCase().trim() ==
               'User Already Exists!'.toLowerCase()) {
             showToast(context,
                 message: 'User already exists. Try another login method.',
+                backgroundColor: Colors.white,
+                textColor: Colors.black);
+          } else {
+            showToast(context,
+                message: 'Failed to login. Try again later',
                 backgroundColor: Colors.white,
                 textColor: Colors.black);
           }

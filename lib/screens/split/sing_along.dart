@@ -120,7 +120,12 @@ class _SingAlongState extends State<SingAlong> {
                     leading: SizedBox(
                       width: 95,
                       height: 150,
-                      child: _song?.image != null && _song.image.isNotEmpty
+                      child: _song?.image != null &&
+                              _song.image.isNotEmpty &&
+                              !(_song.image.toLowerCase().contains('ncta') &&
+                                  _song.image
+                                      .toLowerCase()
+                                      .contains('placeholder'))
                           ? CachedNetworkImage(
                               imageUrl: _song.image,
                               placeholder: (context, index) => Container(

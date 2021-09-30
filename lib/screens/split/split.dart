@@ -245,9 +245,9 @@ class _SplitState extends State<Split> {
                   decoration: new BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(25)),
                       image: new DecorationImage(
-                        image: new AssetImage(AppAssets.image1),
+                        image: new AssetImage('assets/new_icon.png'),
                         fit: BoxFit.contain,
-                      ))),
+                      ),),),
               SizedBox(
                 height: 20,
               ),

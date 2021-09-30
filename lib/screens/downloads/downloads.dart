@@ -58,46 +58,55 @@ class _DownloadsState extends State<Downloads> {
   MusicProvider _musicProvider;
 
   init() async {
-    if (widget.syncSplit) {
+    if (widget.syncSplit &&
+        widget.syncSplitData != null &&
+        widget.syncSplitData.isNotEmpty) {
       await Permission.storage.request();
+
       widget.syncSplitData.forEach((key, value) async {
         List<String> apiList = ['', ''];
         apiList.insert(0, value['voice']);
         apiList.insert(1, value['others']);
         _apiSplitList = apiList;
 
-        await _requestDownload(
-          link: _apiSplitList[0],
-          saveToDownload: true,
-          fileName: key,
-          sync: true,
-          song: Song(
+        print(_apiSplitList[0]);
+
+        if (_apiSplitList[0] != null && _apiSplitList[0] != '')
+          await _requestDownload(
+            link: _apiSplitList[0],
+            saveToDownload: true,
             fileName: key,
-            image: value['image'],
-            libid: value['othersid'],
-            artistName: value['artistName'],
-            songName: value['songName'],
-            vocalLibid: value['vocalid'],
-            musicid: value['musicid'],
-          ),
-        );
-        await _requestDownload(
-          link: _apiSplitList[1],
-          saveToDownload: true,
-          fileName: key,
-          sync: true,
-          song: Song(
+            sync: true,
+            song: Song(
+              fileName: key,
+              image: value['image'],
+              libid: value['othersid'],
+              artistName: value['artistName'],
+              songName: value['songName'],
+              vocalLibid: value['vocalid'],
+              musicid: value['musicid'],
+            ),
+          );
+        if (_apiSplitList[1] != null && _apiSplitList[1] != '')
+          await _requestDownload(
+            link: _apiSplitList[1],
+            saveToDownload: true,
             fileName: key,
-            image: value['image'],
-            libid: value['othersid'],
-            artistName: value['artistName'],
-            songName: value['songName'],
-            vocalLibid: value['vocalid'],
-            musicid: value['musicid'],
-          ),
-        );
+            sync: true,
+            song: Song(
+              fileName: key,
+              image: value['image'],
+              libid: value['othersid'],
+              artistName: value['artistName'],
+              songName: value['songName'],
+              vocalLibid: value['vocalid'],
+              musicid: value['musicid'],
+            ),
+          );
       });
-    } else if (widget.syncSong) {
+    } else if (widget.syncSong &&
+        widget.syncSongData != null &&
+        widget.syncSongData.isNotEmpty) {
       final status = await Permission.storage.request();
 
       if (status.isGranted) {
@@ -111,7 +120,7 @@ class _DownloadsState extends State<Downloads> {
             bool exists =
                 await File(_localPath + Platform.pathSeparator + key).exists();
 
-            if (!exists) {
+            if (!exists && value['path'] != null && value['path'] != '') {
               await SplitSongRepository.addDownload(
                 key: key,
                 song: Song(
@@ -331,6 +340,7 @@ class _DownloadsState extends State<Downloads> {
       Song song,
       bool sync = false}) async {
     final status = await Permission.storage.status;
+    link = link == null ? '' : link;
 
     if (status.isGranted) {
       if (saveToDownload == true) {

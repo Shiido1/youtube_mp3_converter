@@ -157,8 +157,8 @@ class _RecordedState extends State<Recorded> {
                   },
                   child: ListTile(
                     leading: SizedBox(
-                      width: 75,
-                      height: 100,
+                      width: 55,
+                      height: 800,
                       child: Image.asset('assets/log.png'),
                     ),
                     title: TextViewWidget(

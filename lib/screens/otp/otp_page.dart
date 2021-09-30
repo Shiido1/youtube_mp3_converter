@@ -27,12 +27,11 @@ class _OtpPageState extends State<OtpPage> {
   OtpProviders _otpProviders;
   UtilityProvider _utilityProvider;
 
-  String pin;
+  String pin = '';
 
   @override
   void initState() {
     _otpProviders = Provider.of<OtpProviders>(context, listen: false);
-    _otpProviders.init(context);
     _utilityProvider = Provider.of<UtilityProvider>(context, listen: false);
     _utilityProvider.startTimer(timeLimit: 4);
     super.initState();
@@ -45,6 +44,7 @@ class _OtpPageState extends State<OtpPage> {
 
   @override
   Widget build(BuildContext context) {
+    pin = '';
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -126,8 +126,7 @@ class _OtpPageState extends State<OtpPage> {
                               ..onTap = () => util.timerIsNotExpired
                                   ? null
                                   : _otpProviders.resendOtp(
-                                      map: OtpModel.toJson(
-                                          otp: int.parse(pin), email: email)),
+                                      email: email, context: context),
                             text: util.timerIsNotExpired
                                 ? '0${util.minute} : ${util.seconds.toString().length == 1 ? '0${util.seconds}' : util.seconds}'
                                 : 'Resend OTP',
@@ -156,13 +155,9 @@ class _OtpPageState extends State<OtpPage> {
     String pin,
     UtilityProvider util,
   ) {
-    if (util.timerIsNotExpired) {
-      setState(() => userId = widget.userID);
-      _otpProviders.verifyOtp(
-          map: OtpModel.toJson(otp: int.parse(pin), email: email));
-    } else {
-      _otpProviders.resendOtp(
-          map: OtpModel.resendOtpToJson(email: email, otp: int.parse(pin)));
-    }
+    setState(() => userId = widget.userID);
+    _otpProviders.verifyOtp(
+        map: OtpModel.toJson(otp: int.parse(pin), email: email),
+        context: context);
   }
 }

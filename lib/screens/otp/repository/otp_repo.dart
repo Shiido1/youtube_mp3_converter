@@ -1,28 +1,53 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
-import 'package:jaynetwork/jaynetwork.dart';
-import 'package:mp3_music_converter/error_handler/handler.dart';
 import 'package:mp3_music_converter/screens/otp/model/otp_model.dart';
-import 'package:mp3_music_converter/utils/instance.dart';
+import 'package:http/http.dart' as http;
 
 class OtpApiRepository {
-  Future<ApiResponse<OtpModel>> verify({@required Map data}) async {
+  String url = 'http://67.205.165.56/api/rsendotp';
+  String vUrl = 'http://67.205.165.56/api/verify';
+  Future<Map> verify({@required Map data}) async {
     try {
-      final response =
-          await jayNetworkClient.makePostRequest("verify", data: data);
-      return ApiResponse.success(data: OtpModel.fromJson(response.data));
+      final response = await http.post(vUrl,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(data));
+
+      print(jsonDecode(response.body));
+
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        if (data['message'].toString().toLowerCase().contains('success'))
+          return {'status': 'success', 'data': OtpModel.fromJson(data)};
+        return {'status': 'failed', 'data': data['message']};
+      } else {
+        return {
+          'status': 'failed',
+          'data':
+              jsonDecode(response.body)['message'] ?? 'OTP verification failed'
+        };
+      }
     } catch (e) {
-      return handleNetworkException(e);
+      print(e);
+      return {'status': 'failed', 'data': 'OTP verification failed'};
     }
   }
 
-  Future<ApiResponse<OtpModel>> resend({@required Map email}) async {
+  Future<dynamic> resend({@required String email}) async {
     try {
-      final response = await jayNetworkClient.makePostRequest(
-        "verify", data: email,
-      );
-      return ApiResponse.success(data: OtpModel.fromJson(response.data));
+      final response = await http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'email': email}));
+
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        if (data['message'].toString().toLowerCase().contains('success'))
+          return 'success';
+        return 'failed';
+      }
+      return 'failed';
     } catch (e) {
-      return handleNetworkException(e);
+      return 'failed';
     }
   }
 }

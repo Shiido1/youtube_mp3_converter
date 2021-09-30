@@ -116,7 +116,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _signUpUser() {
     FocusScope.of(context).unfocus();
-
+    _signUpProvider.init(context);
     email = _emailController.text.trim();
     password = _passwordController.text;
     _signUpProvider.signUp(
@@ -135,6 +135,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _signUpProvider = Provider.of<SignUpProviders>(context, listen: false);
     _signUpProvider.init(context);
     _progressIndicator = CustomProgressIndicator(context);
+    print('init');
     super.initState();
   }
 

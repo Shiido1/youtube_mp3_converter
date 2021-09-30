@@ -61,7 +61,7 @@ class _SplitState extends State<Split> {
       BannerAd appAd = BannerAd(
         size: AdSize(height: 70, width: width - 70),
         adUnitId: Platform.isAndroid
-            ? 'ca-app-pub-4279408488674166/9228377666'
+            ? 'ca-app-pub-4279408488674166/1078290794'
             : 'ca-app-pub-4279408488674166/6018640831',
         listener: BannerAdListener(
           onAdFailedToLoad: (ad, error) => ad.dispose(),

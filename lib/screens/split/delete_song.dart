@@ -192,16 +192,18 @@ Future<void> deleteSong(
       print(jsonDecode(response.body));
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
-        if (responseData['message'].toString().toLowerCase().trim() ==
-            'deleted') {
+        if (responseData['message']
+            .toString()
+            .toLowerCase()
+            .contains('deleted')) {
           deleteSong2(
               song: song,
               record: record,
               context: context,
               split: split,
               showAll: showAll);
-        } else if (responseData['message'].toString().toLowerCase().trim() ==
-            'song not found')
+        } else if (responseData['message'].toString().contains('not') &&
+            responseData['message'].toString().contains('found'))
           showToast(context, message: 'Song not found in library');
         else
           showToast(context,

@@ -48,6 +48,7 @@ class _SignInScreenState extends State<SignInScreen> {
     String url = 'https://youtubeaudio.com/api/google_callback_api';
 
     try {
+      await googleSign.signOut();
       final gresult = await googleSign.signIn();
       final auth = await gresult?.authentication;
       if (auth != null) {
@@ -60,11 +61,11 @@ class _SignInScreenState extends State<SignInScreen> {
         _progressIndicator.dismiss();
 
         print(jsonDecode(response.body));
+        print(response.statusCode);
 
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
-          if (data['message'].toString().toLowerCase().trim() ==
-              'Login is successful!'.toLowerCase()) {
+          if (data['message'].toString().toLowerCase().contains('success')) {
             showToast(context, message: 'Login was successful');
             preferencesHelper.saveValue(key: 'email', value: data['email']);
             preferencesHelper.saveValue(key: 'token', value: data['token']);
@@ -87,8 +88,15 @@ class _SignInScreenState extends State<SignInScreen> {
                   builder: (_) => MainDashBoard(),
                 ),
                 (route) => false);
-          } else if (data['message'].toString().toLowerCase().trim() ==
-              'User Already Exists!'.toLowerCase()) {
+          } else {
+            showToast(context,
+                message: 'Failed to login. Try again later',
+                backgroundColor: Colors.white,
+                textColor: Colors.black);
+          }
+        } else if (response.statusCode == 400) {
+          Map data = jsonDecode(response.body);
+          if (data['message'].toString().toLowerCase().contains('exist')) {
             showToast(context,
                 message: 'User already exists. Try another login method.',
                 backgroundColor: Colors.white,
@@ -123,8 +131,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return false;
     }
 
-    if (_passwordController.text.isEmpty ||
-        !isPasswordCompliant(_passwordController.text)) {
+    if (_passwordController.text.isEmpty) {
       setState(() => _isPassword = true);
       return false;
     }

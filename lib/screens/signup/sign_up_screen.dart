@@ -29,13 +29,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _passwordController = new TextEditingController();
   TextEditingController _confirmPasswordController =
       new TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  bool isloading = false;
-  bool _isName = false;
-  bool _isEmail = false;
-  bool _isPassword = false;
-  bool _isConPassword = false;
-  bool _isUsername = false;
   SignUpProviders _signUpProvider;
   CustomProgressIndicator _progressIndicator;
 
@@ -46,6 +41,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     String url = 'https://youtubeaudio.com/api/google_callback_api';
 
     try {
+      await googleSign.signOut();
       final gresult = await googleSign.signIn();
       final auth = await gresult?.authentication;
       if (auth != null) {
@@ -59,8 +55,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
-          if (data['message'].toString().toLowerCase().trim() ==
-              'Login went success!'.toLowerCase()) {
+          if (data['message'].toString().toLowerCase().contains('success')) {
             showToast(context, message: 'Login was successful');
             preferencesHelper.saveValue(key: 'email', value: data['email']);
             preferencesHelper.saveValue(key: 'token', value: data['token']);
@@ -83,8 +78,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   builder: (_) => MainDashBoard(),
                 ),
                 (route) => false);
-          } else if (data['message'].toString().toLowerCase().trim() ==
-              'User Already Exists!'.toLowerCase()) {
+          } else {
+            showToast(context,
+                message: 'Failed to login. Try again later',
+                backgroundColor: Colors.white,
+                textColor: Colors.black);
+          }
+        } else if (response.statusCode == 400) {
+          Map data = jsonDecode(response.body);
+          if (data['message'].toString().toLowerCase().contains('exist')) {
             showToast(context,
                 message: 'User already exists. Try another login method.',
                 backgroundColor: Colors.white,
@@ -105,50 +107,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     } catch (e) {
       _progressIndicator.dismiss();
       showToast(context,
-          message: 'An error. Check your internet connection',
+          message: 'An error occurred. Check your internet connection',
           backgroundColor: Colors.white,
           textColor: Colors.black);
       print(e);
     }
   }
 
-  bool _validateInputs() {
-    if (_nameController.text.isEmpty) {
-      setState(() => _isName = true);
-      return false;
-    }
-
-    if (_userNameController.text.isEmpty) {
-      setState(() {
-        _isUsername = true;
-      });
-      return false;
-    }
-
-    if (_emailController.text.isEmpty ||
-        !validateEmail(_emailController.text)) {
-      setState(() => _isEmail = true);
-      return false;
-    }
-
-    if (_passwordController.text.isEmpty ||
-        !isPasswordCompliant(_passwordController.text)) {
-      setState(() => _isPassword = true);
-      return false;
-    }
-
-    if (_confirmPasswordController.text.isEmpty ||
-        _confirmPasswordController.text != _passwordController.text) {
-      setState(() => _isConPassword = true);
-      return false;
-    }
-    return true;
-  }
-
   void _signUpUser() {
     FocusScope.of(context).unfocus();
-
-    if (!_validateInputs()) return;
 
     email = _emailController.text.trim();
     password = _passwordController.text;
@@ -158,6 +125,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       email: _emailController.text.trim(),
       password: _passwordController.text,
       username: _userNameController.text.trim(),
+      cpassword: _confirmPasswordController.text,
     ));
     setState(() {});
   }
@@ -204,255 +172,273 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: ConstrainedBox(
                     constraints:
                         BoxConstraints(minHeight: constraint.maxHeight),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(height: 65),
-                        Image.asset(
-                          AppAssets.logo,
-                        ),
-                        SizedBox(height: 35),
-                        Text(
-                          'CREATE AN ACCOUNT',
-                          style: TextStyle(
-                              color: AppColor.white,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w500),
-                        ),
-                        SizedBox(height: 45),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isName = false;
-                                });
-                            },
-                            controller: _nameController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Name',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText:
-                                  _isName ? 'Please enter your name' : null,
-                            ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(height: 65),
+                          Image.asset(
+                            AppAssets.logo,
                           ),
-                        ),
-                        SizedBox(height: 23),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isUsername = false;
-                                });
-                            },
-                            controller: _userNameController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Username',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText: _isUsername
-                                  ? 'Please enter your username'
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 23),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isEmail = false;
-                                });
-                            },
-                            controller: _emailController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Email Address',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText: _isEmail
-                                  ? 'Please enter your email address'
-                                  : null,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 23),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isPassword = false;
-                                });
-                            },
-                            controller: _passwordController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Password',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText:
-                                  _isPassword ? 'Please enter password' : null,
-                            ),
-                            autofocus: false,
-                            obscureText: true,
-                          ),
-                        ),
-                        SizedBox(height: 23),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isConPassword = false;
-                                });
-                            },
-                            controller: _confirmPasswordController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Confirm Password',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText: _isConPassword
-                                  ? 'Please enter correct password'
-                                  : null,
-                            ),
-                            autofocus: false,
-                            obscureText: true,
-                          ),
-                        ),
-                        SizedBox(height: 35),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                googleSignIn();
-                              },
-                              icon: Icon(
-                                FontAwesomeIcons.google,
-                                color: AppColor.bottomRed,
-                                size: 40,
-                              ),
-                            ),
-                            SizedBox(width: 50),
-                            TextButton(
-                                style: TextButton.styleFrom(
-                                  backgroundColor: AppColor.bottomRed,
-                                ),
-                                onPressed: () {
-                                  _signUpUser();
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 8, bottom: 8, right: 20, left: 20),
-                                  child: Text(
-                                    'Sign Up',
-                                    style: TextStyle(
-                                      color: AppColor.white,
-                                      fontSize: 22,
-                                    ),
-                                  ),
-                                )),
-                          ],
-                        ),
-                        SizedBox(height: 25),
-                        Text(
-                          'Already have an Account?',
-                          style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 17,
-                          ),
-                        ),
-                        SizedBox(height: 25),
-                        InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SignInScreen()),
-                          ),
-                          child: Text(
-                            'Login',
+                          SizedBox(height: 35),
+                          Text(
+                            'CREATE AN ACCOUNT',
                             style: TextStyle(
-                              color: AppColor.bottomRed,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
+                                color: AppColor.white,
+                                fontSize: 28,
+                                fontWeight: FontWeight.w500),
+                          ),
+                          SizedBox(height: 45),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (val) {
+                                return val.trim().isEmpty
+                                    ? 'Please enter your name'
+                                    : null;
+                              },
+                              controller: _nameController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Name',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                // errorText:
+                                //     _isName ? 'Please enter your name' : null,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(height: 25),
-                      ],
+                          SizedBox(height: 23),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (val) {
+                                return val.trim().isEmpty
+                                    ? 'Please enter your username'
+                                    : null;
+                              },
+                              controller: _userNameController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Username',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                // errorText: _isUsername
+                                //     ? 'Please enter your username'
+                                //     : null,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 23),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (val) {
+                                return val.trim().isEmpty
+                                    ? 'Please enter your email address'
+                                    : !validateEmail(val.trim())
+                                        ? 'Enter a valid email address'
+                                        : null;
+                              },
+                              controller: _emailController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Email Address',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                // errorText: _isEmail
+                                //     ? 'Please enter your email address'
+                                //     : null,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 23),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (val) {
+                                return val.trim().isEmpty
+                                    ? 'Password cannot be empty'
+                                    : !isPasswordCompliant(val)
+                                        ? 'Password must contain atleast 8 alphanumeric characters'
+                                        : null;
+                              },
+                              controller: _passwordController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Password',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                // errorText: _isPassword
+                                //     ? 'Password must contain atleast 8 alphanumeric characters'
+                                //     : null,
+                              ),
+                              autofocus: false,
+                              obscureText: true,
+                            ),
+                          ),
+                          SizedBox(height: 23),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(right: 35.0, left: 35.0),
+                            child: TextFormField(
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              validator: (val) {
+                                return val.isEmpty
+                                    ? 'Password cannot be empty'
+                                    : val != _passwordController.text
+                                        ? 'Passwords do not match'
+                                        : !isPasswordCompliant(val)
+                                            ? 'Password must contain atleast 8 alphanumeric characters'
+                                            : null;
+                              },
+                              controller: _confirmPasswordController,
+                              style: TextStyle(color: AppColor.white),
+                              decoration: new InputDecoration(
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                border: new OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16.0),
+                                  borderSide: BorderSide(color: AppColor.white),
+                                ),
+                                labelText: 'Confirm Password',
+                                labelStyle: TextStyle(color: AppColor.white),
+                                // errorText: _isConPassword
+                                //     ? 'Passwords do not match'
+                                //     : null,
+                              ),
+                              autofocus: false,
+                              obscureText: true,
+                            ),
+                          ),
+                          SizedBox(height: 35),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  googleSignIn();
+                                },
+                                icon: Icon(
+                                  FontAwesomeIcons.google,
+                                  color: AppColor.bottomRed,
+                                  size: 40,
+                                ),
+                              ),
+                              SizedBox(width: 50),
+                              TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: AppColor.bottomRed,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState.validate())
+                                      _signUpUser();
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 8, bottom: 8, right: 20, left: 20),
+                                    child: Text(
+                                      'Sign Up',
+                                      style: TextStyle(
+                                        color: AppColor.white,
+                                        fontSize: 22,
+                                      ),
+                                    ),
+                                  )),
+                            ],
+                          ),
+                          SizedBox(height: 25),
+                          Text(
+                            'Already have an Account?',
+                            style: TextStyle(
+                              color: AppColor.white,
+                              fontSize: 17,
+                            ),
+                          ),
+                          SizedBox(height: 25),
+                          InkWell(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignInScreen()),
+                            ),
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                color: AppColor.bottomRed,
+                                fontSize: 22,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 25),
+                        ],
+                      ),
                     ),
                   ),
                 );

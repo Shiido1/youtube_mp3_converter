@@ -339,8 +339,10 @@ class _ConvertState extends State<Convert> {
 
         Map responseData = jsonDecode(response.body);
         print(responseData['message']);
-        if (responseData['message'].toString().toLowerCase().trim() ==
-            'you cant add this song twice!!') {
+        if (responseData['message']
+            .toString()
+            .toLowerCase()
+            .contains('twice')) {
           try {
             final data = await http.post('http://67.205.165.56/api/mylib',
                 body: jsonEncode({'token': token}),
@@ -364,8 +366,10 @@ class _ConvertState extends State<Convert> {
             libid = null;
             musicid = null;
           }
-        } else if (responseData['message'].toString().toLowerCase().trim() ==
-            'music saved to library') {
+        } else if (responseData['message']
+            .toString()
+            .toLowerCase()
+            .contains('saved')) {
           showToast(context,
               message:
                   'Song has been successfully saved to Library. If download fails, you can retry from the history page or use the sync button in songs to pull your changes.',

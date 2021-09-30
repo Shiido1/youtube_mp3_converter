@@ -35,10 +35,13 @@ class PaymentAssistant {
           body: body);
 
       final decodedResponse = jsonDecode(_response.body);
+      print(decodedResponse);
 
       if (_response.statusCode == 200 &&
-          decodedResponse['message'].toString().toLowerCase().trim() ==
-              'Saved SuccessFully!!'.toLowerCase()) {
+          decodedResponse['message']
+              .toString()
+              .toLowerCase()
+              .contains('success')) {
         return Future.value(true);
       } else {
         return Future.value(false);

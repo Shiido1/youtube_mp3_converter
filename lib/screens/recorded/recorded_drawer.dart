@@ -387,8 +387,10 @@ privateShareSong(
     if (response.statusCode == 200) {
       Map decodedResponse = jsonDecode(response.body);
 
-      if (decodedResponse['message'].toString().toLowerCase().trim() ==
-          'transfer went sucess!')
+      if (decodedResponse['message']
+          .toString()
+          .toLowerCase()
+          .contains('success'))
         showToast(context,
             message: 'Song successfully shared!',
             backgroundColor: Colors.white,
@@ -409,75 +411,76 @@ privateShareSong(
 
 Future<Widget> buildShareOptions(BuildContext context, {RecorderModel model}) {
   return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () {
-                  if (model.libid == null || model.musicid == null)
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            UploadSong(true, model: model, isPrivate: true),
-                      ),
-                    );
-                  else {
-                    Navigator.pop(context);
-                    showRecorderPrivateShareDialog(context, model.libid);
-                  }
-                },
-                child: Text(
-                  'Private share',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextButton(
+              onPressed: () {
+                if (model.libid == null || model.musicid == null)
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UploadSong(true, model: model, isPrivate: true),
+                    ),
+                  );
+                else {
+                  Navigator.pop(context);
+                  showRecorderPrivateShareDialog(context, model.libid);
+                }
+              },
+              child: Text(
+                'Private share',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
-              Divider(
-                color: Colors.white,
+            ),
+            Divider(
+              color: Colors.white,
+            ),
+            TextButton(
+              onPressed: () {
+                if (model.libid == null || model.musicid == null)
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => UploadSong(true, model: model),
+                    ),
+                  );
+                else {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PublicShare(model.libid),
+                    ),
+                  );
+                }
+              },
+              child: Text(
+                'Public share',
+                style: TextStyle(color: Colors.white, fontSize: 18),
               ),
-              TextButton(
-                onPressed: () {
-                  if (model.libid == null || model.musicid == null)
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UploadSong(true, model: model),
-                      ),
-                    );
-                  else {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PublicShare(model.libid),
-                      ),
-                    );
-                  }
-                },
-                child: Text(
-                  'Public share',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-              // Divider(
-              //   color: Colors.white,
-              // ),
-              // TextButton(
-              //   onPressed: () async {
-              //     Share.shareFiles([File(model.path).path]);
-              //     PageRouter.goBack(context);
-              //   },
-              //   child: Text(
-              //     'Share to other apps',
-              //     style: TextStyle(color: Colors.white, fontSize: 18),
-              //   ),
-              // ),
-            ],
-          ),
-        );
-      },);
+            ),
+            // Divider(
+            //   color: Colors.white,
+            // ),
+            // TextButton(
+            //   onPressed: () async {
+            //     Share.shareFiles([File(model.path).path]);
+            //     PageRouter.goBack(context);
+            //   },
+            //   child: Text(
+            //     'Share to other apps',
+            //     style: TextStyle(color: Colors.white, fontSize: 18),
+            //   ),
+            // ),
+          ],
+        ),
+      );
+    },
+  );
 }

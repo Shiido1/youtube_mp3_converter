@@ -112,8 +112,10 @@ class _UploadSongState extends State<UploadSong> {
         var decodedData = jsonDecode(jsonData);
         print(decodedData);
 
-        if (decodedData['message'].toString().toLowerCase().trim() ==
-            'upload went success!') {
+        if (decodedData['message']
+            .toString()
+            .toLowerCase()
+            .contains('success')) {
           showToast(context,
               message: 'Song uploaded successfully!',
               backgroundColor: Colors.white,

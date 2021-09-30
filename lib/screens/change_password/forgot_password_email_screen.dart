@@ -16,7 +16,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   @override
   void initState() {
-    changePasswordProvider = Provider.of<ChangePasswordProvider>(context, listen: false);
+    changePasswordProvider =
+        Provider.of<ChangePasswordProvider>(context, listen: false);
     changePasswordProvider.init(context);
     super.initState();
   }
@@ -53,15 +54,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              textField(controller:emailController, hint:'Email Address'),
+              textField(controller: emailController, hint: 'Email Address'),
               Center(
                 child: TextButton(
-                    style: TextButton
-                        .styleFrom(
-                      backgroundColor: AppColor
-                          .bottomRed,
+                    style: TextButton.styleFrom(
+                      backgroundColor: AppColor.bottomRed,
                     ),
-                    onPressed: ()=>sendEmail(),
+                    onPressed: () => sendEmail(),
                     child: Text(
                       'Send',
                       style: TextStyle(
@@ -76,30 +75,33 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       ),
     );
   }
-  void sendEmail(){
+
+  void sendEmail() {
     if (emailController.text.isEmpty) {
       showToast(context, message: "Please input a valid email address");
     } else {
+      changePasswordProvider.init(context);
       changePasswordProvider.emailOtp('${emailController.text.trim()}');
     }
   }
 
-  Widget textField({TextEditingController controller,String hint})=>Theme(
-    data: new ThemeData(hintColor: AppColor.white),
-    child: TextField(
-        style: TextStyle(color: AppColor.white),
-        controller: controller,
-        decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: BorderSide(color: AppColor.white),
-            ),
-            border: new OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              borderSide: BorderSide(color: AppColor.white),
-            ),
-            hintText: hint,
-            focusColor: AppColor.white,
-            hoverColor: AppColor.white)),
-  );
+  Widget textField({TextEditingController controller, String hint}) => Theme(
+        data: new ThemeData(hintColor: AppColor.white),
+        child: TextField(
+          style: TextStyle(color: AppColor.white),
+          controller: controller,
+          decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.0),
+                borderSide: BorderSide(color: AppColor.white),
+              ),
+              border: new OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16.0),
+                borderSide: BorderSide(color: AppColor.white),
+              ),
+              hintText: hint,
+              focusColor: AppColor.white,
+              hoverColor: AppColor.white),
+        ),
+      );
 }

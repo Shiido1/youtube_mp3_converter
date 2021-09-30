@@ -247,6 +247,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     print(trxResponse);
 
     if (trxResponse != 'Cancelled' && trxResponse != 'Failed') {
+      print(trxResponse['data']['reference']);
       bool status = await PaymentAssistant.storePayment(
           context: context,
           txRef: trxResponse['data']['reference'],

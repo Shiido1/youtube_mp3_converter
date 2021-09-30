@@ -80,8 +80,7 @@ class SplitAssistant {
         int vocalid, othersid;
         print(data);
         print(data['message']);
-        if (data['message'].toString().toLowerCase().trim() ==
-            'inserted to library!!') {
+        if (data['message'].toString().toLowerCase().contains('inserted')) {
           for (Map name in data['musicid']) {
             if (name['name'].toString().toLowerCase().trim() == 'voice')
               vocalid = name['id'];

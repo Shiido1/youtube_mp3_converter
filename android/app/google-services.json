@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "320378040514-3efn98rm22u7dgprk5lmhjgvoq9hqo8h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ytaudio.mp3_music_converter",
+            "certificate_hash": "6838d4a6cb0518d97ec81477e12743ff5970d30f"
+          }
+        },
+        {
           "client_id": "320378040514-5hsh0sjuijkg1m8564qrgb78n2818fnf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -56,10 +64,10 @@
               "client_type": 3
             },
             {
-              "client_id": "320378040514-85inbdpfu7mpgfeatss18b2mqr052gsf.apps.googleusercontent.com",
+              "client_id": "320378040514-3bbfu3utqh14cj299jb8q4cie83i3orp.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.youtubeaudio.mp3-music-converter"
+                "bundle_id": "com.youtubeaudio"
               }
             }
           ]

@@ -9,14 +9,14 @@ import 'package:provider/provider.dart';
 
 Future<String> createPlayListScreen(
     {BuildContext context,
-    String songName,
+    String musicid,
     @required bool showToastMessage,
     bool renameRecord = false,
     bool renamePlayList = false,
     String oldPlayListName,
     String message = 'Song added'}) {
   List songs = [];
-  songs.add(songName);
+  songs.add(musicid);
   bool showOkButton = false;
   String playListName = '';
   return showDialog(
@@ -114,7 +114,6 @@ Future<String> createPlayListScreen(
                                     Provider.of<RecordProvider>(context,
                                             listen: false)
                                         .getRecords();
-                                  // SongServices().createPlayList(playListName: playListName, songName: songs);
                                 }
                               : null,
                           child: Container(

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -6,6 +8,7 @@ import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:share/share.dart';
 
 class SplitSongDrawer extends StatefulWidget {
   final Song song;
@@ -97,7 +100,11 @@ class _SplitSongDrawerState extends State<SplitSongDrawer> {
                       ListTile(
                         onTap: () {
                           Navigator.pop(context);
-                          buildShareOptions(context, song: widget.song);
+                          // buildShareOptions(context, song: widget.song);
+                          Share.shareFiles([
+                            File('${widget.song.filePath}/${widget.song.fileName}')
+                                .path
+                          ]);
                         },
                         leading: Icon(
                           Icons.share,

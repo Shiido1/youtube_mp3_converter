@@ -26,8 +26,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String email = '';
   String name = '';
   String userToken = '';
-  String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
-  // String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
+  // String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
+  String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
   FlutterPay flutterPay = FlutterPay();
 
   @override
@@ -83,45 +83,42 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       picture: SvgPicture.asset(AppAssets.basic,
                           height: 60, width: 60),
                       text1: 'UNLIMITED BASIC',
-                      text2: '150MB DISK SPACE',
+                      text2: '3 SONGS (MONTHLY)',
                       text3: r'$0.99',
                       // text3: Platform.isAndroid ? '\u{20A6} 499' : r'$0.99',
                       subWidgetButton: () async {
                         makePayment(
                             amount: Platform.isAndroid ? 499.0 : 0.99,
                             storage: 150000000,
-                            title:
-                                'UNLIMITED BASIC - 150MB DISK SPACE (MONTHLY)');
+                            title: '3 SONGS (MONTHLY)');
                       },
                     ),
                     paymentContainer(
                       picture: SvgPicture.asset(AppAssets.medium,
                           height: 60, width: 60),
                       text1: 'UNLIMITED MEDIUM',
-                      text2: '1.5 GB DISK SPACE Only',
-                      text3: r'$3.99',
+                      text2: '8 SONGS (MONTHLY)',
+                      text3: r'$1.99',
                       // text3: Platform.isAndroid ? '\u{20A6} 1,499' : r'$3.99',
                       subWidgetButton: () async {
                         makePayment(
-                            amount: Platform.isAndroid ? 1999.0 : 3.99,
+                            amount: Platform.isAndroid ? 999.0 : 1.99,
                             storage: 1500000000,
-                            title:
-                                'UNLIMITED MEDIUM - 1.5 GB DISK SPACE (MONTHLY)');
+                            title: '8 SONGS (MONTHLY)');
                       },
                     ),
                     paymentContainer(
                       picture: SvgPicture.asset(AppAssets.advance,
                           height: 60, width: 60),
                       text1: 'UNLIMITED ADVANCE',
-                      text2: '10GB DISK SPACE',
+                      text2: 'UNLIMITED SONGS (MONTHLY)',
                       text3: r'$20',
                       // text3: Platform.isAndroid ? '\u{20A6} 9,999' : r'$20',
                       subWidgetButton: () async {
                         makePayment(
                             amount: Platform.isAndroid ? 9999.0 : 20.0,
                             storage: 10000000000,
-                            title:
-                                'UNLIMITED ADVANCE - 10GB DISK SPACE (6 MONTHLY)');
+                            title: 'UNLIMITED SONGS (MONTHLY)');
                       },
                     ),
                   ],
@@ -134,7 +131,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Center(
               child: DotsIndicator(
                 dotsCount: pageLength,
-                position: double.parse(currentIndexPage.toString()),
+                position: double.parse(
+                  currentIndexPage.toString(),
+                ),
                 decorator: DotsDecorator(
                     color: AppColor.white,
                     activeColor: AppColor.bottomRed,

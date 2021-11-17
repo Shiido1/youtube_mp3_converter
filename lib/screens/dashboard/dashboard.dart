@@ -4,11 +4,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/database/repository/song_repository.dart';
+import 'package:mp3_music_converter/screens/bookworm/bookworm.dart';
 import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/name_song.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
+import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
+import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/screens/split/split_loader.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
@@ -43,46 +48,55 @@ class _DashBoardState extends State<DashBoard> {
   List<String> _apiSplitList = ['', ''];
   bool _permissionReady;
   static String _localPath;
-  String _sharedText = '';
+  // String _sharedText = '';
   bool loading = false;
   CustomProgressIndicator _progressIndicator;
   FilePickerResult result;
+  bool hideDisclaimer = false;
 
   @override
   void initState() {
     this._progressIndicator = CustomProgressIndicator(this.context);
-    LinkShareAssistant()
-      ..onDataReceived = _handleSharedData
-      ..getSharedData().then(_handleSharedData);
+    // LinkShareAssistant()
+    //   ..onDataReceived = _handleSharedData
+    //   ..getSharedData().then(_handleSharedData);
+    getBoolData();
     _permissionReady = false;
     _prepare();
     super.initState();
   }
 
-  // Handles any shared data we may receive.
-  void _handleSharedData(String sharedData) {
-    MusicProvider _provider =
-        Provider.of<MusicProvider>(context, listen: false);
-    if (sharedData != null &&
-        sharedData.isNotEmpty &&
-        _provider.sharedText != sharedData) {
-      if (mounted)
-        setState(() {
-          _sharedText = sharedData;
-        });
-      _provider.updateSharedText(sharedData);
-    } else {
-      if (mounted)
-        setState(() {
-          _sharedText = '';
-        });
-    }
-  }
+  // // Handles any shared data we may receive.
+  // void _handleSharedData(String sharedData) {
+  //   MusicProvider _provider =
+  //       Provider.of<MusicProvider>(context, listen: false);
+  //   if (sharedData != null &&
+  //       sharedData.isNotEmpty &&
+  //       _provider.sharedText != sharedData) {
+  //     if (mounted)
+  //       setState(() {
+  //         _sharedText = sharedData;
+  //       });
+  //     _provider.updateSharedText(sharedData);
+  //   } else {
+  //     if (mounted)
+  //       setState(() {
+  //         _sharedText = '';
+  //       });
+  //   }
+  // }
 
   String splitFileNameHere(String fileName) {
     List name = fileName.split('-');
     name.removeLast();
     return name.join('-');
+  }
+
+  getBoolData() async {
+    bool exists = await preferencesHelper.doesExists(key: 'hideDisclaimer');
+    hideDisclaimer = exists
+        ? await preferencesHelper.getBoolValues(key: 'hideDisclaimer')
+        : false;
   }
 
   Future<bool> _checkPermission() async {
@@ -136,68 +150,88 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
-    if (_sharedText.length > 1)
-      return Convert(sharedLinkText: _sharedText);
-    else
-      return Scaffold(
-        backgroundColor: AppColor.background,
-        body: Column(
-          children: [
-            RedBackground2(openRadio: openRadio),
-            Expanded(
-              child: Container(
-                margin: EdgeInsets.only(left: 16, right: 90),
-                child: ListView(
-                  children: [
-                    _buttonItem(
-                      title: "Import Url",
-                      item: HomeButtonItem.CONVERTER,
-                      screen: Convert(),
-                      assets: AppAssets.mpFile,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _buttonItem(
-                      title: "Split Music",
-                      item: HomeButtonItem.CREATE_MUSIC,
-                      assets: AppAssets.radioWave,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _buttonItem(
-                      title: "Radio World Wide",
-                      item: HomeButtonItem.RADIO,
-                      screen: RadioClass(),
-                      assets: AppAssets.radio,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _buttonItem(
-                      title: "Disk Jockey",
-                      item: HomeButtonItem.DJ,
-                      screen: DJMixer(),
-                      assets: AppAssets.djMixer,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    _buttonItem(
-                        title: "Plan",
-                        item: HomeButtonItem.PLAN,
-                        screen: PaymentScreen(),
-                        assets: AppAssets.plan),
-                    SizedBox(height: 15),
-                  ],
-                ),
+    // if (_sharedText.length > 1)
+    //   return Convert(sharedLinkText: _sharedText);
+    // else
+    // SplitSongRepository.addSong(
+    //   Song(
+    //       songName: 'Love You',
+    //       artistName: 'Niza',
+    //       splitFileName: 'Let\'s see',
+    //       fileName: 'open heavens',
+    //       filePath: '/storage/music',
+    //       vocalName: 'happt.mp3'),
+    // );
+    // RecorderServices()
+    //     .addRecording(RecorderModel(name: 'Love me now', path: 'storage/j/'));
+    return Scaffold(
+      backgroundColor: AppColor.background,
+      body: Column(
+        children: [
+          RedBackground2(openRadio: openRadio),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.only(left: 16, right: 90),
+              child: ListView(
+                children: [
+                  _buttonItem(
+                    title: "Bookworm",
+                    item: HomeButtonItem.BOOKWORM,
+                    screen: Bookworm(),
+                    assets: AppAssets.advance,
+                  ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  // _buttonItem(
+                  //   title: "Import Url",
+                  //   item: HomeButtonItem.CONVERTER,
+                  //   screen: Convert(),
+                  //   assets: AppAssets.mpFile,
+                  // ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Split Music",
+                    item: HomeButtonItem.CREATE_MUSIC,
+                    assets: AppAssets.radioWave,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Radio World Wide",
+                    item: HomeButtonItem.RADIO,
+                    screen: RadioClass(),
+                    assets: AppAssets.radio,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                    title: "Disk Jockey",
+                    item: HomeButtonItem.DJ,
+                    screen: DJMixer(),
+                    assets: AppAssets.djMixer,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  _buttonItem(
+                      title: "Plan",
+                      item: HomeButtonItem.PLAN,
+                      screen: PaymentScreen(),
+                      assets: AppAssets.plan),
+                  SizedBox(height: 15),
+                ],
               ),
             ),
-            BottomPlayingIndicator()
-          ],
-        ),
-      );
+          ),
+          BottomPlayingIndicator()
+        ],
+      ),
+    );
   }
 
   Widget _buttonItem({
@@ -212,7 +246,9 @@ class _DashBoardState extends State<DashBoard> {
           _homeButtonItem = item;
         });
         screen == null
-            ? splitMethod()
+            ? !hideDisclaimer
+                ? disclaimer()
+                : splitMethod()
             : Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => screen),
@@ -267,82 +303,165 @@ class _DashBoardState extends State<DashBoard> {
     String artistName, songName;
     print(result.files.single.name);
     print(result.files.single.path);
+    // return;
 
     if (result != null && result.files.isNotEmpty) {
-      final splitSongDetails = await showNameSong(context);
-      if (splitSongDetails != null) {
-        songName = splitSongDetails.split('+')[0];
-        artistName = splitSongDetails.split('+')[1];
+      if ((result.files.single.size / 1000000.0).ceil() <= 20) {
+        final splitSongDetails = await showNameSong(context);
+        if (splitSongDetails != null) {
+          songName = splitSongDetails.split('+')[0];
+          artistName = splitSongDetails.split('+')[1];
 
-        _progressIndicator.show();
-        String nameOfFile = result.files.single.name.split(' ').join('_');
-        var splitFiles =
-            // <String, dynamic>{'reply': 'failure'};
-            await SplitAssistant.splitFile(
-                filePath: result.files.single.path, userToken: userToken);
-        await _progressIndicator.dismiss();
-        if (splitFiles['reply'] == "success") {
-          Map splitData = await SplitAssistant.saveSplitFiles(
-            decodedData: splitFiles['data'],
-            userToken: userToken,
-            artistName: artistName,
-            songName: songName,
-          );
-          if (_permissionReady) {
-            if (splitData['reply'] == 'success') {
-              showToast(context,
-                  message:
-                      'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
-                  duration: 15,
-                  backgroundColor: Colors.blue[400],
-                  textColor: Colors.black);
-              String voiceUrl = splitFiles['data']["files"]["voice"];
-              String otherUrl = splitFiles['data']["files"]["other"];
+          showDialog(
+              context: context,
+              barrierDismissible: false,
+              barrierColor: Colors.black87,
+              builder: (_) {
+                return SplitLoader();
+              });
+          String nameOfFile = result.files.single.name.split(' ').join('_');
+          var splitFiles =
+              // <String, dynamic>{'reply': 'failure'};
+              await SplitAssistant.splitFile(
+                  filePath: result.files.single.path, userToken: userToken);
+          if (Provider.of<SplitLoaderProvider>(context, listen: false)
+              .isShowing) Navigator.pop(context);
+          if (splitFiles['reply'] == "success") {
+            Map splitData = await SplitAssistant.saveSplitFiles(
+              decodedData: splitFiles['data'],
+              userToken: userToken,
+              artistName: artistName,
+              songName: songName,
+            );
+            if (_permissionReady) {
+              if (splitData['reply'] == 'success') {
+                // showToast(context,
+                //     message:
+                //         'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
+                //     duration: 15,
+                //     backgroundColor: Colors.blue[400],
+                //     textColor: Colors.black);
+                String voiceUrl = splitFiles['data']["files"]["voice"];
+                String otherUrl = splitFiles['data']["files"]["other"];
 
-              _apiSplitList = ['', ''];
-              _apiSplitList.insert(0, otherUrl);
-              _apiSplitList.insert(1, voiceUrl);
+                _apiSplitList = ['', ''];
+                _apiSplitList.insert(0, otherUrl);
+                _apiSplitList.insert(1, voiceUrl);
 
-              print(splitData['data']['vocalid']);
-              print(splitData['data']['othersid']);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Downloads(
-                    apiSplitList: _apiSplitList,
-                    localPath: _localPath,
-                    song: Song(
-                        fileName: nameOfFile,
-                        musicid: splitFiles['data']['id'].toString(),
-                        vocalLibid: splitData['data']['vocalid'],
-                        libid: splitData['data']['othersid'],
-                        artistName: artistName,
-                        songName: songName),
+                print(splitData['data']['vocalid']);
+                print(splitData['data']['othersid']);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Downloads(
+                      apiSplitList: _apiSplitList,
+                      localPath: _localPath,
+                      song: Song(
+                          fileName: nameOfFile,
+                          musicid: splitFiles['data']['id'].toString(),
+                          vocalLibid: splitData['data']['vocalid'],
+                          libid: splitData['data']['othersid'],
+                          artistName: artistName,
+                          songName: songName),
+                    ),
                   ),
-                ),
-              );
-            } else {
-              showToast(context, message: splitData['data']);
+                );
+              } else {
+                showToast(context, message: splitData['data']);
+              }
+            } else if (!_permissionReady) {
+              _buildNoPermissionWarning();
             }
-          } else if (!_permissionReady) {
-            _buildNoPermissionWarning();
+          } else if (splitFiles['data'] ==
+              'please subscribe to enjoy this service') {
+            // await _progressIndicator.dismiss();
+            showSubscriptionMessage(context);
+          } else if (splitFiles['data'] == 'insufficient storage') {
+            // await _progressIndicator.dismiss();
+            insufficientStorageWarning(context);
+          } else if (splitFiles['data'] == "Invalid Song Provided!") {
+            // await _progressIndicator.dismiss();
+            showToast(context, message: 'Invalid Song Selected');
+          } else {
+            // await _progressIndicator.dismiss();
+            showToast(context, message: 'An unknown error occurred.');
           }
-        } else if (splitFiles['data'] ==
-            'please subscribe to enjoy this service') {
-          // await _progressIndicator.dismiss();
-          showSubscriptionMessage(context);
-        } else if (splitFiles['data'] == 'insufficient storage') {
-          // await _progressIndicator.dismiss();
-          insufficientStorageWarning(context);
-        } else if (splitFiles['data'] == "Invalid Song Provided!") {
-          // await _progressIndicator.dismiss();
-          showToast(context, message: 'Invalid Song Selected');
-        } else {
-          // await _progressIndicator.dismiss();
-          showToast(context, message: 'An unknown error occurred.');
         }
+      } else {
+        showToast(context,
+            message:
+                'File exceeds 20MB limit. Kindly reduce the file size and try again',
+            duration: 6,
+            gravity: 1,
+            backgroundColor: Colors.red[700]);
       }
     }
+  }
+
+  Future<void> disclaimer() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Maximum of 20MB file per split',
+                    style: TextStyle(color: Colors.white, fontSize: 17),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 10),
+                    alignment: Alignment.centerLeft,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                          unselectedWidgetColor: Colors.white,
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent),
+                      child: CheckboxListTile(
+                        value: hideDisclaimer,
+                        onChanged: (val) {
+                          setState(() {
+                            hideDisclaimer = val;
+                          });
+                        },
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Text(
+                          'Do not show this again',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                        ),
+                        activeColor: Colors.blue,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  child: Text('OK',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                  onPressed: () {
+                    preferencesHelper.saveValue(
+                        key: 'hideDisclaimer', value: hideDisclaimer);
+                    Navigator.pop(context);
+                    splitMethod();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildNoPermissionWarning() => Container(
@@ -383,7 +502,7 @@ class _DashBoardState extends State<DashBoard> {
       );
 }
 
-enum HomeButtonItem { NON, CONVERTER, CREATE_MUSIC, RADIO, DJ, PLAN }
+enum HomeButtonItem { NON, BOOKWORM, CONVERTER, CREATE_MUSIC, RADIO, DJ, PLAN }
 
 class DJMixer extends StatelessWidget {
   const DJMixer({Key key}) : super(key: key);

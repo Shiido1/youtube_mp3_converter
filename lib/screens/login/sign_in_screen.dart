@@ -33,6 +33,10 @@ class _SignInScreenState extends State<SignInScreen> {
   bool newUser;
   String email, password;
   CustomProgressIndicator _progressIndicator;
+  GoogleSignIn googleSign = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
+  String url = 'https://youtubeaudio.com/api/google_callback_api';
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
@@ -41,17 +45,11 @@ class _SignInScreenState extends State<SignInScreen> {
           context: context);
   }
 
-  void googleSignIn() async {
-    GoogleSignIn googleSign = GoogleSignIn(
-      scopes: ['email', 'profile'],
-    );
-    String url = 'https://youtubeaudio.com/api/google_callback_api';
+  void handleGoogleSignIn(GoogleSignInAccount account) async {
+    if (account != null) {
+      GoogleSignInAuthentication auth = await account.authentication;
 
-    try {
-      await googleSign.signOut();
-      final gresult = await googleSign.signIn();
-      final auth = await gresult?.authentication;
-      if (auth != null) {
+      try {
         _progressIndicator.show();
         final response = await http.post(
           url,
@@ -59,9 +57,6 @@ class _SignInScreenState extends State<SignInScreen> {
           headers: {'Content-Type': 'application/json'},
         );
         _progressIndicator.dismiss();
-
-        print(jsonDecode(response.body));
-        print(response.statusCode);
 
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
@@ -113,13 +108,30 @@ class _SignInScreenState extends State<SignInScreen> {
               backgroundColor: Colors.white,
               textColor: Colors.black);
         }
-      }
-    } catch (e) {
-      _progressIndicator.dismiss();
-      showToast(context,
-          message: 'An error occurred. Check your internet connection',
+      } catch (e) {
+        _progressIndicator.dismiss();
+        showToast(
+          context,
+          message: 'Operation failed',
           backgroundColor: Colors.white,
-          textColor: Colors.black);
+          textColor: Colors.black,
+        );
+      }
+    }
+  }
+
+  void googleSignIn() async {
+    try {
+      if (await googleSign.isSignedIn()) await googleSign.signOut();
+      GoogleSignInAccount gresult = await googleSign.signIn();
+      handleGoogleSignIn(gresult);
+    } catch (e) {
+      showToast(
+        context,
+        message: 'An error occurred. Check your internet connection.',
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+      );
       print(e);
     }
   }
@@ -182,178 +194,219 @@ class _SignInScreenState extends State<SignInScreen> {
                         BoxConstraints(minHeight: constraint.maxHeight),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(height: 65),
+                        SizedBox(height: 100),
                         Image.asset(
                           AppAssets.logo,
                         ),
                         SizedBox(height: 35),
                         Text(
-                          'SIGN IN',
+                          'Welcome to YTAudio',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: AppColor.white,
                               fontSize: 28,
                               fontWeight: FontWeight.w500),
                         ),
-                        SizedBox(height: 55),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isEmail = false;
-                                });
-                            },
-                            controller: _emailController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Email Address',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText: _isEmail
-                                  ? 'Please enter correct email address'
-                                  : null,
+                        // SizedBox(height: 55),
+                        // Padding(
+                        //   padding:
+                        //       const EdgeInsets.only(right: 35.0, left: 35.0),
+                        //   child: TextField(
+                        //     onChanged: (val) {
+                        //       if (val.isNotEmpty)
+                        //         setState(() {
+                        //           _isEmail = false;
+                        //         });
+                        //     },
+                        //     controller: _emailController,
+                        //     style: TextStyle(color: AppColor.white),
+                        //     decoration: new InputDecoration(
+                        //       enabledBorder: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       focusedBorder: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       border: new OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       labelText: 'Email Address',
+                        //       labelStyle: TextStyle(color: AppColor.white),
+                        //       errorText: _isEmail
+                        //           ? 'Please enter correct email address'
+                        //           : null,
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 35),
+                        // Padding(
+                        //   padding:
+                        //       const EdgeInsets.only(right: 35.0, left: 35.0),
+                        //   child: TextField(
+                        //     onChanged: (val) {
+                        //       if (val.isNotEmpty)
+                        //         setState(() {
+                        //           _isPassword = false;
+                        //         });
+                        //     },
+                        //     controller: _passwordController,
+                        //     style: TextStyle(color: AppColor.white),
+                        //     decoration: new InputDecoration(
+                        //       enabledBorder: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       focusedBorder: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       border: new OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(16.0),
+                        //         borderSide: BorderSide(color: AppColor.white),
+                        //       ),
+                        //       labelText: 'Password',
+                        //       labelStyle: TextStyle(color: AppColor.white),
+                        //       errorText: _isPassword
+                        //           ? 'Please enter a correct 8 alphanumeric password'
+                        //           : null,
+                        //     ),
+                        //     autofocus: false,
+                        //     obscureText: true,
+                        //   ),
+                        // ),
+                        SizedBox(height: 100),
+
+                        GestureDetector(
+                          onTap: () {
+                            googleSignIn();
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 25, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black,
+                                )
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  FontAwesomeIcons.google,
+                                  color: AppColor.bottomRed,
+                                  size: 60,
+                                ),
+                                Text(
+                                  'oogle',
+                                  style: TextStyle(
+                                      color: AppColor.white,
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 35),
-                        Padding(
-                          padding:
-                              const EdgeInsets.only(right: 35.0, left: 35.0),
-                          child: TextField(
-                            onChanged: (val) {
-                              if (val.isNotEmpty)
-                                setState(() {
-                                  _isPassword = false;
-                                });
-                            },
-                            controller: _passwordController,
-                            style: TextStyle(color: AppColor.white),
-                            decoration: new InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              border: new OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(16.0),
-                                borderSide: BorderSide(color: AppColor.white),
-                              ),
-                              labelText: 'Password',
-                              labelStyle: TextStyle(color: AppColor.white),
-                              errorText: _isPassword
-                                  ? 'Please enter a correct 8 alphanumeric password'
-                                  : null,
-                            ),
-                            autofocus: false,
-                            obscureText: true,
-                          ),
-                        ),
-                        SizedBox(height: 35),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            IconButton(
-                              onPressed: () {
-                                googleSignIn();
-                              },
-                              icon: Icon(
-                                FontAwesomeIcons.google,
-                                color: AppColor.bottomRed,
-                                size: 40,
-                              ),
-                            ),
-                            SizedBox(width: 50),
-                            model.isLoading
-                                ? SpinKitCircle(
-                                    color: AppColor.white,
-                                    size: 50.0,
-                                  )
-                                : TextButton(
-                                    style: TextButton.styleFrom(
-                                      backgroundColor: AppColor.bottomRed,
-                                    ),
-                                    onPressed: () {
-                                      signIn(
-                                          context,
-                                          _emailController.text.trim(),
-                                          _passwordController.text.trim());
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 10.0,
-                                          bottom: 10.0,
-                                          right: 23,
-                                          left: 23),
-                                      child: Text(
-                                        'Login',
-                                        style: TextStyle(
-                                          color: AppColor.white,
-                                          fontSize: 22,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ForgotPassword()),
-                          ),
-                          child: Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              color: AppColor.bottomRed,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 45),
-                        Text(
-                          'Don\'t have an Account?',
-                          style: TextStyle(
-                            color: AppColor.white,
-                            fontSize: 17,
-                          ),
-                        ),
-                        SizedBox(height: 35),
-                        InkWell(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SignUpScreen()),
-                          ),
-                          child: Text(
-                            'Sign Up',
-                            style: TextStyle(
-                              color: AppColor.bottomRed,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20),
+
+                        // IconButton(
+                        //   onPressed: () {
+                        //     googleSignIn();
+                        //   },
+                        //   icon: Icon(
+                        //     FontAwesomeIcons.google,
+                        //     color: AppColor.bottomRed,
+                        //     size: 60,
+                        //   ),
+                        // ),
+
+                        // Row(
+                        //   mainAxisAlignment: MainAxisAlignment.center,
+                        //   children: [
+
+                        //     SizedBox(width: 50),
+                        //     model.isLoading
+                        //         ? SpinKitCircle(
+                        //             color: AppColor.white,
+                        //             size: 50.0,
+                        //           )
+                        //         : TextButton(
+                        //             style: TextButton.styleFrom(
+                        //               backgroundColor: AppColor.bottomRed,
+                        //             ),
+                        //             onPressed: () {
+                        //               signIn(
+                        //                   context,
+                        //                   _emailController.text.trim(),
+                        //                   _passwordController.text.trim());
+                        //             },
+                        //             child: Padding(
+                        //               padding: const EdgeInsets.only(
+                        //                   top: 10.0,
+                        //                   bottom: 10.0,
+                        //                   right: 23,
+                        //                   left: 23),
+                        //               child: Text(
+                        //                 'Login',
+                        //                 style: TextStyle(
+                        //                   color: AppColor.white,
+                        //                   fontSize: 22,
+                        //                 ),
+                        //               ),
+                        //             ),
+                        //           ),
+                        //   ],
+                        // ),
+                        // SizedBox(height: 20),
+                        // InkWell(
+                        //   onTap: () => Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => ForgotPassword()),
+                        //   ),
+                        //   child: Text(
+                        //     'Forgot Password?',
+                        //     style: TextStyle(
+                        //       color: AppColor.bottomRed,
+                        //       fontSize: 17,
+                        //       fontWeight: FontWeight.w600,
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 45),
+                        // Text(
+                        //   'Don\'t have an Account?',
+                        //   style: TextStyle(
+                        //     color: AppColor.white,
+                        //     fontSize: 17,
+                        //   ),
+                        // ),
+                        // SizedBox(height: 35),
+                        // InkWell(
+                        //   onTap: () => Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //         builder: (context) => SignUpScreen()),
+                        //   ),
+                        //   child: Text(
+                        //     'Sign Up',
+                        //     style: TextStyle(
+                        //       color: AppColor.bottomRed,
+                        //       fontSize: 22,
+                        //       fontWeight: FontWeight.w600,
+                        //     ),
+                        //   ),
+                        // ),
+                        // SizedBox(height: 20),
                       ],
                     ),
                   ),

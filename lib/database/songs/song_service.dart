@@ -33,16 +33,32 @@ class SongServices implements SongInterface {
   @override
   addSong(Song song) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    return _box.put(song.fileName, song.toJson());
+    print(song.favorite);
+    try {
+      _box.put(song.musicid, song.toJson());
+      return;
+    } catch (e) {
+      print(e);
+      print(song.fileName);
+      return;
+    }
   }
 
   @override
-  renameSong({String fileName, String artistName, String songName}) async {
+  clear() async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    Song song = Song.fromMap(_box.get(fileName));
+    _box.clear();
+    return;
+  }
+
+  @override
+  renameSong({String musicid, String artistName, String songName}) async {
+    print(artistName);
+    if (!(_box?.isOpen ?? false)) _box = await openBox();
+    Song song = Song.fromMap(_box.get(musicid));
     song.artistName = artistName ?? 'Unknown Artist';
     song.songName = songName ?? 'Unknown';
-    _box.put(fileName, song.toJson());
+    _box.put(musicid, song.toJson());
   }
 
   @override
@@ -125,29 +141,28 @@ class SongServices implements SongInterface {
         .where((e) => e['favorite'] == true)
         .map((e) => Song.fromMap(e))
         .toList();
-
   }
 
   @override
   Stream<BoxEvent> watchSongs() => _box.watch();
 
   @override
-  deleteSong(String key) async {
+  deleteSong(String musicid) async {
     if (!(_box?.isOpen ?? false)) _box = await openBox();
-    await _box.delete(key);
+    await _box.delete(musicid);
   }
 
-  removeSongsFromPlaylistAterDelete(String fileName) async {
+  removeSongsFromPlaylistAterDelete(String musicid) async {
     if (!(_boxList?.isOpen ?? false))
       _boxList = await PgHiveBoxes.openBox<List>('playLists');
     List playlist = [];
     _boxList.keys.forEach((element) {
-      if (_boxList.get(element).contains(fileName)) playlist.add(element);
+      if (_boxList.get(element).contains(musicid)) playlist.add(element);
     });
     if (playlist.isNotEmpty) {
       playlist.forEach((element) async {
         List songs = _boxList.get(element);
-        songs.remove(fileName);
+        songs.remove(musicid);
         await _boxList.put(element, songs);
       });
     }

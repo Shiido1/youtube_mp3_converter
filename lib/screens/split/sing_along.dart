@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/split.dart';
 import 'package:mp3_music_converter/screens/split/split_song_drawer.dart';
 import 'package:mp3_music_converter/screens/split/split_songs.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -24,17 +26,31 @@ class _SingAlongState extends State<SingAlong> {
   Song selectedSong;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   RefreshController _refreshController = RefreshController();
+  bool hideDisclaimer = false;
 
   @override
   void initState() {
     _songProvider = Provider.of<SplitSongProvider>(context, listen: false);
     _songProvider.getSongs(false);
+    getBoolDisclaimer();
     super.initState();
   }
 
   _onRefresh() async {
     await _songProvider.getSongs(false);
     _refreshController.refreshCompleted();
+  }
+
+  getBoolDisclaimer() async {
+    bool exists =
+        await preferencesHelper.doesExists(key: 'hideRecordDisclaimer');
+    hideDisclaimer = exists
+        ? await preferencesHelper.getBoolValues(key: 'hideRecordDisclaimer')
+        : false;
+  }
+
+  toggleHideDisclaimer(bool val) {
+    hideDisclaimer = val;
   }
 
   @override
@@ -59,18 +75,19 @@ class _SingAlongState extends State<SingAlong> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: TextButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.red[700])),
-                onPressed: () {
-                  synchronizeSplitSong(context);
-                },
-                child: Text('Sync split',
-                    style: TextStyle(color: Colors.white, fontSize: 17))),
-          )
+          Container(),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          //   child: TextButton(
+          //       style: ButtonStyle(
+          //           backgroundColor:
+          //               MaterialStateProperty.all(Colors.red[700])),
+          //       onPressed: () {
+          //         synchronizeSplitSong(context);
+          //       },
+          //       child: Text('Sync split',
+          //           style: TextStyle(color: Colors.white, fontSize: 17))),
+          // )
         ],
       ),
       endDrawer: SplitSongDrawer(selectedSong, false),
@@ -106,15 +123,25 @@ class _SingAlongState extends State<SingAlong> {
                 GestureDetector(
                   onTap: () {
                     int width = MediaQuery.of(context).size.width.floor();
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => MuteVocalsScreen(
+                    print(hideDisclaimer);
+
+                    if (!hideDisclaimer)
+                      splitDisclaimer(
+                          context: context,
+                          hideDisclaimer: hideDisclaimer,
+                          toggleHideDisclaimer: toggleHideDisclaimer,
                           song: _song,
-                          width: width,
+                          width: width);
+                    else
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => MuteVocalsScreen(
+                            song: _song,
+                            width: width,
+                          ),
                         ),
-                      ),
-                    );
+                      );
                   },
                   child: ListTile(
                     leading: SizedBox(
@@ -186,4 +213,96 @@ class _SingAlongState extends State<SingAlong> {
       );
     });
   }
+}
+
+Future<void> splitDisclaimer(
+    {@required BuildContext context,
+    @required bool hideDisclaimer,
+    @required Song song,
+    @required Function toggleHideDisclaimer,
+    @required int width,
+    muteAudio = true}) {
+  return showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Please record with headset or microphone for better quality',
+                  style: TextStyle(color: Colors.white, fontSize: 17),
+                ),
+                Container(
+                  margin: EdgeInsets.only(top: 10),
+                  alignment: Alignment.centerLeft,
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                        unselectedWidgetColor: Colors.white,
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent),
+                    child: CheckboxListTile(
+                      value: hideDisclaimer,
+                      onChanged: (val) {
+                        setState(() {
+                          hideDisclaimer = val;
+                        });
+                        toggleHideDisclaimer(val);
+                      },
+                      contentPadding: EdgeInsets.zero,
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: Text(
+                        'Do not show this again',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      ),
+                      activeColor: Colors.blue,
+                    ),
+                  ),
+                )
+              ],
+            ),
+            actions: [
+              TextButton(
+                child: Text('OK',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
+                onPressed: () {
+                  print('value saved is $hideDisclaimer');
+                  preferencesHelper.saveValue(
+                      key: 'hideRecordDisclaimer', value: hideDisclaimer);
+                  if (muteAudio)
+                    Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => MuteVocalsScreen(
+                          song: song,
+                          width: width,
+                        ),
+                      ),
+                    );
+                  else
+                    Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(
+                        builder: (_) => Split(
+                          song: song,
+                          width: width,
+                        ),
+                      ),
+                    );
+                },
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

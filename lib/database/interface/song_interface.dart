@@ -16,9 +16,10 @@ abstract class SongInterface {
   watchSongs();
   Stream<List<Song>> streamAllSongs();
   renameSong(
-      {@required String fileName,
+      {@required String musicid,
       @required String artistName,
       @required String songName});
+  clear();
 }
 
 abstract class SplitSongInterface {

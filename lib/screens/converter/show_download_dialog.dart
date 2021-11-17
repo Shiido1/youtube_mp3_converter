@@ -11,6 +11,7 @@ Future<String> showDownloadDialog(
     String artist,
     String fileName,
     bool download = true,
+    String musicid,
     bool showAll,
     bool split = true}) {
   TextEditingController songController =
@@ -123,7 +124,7 @@ Future<String> showDownloadDialog(
                                               .getSongs(showAll);
                                         } else {
                                           await SongRepository.renameSong(
-                                              fileName: fileName,
+                                              musicid: musicid,
                                               artistName:
                                                   artistController.text.trim(),
                                               songName:

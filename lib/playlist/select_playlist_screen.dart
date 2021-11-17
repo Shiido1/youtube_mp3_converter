@@ -6,7 +6,8 @@ import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:provider/provider.dart';
 
-Future<Widget> selectPlayListScreen({BuildContext context, String songName}) {
+Future<Widget> selectPlayListScreen(
+    {BuildContext context, String musicid, String songName}) {
   MusicProvider _musicProvider;
   ScrollController _scrollController = ScrollController();
   _musicProvider = Provider.of<MusicProvider>(context, listen: false);
@@ -15,7 +16,7 @@ Future<Widget> selectPlayListScreen({BuildContext context, String songName}) {
   playlists.sort((a, b) =>
       a.toString().toLowerCase().compareTo(b.toString().toLowerCase()));
   List<bool> selected = List.generate(playlists.length, (index) => false);
-  songs.add(songName);
+  songs.add(musicid);
   bool showOkButton = false;
   List playListName = [];
   String selectedAction = 'add';

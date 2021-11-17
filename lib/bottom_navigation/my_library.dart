@@ -229,19 +229,23 @@ class _LibraryState extends State<Library> {
                                               SongViewScreen(e, width),
                                               context);
                                         },
-                                        child: CachedNetworkImage(
-                                          imageUrl: e.image,
-                                          errorWidget: (context, data, _) =>
-                                              Container(
-                                            color: Colors.white54,
-                                            height: 30,
-                                            width: 150,
-                                            child: Icon(
-                                              Icons.error,
-                                              size: 35,
-                                            ),
-                                          ),
-                                        ),
+                                        child: Container(
+                                            color: Colors.white,
+                                            height: 50,
+                                            width: 80),
+                                        // child: CachedNetworkImage(
+                                        //   imageUrl: e.image,
+                                        //   errorWidget: (context, data, _) =>
+                                        //       Container(
+                                        //     color: Colors.white54,
+                                        //     height: 30,
+                                        //     width: 150,
+                                        //     child: Icon(
+                                        //       Icons.error,
+                                        //       size: 35,
+                                        //     ),
+                                        //   ),
+                                        // ),
                                       ),
                                     ),
                                   )

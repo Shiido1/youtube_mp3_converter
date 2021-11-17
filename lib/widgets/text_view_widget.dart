@@ -10,6 +10,7 @@ class TextViewWidget extends StatelessWidget {
   final int maxLines;
   final TextAlign textAlign;
   final Color color;
+  final TextOverflow overflow;
 
   bool showIconPicker;
   IconData iconData;
@@ -25,6 +26,7 @@ class TextViewWidget extends StatelessWidget {
       this.textAlign = TextAlign.left,
       this.maxLines,
       this.showIconPicker = false,
+      this.overflow = TextOverflow.visible,
       this.iconData,
       this.onTapCallBack});
 
@@ -45,6 +47,7 @@ class TextViewWidget extends StatelessWidget {
             text,
             maxLines: maxLines,
             textAlign: textAlign,
+            overflow: overflow,
             style: TextStyle(
                 color: color,
                 fontWeight: fontWeight,

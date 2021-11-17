@@ -173,26 +173,13 @@ class _SearchState extends State<Search> {
                             children: [
                               ListTile(
                                 leading: SizedBox(
-                                    width: 95,
-                                    height: 150,
-                                    child: _song?.image != null &&
-                                            _song.image.isNotEmpty
-                                        ? CachedNetworkImage(
-                                            imageUrl: _song.image,
-                                            placeholder: (context, index) =>
-                                                Container(
-                                              child: Center(
-                                                  child: SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child:
-                                                          CircularProgressIndicator())),
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    new Icon(Icons.error),
-                                          )
-                                        : null),
+                                  width: 95,
+                                  height: 150,
+                                  child: _song?.artWork != null &&
+                                          _song.artWork.isNotEmpty
+                                      ? Image.memory(_song.artWork)
+                                      : Image.asset('assets/new_icon.png'),
+                                ),
                                 title: InkWell(
                                   onTap: () {
                                     _musicProvider.songs =

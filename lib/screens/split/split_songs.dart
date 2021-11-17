@@ -7,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/split/provider/split_song_provider.dart';
+import 'package:mp3_music_converter/screens/split/sing_along.dart';
 import 'package:mp3_music_converter/screens/split/split.dart';
 import 'package:mp3_music_converter/screens/split/split_song_drawer.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -28,17 +29,31 @@ class _SplitScreenState extends State<SplitScreen> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   Song selectedSong;
   RefreshController _refreshController = RefreshController();
+  bool hideDisclaimer = false;
 
   @override
   void initState() {
     _splitSongProvider = Provider.of<SplitSongProvider>(context, listen: false);
     _splitSongProvider.getSongs(true);
     super.initState();
+    getBoolDisclaimer();
   }
 
   _onRefresh() async {
     await _splitSongProvider.getSongs(true);
     _refreshController.refreshCompleted();
+  }
+
+  getBoolDisclaimer() async {
+    bool exists =
+        await preferencesHelper.doesExists(key: 'hideRecordDisclaimer');
+    hideDisclaimer = exists
+        ? await preferencesHelper.getBoolValues(key: 'hideRecordDisclaimer')
+        : false;
+  }
+
+  toggleHideDisclaimer(bool val) {
+    hideDisclaimer = val;
   }
 
   @override
@@ -63,18 +78,19 @@ class _SplitScreenState extends State<SplitScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            child: TextButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all(Colors.red[700])),
-                onPressed: () {
-                  synchronizeSplitSong(context);
-                },
-                child: Text('Sync split',
-                    style: TextStyle(color: Colors.white, fontSize: 17))),
-          )
+          Container(),
+          // Padding(
+          //   padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          //   child: TextButton(
+          //       style: ButtonStyle(
+          //           backgroundColor:
+          //               MaterialStateProperty.all(Colors.red[700])),
+          //       onPressed: () {
+          //         synchronizeSplitSong(context);
+          //       },
+          //       child: Text('Sync split',
+          //           style: TextStyle(color: Colors.white, fontSize: 17))),
+          // )
         ],
       ),
       endDrawer: SplitSongDrawer(selectedSong, true),
@@ -111,15 +127,24 @@ class _SplitScreenState extends State<SplitScreen> {
                 GestureDetector(
                   onTap: () {
                     int width = MediaQuery.of(context).size.width.floor();
-                    Navigator.push(
-                      context,
-                      CupertinoPageRoute(
-                        builder: (_) => Split(
+                    if (!hideDisclaimer)
+                      splitDisclaimer(
+                          context: context,
+                          hideDisclaimer: hideDisclaimer,
+                          toggleHideDisclaimer: toggleHideDisclaimer,
                           song: _song,
                           width: width,
+                          muteAudio: false);
+                    else
+                      Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                          builder: (_) => Split(
+                            song: _song,
+                            width: width,
+                          ),
                         ),
-                      ),
-                    );
+                      );
                   },
                   child: ListTile(
                     leading: SizedBox(
@@ -155,7 +180,7 @@ class _SplitScreenState extends State<SplitScreen> {
                         fontFamily: 'Roboto-Regular',
                       ),
                     ),
-                    trailing: InkWell(
+                    trailing: GestureDetector(
                       onTap: () {
                         setState(() {
                           selectedSong = _song;
@@ -188,78 +213,78 @@ class _SplitScreenState extends State<SplitScreen> {
   }
 }
 
-synchronizeSplitSong(BuildContext context) async {
-  String url = "http://67.205.165.56/api/mylib";
-  String token = await preferencesHelper.getStringValues(key: 'token');
-  SplitSongProvider _provider =
-      Provider.of<SplitSongProvider>(context, listen: false);
-  _provider.getSongs(true);
-  final snackBar = SnackBar(
-    content: Text('Failed to synchronize songs. Please try again later'),
-    backgroundColor: Colors.red,
-  );
+// synchronizeSplitSong(BuildContext context) async {
+//   String url = "http://67.205.165.56/api/mylib";
+//   String token = await preferencesHelper.getStringValues(key: 'token');
+//   SplitSongProvider _provider =
+//       Provider.of<SplitSongProvider>(context, listen: false);
+//   _provider.getSongs(true);
+//   final snackBar = SnackBar(
+//     content: Text('Failed to synchronize songs. Please try again later'),
+//     backgroundColor: Colors.red,
+//   );
 
-  try {
-    final response = await http.post(url,
-        body: jsonEncode({'token': token}),
-        headers: {'Content-Type': 'application/json'});
-    if (response.statusCode == 200) {
-      Map data = jsonDecode(response.body);
-      print(data['sepratedsongs']);
-      List<Song> splitSongs = _provider.allSongs;
-      List<String> songTitle = [];
-      Map<String, Map> songDetails = {};
+//   try {
+//     final response = await http.post(url,
+//         body: jsonEncode({'token': token}),
+//         headers: {'Content-Type': 'application/json'});
+//     if (response.statusCode == 200) {
+//       Map data = jsonDecode(response.body);
+//       print(data['sepratedsongs']);
+//       List<Song> splitSongs = _provider.allSongs;
+//       List<String> songTitle = [];
+//       Map<String, Map> songDetails = {};
 
-      for (Map item in data['sepratedsongs']) {
-        String voice, others, image, musicid, artistName, songName;
-        int vocalid, othersid;
-        musicid = item['topsong']['musicid'].toString();
-        artistName = item['topsong']['artist'] ?? 'Unknown Artist';
-        songName = item['topsong']['songname'] ?? 'Unknown';
+//       for (Map item in data['sepratedsongs']) {
+//         String voice, others, image, musicid, artistName, songName;
+//         int vocalid, othersid;
+//         musicid = item['topsong']['musicid'].toString();
+//         artistName = item['topsong']['artist'] ?? 'Unknown Artist';
+//         songName = item['topsong']['songname'] ?? 'Unknown';
 
-        item['songs'].forEach((val) {
-          if (val['title'] == 'voice') {
-            voice = val['path'];
-            image = val['image'][0] == "/"
-                ? "https://youtubeaudio.com" + val['image']
-                : val['image'];
-            vocalid = val['libid'];
-          } else if (val['title'] == 'others') {
-            others = val['path'];
-            othersid = val['libid'];
-          }
-        });
-        songDetails.putIfAbsent(
-            item['topsong']['title'],
-            () => {
-                  'voice': voice,
-                  'others': others,
-                  'image': image,
-                  'vocalid': vocalid,
-                  'othersid': othersid,
-                  'songName': songName,
-                  'artistName': artistName,
-                  'musicid': musicid
-                });
-        for (Song song in splitSongs) {
-          if (item['topsong']['title'] == song.splitFileName) {
-            songTitle.add(song.splitFileName);
-            break;
-          }
-        }
-      }
-      for (String title in songTitle) {
-        songDetails.remove(title);
-      }
+//         item['songs'].forEach((val) {
+//           if (val['title'] == 'voice') {
+//             voice = val['path'];
+//             image = val['image'][0] == "/"
+//                 ? "https://youtubeaudio.com" + val['image']
+//                 : val['image'];
+//             vocalid = val['libid'];
+//           } else if (val['title'] == 'others') {
+//             others = val['path'];
+//             othersid = val['libid'];
+//           }
+//         });
+//         songDetails.putIfAbsent(
+//             item['topsong']['title'],
+//             () => {
+//                   'voice': voice,
+//                   'others': others,
+//                   'image': image,
+//                   'vocalid': vocalid,
+//                   'othersid': othersid,
+//                   'songName': songName,
+//                   'artistName': artistName,
+//                   'musicid': musicid
+//                 });
+//         for (Song song in splitSongs) {
+//           if (item['topsong']['title'] == song.splitFileName) {
+//             songTitle.add(song.splitFileName);
+//             break;
+//           }
+//         }
+//       }
+//       for (String title in songTitle) {
+//         songDetails.remove(title);
+//       }
 
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  Downloads(syncSplitData: songDetails, syncSplit: true)));
-    } else
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-}
+//       Navigator.push(
+//           context,
+//           MaterialPageRoute(
+//               builder: (context) =>
+//                   Downloads(syncSplitData: songDetails, syncSplit: true)));
+//     } else
+//       ScaffoldMessenger.of(context).showSnackBar(snackBar);
+//   } catch (e) {
+//     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+//   }
+// }

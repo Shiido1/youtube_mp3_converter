@@ -44,8 +44,6 @@ class _SongViewScreenState extends State<SongViewScreen> {
     _musicProvider.playAudio(widget.song);
     _musicProvider.updateDrawer(widget.song);
     repeat = _musicProvider.repeatSong;
-    print(widget?.song?.libid);
-    print(widget?.song?.musicid);
     startTimer();
     super.initState();
     showAd(widget.width);
@@ -121,26 +119,35 @@ class _SongViewScreenState extends State<SongViewScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Expanded(
-                  child: CachedNetworkImage(
-                    imageUrl: _provider?.currentSong?.image ?? '',
-                    imageBuilder: (context, imageProvider) => Container(
-                      width: 280.0,
-                      height: 320.0,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        image: DecorationImage(
-                            image: imageProvider, fit: BoxFit.cover),
-                      ),
-                    ),
-                    placeholder: (context, url) =>
-                        Center(child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => Container(
-                        color: Colors.white54,
-                        width: 280.0,
-                        height: 320.0,
-                        child: Icon(Icons.error, size: 60)),
+                  child: SizedBox(
+                    height: 320,
+                    width: 280,
+                    child: _provider?.currentSong?.artWork != null &&
+                            _provider.currentSong.artWork.isNotEmpty
+                        ? Image.memory(_provider?.currentSong?.artWork)
+                        : Image.asset('assets/new_icon.png', fit: BoxFit.cover),
                   ),
+
+                  // CachedNetworkImage(
+                  //   imageUrl: _provider?.currentSong?.image ?? '',
+                  //   imageBuilder: (context, imageProvider) => Container(
+                  //     width: 280.0,
+                  //     height: 320.0,
+                  //     decoration: BoxDecoration(
+                  //       shape: BoxShape.rectangle,
+                  //       borderRadius: BorderRadius.all(Radius.circular(10)),
+                  //       image: DecorationImage(
+                  //           image: imageProvider, fit: BoxFit.cover),
+                  //     ),
+                  //   ),
+                  //   placeholder: (context, url) =>
+                  //       Center(child: CircularProgressIndicator()),
+                  //   errorWidget: (context, url, error) => Container(
+                  //       color: Colors.white54,
+                  //       width: 280.0,
+                  //       height: 320.0,
+                  //       child: Icon(Icons.error, size: 60)),
+                  // ),
                 ),
                 SizedBox(
                   height: 30,

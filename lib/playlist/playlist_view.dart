@@ -51,7 +51,7 @@ class _PlayListViewState extends State<PlayListView> {
     List<Song> allSongs = _musicProvider.allSongs;
     for (Song song in allSongs) {
       for (String name in songTitle) {
-        if (song.fileName == name) localSong.add(song);
+        if (song.musicid == name) localSong.add(song);
       }
     }
     _song = localSong;
@@ -122,27 +122,12 @@ class _PlayListViewState extends State<PlayListView> {
             decoration: BoxDecoration(
                 color: Color.fromRGBO(196, 196, 196, 1),
                 borderRadius: BorderRadius.circular(10)),
-            child: _song[0].image != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: CachedNetworkImage(
-                      imageUrl: _song[0]?.image ?? '',
-                      fit: BoxFit.cover,
-                      placeholder: (context, index) => Container(
-                        child: Center(
-                            child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator())),
-                      ),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
-                    ),
-                  )
-                : Text(
-                    widget.playListName.substring(0, 1),
-                    style: TextStyle(fontSize: 80, fontWeight: FontWeight.w900),
-                  ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: _song[0].artWork != null && _song[0].artWork.isNotEmpty
+                  ? Image.memory(_song[0].artWork)
+                  : Image.asset('assets/new_icon.png'),
+            ),
           ),
         ),
         SizedBox(height: 10),
@@ -306,21 +291,10 @@ class _PlayListViewState extends State<PlayListView> {
                   leading: SizedBox(
                       width: 95,
                       height: 150,
-                      child: _currentSong?.image != null &&
-                              _currentSong.image.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: _currentSong?.image ?? '',
-                              placeholder: (context, index) => Container(
-                                child: Center(
-                                    child: SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator())),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  new Icon(Icons.error),
-                            )
-                          : null),
+                      child: _currentSong?.artWork != null &&
+                              _currentSong.artWork.isNotEmpty
+                          ? Image.memory(_currentSong?.artWork)
+                          : Image.asset('assets/new_icon.png')),
                   title: GestureDetector(
                     onTap: () async {
                       _musicProvider.songs = _song;

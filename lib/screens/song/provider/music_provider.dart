@@ -56,6 +56,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     audioPlayer.onPlayerCompletion.listen((event) {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
+      print(playerType);
       switch (playerType) {
         case PlayerType.ALL:
           if (index != null && index < mediaItems.length - 1) {
@@ -295,10 +296,18 @@ class AudioPlayerTask extends BackgroundAudioTask {
   Future<void> onSkipToNext() async {
     List<MediaItem> mediaItems = AudioServiceBackground.queue;
 
-    if (index != null && index < mediaItems.length - 1) {
-      index = index + 1;
+    if (playerType == PlayerType.SHUFFLE) {
+      Random r = new Random();
+      int songIndex = index + r.nextInt(mediaItems.length);
+      index = songIndex;
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
+    } else {
+      if (index != null && index < mediaItems.length - 1) {
+        index = index + 1;
+        AudioServiceBackground.setMediaItem(mediaItems[index]);
+        AudioService.customAction(PLAY_ACTION);
+      }
     }
   }
 
@@ -306,10 +315,18 @@ class AudioPlayerTask extends BackgroundAudioTask {
   Future<void> onSkipToPrevious() async {
     List<MediaItem> mediaItems = AudioServiceBackground.queue;
 
-    if (index != null && index > 0) {
-      index = index - 1;
+    if (playerType == PlayerType.SHUFFLE) {
+      Random r = new Random();
+      int songIndex = r.nextInt(index);
+      index = songIndex;
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
+    } else {
+      if (index != null && index > 0) {
+        index = index - 1;
+        AudioServiceBackground.setMediaItem(mediaItems[index]);
+        AudioService.customAction(PLAY_ACTION);
+      }
     }
   }
 
@@ -445,7 +462,7 @@ class MusicProvider with ChangeNotifier {
   int get songNumber => _currentSongIndex + 1;
   String currentSongID = '';
   AudioPlayerState audioPlayerState;
-  String sharedText = '';
+  // String sharedText = '';
   BuildContext context;
 
   void setContext(BuildContext context) {
@@ -470,9 +487,9 @@ class MusicProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateSharedText(String shared) {
-    sharedText = shared;
-  }
+  // void updateSharedText(String shared) {
+  //   sharedText = shared;
+  // }
 
   Future<void> initProvider() async {
     SongRepository.init();
@@ -494,6 +511,8 @@ class MusicProvider with ChangeNotifier {
 
   Future<void> getSongs() async {
     allSongs = await SongRepository.getSongs();
+    allSongs.sort(
+        (a, b) => a.songName.toLowerCase().compareTo(b.songName.toLowerCase()));
     notifyListeners();
   }
 
@@ -513,6 +532,7 @@ class MusicProvider with ChangeNotifier {
   }
 
   updateSong(Song song) {
+    print('happened');
     songs.forEach((element) {
       if (element.fileName == song.fileName) {
         element = song;

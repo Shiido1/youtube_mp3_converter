@@ -6,9 +6,11 @@ class Song {
   String songName = 'Unknown';
   String image;
   String vocalName;
+  List artWork;
   int libid;
   int vocalLibid;
   String musicid;
+  int size;
   String artistName = 'Unknown';
   bool favorite = false;
   DateTime lastPlayDate;
@@ -27,6 +29,8 @@ class Song {
       this.artistName,
       this.vocalLibid,
       this.favorite,
+      this.size,
+      this.artWork,
       this.lastPlayDate,
       this.splitFileName,
       this.libid,
@@ -38,7 +42,9 @@ class Song {
     songMap["fileName"] = fileName;
     songMap["songName"] = songName;
     songMap["artistName"] = artistName;
+    songMap["size"] = size;
     songMap["image"] = image;
+    songMap["artWork"] = artWork;
     songMap['libid'] = libid;
     songMap['vocalLibid'] = vocalLibid;
     songMap["file"] = file;
@@ -56,7 +62,9 @@ class Song {
     this.artistName = songMap["artistName"];
     this.filePath = songMap["filePath"];
     this.image = songMap["image"];
+    this.size = songMap["size"];
     this.musicid = songMap["musicid"];
+    this.artWork = songMap["artWork"];
     this.vocalLibid = songMap['vocalLibid'];
     this.libid = songMap['libid'];
     this.favorite = songMap["favorite"] == null ? false : songMap["favorite"];

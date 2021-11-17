@@ -27,11 +27,12 @@ class SongRepository {
   static getPlayListNames() => _services.getPlayListNames();
   static getFavoriteSongs() => _services.getFavoriteSongs();
   static Stream<List<Song>> streamAllSongs() => _services.streamAllSongs();
+  static clear() => _services.clear();
   static removeSongsFromPlaylistAterDelete(String songName) =>
       _services.removeSongsFromPlaylistAterDelete(songName);
-  static renameSong({String fileName, String artistName, String songName}) =>
+  static renameSong({String musicid, String artistName, String songName}) =>
       _services.renameSong(
-          fileName: fileName, songName: songName, artistName: artistName);
+          musicid: musicid, songName: songName, artistName: artistName);
 }
 
 class SplitSongRepository {

@@ -33,18 +33,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   SignUpProviders _signUpProvider;
   CustomProgressIndicator _progressIndicator;
+  GoogleSignIn googleSign = GoogleSignIn(
+    scopes: ['email', 'profile'],
+  );
+  String url = 'https://youtubeaudio.com/api/google_callback_api';
 
-  void googleSignIn() async {
-    GoogleSignIn googleSign = GoogleSignIn(
-      scopes: ['email', 'profile'],
-    );
-    String url = 'https://youtubeaudio.com/api/google_callback_api';
+  void handleGoogleSignIn(GoogleSignInAccount account) async {
+    if (account != null) {
+      GoogleSignInAuthentication auth = await account.authentication;
 
-    try {
-      await googleSign.signOut();
-      final gresult = await googleSign.signIn();
-      final auth = await gresult?.authentication;
-      if (auth != null) {
+      try {
         _progressIndicator.show();
         final response = await http.post(
           url,
@@ -103,13 +101,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
               backgroundColor: Colors.white,
               textColor: Colors.black);
         }
-      }
-    } catch (e) {
-      _progressIndicator.dismiss();
-      showToast(context,
-          message: 'An error occurred. Check your internet connection',
+      } catch (e) {
+        _progressIndicator.dismiss();
+        showToast(
+          context,
+          message: 'Operation failed',
           backgroundColor: Colors.white,
-          textColor: Colors.black);
+          textColor: Colors.black,
+        );
+      }
+    }
+  }
+
+  void googleSignIn() async {
+    try {
+      if (await googleSign.isSignedIn()) await googleSign.signOut();
+      GoogleSignInAccount gresult = await googleSign.signIn();
+      handleGoogleSignIn(gresult);
+    } catch (e) {
+      showToast(
+        context,
+        message: 'An error occurred. Check your internet connection.',
+        backgroundColor: Colors.white,
+        textColor: Colors.black,
+      );
       print(e);
     }
   }

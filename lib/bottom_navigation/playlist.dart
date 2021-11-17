@@ -37,14 +37,14 @@ class _PlayListState extends State<PlayList> {
       if (_musicProvider.playListSongTitle.length > 1 &&
           _musicProvider.playListSongTitle[0] == null) {
         for (Song song in allSongs)
-          if (song.fileName == _musicProvider.playListSongTitle[1])
-            songImages.add(song.image);
+          if (song.musicid == _musicProvider.playListSongTitle[1])
+            songImages.add(song.artWork);
       }
       if (_musicProvider.playListSongTitle.length > 0 &&
           _musicProvider.playListSongTitle[0] != null) {
         for (Song song in allSongs)
-          if (song.fileName == _musicProvider.playListSongTitle[0])
-            songImages.add(song.image);
+          if (song.musicid == _musicProvider.playListSongTitle[0])
+            songImages.add(song.artWork);
       }
       if (_musicProvider.playListSongTitle.length == 1 &&
           _musicProvider.playListSongTitle[0] == null) {
@@ -156,40 +156,13 @@ class _PlayListState extends State<PlayList> {
                                   decoration: BoxDecoration(
                                       color: Color.fromRGBO(196, 196, 196, 1),
                                       borderRadius: BorderRadius.circular(4)),
-                                  child: playlistImage != null &&
-                                          playlistImage.isNotEmpty &&
-                                          playlistImage[index] != null
-                                      ? ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                          child: CachedNetworkImage(
-                                            imageUrl: playlistImage[index],
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, index) =>
-                                                Container(
-                                              child: Center(
-                                                  child: SizedBox(
-                                                      width: 20,
-                                                      height: 20,
-                                                      child:
-                                                          CircularProgressIndicator())),
-                                            ),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    new Icon(Icons.error),
-                                          ),
-                                        )
-                                      : Center(
-                                          child: Text(
-                                            playlist[index]
-                                                .toString()
-                                                .toUpperCase()
-                                                .substring(0, 1),
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 25),
-                                          ),
-                                        ),
+                                  child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: playlistImage != null &&
+                                              playlistImage.isNotEmpty &&
+                                              playlistImage[index] != null
+                                          ? Image.memory(playlistImage[index])
+                                          : Image.asset('assets/new_icon.png')),
                                 ),
                                 SizedBox(width: 20),
                                 Expanded(

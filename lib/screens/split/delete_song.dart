@@ -110,8 +110,10 @@ class DeleteSongs {
                     'Are you sure you want to delete this song?',
                     style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
-                  if ((song?.musicid != null && song.musicid.isNotEmpty) ||
-                      (record?.musicid != null && record.musicid.isNotEmpty))
+                  if (((song?.musicid != null && song.musicid.isNotEmpty) ||
+                          (record?.musicid != null &&
+                              record.musicid.isNotEmpty)) &&
+                      split == false)
                     Container(
                       margin: EdgeInsets.only(top: 10),
                       alignment: Alignment.centerLeft,
@@ -130,7 +132,9 @@ class DeleteSongs {
                           contentPadding: EdgeInsets.zero,
                           controlAffinity: ListTileControlAffinity.leading,
                           title: Text(
-                            'Remove from library?',
+                            song == null
+                                ? 'Remove from library?'
+                                : "Delete permanently?",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -182,47 +186,76 @@ Future<void> deleteSong(
   String token = await preferencesHelper.getStringValues(key: 'token');
 
   if (removeFromLib) {
-    try {
-      var response = await http.post('https://youtubeaudio.com/api/deletesong',
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({
-            'token': token,
-            'id': song != null ? song.musicid : record.musicid
-          }));
-      print(jsonDecode(response.body));
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        if (responseData['message']
-            .toString()
-            .toLowerCase()
-            .contains('deleted')) {
-          deleteSong2(
-              song: song,
-              record: record,
-              context: context,
-              split: split,
-              showAll: showAll);
-        } else if (responseData['message'].toString().contains('not') &&
-            responseData['message'].toString().contains('found'))
-          showToast(context, message: 'Song not found in library');
-        else
+    if (song == null) {
+      try {
+        var response = await http.post(
+            'https://youtubeaudio.com/api/deletesong',
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'token': token,
+              'id': song != null ? song.musicid : record.musicid
+            }));
+        print(jsonDecode(response.body));
+        if (response.statusCode == 200) {
+          var responseData = jsonDecode(response.body);
+          if (responseData['message']
+              .toString()
+              .toLowerCase()
+              .contains('deleted')) {
+            deleteSong2(
+                song: song,
+                record: record,
+                context: context,
+                split: split,
+                showAll: showAll);
+          } else if (responseData['message'].toString().contains('not') &&
+              responseData['message'].toString().contains('found'))
+            showToast(context, message: 'Song not found in library');
+          else
+            showToast(context,
+                message: 'Failed to delete song from library. Try again');
+        } else
           showToast(context,
               message: 'Failed to delete song from library. Try again');
-      } else
+      } catch (e) {
         showToast(context,
-            message: 'Failed to delete song from library. Try again');
-    } catch (e) {
-      showToast(context,
-          message:
-              'Failed to delete song from library. Please check your internet connection and try again.');
+            message:
+                'Failed to delete song from library. Please check your internet connection and try again.');
+      }
+    } else {
+      deleteSong2(
+          song: song,
+          record: record,
+          context: context,
+          split: split,
+          showAll: showAll);
     }
   } else {
-    deleteSong2(
-        song: song,
-        record: record,
-        context: context,
-        split: split,
-        showAll: showAll);
+    if (song == null) {
+      deleteSong2(
+          song: song,
+          record: record,
+          context: context,
+          split: split,
+          showAll: showAll);
+    } else {
+      if (!split) {
+        SongRepository.deleteSong(song.musicid);
+        Provider.of<MusicProvider>(context, listen: false).getSongs();
+        SongRepository.removeSongsFromPlaylistAterDelete(song.musicid);
+        Navigator.pop(context);
+      }
+      if (split) {
+        SplitSongRepository.deleteSong(song.splitFileName);
+        Provider.of<SplitSongProvider>(context, listen: false)
+            .getSongs(showAll);
+        Navigator.pop(context);
+      }
+      showToast(context,
+          message: 'Song deleted',
+          backgroundColor: Colors.white,
+          textColor: Colors.black);
+    }
   }
 }
 
@@ -261,9 +294,9 @@ Future<void> deleteSong2(
           backgroundColor: Colors.white,
           textColor: Colors.black);
       if (!split) {
-        SongRepository.deleteSong(song.fileName);
+        SongRepository.deleteSong(song.musicid);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
-        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
+        SongRepository.removeSongsFromPlaylistAterDelete(song.musicid);
         Navigator.pop(context);
       }
       if (split) {
@@ -274,9 +307,9 @@ Future<void> deleteSong2(
       }
     } catch (_) {
       if (!split) {
-        SongRepository.deleteSong(song.fileName);
+        SongRepository.deleteSong(song.musicid);
         Provider.of<MusicProvider>(context, listen: false).getSongs();
-        SongRepository.removeSongsFromPlaylistAterDelete(song.fileName);
+        SongRepository.removeSongsFromPlaylistAterDelete(song.musicid);
         Navigator.pop(context);
       }
       if (split) {

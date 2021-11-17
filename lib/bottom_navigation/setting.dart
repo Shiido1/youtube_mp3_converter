@@ -1,7 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/chat/chat_home.dart';
 import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_follow.dart';
+import 'package:mp3_music_converter/screens/storage/storage.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
@@ -33,6 +35,7 @@ class _SettingState extends State<Setting> {
                       text: 'Forgot Password', screen: ForgotPassword()),
                   bodyContainer(text: 'Search User', screen: SearchFollow()),
                   bodyContainer(text: 'Chat', screen: ChatHome()),
+                  bodyContainer(text: 'Storage', screen: Storage()),
                   // bodyContainer(text: 'Notification'),
                   // bodyContainer(text: 'Privacy'),
                 ])),
@@ -70,7 +73,7 @@ class _SettingState extends State<Setting> {
                 )
               : Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => screen),
+                  CupertinoPageRoute(builder: (context) => screen),
                 );
         },
         child: Container(

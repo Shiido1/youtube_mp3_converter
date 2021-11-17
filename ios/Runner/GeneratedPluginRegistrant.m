@@ -4,6 +4,12 @@
 
 #import "GeneratedPluginRegistrant.h"
 
+#if __has_include(<advance_pdf_viewer/FlutterPluginPdfViewerPlugin.h>)
+#import <advance_pdf_viewer/FlutterPluginPdfViewerPlugin.h>
+#else
+@import advance_pdf_viewer;
+#endif
+
 #if __has_include(<audio_service/AudioServicePlugin.h>)
 #import <audio_service/AudioServicePlugin.h>
 #else
@@ -106,6 +112,12 @@
 @import flutter_speech;
 #endif
 
+#if __has_include(<flutter_tts/FlutterTtsPlugin.h>)
+#import <flutter_tts/FlutterTtsPlugin.h>
+#else
+@import flutter_tts;
+#endif
+
 #if __has_include(<geocoder/GeocoderPlugin.h>)
 #import <geocoder/GeocoderPlugin.h>
 #else
@@ -160,6 +172,12 @@
 @import path_provider;
 #endif
 
+#if __has_include(<pdf_text/PdfTextPlugin.h>)
+#import <pdf_text/PdfTextPlugin.h>
+#else
+@import pdf_text;
+#endif
+
 #if __has_include(<permission_handler/PermissionHandlerPlugin.h>)
 #import <permission_handler/PermissionHandlerPlugin.h>
 #else
@@ -211,6 +229,7 @@
 @implementation GeneratedPluginRegistrant
 
 + (void)registerWithRegistry:(NSObject<FlutterPluginRegistry>*)registry {
+  [FlutterPluginPdfViewerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPluginPdfViewerPlugin"]];
   [AudioServicePlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioServicePlugin"]];
   [AudioSessionPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioSessionPlugin"]];
   [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
@@ -228,6 +247,7 @@
   [FlutterPaystackPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPaystackPlugin"]];
   [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [FlutterSpeechRecognitionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterSpeechRecognitionPlugin"]];
+  [FlutterTtsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterTtsPlugin"]];
   [GeocoderPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocoderPlugin"]];
   [GeocodingPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeocodingPlugin"]];
   [GeolocatorPlugin registerWithRegistrar:[registry registrarForPlugin:@"GeolocatorPlugin"]];
@@ -237,6 +257,7 @@
   [ImageDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageDownloaderPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];
+  [PdfTextPlugin registerWithRegistrar:[registry registrarForPlugin:@"PdfTextPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
   [RaveFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"RaveFlutterPlugin"]];
   [FLTSharePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSharePlugin"]];

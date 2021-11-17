@@ -51,7 +51,7 @@ class _MyAppState extends State<MyApp> {
       DeviceOrientation.portraitUp,
     ]);
 
-    WidgetsBinding.instance.addObserver(LifeCycleHandler());
+    // WidgetsBinding.instance.addObserver(LifeCycleHandler());
 
     // print('man man man');
     return MultiProvider(
@@ -115,22 +115,22 @@ class _WrapperState extends State<Wrapper> {
   }
 }
 
-class LifeCycleHandler extends WidgetsBindingObserver {
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print('resumed');
-        break;
-      case AppLifecycleState.inactive:
-        print('inactive');
-        break;
-      case AppLifecycleState.paused:
-        print('paused');
-        break;
-      case AppLifecycleState.detached:
-        print('detached');
-        break;
-    }
-  }
-}
+// class LifeCycleHandler extends WidgetsBindingObserver {
+//   @override
+//   void didChangeAppLifecycleState(AppLifecycleState state) {
+//     switch (state) {
+//       case AppLifecycleState.resumed:
+//         print('resumed');
+//         break;
+//       case AppLifecycleState.inactive:
+//         print('inactive');
+//         break;
+//       case AppLifecycleState.paused:
+//         print('paused');
+//         break;
+//       case AppLifecycleState.detached:
+//         print('detached');
+//         break;
+//     }
+//   }
+// }

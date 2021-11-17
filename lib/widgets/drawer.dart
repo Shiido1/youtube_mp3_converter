@@ -7,6 +7,7 @@ import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart'
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
 import 'package:mp3_music_converter/screens/recorded/public_share.dart';
 import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
+import 'package:mp3_music_converter/screens/split/split_loader.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
@@ -114,7 +115,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
   @override
   Widget build(BuildContext context) {
-    print(_musicProvider.drawerItem.libid);
     return Consumer<MusicProvider>(
       builder: (_, _provider, __) {
         return Padding(
@@ -132,24 +132,18 @@ class _AppDrawerState extends State<AppDrawer> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          _provider?.drawerItem?.image?.isNotEmpty ?? false
-                              ? Expanded(
-                                  child: Container(
-                                      height: 60,
-                                      width: 50,
-                                      child: CachedNetworkImage(
-                                        imageUrl: _provider?.drawerItem?.image,
-                                        errorWidget: (context, data, _) =>
-                                            Container(
-                                          margin: EdgeInsets.only(right: 15),
-                                          color: Colors.white54,
-                                          child: Icon(
-                                            Icons.error,
-                                            size: 40,
-                                          ),
-                                        ),
-                                      )))
-                              : Container(),
+                          Expanded(
+                            child: Container(
+                              height: 60,
+                              width: 50,
+                              child: _provider
+                                          ?.drawerItem?.artWork?.isNotEmpty ??
+                                      false
+                                  ? Image.memory(_provider?.drawerItem?.artWork)
+                                  : Image.asset('assets/new_icon.png',
+                                      fit: BoxFit.cover),
+                            ),
+                          ),
                           _provider?.drawerItem?.songName?.isNotEmpty ?? false
                               ? Expanded(
                                   child: ListTile(
@@ -241,8 +235,10 @@ class _AppDrawerState extends State<AppDrawer> {
                         InkWell(
                           onTap: () async {
                             PageRouter.goBack(context);
-                            buildShareOptions(context,
-                                song: _provider.drawerItem);
+                            Share.shareFiles([
+                              File('${_provider.drawerItem.filePath}/${_provider.drawerItem.fileName}')
+                                  .path
+                            ]);
                           },
                           child: Column(
                             children: [
@@ -278,13 +274,13 @@ class _AppDrawerState extends State<AppDrawer> {
                             _musicProvider.playLists.isEmpty
                                 ? createPlayListScreen(
                                     context: context,
-                                    songName:
-                                        _musicProvider.drawerItem.fileName,
+                                    musicid: _musicProvider.drawerItem.musicid,
                                     showToastMessage: true)
                                 : selectPlayListScreen(
                                     context: context,
                                     songName:
-                                        _musicProvider.drawerItem.fileName);
+                                        _musicProvider.drawerItem.fileName,
+                                    musicid: _musicProvider.drawerItem.musicid);
                           },
                           leading: Icon(
                             Icons.add_box_outlined,
@@ -311,7 +307,7 @@ class _AppDrawerState extends State<AppDrawer> {
                                 context: context,
                                 artist: song.artistName,
                                 song: song.songName,
-                                fileName: song.fileName,
+                                musicid: song.musicid,
                                 download: false,
                                 split: false);
                           },
@@ -368,61 +364,78 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Future splitSongMethod() async {
     String userToken = await preferencesHelper.getStringValues(key: 'token');
-    _progressIndicator.show();
-    String result = '${_musicProvider.drawerItem.filePath}/'
-        '${_musicProvider.drawerItem.fileName}';
-    var splitFiles = await SplitAssistant.splitFile(
-      filePath: result,
-      userToken: userToken,
-    );
-    await _progressIndicator.dismiss();
-    if (splitFiles['reply'] == "success") {
-      Map splitData = await SplitAssistant.saveSplitFiles(
-        decodedData: splitFiles['data'],
-        userToken: userToken,
-        artistName: _musicProvider?.drawerItem?.artistName,
-        songName: _musicProvider?.drawerItem?.songName,
-      );
-      if (_permissionReady) {
-        if (splitData['reply'] == 'success') {
-          showToast(context,
-              message:
-                  'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
-              duration: 15,
-              backgroundColor: Colors.blue[400],
-              textColor: Colors.black);
-          String voiceUrl = splitFiles['data']["files"]["voice"];
-          String otherUrl = splitFiles['data']["files"]["other"];
-          _apiSplitList = ['', ''];
-          _apiSplitList.insert(0, otherUrl);
-          _apiSplitList.insert(1, voiceUrl);
-          Song newSong = _musicProvider?.drawerItem;
-          newSong.musicid = splitFiles['data']['id'].toString();
-          newSong.vocalLibid = splitData['data']['vocalid'];
-          newSong.libid = splitData['data']['othersid'];
+    if ((_musicProvider.drawerItem.size / 1000000.0).ceil() <= 20) {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          barrierColor: Colors.black87,
+          builder: (_) {
+            return SplitLoader();
+          });
 
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => Downloads(
-                      apiSplitList: _apiSplitList,
-                      localPath: _localPath,
-                      song: newSong)));
+      String result = '${_musicProvider.drawerItem.filePath}/'
+          '${_musicProvider.drawerItem.fileName}';
+      var splitFiles = await SplitAssistant.splitFile(
+        filePath: result,
+        userToken: userToken,
+      );
+      if (Provider.of<SplitLoaderProvider>(context, listen: false).isShowing)
+        Navigator.pop(context);
+      if (splitFiles['reply'] == "success") {
+        Map splitData = await SplitAssistant.saveSplitFiles(
+          decodedData: splitFiles['data'],
+          userToken: userToken,
+          artistName: _musicProvider?.drawerItem?.artistName,
+          songName: _musicProvider?.drawerItem?.songName,
+        );
+        if (_permissionReady) {
+          if (splitData['reply'] == 'success') {
+            // showToast(context,
+            //     message:
+            //         'Song has been successfully split and saved to Library. If download fails, you can retry from the history page or use the sync button in Voice Over or Sing Along to pull your changes.',
+            //     duration: 15,
+            //     backgroundColor: Colors.blue[400],
+            //     textColor: Colors.black);
+            String voiceUrl = splitFiles['data']["files"]["voice"];
+            String otherUrl = splitFiles['data']["files"]["other"];
+            _apiSplitList = ['', ''];
+            _apiSplitList.insert(0, otherUrl);
+            _apiSplitList.insert(1, voiceUrl);
+            Song newSong = _musicProvider?.drawerItem;
+            newSong.musicid = splitFiles['data']['id'].toString();
+            newSong.vocalLibid = splitData['data']['vocalid'];
+            newSong.libid = splitData['data']['othersid'];
+
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Downloads(
+                        apiSplitList: _apiSplitList,
+                        localPath: _localPath,
+                        song: newSong)));
+          } else {
+            showToast(context, message: splitData['data']);
+          }
         } else {
-          showToast(context, message: splitData['data']);
+          _buildNoPermissionWarning();
         }
+      } else if (splitFiles['data'] ==
+          'please subscribe to enjoy this service') {
+        // await _progressIndicator.dismiss();
+        showSubscriptionMessage(context);
+      } else if (splitFiles['data'] == "insufficient storage") {
+        // await _progressIndicator.dismiss();
+        insufficientStorageWarning(context);
       } else {
-        _buildNoPermissionWarning();
+        // await _progressIndicator.dismiss();
+        showToast(context, message: 'An error occurred');
       }
-    } else if (splitFiles['data'] == 'please subscribe to enjoy this service') {
-      // await _progressIndicator.dismiss();
-      showSubscriptionMessage(context);
-    } else if (splitFiles['data'] == "insufficient storage") {
-      // await _progressIndicator.dismiss();
-      insufficientStorageWarning(context);
     } else {
-      // await _progressIndicator.dismiss();
-      showToast(context, message: 'An error occurred');
+      showToast(context,
+          message: 'File exceeds 20MB limit. Please select another file',
+          duration: 6,
+          gravity: 1,
+          backgroundColor: Colors.red[700]);
     }
   }
 
@@ -528,58 +541,58 @@ Future<void> insufficientStorageWarning(BuildContext context) {
       });
 }
 
-Future<Widget> buildShareOptions(BuildContext context, {Song song}) {
-  return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Color.fromRGBO(40, 40, 40, 1),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextButton(
-                onPressed: () {
-                  showPrivateShareDialog(context, song);
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  'Private share',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-              Divider(
-                color: Colors.white,
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PublicShare(song.libid,
-                              vocalLibid: song.vocalLibid)));
-                },
-                child: Text(
-                  'Public share',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-              Divider(
-                color: Colors.white,
-              ),
-              TextButton(
-                onPressed: () async {
-                  PageRouter.goBack(context);
-                  Share.shareFiles(
-                      [File('${song.filePath}/${song.fileName}').path]);
-                },
-                child: Text(
-                  'Share to other apps',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ),
-            ],
-          ),
-        );
-      });
-}
+// Future<Widget> buildShareOptions(BuildContext context, {Song song}) {
+//   return showDialog(
+//       context: context,
+//       builder: (context) {
+//         return AlertDialog(
+//           backgroundColor: Color.fromRGBO(40, 40, 40, 1),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               TextButton(
+//                 onPressed: () {
+//                   showPrivateShareDialog(context, song);
+//                   Navigator.pop(context);
+//                 },
+//                 child: Text(
+//                   'Private share',
+//                   style: TextStyle(color: Colors.white, fontSize: 18),
+//                 ),
+//               ),
+//               Divider(
+//                 color: Colors.white,
+//               ),
+//               TextButton(
+//                 onPressed: () {
+//                   Navigator.pushReplacement(
+//                       context,
+//                       MaterialPageRoute(
+//                           builder: (context) => PublicShare(song.libid,
+//                               vocalLibid: song.vocalLibid)));
+//                 },
+//                 child: Text(
+//                   'Share to YoutubeAudio.com',
+//                   style: TextStyle(color: Colors.white, fontSize: 18),
+//                 ),
+//               ),
+//               Divider(
+//                 color: Colors.white,
+//               ),
+//               TextButton(
+//                 onPressed: () async {
+//                   PageRouter.goBack(context);
+//                   Share.shareFiles(
+//                       [File('${song.filePath}/${song.fileName}').path]);
+//                 },
+//                 child: Text(
+//                   'Share to other apps',
+//                   style: TextStyle(color: Colors.white, fontSize: 18),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         );
+//       });
+// }

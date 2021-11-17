@@ -190,25 +190,25 @@ class _ContactUsState extends State<ContactUs> {
                     cursorHeight: 15,
                     style: TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedErrorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      hintText: 'Comments',
-                      hintStyle: TextStyle(color: Colors.white54),
-                    ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedErrorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.red),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        hintText: 'Comments',
+                        hintStyle: TextStyle(color: Colors.white54),
+                        counterText: ''),
                     validator: (val) {
                       return val.trim().isEmpty
                           ? "Please enter your comment"

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -56,9 +57,7 @@ class _FolderListState extends State<FolderList> {
         ),
         actions: [
           createFolderOrSubfolder(
-              toCreate: whatToCreate.Folders,
-              title: 'Noname',
-              context: context),
+              toCreate: whatToCreate.Folders, context: context),
         ],
         // bottom: PreferredSize(
         //     child: Align(
@@ -70,14 +69,23 @@ class _FolderListState extends State<FolderList> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Consumer<BookwormProvider>(builder: (context, _provider, _) {
+          List folders = _provider?.allFolders;
+          folders?.sort((a, b) {
+            return a
+                .toString()
+                .toLowerCase()
+                .compareTo(b.toString().toLowerCase());
+          });
           return ListView.builder(
             itemBuilder: (context, index) {
               return Column(
                 children: [
                   MaterialButton(
                     onPressed: () {
-                      // Navigator.push(
-                      //     context, MaterialPageRoute(builder: (_) => CreateBook()));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => FolderDetails(folders[index])));
                     },
                     color: Colors.white12,
                     height: 60,
@@ -90,8 +98,9 @@ class _FolderListState extends State<FolderList> {
                         ),
                         SizedBox(width: 12),
                         Text(
-                          'Folder $index',
+                          folders[index],
                           style: TextStyle(color: Colors.white, fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
@@ -100,7 +109,7 @@ class _FolderListState extends State<FolderList> {
                 ],
               );
             },
-            itemCount: 6,
+            itemCount: folders.length,
           );
         }),
       ),
@@ -111,13 +120,13 @@ class _FolderListState extends State<FolderList> {
 Widget createFolderOrSubfolder(
     {@required whatToCreate toCreate,
     @required BuildContext context,
-    @required String title}) {
+    Folder folder}) {
   showTitleInputField() {
     return showDialog(
         context: context,
         barrierDismissible: false,
         builder: (_) {
-          return TitleInputField(toCreate);
+          return TitleInputField(toCreate, folder);
         });
   }
 
@@ -150,7 +159,8 @@ Widget createFolderOrSubfolder(
 
 class TitleInputField extends StatefulWidget {
   final whatToCreate toCreate;
-  TitleInputField(this.toCreate);
+  final Folder folder;
+  TitleInputField(this.toCreate, this.folder);
 
   @override
   _TitleInputFieldState createState() => _TitleInputFieldState();
@@ -176,7 +186,7 @@ class _TitleInputFieldState extends State<TitleInputField> {
     token = await preferencesHelper.getStringValues(key: 'token');
   }
 
-  createFolder({@required String title, @required String token}) async {
+  createFolder(String title) async {
     String url = "https://youtubeaudio.com/api/book/createfolder";
 
     _progressIndicator.show();
@@ -187,11 +197,19 @@ class _TitleInputFieldState extends State<TitleInputField> {
 
     if (response.statusCode == 200) {
       Map data = jsonDecode(response.body);
+
       if (data['message'].toString().toLowerCase().contains('created')) {
         showToast(context,
             message: 'Folder created',
             backgroundColor: Colors.green,
             gravity: 1);
+        // BookwormServices().createFolder(Folder(name: data[]));
+        BookwormServices().createFolder(Folder(
+            name: data['data']['title'],
+            books: [],
+            id: data['data']['id'].toString(),
+            subfolders: []));
+        Provider.of<BookwormProvider>(context, listen: false).getFolders();
         Navigator.pop(context);
       } else
         setState(() {
@@ -214,7 +232,59 @@ class _TitleInputFieldState extends State<TitleInputField> {
     }
   }
 
-  createSubfolder() async {}
+  createSubfolder({@required String title, @required Folder folder}) async {
+    String url = "https://youtubeaudio.com/api/book/createsubfolder";
+
+    _progressIndicator.show();
+    print(folder.id);
+    final response = await http.post(url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'title': title, 'token': token, 'fid': folder.id}));
+    _progressIndicator.dismiss();
+
+    print(response.statusCode);
+    print(jsonDecode(response.body));
+
+    if (response.statusCode == 200) {
+      Map data = jsonDecode(response.body);
+      List dataList = data['data'];
+      Map details = dataList.firstWhere((e) {
+        return e['name'] == title;
+      });
+      if (data['message'].toString().toLowerCase().contains('created')) {
+        showToast(context,
+            message: 'Subfolder created',
+            backgroundColor: Colors.green,
+            gravity: 1);
+        BookwormServices().createSubfolder(Subfolder(
+            name: details['name'],
+            fname: folder.name,
+            books: [],
+            id: details['id'].toString(),
+            fid: details['folder_id'].toString()));
+        Provider.of<BookwormProvider>(context, listen: false)
+            .getFolderContents(folder.name);
+        Navigator.pop(context);
+      } else
+        setState(() {
+          error = data['message'].toString();
+          showError = true;
+        });
+    } else {
+      try {
+        Map data = jsonDecode(response.body);
+        setState(() {
+          error = data['message'].toString();
+          showError = true;
+        });
+      } catch (e) {
+        setState(() {
+          error = 'An error occurred';
+          showError = true;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,13 +308,14 @@ class _TitleInputFieldState extends State<TitleInputField> {
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   autofocus: true,
                   decoration: InputDecoration(
-                    hintText: widget.toCreate == whatToCreate.Folders
-                        ? 'Name of folder'
-                        : 'Name of subfolder',
-                    hintStyle: TextStyle(color: Colors.black38),
-                  ),
+                      hintText: widget.toCreate == whatToCreate.Folders
+                          ? 'Name of folder'
+                          : 'Name of subfolder',
+                      hintStyle: TextStyle(color: Colors.black38),
+                      counterText: ''),
                   controller: _textEditingController,
                   textCapitalization: TextCapitalization.words,
+                  maxLength: 20,
                   validator: (val) {
                     return val.trim().isEmpty ? 'Please enter a name' : null;
                   },
@@ -277,9 +348,10 @@ class _TitleInputFieldState extends State<TitleInputField> {
                         showError = false;
                       });
                       widget.toCreate == whatToCreate.Folders
-                          ? createFolder(
-                              title: _textEditingController.text, token: token)
-                          : createSubfolder();
+                          ? createFolder(_textEditingController.text)
+                          : createSubfolder(
+                              folder: widget.folder,
+                              title: _textEditingController.text);
                     },
                     child: Text(
                       'Create',

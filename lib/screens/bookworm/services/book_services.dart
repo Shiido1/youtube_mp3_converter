@@ -65,6 +65,7 @@ class BookwormServices {
   createSubfolder(Subfolder subfolder) async {
     if (!(_subfolderBox?.isOpen ?? false))
       _subfolderBox = await openSubfolderBox();
+    if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
     Map folders = _folderBox.get(subfolder.fname);
     if (folders != null) {
       List subfolds = folders['subfolders'];
@@ -72,7 +73,8 @@ class BookwormServices {
       folders['subfolders'] = subfolds;
       _folderBox.put(subfolder.fname, folders);
     }
-    _folderBox.put(subfolder.name, subfolder.toJson());
+
+    _subfolderBox.put(subfolder.name, subfolder.toJson());
   }
 
   Future<Subfolder> getSubfolderContents(String subfolderName) async {
@@ -99,16 +101,25 @@ class BookwormServices {
     _subfolderBox.put(newName, contents);
   }
 
-  deleteSubfolder(String subfolderName) async {
+  deleteSubfolder(Subfolder subfolder) async {
     if (!(_subfolderBox?.isOpen ?? false))
       _subfolderBox = await openSubfolderBox();
     if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
-    Map subfolder = _subfolderBox.get(subfolderName);
-    List books = subfolder['books'] ?? [];
+    if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
+
+    Map subfolderDetails = _subfolderBox.get(subfolder.name);
+    List books = subfolderDetails['books'] ?? [];
     for (int i = 0; i < books.length; i++) {
       _bookBox.delete(books[i]);
     }
-    _subfolderBox.delete(subfolderName);
+    Map folders = _folderBox.get(subfolder.fname);
+    if (folders != null) {
+      List subfolds = folders['subfolders'];
+      subfolds.remove(subfolder.name);
+      folders['subfolders'] = subfolds;
+      _folderBox.put(subfolder.fname, folders);
+    }
+    _subfolderBox.delete(subfolder.name);
   }
 
   //books

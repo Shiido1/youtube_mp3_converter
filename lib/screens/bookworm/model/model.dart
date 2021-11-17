@@ -4,7 +4,8 @@ class Folder {
   List books;
   List subfolders;
 
-  Folder({this.name, this.id, this.books, this.subfolders});
+  Folder(
+      {this.name, this.id, this.books = const [], this.subfolders = const []});
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> folderMap = Map();
@@ -30,7 +31,7 @@ class Subfolder {
   List books;
   String fname;
 
-  Subfolder({this.name, this.id, this.books, this.fid, this.fname});
+  Subfolder({this.name, this.id, this.books = const [], this.fid, this.fname});
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> subfolderMap = Map();

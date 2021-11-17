@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:provider/provider.dart';
@@ -21,11 +22,11 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
   @override
   void initState() {
     _bookwormProvider = Provider.of<BookwormProvider>(context, listen: false);
-    _bookwormProvider.currentFolder = null;
-    _bookwormProvider.getFolderContents(widget.subfolderName);
+    _bookwormProvider.currentSubfolder = null;
+    _bookwormProvider.getSubfolderContents(widget.subfolderName);
     _scrollController = ScrollController();
     _controller = TextEditingController(
-      text: widget.folderName + ' > ' + widget.subfolderName,
+      text: widget.folderName + r' \ ' + widget.subfolderName,
     )..addListener(() {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       });
@@ -61,6 +62,11 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
             color: AppColor.bottomRed,
           ),
         ),
+      ),
+      body: Stack(
+        children: [
+          Positioned(bottom: 20, right: 20, child: AddBookIcon()),
+        ],
       ),
     );
   }

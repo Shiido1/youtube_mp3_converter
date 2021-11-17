@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -113,10 +114,14 @@ class _FolderDetailsState extends State<FolderDetails> {
                         children: [
                           MaterialButton(
                             onPressed: () {
-                              // Navigator.push(
-                              //     context, MaterialPageRoute(builder: (_) => CreateBook()));
-                              print(_provider.currentFolder.toJson());
-                              _provider.getSubfolderContents(subfolders[index]);
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => SubfolderDetails(
+                                          widget.folderName,
+                                          subfolders[index])));
+                              // print(_provider.currentFolder.toJson());
+                              // _provider.getSubfolderContents(subfolders[index]);
                             },
                             color: Colors.white12,
                             height: 60,

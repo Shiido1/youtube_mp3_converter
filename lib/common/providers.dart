@@ -1,3 +1,4 @@
+import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/change_password/provider/change_password_provider.dart';
 import 'package:mp3_music_converter/screens/converter/provider/converter_provider.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
@@ -22,6 +23,7 @@ class Providers {
     ChangeNotifierProvider<SignUpProviders>(create: (_) => SignUpProviders()),
     ChangeNotifierProvider<OtpProviders>(create: (_) => OtpProviders()),
     ChangeNotifierProvider<UtilityProvider>(create: (_) => UtilityProvider()),
+    ChangeNotifierProvider<BookwormProvider>(create: (_) => BookwormProvider()),
     ChangeNotifierProvider<ConverterProvider>(
         create: (_) => ConverterProvider()),
     ChangeNotifierProvider<RadioProvider>(create: (_) => RadioProvider()),

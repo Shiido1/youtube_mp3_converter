@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
+import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
+import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 enum whatToCreate { Folders, SubFolders }
 
@@ -20,9 +24,12 @@ class FolderList extends StatefulWidget {
 
 class _FolderListState extends State<FolderList> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  BookwormProvider _bookwormProvider;
 
   @override
   void initState() {
+    _bookwormProvider = Provider.of<BookwormProvider>(context, listen: false);
+    _bookwormProvider.getFolders();
     super.initState();
   }
 
@@ -62,38 +69,40 @@ class _FolderListState extends State<FolderList> {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-        child: ListView.builder(
-          itemBuilder: (context, index) {
-            return Column(
-              children: [
-                MaterialButton(
-                  onPressed: () {
-                    // Navigator.push(
-                    //     context, MaterialPageRoute(builder: (_) => CreateBook()));
-                  },
-                  color: Colors.white12,
-                  height: 60,
-                  child: Row(
-                    children: [
-                      Icon(
-                        FontAwesomeIcons.solidFolder,
-                        size: 30,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 12),
-                      Text(
-                        'Folder $index',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                    ],
+        child: Consumer<BookwormProvider>(builder: (context, _provider, _) {
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              return Column(
+                children: [
+                  MaterialButton(
+                    onPressed: () {
+                      // Navigator.push(
+                      //     context, MaterialPageRoute(builder: (_) => CreateBook()));
+                    },
+                    color: Colors.white12,
+                    height: 60,
+                    child: Row(
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.solidFolder,
+                          size: 30,
+                          color: Colors.white,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Folder $index',
+                          style: TextStyle(color: Colors.white, fontSize: 18),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(height: 15),
-              ],
-            );
-          },
-          itemCount: 6,
-        ),
+                  SizedBox(height: 15),
+                ],
+              );
+            },
+            itemCount: 6,
+          );
+        }),
       ),
     );
   }
@@ -117,14 +126,23 @@ Widget createFolderOrSubfolder(
       showTitleInputField();
     },
     child: Container(
-      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
       margin: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       height: 35,
       width: 35,
-      child: Icon(
-        Icons.add,
-        color: Colors.white,
-        size: 30,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            color: Colors.red,
+            width: 20,
+            height: 14,
+          ),
+          Icon(
+            Icons.create_new_folder_rounded,
+            color: Colors.white,
+            size: 30,
+          ),
+        ],
       ),
     ),
   );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_details.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -114,6 +115,7 @@ class _FolderDetailsState extends State<FolderDetails> {
                         children: [
                           MaterialButton(
                             onPressed: () {
+                              // BookwormServices().deleteThis();
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -122,6 +124,10 @@ class _FolderDetailsState extends State<FolderDetails> {
                                           subfolders[index])));
                               // print(_provider.currentFolder.toJson());
                               // _provider.getSubfolderContents(subfolders[index]);
+                            },
+                            onLongPress: () {
+                              _provider.getSubfolderContents(subfolders[index]);
+                              showSubfolderOptions(context: context);
                             },
                             color: Colors.white12,
                             height: 60,
@@ -148,42 +154,23 @@ class _FolderDetailsState extends State<FolderDetails> {
                     },
                     itemCount: subfolders.length,
                   ),
-                  ListView.builder(
+                  GridView.builder(
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          MaterialButton(
-                            onPressed: () {
-                              // Navigator.push(
-                              //     context, MaterialPageRoute(builder: (_) => CreateBook()));
-                            },
-                            color: Colors.white12,
-                            height: 60,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  FontAwesomeIcons.solidFolder,
-                                  size: 30,
-                                  color: Colors.white,
-                                ),
-                                SizedBox(width: 12),
-                                Text(
-                                  _provider.currentFolder.books[index],
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 18),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 15),
-                        ],
+                      return Container(
+                        height: 300,
+                        color: Colors.blue,
                       );
                     },
-                    itemCount: _provider.currentFolder.books.length,
+                    // itemCount: _provider.currentFolder.books.length,
+                    itemCount: 6,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 10),
                   ),
+                  SizedBox(height: 60),
                 ],
               );
             }),

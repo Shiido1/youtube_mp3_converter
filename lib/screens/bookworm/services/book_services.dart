@@ -56,9 +56,25 @@ class BookwormServices {
 
   renameFolder({@required String oldName, @required String newName}) async {
     if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
-    Map contents = _folderBox.get(oldName);
+    if (!(_subfolderBox?.isOpen ?? false))
+      _subfolderBox = await openSubfolderBox();
+    if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
+    Map folder = _folderBox.get(oldName);
+    List subfolders = folder['subfolders'] ?? [];
+    List books = folder['books'] ?? [];
+    for (String subfolder in subfolders) {
+      Subfolder sub = Subfolder.fromMap(_subfolderBox.get(subfolder));
+      sub.fname = newName;
+      _subfolderBox.put(subfolder, sub.toJson());
+    }
+    for (String book in books) {
+      Book myBook = Book.fromMap(_bookBox.get(book));
+      myBook.fname = newName;
+      _bookBox.put(book, myBook.toJson());
+    }
     _folderBox.delete(oldName);
-    _folderBox.put(newName, contents);
+    folder['name'] = newName;
+    _folderBox.put(newName, folder);
   }
 
   //subfolders
@@ -88,6 +104,7 @@ class BookwormServices {
     if (!(_subfolderBox?.isOpen ?? false))
       _subfolderBox = await openSubfolderBox();
     if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
+    if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
     Map contents = _subfolderBox.get(subfolder.name);
     Map folders = _folderBox.get(subfolder.fname);
     if (folders != null) {
@@ -97,6 +114,13 @@ class BookwormServices {
       folders['subfolders'] = subfolds;
       _folderBox.put(subfolder.fname, folders);
     }
+    List books = contents['books'];
+    for (String book in books) {
+      Book myBook = Book.fromMap(_bookBox.get(book));
+      myBook.sname = newName;
+      _bookBox.put(book, myBook.toJson());
+    }
+    contents['name'] = newName;
     _subfolderBox.delete(subfolder.name);
     _subfolderBox.put(newName, contents);
   }
@@ -121,6 +145,17 @@ class BookwormServices {
     }
     _subfolderBox.delete(subfolder.name);
   }
+
+  // deleteThis() async {
+  //   if (!(_subfolderBox?.isOpen ?? false))
+  //     _subfolderBox = await openSubfolderBox();
+  //   if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
+  //   _subfolderBox.delete('Namtes');
+  //   Map folder = _folderBox.get('Notme');
+  //   List subfolder = folder['subfolders'];
+  //   subfolder.remove('Namtes');
+  //   _folderBox.put('Notme', folder);
+  // }
 
   //books
   addBook(Book book) async {

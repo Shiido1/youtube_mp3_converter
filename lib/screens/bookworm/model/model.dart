@@ -1,8 +1,8 @@
 class Folder {
   String name;
   String id;
-  List books;
-  List subfolders;
+  List books = [];
+  List subfolders = [];
 
   Folder(
       {this.name, this.id, this.books = const [], this.subfolders = const []});
@@ -28,7 +28,7 @@ class Subfolder {
   String name;
   String id;
   String fid;
-  List books;
+  List books = [];
   String fname;
 
   Subfolder({this.name, this.id, this.books = const [], this.fid, this.fname});

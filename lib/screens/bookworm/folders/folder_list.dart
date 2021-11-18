@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -86,6 +87,10 @@ class _FolderListState extends State<FolderList> {
                           context,
                           MaterialPageRoute(
                               builder: (_) => FolderDetails(folders[index])));
+                    },
+                    onLongPress: () {
+                      showFolderOptions(
+                          context: context, folderName: folders[index]);
                     },
                     color: Colors.white12,
                     height: 60,
@@ -189,100 +194,115 @@ class _TitleInputFieldState extends State<TitleInputField> {
   createFolder(String title) async {
     String url = "https://youtubeaudio.com/api/book/createfolder";
 
-    _progressIndicator.show();
-    final response = await http.post(url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'title': title, 'token': token}));
-    _progressIndicator.dismiss();
+    try {
+      _progressIndicator.show();
+      final response = await http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'title': title, 'token': token}));
+      _progressIndicator.dismiss();
 
-    if (response.statusCode == 200) {
-      Map data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
 
-      if (data['message'].toString().toLowerCase().contains('created')) {
-        showToast(context,
+        if (data['message'].toString().toLowerCase().contains('created')) {
+          showToast(
+            context,
             message: 'Folder created',
             backgroundColor: Colors.green,
-            gravity: 1);
-        // BookwormServices().createFolder(Folder(name: data[]));
-        BookwormServices().createFolder(Folder(
-            name: data['data']['title'],
-            books: [],
-            id: data['data']['id'].toString(),
-            subfolders: []));
-        Provider.of<BookwormProvider>(context, listen: false).getFolders();
-        Navigator.pop(context);
-      } else
-        setState(() {
-          error = data['message'].toString();
-          showError = true;
-        });
-    } else {
-      try {
-        Map data = jsonDecode(response.body);
-        setState(() {
-          error = data['message'].toString();
-          showError = true;
-        });
-      } catch (e) {
-        setState(() {
-          error = 'An error occurred';
-          showError = true;
-        });
+          );
+          // BookwormServices().createFolder(Folder(name: data[]));
+          BookwormServices().createFolder(Folder(
+              name: data['data']['title'],
+              books: [],
+              id: data['data']['id'].toString(),
+              subfolders: []));
+          Provider.of<BookwormProvider>(context, listen: false).getFolders();
+          Navigator.pop(context);
+        } else
+          setState(() {
+            error = data['message'].toString();
+            showError = true;
+          });
+      } else {
+        try {
+          Map data = jsonDecode(response.body);
+          setState(() {
+            error = data['message'].toString();
+            showError = true;
+          });
+        } catch (e) {
+          setState(() {
+            error = 'An error occurred';
+            showError = true;
+          });
+        }
       }
+    } catch (e) {
+      _progressIndicator.dismiss();
+      setState(() {
+        error = 'Failed. Check internet connection';
+        showError = true;
+      });
     }
   }
 
   createSubfolder({@required String title, @required Folder folder}) async {
     String url = "https://youtubeaudio.com/api/book/createsubfolder";
 
-    _progressIndicator.show();
-    print(folder.id);
-    final response = await http.post(url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'title': title, 'token': token, 'fid': folder.id}));
-    _progressIndicator.dismiss();
+    try {
+      _progressIndicator.show();
+      print(folder.id);
+      final response = await http.post(url,
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'title': title, 'token': token, 'fid': folder.id}));
+      _progressIndicator.dismiss();
 
-    print(response.statusCode);
-    print(jsonDecode(response.body));
-
-    if (response.statusCode == 200) {
-      Map data = jsonDecode(response.body);
-      List dataList = data['data'];
-      Map details = dataList.firstWhere((e) {
-        return e['name'] == title;
-      });
-      if (data['message'].toString().toLowerCase().contains('created')) {
-        showToast(context,
+      if (response.statusCode == 200) {
+        Map data = jsonDecode(response.body);
+        List dataList = data['data'];
+        Map details = dataList.firstWhere((e) {
+          return e['name'] == title;
+        });
+        if (data['message'].toString().toLowerCase().contains('created')) {
+          showToast(
+            context,
             message: 'Subfolder created',
             backgroundColor: Colors.green,
-            gravity: 1);
-        BookwormServices().createSubfolder(Subfolder(
-            name: details['name'],
-            fname: folder.name,
-            books: [],
-            id: details['id'].toString(),
-            fid: details['folder_id'].toString()));
-        Provider.of<BookwormProvider>(context, listen: false)
-            .getFolderContents(folder.name);
-        Navigator.pop(context);
-      } else
-        setState(() {
-          error = data['message'].toString();
-          showError = true;
-        });
-    } else {
-      try {
-        Map data = jsonDecode(response.body);
-        setState(() {
-          error = data['message'].toString();
-          showError = true;
-        });
-      } catch (e) {
-        setState(() {
-          error = 'An error occurred';
-          showError = true;
-        });
+          );
+          await BookwormServices().createSubfolder(Subfolder(
+              name: details['name'],
+              fname: folder.name,
+              books: [],
+              id: details['id'].toString(),
+              fid: details['folder_id'].toString()));
+          Provider.of<BookwormProvider>(context, listen: false)
+              .getFolderContents(folder.name);
+          Navigator.pop(context);
+        } else
+          setState(() {
+            error = data['message'].toString();
+            showError = true;
+          });
+      } else {
+        try {
+          Map data = jsonDecode(response.body);
+          setState(() {
+            error = data['message'].toString();
+            showError = true;
+          });
+        } catch (e) {
+          setState(() {
+            error = 'An error occurred';
+            showError = true;
+          });
+        }
       }
+    } catch (e) {
+      _progressIndicator.dismiss();
+      setState(() {
+        error = 'Failed. Check internet connection';
+        showError = true;
+      });
     }
   }
 
@@ -347,11 +367,12 @@ class _TitleInputFieldState extends State<TitleInputField> {
                       setState(() {
                         showError = false;
                       });
-                      widget.toCreate == whatToCreate.Folders
-                          ? createFolder(_textEditingController.text)
-                          : createSubfolder(
-                              folder: widget.folder,
-                              title: _textEditingController.text);
+                      if (_formKey.currentState.validate())
+                        widget.toCreate == whatToCreate.Folders
+                            ? createFolder(_textEditingController.text)
+                            : createSubfolder(
+                                folder: widget.folder,
+                                title: _textEditingController.text);
                     },
                     child: Text(
                       'Create',

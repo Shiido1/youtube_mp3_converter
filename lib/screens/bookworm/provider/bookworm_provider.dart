@@ -21,6 +21,7 @@ class BookwormProvider extends ChangeNotifier {
   getSubfolderContents(String subfolderName) async {
     currentSubfolder =
         await BookwormServices().getSubfolderContents(subfolderName);
+    print(currentSubfolder.toJson());
     notifyListeners();
   }
 

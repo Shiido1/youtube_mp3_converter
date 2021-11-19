@@ -73,12 +73,15 @@ dependencies:
   on_audio_query: ^1.0.2
   flutter_tts: ^2.1.0
   pdf_text: ^0.4.0
+  pdf_render: ^0.69.0
+  flutter_pdfview: ^1.0.4
   advance_pdf_viewer: ^1.2.2
   dropdown_search: ^0.6.3
   google_sign_in: ^4.5.9
   equalizer: 0.0.2+2
   flutter_xlider: ^3.4.0
   pull_to_refresh: ^2.0.0
+  page_transition: ^1.1.7+4
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -34,6 +34,12 @@
 @import cloud_functions;
 #endif
 
+#if __has_include(<device_info/FLTDeviceInfoPlugin.h>)
+#import <device_info/FLTDeviceInfoPlugin.h>
+#else
+@import device_info;
+#endif
+
 #if __has_include(<downloads_path_provider/DownloadsPathProviderPlugin.h>)
 #import <downloads_path_provider/DownloadsPathProviderPlugin.h>
 #else
@@ -98,6 +104,12 @@
 #import <flutter_paystack/FlutterPaystackPlugin.h>
 #else
 @import flutter_paystack;
+#endif
+
+#if __has_include(<flutter_pdfview/FLTPDFViewFlutterPlugin.h>)
+#import <flutter_pdfview/FLTPDFViewFlutterPlugin.h>
+#else
+@import flutter_pdfview;
 #endif
 
 #if __has_include(<flutter_radio/FlutterRadioPlugin.h>)
@@ -172,6 +184,12 @@
 @import path_provider;
 #endif
 
+#if __has_include(<pdf_render/PdfRenderPlugin.h>)
+#import <pdf_render/PdfRenderPlugin.h>
+#else
+@import pdf_render;
+#endif
+
 #if __has_include(<pdf_text/PdfTextPlugin.h>)
 #import <pdf_text/PdfTextPlugin.h>
 #else
@@ -234,6 +252,7 @@
   [AudioSessionPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioSessionPlugin"]];
   [AudioplayersPlugin registerWithRegistrar:[registry registrarForPlugin:@"AudioplayersPlugin"]];
   [FLTFirebaseFunctionsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTFirebaseFunctionsPlugin"]];
+  [FLTDeviceInfoPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTDeviceInfoPlugin"]];
   [DownloadsPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"DownloadsPathProviderPlugin"]];
   [EqualizerPlugin registerWithRegistrar:[registry registrarForPlugin:@"EqualizerPlugin"]];
   [FilePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FilePickerPlugin"]];
@@ -245,6 +264,7 @@
   [FlutterIsolatePlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterIsolatePlugin"]];
   [FlutterPayPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPayPlugin"]];
   [FlutterPaystackPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterPaystackPlugin"]];
+  [FLTPDFViewFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPDFViewFlutterPlugin"]];
   [FlutterRadioPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterRadioPlugin"]];
   [FlutterSpeechRecognitionPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterSpeechRecognitionPlugin"]];
   [FlutterTtsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FlutterTtsPlugin"]];
@@ -257,6 +277,7 @@
   [ImageDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageDownloaderPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];
+  [PdfRenderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PdfRenderPlugin"]];
   [PdfTextPlugin registerWithRegistrar:[registry registrarForPlugin:@"PdfTextPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
   [RaveFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"RaveFlutterPlugin"]];

@@ -30,7 +30,9 @@
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
         </provider>
 
-        <provider android:name="androidx.work.impl.WorkManagerInitializer" android:authorities="${applicationId}.workmanager-init" tools:node="remove" />
+        <provider android:name="androidx.startup.InitializationProvider" android:authorities="${applicationId}.androidx.startup" tools:node="merge" tools:replace="android:authorities">
+            <meta-data android:name="androidx.work.WorkManagerInitializer" android:value="androidx.startup" tools:node="remove"/>
+        </provider>
 
         <provider android:name="vn.hunghd.flutterdownloader.FlutterDownloaderInitializer" android:authorities="${applicationId}.flutter-downloader-init" android:exported="false">
             <!-- changes this number to configure the maximum number of concurrent tasks -->

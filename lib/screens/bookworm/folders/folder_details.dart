@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
@@ -7,6 +8,9 @@ import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+// import 'package:pdf_render/pdf_render_widgets.dart';
+import 'package:pdf_render/pdf_render_widgets2.dart';
+import 'package:pdf_text/pdf_text.dart';
 import 'package:provider/provider.dart';
 
 class FolderDetails extends StatefulWidget {
@@ -48,6 +52,8 @@ class _FolderDetailsState extends State<FolderDetails> {
   @override
   Widget build(BuildContext context) {
     Folder currentFolder = Provider.of<BookwormProvider>(context).currentFolder;
+    // Provider.of<BookwormProvider>(context, listen: false)
+    //     .getBookDetails(currentFolder?.books);
     return Scaffold(
       key: _scaffoldKey,
       endDrawerEnableOpenDragGesture: false,
@@ -145,10 +151,20 @@ class _FolderDetailsState extends State<FolderDetails> {
                                       color: Colors.white, fontSize: 18),
                                   overflow: TextOverflow.ellipsis,
                                 ),
+                                Spacer(),
+                                Icon(Icons.arrow_forward_ios,
+                                    color: Colors.white, size: 15),
+                                SizedBox(width: 5)
                               ],
                             ),
                           ),
-                          SizedBox(height: 15),
+                          SizedBox(
+                              height: index ==
+                                      _provider
+                                              .currentFolder.subfolders.length -
+                                          1
+                                  ? 20
+                                  : 10),
                         ],
                       );
                     },
@@ -158,16 +174,61 @@ class _FolderDetailsState extends State<FolderDetails> {
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
+                      List<Book> books = _provider.folderBooks;
+                      books.sort((a, b) {
+                        return a.name
+                            .toLowerCase()
+                            .compareTo(b.name.toLowerCase());
+                      });
                       return Container(
-                        height: 300,
-                        color: Colors.blue,
+                        height: 260,
+                        decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(5)),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // SizedBox(height: 0.1),
+                            Container(
+                              height: 220,
+                              margin: EdgeInsets.only(top: 8),
+                              child: books[index]?.path != null
+                                  ? ClipRRect(
+                                      borderRadius: BorderRadius.circular(5),
+                                      child: PdfDocumentLoader(
+                                        filePath: books[index].path,
+                                        pageNumber: 1,
+                                        pageBuilder: (context, textureBuilder,
+                                            pageSize) {
+                                          return textureBuilder(
+                                              backgroundFill: true,
+                                              size: pageSize);
+                                        },
+                                      ),
+                                    )
+                                  : Container(),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 7),
+                              child: Text(
+                                books[index].name,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
                       );
                     },
                     // itemCount: _provider.currentFolder.books.length,
-                    itemCount: 6,
+                    itemCount: _provider.folderBooks.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         mainAxisSpacing: 20,
+                        mainAxisExtent: 260,
                         crossAxisSpacing: 10),
                   ),
                   SizedBox(height: 60),
@@ -185,8 +246,18 @@ class _FolderDetailsState extends State<FolderDetails> {
 class AddBookIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    addBook() {
-      print('book added');
+    addBook() async {
+      FilePickerResult result = await FilePicker.platform
+          .pickFiles(allowedExtensions: ['pdf'], type: FileType.custom);
+      if (result != null) {
+        BookwormServices().addBook(Book(
+          fid: '9',
+          fname: 'Notme',
+          id: '28',
+          name: result.files.single.name,
+          path: result.files.single.path,
+        ));
+      }
     }
 
     return GestureDetector(

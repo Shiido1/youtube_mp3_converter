@@ -107,6 +107,10 @@ class _FolderListState extends State<FolderList> {
                           style: TextStyle(color: Colors.white, fontSize: 18),
                           overflow: TextOverflow.ellipsis,
                         ),
+                        Spacer(),
+                        Icon(Icons.arrow_forward_ios,
+                            color: Colors.white, size: 15),
+                        SizedBox(width: 5)
                       ],
                     ),
                   ),

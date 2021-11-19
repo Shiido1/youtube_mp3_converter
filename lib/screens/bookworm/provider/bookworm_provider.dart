@@ -18,14 +18,15 @@ class BookwormProvider extends ChangeNotifier {
 
   getFolderContents(String folderName) async {
     currentFolder = await BookwormServices().getFolderContents(folderName);
-    getBookDetails(currentFolder.books, location.Folder);
+    getBookDetails(currentFolder?.books, location.Folder);
     notifyListeners();
   }
 
   getSubfolderContents(String subfolderName) async {
     currentSubfolder =
         await BookwormServices().getSubfolderContents(subfolderName);
-    getBookDetails(currentSubfolder.books, location.Subfolder);
+    print(currentSubfolder.toJson());
+    getBookDetails(currentSubfolder?.books, location.Subfolder);
     notifyListeners();
   }
 

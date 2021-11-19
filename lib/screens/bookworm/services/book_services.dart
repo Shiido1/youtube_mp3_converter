@@ -164,21 +164,21 @@ class BookwormServices {
       _subfolderBox = await openSubfolderBox();
     if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
 
-    Map folder = _folderBox.get(book.fname);
-    if (folder != null) {
-      List books = folder['books'];
-      books.add(book.name);
-      folder['books'] = books;
-      _folderBox.put(book.fname, folder);
-    }
-
     if (book.sname != null && book.sname.isNotEmpty) {
       Map subfolder = _subfolderBox.get(book.sname);
       if (subfolder != null) {
         List books = subfolder['books'];
         books.add(book.name);
         subfolder['books'] = books;
-        _folderBox.put(book.sname, subfolder);
+        _subfolderBox.put(book.sname, subfolder);
+      }
+    } else {
+      Map folder = _folderBox.get(book.fname);
+      if (folder != null) {
+        List books = folder['books'];
+        books.add(book.name);
+        folder['books'] = books;
+        _folderBox.put(book.fname, folder);
       }
     }
     _bookBox.put(book.name, book.toJson());
@@ -190,21 +190,21 @@ class BookwormServices {
       _subfolderBox = await openSubfolderBox();
     if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
 
-    Map folder = _folderBox.get(book.fname);
-    if (folder != null) {
-      List books = folder['books'];
-      books.remove(book.name);
-      folder['books'] = books;
-      _folderBox.put(book.fname, folder);
-    }
-
     if (book.sname != null && book.sname.isNotEmpty) {
       Map subfolder = _subfolderBox.get(book.sname);
       if (subfolder != null) {
         List books = subfolder['books'];
         books.remove(book.name);
         subfolder['books'] = books;
-        _folderBox.put(book.sname, subfolder);
+        _subfolderBox.put(book.sname, subfolder);
+      }
+    } else {
+      Map folder = _folderBox.get(book.fname);
+      if (folder != null) {
+        List books = folder['books'];
+        books.remove(book.name);
+        folder['books'] = books;
+        _folderBox.put(book.fname, folder);
       }
     }
     _bookBox.delete(book.name);

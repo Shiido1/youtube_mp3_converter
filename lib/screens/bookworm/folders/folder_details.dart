@@ -1,12 +1,14 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/book_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
+import 'package:mp3_music_converter/screens/bookworm/view_book/view_book.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 // import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
@@ -175,51 +177,83 @@ class _FolderDetailsState extends State<FolderDetails> {
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       List<Book> books = _provider.folderBooks;
-                      books.sort((a, b) {
+                      books?.sort((a, b) {
                         return a.name
                             .toLowerCase()
                             .compareTo(b.name.toLowerCase());
                       });
-                      return Container(
-                        height: 260,
-                        decoration: BoxDecoration(
-                            color: Colors.white24,
-                            borderRadius: BorderRadius.circular(5)),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // SizedBox(height: 0.1),
-                            Container(
-                              height: 220,
-                              margin: EdgeInsets.only(top: 8),
-                              child: books[index]?.path != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(5),
-                                      child: PdfDocumentLoader(
-                                        filePath: books[index].path,
-                                        pageNumber: 1,
-                                        pageBuilder: (context, textureBuilder,
-                                            pageSize) {
-                                          return textureBuilder(
+                      return GestureDetector(
+                        onLongPress: () {
+                          showBookOptions(context, books[index]);
+                        },
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => ViewBook(books[index])));
+                        },
+                        child: Container(
+                          height: 260,
+                          decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // SizedBox(height: 0.1),
+                              Container(
+                                height: 220,
+                                margin: EdgeInsets.only(top: 8),
+                                child: books[index]?.path != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(5),
+                                        child: PdfDocumentLoader(
+                                          filePath: books[index].path,
+                                          pageNumber: 1,
+                                          pageBuilder: (context, textureBuilder,
+                                              pageSize) {
+                                            return textureBuilder(
                                               backgroundFill: true,
-                                              size: pageSize);
-                                        },
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 0, 8, 7),
-                              child: Text(
-                                books[index].name,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 16),
+                                              size: pageSize,
+                                              placeholderBuilder:
+                                                  (size, status) {
+                                                return Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation(
+                                                            Colors.white),
+                                                  ),
+                                                );
+                                              },
+                                            );
+                                          },
+                                          onError: (val) {
+                                            return Container(
+                                              height: 220,
+                                              width: double.infinity,
+                                              color: Colors.white,
+                                              child: Icon(Icons.warning_rounded,
+                                                  size: 60, color: Colors.red),
+                                            );
+                                          },
+                                        ),
+                                      )
+                                    : Container(),
                               ),
-                            ),
-                          ],
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 0, 8, 7),
+                                child: Text(
+                                  books[index].name,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
@@ -250,13 +284,17 @@ class AddBookIcon extends StatelessWidget {
       FilePickerResult result = await FilePicker.platform
           .pickFiles(allowedExtensions: ['pdf'], type: FileType.custom);
       if (result != null) {
-        BookwormServices().addBook(Book(
-          fid: '9',
-          fname: 'Notme',
-          id: '28',
-          name: result.files.single.name,
-          path: result.files.single.path,
-        ));
+        BookwormServices().addBook(
+          Book(
+            fid: '9',
+            fname: 'Notme',
+            id: '28',
+            name: result.files.single.name,
+            path: result.files.single.path,
+            sname: 'Greatest',
+            sid: '18',
+          ),
+        );
       }
     }
 

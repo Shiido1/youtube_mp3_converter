@@ -10,9 +10,15 @@ class BookwormProvider extends ChangeNotifier {
   List<Book> subfolderBooks = [];
   Folder currentFolder;
   Subfolder currentSubfolder;
+  bool showModal = true;
 
   getFolders() async {
     allFolders = await BookwormServices().getFolders();
+    notifyListeners();
+  }
+
+  updateShowModal(bool showModal) {
+    this.showModal = showModal;
     notifyListeners();
   }
 

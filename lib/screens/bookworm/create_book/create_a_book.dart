@@ -7,6 +7,7 @@ import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:syncfusion_flutter_pdf/pdf.dart' as sf;
 
 class CreateBook extends StatefulWidget {
   CreateBook({Key key}) : super(key: key);
@@ -27,44 +28,47 @@ class _CreateBookState extends State<CreateBook> {
   }
 
   createPdf(String text) async {
-    pw.Text yt = pw.Text(text);
-    print(PdfPageFormat.a4);
+    // pw.Text yt = pw.Text(text);
+    // print(PdfPageFormat.a4);
+    // final sf.PdfDocument doc = sf.PdfDocument();
 
-    // pdf.addPage(
-    //   pw.MultiPage(
-    //     pageFormat: PdfPageFormat.a4,
-    //     footer: (pw.Context context) {
-    //       return pw.Center(
-    //           child: pw.Container(
-    //         alignment: pw.Alignment.center,
-    //         width: 40,
-    //         padding: pw.EdgeInsets.all(5),
-    //         decoration: pw.BoxDecoration(
-    //           border: pw.Border.all(color: PdfColors.grey),
-    //           borderRadius: pw.BorderRadius.circular(4),
-    //         ),
-    //         child: pw.Text(
-    //           context.pageNumber.toString(),
-    //           style: pw.TextStyle(color: PdfColors.black),
-    //         ),
-    //       ));
-    //     },
-    //     build: (pw.Context context) {
-    //       return [
-    //         pw.Container(
-    //           child: pw.Text(text, textAlign: pw.TextAlign.justify),
-    //         )
-    //       ];
-    //     },
-    //   ),
-    // );
+    // doc.pages.add().graphics.drawString(s, font);
 
-    // final file = Platform.isAndroid
-    //     ? await DownloadsPathProvider.downloadsDirectory
-    //     : await getApplicationDocumentsDirectory();
-    // final output = File('${file.path}/mypdf.pdf');
-    // output.writeAsBytesSync(await pdf.save());
-    // print(file.path);
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        footer: (pw.Context context) {
+          return pw.Center(
+              child: pw.Container(
+            alignment: pw.Alignment.center,
+            width: 40,
+            padding: pw.EdgeInsets.all(5),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(color: PdfColors.grey),
+              borderRadius: pw.BorderRadius.circular(4),
+            ),
+            child: pw.Text(
+              context.pageNumber.toString(),
+              style: pw.TextStyle(color: PdfColors.black),
+            ),
+          ));
+        },
+        build: (pw.Context context) {
+          return [
+            pw.Column(children: [
+              pw.Text(text, textAlign: pw.TextAlign.justify),
+            ])
+          ];
+        },
+      ),
+    );
+
+    final file = Platform.isAndroid
+        ? await DownloadsPathProvider.downloadsDirectory
+        : await getApplicationDocumentsDirectory();
+    final output = File('${file.path}/mypdf.pdf');
+    output.writeAsBytesSync(await pdf.save());
+    print(file.path);
   }
 
   @override

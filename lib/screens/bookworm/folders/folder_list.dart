@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_options.dart';
@@ -343,6 +344,9 @@ class _TitleInputFieldState extends State<TitleInputField> {
                   controller: _textEditingController,
                   textCapitalization: TextCapitalization.words,
                   maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'\w')),
+                  ],
                   validator: (val) {
                     return val.trim().isEmpty ? 'Please enter a name' : null;
                   },

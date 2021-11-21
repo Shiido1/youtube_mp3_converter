@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -144,6 +145,9 @@ class _RenameSubfolderState extends State<RenameSubfolder> {
                 validator: (val) {
                   return val.trim().isEmpty ? 'Please enter a name' : null;
                 },
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'\w')),
+                ],
               ),
             ),
             if (showError) SizedBox(height: 10),

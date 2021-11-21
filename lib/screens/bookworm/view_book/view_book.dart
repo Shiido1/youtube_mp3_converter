@@ -4,8 +4,11 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
+import 'package:mp3_music_converter/screens/bookworm/view_book/voice_settings.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
 import 'package:pdf_text/pdf_text.dart';
 import 'package:provider/provider.dart';
@@ -23,18 +26,28 @@ class _ViewBookState extends State<ViewBook> {
   String text;
   PdfViewerController _controller;
   BookwormProvider provider;
-  FlutterTts flutterTts;
-  Map<String, String> male = {'name': 'en-gb-x-rjs-network', 'locale': 'en-GB'};
-  Map<String, String> female = {
-    'name': 'en-gb-x-gba-network',
-    'locale': 'en-GB'
-  };
+  FlutterTts flutterTtsp;
+
   int currentPage;
   int page;
   bool isPlaying = false;
   bool showGoTo = false;
   bool goToPageError = true;
   int goToPage;
+  bool update = true;
+  bool get shouldUpdate => update;
+
+  setVoice(Map<String, String> voice) async {
+    await flutterTtsp.setVoice(voice);
+  }
+
+  setPitch(double pitch) async {
+    await flutterTtsp.setPitch(pitch);
+  }
+
+  setRate(double rate) async {
+    await flutterTtsp.setSpeechRate(rate);
+  }
 
   speak() async {
     setState(() {
@@ -43,8 +56,11 @@ class _ViewBookState extends State<ViewBook> {
     page = _controller.currentPageNumber;
     doc = await PDFDoc.fromPath(widget.book.path);
     text = await doc.pageAt(page).text;
-    await flutterTts.awaitSpeakCompletion(true);
-    flutterTts.speak(text);
+    if (text != null && text.isNotEmpty) {
+      await flutterTtsp.awaitSpeakCompletion(true);
+      flutterTtsp.speak(text);
+    } else
+      flutterTtsp.completionHandler();
   }
 
   completionHandler() async {
@@ -53,8 +69,12 @@ class _ViewBookState extends State<ViewBook> {
       doc = await PDFDoc.fromPath(widget.book.path);
       text = await doc.pageAt(page).text;
       _controller.goToPage(pageNumber: page);
-      await flutterTts.awaitSpeakCompletion(true);
-      await flutterTts.speak(text);
+      if (text != null && text.isNotEmpty) {
+        await flutterTtsp.awaitSpeakCompletion(true);
+        await flutterTtsp.speak(text);
+      } else {
+        flutterTtsp.completionHandler();
+      }
     } else
       setState(() {
         isPlaying = false;
@@ -62,37 +82,68 @@ class _ViewBookState extends State<ViewBook> {
   }
 
   stop() async {
-    await flutterTts.stop();
+    await flutterTtsp.stop();
     setState(() {
       isPlaying = false;
     });
   }
 
   initTts() async {
-    flutterTts = FlutterTts();
-    flutterTts.setCompletionHandler(completionHandler);
+    flutterTtsp = FlutterTts();
+    flutterTtsp.setCompletionHandler(completionHandler);
+    flutterTtsp.setCancelHandler(() {
+      setState(() {
+        isPlaying = false;
+      });
+    });
+  }
+
+  getStoredSettings() async {
+    Map<String, String> voice = {
+      'name': 'en-gb-x-rjs-network',
+      'locale': 'en-GB'
+    };
+    bool pitchDataExists;
+    bool speechRateDataExists;
+    if (await preferencesHelper.doesExists(key: 'ttsVoice')) {
+      Map data = await preferencesHelper.getCachedData(key: 'ttsVoice');
+      voice = {'name': data['name'], 'locale': data['locale']};
+      print('i am here');
+    }
+    pitchDataExists = await preferencesHelper.doesExists(key: 'ttsPitch');
+    speechRateDataExists = await preferencesHelper.doesExists(key: 'ttsRate');
+
+    await flutterTtsp.setVoice(voice);
+    await flutterTtsp.setPitch(pitchDataExists
+        ? await preferencesHelper.getDoubleValues(key: 'ttsPitch')
+        : 1.0);
+
+    await flutterTtsp.setSpeechRate(speechRateDataExists
+        ? await preferencesHelper.getDoubleValues(key: 'ttsRate')
+        : 1.0);
   }
 
   @override
   void initState() {
     provider = Provider.of<BookwormProvider>(context, listen: false);
     initTts();
+    getStoredSettings();
     _controller = PdfViewerController();
     provider.showModal = true;
     currentPage = _controller.currentPageNumber;
-    _controller.addListener(() {
-      if (provider.showModal && currentPage == _controller.currentPageNumber)
-        provider.updateShowModal(false);
-      currentPage = _controller.currentPageNumber;
-    });
+    // _controller.addListener(() {
+    //   if (provider.showModal && this.mounted) provider.updateShowModal(false);
+    //   currentPage = _controller.currentPageNumber;
+    // });
     super.initState();
   }
 
   @override
   void dispose() {
+    update = false;
     _controller.removeListener(() {});
     _controller.dispose();
-    flutterTts.stop();
+    flutterTtsp.stop();
     super.dispose();
   }
 
@@ -128,37 +179,17 @@ class _ViewBookState extends State<ViewBook> {
                 onTap: () {
                   provider.updateShowModal(!provider.showModal);
                 },
-                // onHorizontalDragStart: (val) {
-                //   if (provider.showModal) provider.updateShowModal(false);
-                // },
-                // onVerticalDragStart: (val) {
-                //   if (provider.showModal) provider.updateShowModal(false);
-                // },
                 child: PdfViewer(
                   filePath: widget.book.path,
                   viewerController: _controller,
+                  onViewerControllerInitialized: (controller) {
+                    _controller.addListener(() {
+                      // if (this.mounted) provider.updateShowModal(false);
+                      if (shouldUpdate) print(shouldUpdate);
+                    });
+                  },
                 ),
               );
-              // ListView.builder(
-              //     itemCount: pageCount,
-              //     itemBuilder: (context, index) {
-              //       return PdfPageView(
-              //         pageNumber: index + 1,
-              //         pageBuilder: (context, textureBuilder, pageSize) {
-              //           return Container(
-              //             margin: EdgeInsets.all(10),
-              //             decoration: BoxDecoration(boxShadow: [
-              //               BoxShadow(
-              //                 color: Colors.black,
-              //                 blurRadius: 4,
-              //                 offset: Offset(2, 2),
-              //               ),
-              //             ]),
-              //             child: textureBuilder(),
-              //           );
-              //         },
-              //       );
-              //     }),
             },
           ),
           Consumer<BookwormProvider>(
@@ -183,12 +214,6 @@ class _ViewBookState extends State<ViewBook> {
           ),
         ],
       ),
-      // PdfViewer(
-      //   filePath: widget.book.path,
-      //   onViewerControllerInitialized: (PdfViewerController controller) {
-      //     _controller = controller;
-      //   },
-      // ),
     );
   }
 
@@ -203,6 +228,15 @@ class _ViewBookState extends State<ViewBook> {
           setState(() {
             showGoTo = true;
           });
+        if (name.toLowerCase() == 'voices') {
+          flutterTtsp.stop();
+          Navigator.push(
+            context,
+            PageTransition(
+                child: VoiceSettings(initTts),
+                type: PageTransitionType.bottomToTop),
+          );
+        }
       },
       child: Container(
         child: Column(
@@ -248,7 +282,7 @@ class _ViewBookState extends State<ViewBook> {
           icon: Icons.pages_outlined,
         ),
         controlButtons(
-          name: 'voices',
+          name: 'Voices',
           icon: Icons.people_outline_sharp,
         )
       ],

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
+import 'package:pdf_render/pdf_render_widgets2.dart';
+import 'package:pdf_text/pdf_text.dart';
 
 enum location { Folder, Subfolder }
 

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/screens/storage/contact_us.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:http/http.dart' as http;
@@ -17,6 +18,7 @@ class Storage extends StatefulWidget {
 
 class _StorageState extends State<Storage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  int totalSplitSongs;
 
   getProfileDetails() async {
     String baseUrl = "http://67.205.165.56/api/me";
@@ -28,15 +30,32 @@ class _StorageState extends State<Storage> {
         body: jsonEncode({'token': token}),
         headers: {'Content-Type': 'application/json'},
       );
-      print(response.statusCode);
-      print(jsonDecode(response.body));
       if (response.statusCode == 200) {
-        Map decodedResponse = jsonDecode(response.body);
-        print(decodedResponse);
-      } else {}
+        Map data = jsonDecode(response.body);
+        setState(() {
+          totalSplitSongs = int.parse(data['totalsplitsongs'].toString()) ?? 0;
+        });
+      } else {
+        showToast(context,
+            message: 'Request failed. Try again later',
+            backgroundColor: Colors.red,
+            textColor: Colors.white);
+        Navigator.pop(context);
+      }
     } catch (e) {
       print(e);
+      showToast(context,
+          message: 'An error occurred. Try again later',
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
+      Navigator.pop(context);
     }
+  }
+
+  @override
+  void initState() {
+    getProfileDetails();
+    super.initState();
   }
 
   @override
@@ -61,22 +80,36 @@ class _StorageState extends State<Storage> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context, CupertinoPageRoute(builder: (_) => ContactUs()));
-              },
-              child: Text(
-                'Contact Us',
-                style: TextStyle(
-                    fontFamily: 'Montserrat',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold),
-              ))
-        ],
-      ),
+      body: totalSplitSongs == null
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              child: Column(
+                children: [
+                  Text(
+                    'Total split songs: $totalSplitSongs',
+                    style: TextStyle(color: Colors.white, fontSize: 20),
+                  ),
+                  SizedBox(height: 40),
+                  Align(
+                    alignment: Alignment.center,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: (_) => ContactUs()));
+                      },
+                      child: Text(
+                        'Contact Us',
+                        style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

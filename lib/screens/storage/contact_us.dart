@@ -53,6 +53,7 @@ class _ContactUsState extends State<ContactUs> {
             message: 'Comment sent',
             backgroundColor: Colors.green,
             gravity: 1,
+            duration: 2,
             textColor: Colors.white);
         Navigator.pop(context);
       } else

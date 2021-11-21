@@ -6,6 +6,7 @@ import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/view_book/voice_settings.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:page_transition/page_transition.dart';
@@ -35,19 +36,6 @@ class _ViewBookState extends State<ViewBook> {
   bool goToPageError = true;
   int goToPage;
   bool update = true;
-  bool get shouldUpdate => update;
-
-  setVoice(Map<String, String> voice) async {
-    await flutterTtsp.setVoice(voice);
-  }
-
-  setPitch(double pitch) async {
-    await flutterTtsp.setPitch(pitch);
-  }
-
-  setRate(double rate) async {
-    await flutterTtsp.setSpeechRate(rate);
-  }
 
   speak() async {
     setState(() {
@@ -56,6 +44,9 @@ class _ViewBookState extends State<ViewBook> {
     page = _controller.currentPageNumber;
     doc = await PDFDoc.fromPath(widget.book.path);
     text = await doc.pageAt(page).text;
+    text = text.toString().trim();
+
+    print('text: $text');
     if (text != null && text.isNotEmpty) {
       await flutterTtsp.awaitSpeakCompletion(true);
       flutterTtsp.speak(text);
@@ -68,6 +59,7 @@ class _ViewBookState extends State<ViewBook> {
       page = page + 1;
       doc = await PDFDoc.fromPath(widget.book.path);
       text = await doc.pageAt(page).text;
+      print('textComp: $text');
       _controller.goToPage(pageNumber: page);
       if (text != null && text.isNotEmpty) {
         await flutterTtsp.awaitSpeakCompletion(true);
@@ -96,6 +88,11 @@ class _ViewBookState extends State<ViewBook> {
         isPlaying = false;
       });
     });
+    flutterTtsp.setErrorHandler((message) {
+      stop();
+      showToast(context, message: 'An error occurred while reading book');
+      print('this error occurred: $message');
+    });
   }
 
   getStoredSettings() async {
@@ -108,7 +105,6 @@ class _ViewBookState extends State<ViewBook> {
     if (await preferencesHelper.doesExists(key: 'ttsVoice')) {
       Map data = await preferencesHelper.getCachedData(key: 'ttsVoice');
       voice = {'name': data['name'], 'locale': data['locale']};
-      print('i am here');
     }
     pitchDataExists = await preferencesHelper.doesExists(key: 'ttsPitch');
     speechRateDataExists = await preferencesHelper.doesExists(key: 'ttsRate');
@@ -139,8 +135,13 @@ class _ViewBookState extends State<ViewBook> {
   }
 
   @override
-  void dispose() {
+  void deactivate() {
     update = false;
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
     flutterTtsp.stop();
@@ -184,8 +185,7 @@ class _ViewBookState extends State<ViewBook> {
                   viewerController: _controller,
                   onViewerControllerInitialized: (controller) {
                     _controller.addListener(() {
-                      // if (this.mounted) provider.updateShowModal(false);
-                      if (shouldUpdate) print(shouldUpdate);
+                      if (update) provider.updateShowModal(false);
                     });
                   },
                 ),
@@ -229,7 +229,7 @@ class _ViewBookState extends State<ViewBook> {
             showGoTo = true;
           });
         if (name.toLowerCase() == 'voices') {
-          flutterTtsp.stop();
+          stop();
           Navigator.push(
             context,
             PageTransition(

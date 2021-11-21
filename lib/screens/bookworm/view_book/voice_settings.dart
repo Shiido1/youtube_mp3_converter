@@ -57,12 +57,15 @@ class _VoiceSettingsState extends State<VoiceSettings> {
     Map voice;
     bool pitchDataExists;
     bool speechRateDataExists;
-    if (await preferencesHelper.doesExists(key: 'ttsVoice'))
-      voice = await preferencesHelper.getCachedData(key: 'ttsVoice');
+    if (await preferencesHelper.doesExists(key: 'ttsVoice')) {
+      Map data = await preferencesHelper.getCachedData(key: 'ttsVoice');
+      voice = {'name': data['name'], 'locale': data['locale']};
+      print('this is $voice');
+    }
     pitchDataExists = await preferencesHelper.doesExists(key: 'ttsPitch');
     speechRateDataExists = await preferencesHelper.doesExists(key: 'ttsRate');
 
-    groupValue = voice == null || voice == male ? 1 : 2;
+    groupValue = voice == null || voice['name'] == male['name'] ? 1 : 2;
     pitch = pitchDataExists
         ? await preferencesHelper.getDoubleValues(key: 'ttsPitch')
         : 1.0;

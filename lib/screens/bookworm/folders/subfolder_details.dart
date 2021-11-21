@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/view_book/view_book.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
 import 'package:provider/provider.dart';
 
@@ -93,9 +94,11 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
                     },
                     onTap: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => ViewBook(books[index])));
+                        context,
+                        PageTransition(
+                            child: ViewBook(books[index]),
+                            type: PageTransitionType.fade),
+                      );
                     },
                     child: Container(
                       height: 260,

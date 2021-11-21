@@ -10,6 +10,7 @@ import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
 import 'package:mp3_music_converter/screens/bookworm/view_book/view_book.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:page_transition/page_transition.dart';
 // import 'package:pdf_render/pdf_render_widgets.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
 import 'package:pdf_text/pdf_text.dart';
@@ -125,11 +126,13 @@ class _FolderDetailsState extends State<FolderDetails> {
                             onPressed: () {
                               // BookwormServices().deleteThis();
                               Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (_) => SubfolderDetails(
-                                          widget.folderName,
-                                          subfolders[index])));
+                                context,
+                                PageTransition(
+                                    child: SubfolderDetails(
+                                        widget.folderName, subfolders[index]),
+                                    type: PageTransitionType.rightToLeft),
+                              );
+
                               // print(_provider.currentFolder.toJson());
                               // _provider.getSubfolderContents(subfolders[index]);
                             },
@@ -188,9 +191,11 @@ class _FolderDetailsState extends State<FolderDetails> {
                         },
                         onTap: () {
                           Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => ViewBook(books[index])));
+                            context,
+                            PageTransition(
+                                child: ViewBook(books[index]),
+                                type: PageTransitionType.fade),
+                          );
                         },
                         child: Container(
                           height: 260,

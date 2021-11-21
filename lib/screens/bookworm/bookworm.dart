@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/screens/bookworm/create_book/create_a_book.d
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:page_transition/page_transition.dart';
 
 class Bookworm extends StatefulWidget {
   Bookworm({Key key}) : super(key: key);
@@ -44,7 +45,10 @@ class _BookwormState extends State<Bookworm> {
             MaterialButton(
               onPressed: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => CreateBook()));
+                    context,
+                    PageTransition(
+                        child: CreateBook(),
+                        type: PageTransitionType.rightToLeft));
               },
               color: Colors.white12,
               height: 60,
@@ -67,7 +71,11 @@ class _BookwormState extends State<Bookworm> {
             MaterialButton(
               onPressed: () {
                 Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => FolderList()));
+                  context,
+                  PageTransition(
+                      child: FolderList(),
+                      type: PageTransitionType.rightToLeft),
+                );
               },
               color: Colors.white12,
               height: 60,

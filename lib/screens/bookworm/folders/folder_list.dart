@@ -13,6 +13,7 @@ import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:http/http.dart' as http;
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 enum whatToCreate { Folders, SubFolders }
@@ -84,9 +85,11 @@ class _FolderListState extends State<FolderList> {
                   MaterialButton(
                     onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => FolderDetails(folders[index])));
+                        context,
+                        PageTransition(
+                            child: FolderDetails(folders[index]),
+                            type: PageTransitionType.rightToLeft),
+                      );
                     },
                     onLongPress: () {
                       showFolderOptions(

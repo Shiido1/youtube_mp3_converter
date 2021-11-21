@@ -1,6 +1,12 @@
+import 'dart:io';
+
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class CreateBook extends StatefulWidget {
   CreateBook({Key key}) : super(key: key);
@@ -12,11 +18,53 @@ class CreateBook extends StatefulWidget {
 class _CreateBookState extends State<CreateBook> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController _textEditingController;
+  pw.Document pdf = pw.Document();
 
   @override
   void initState() {
     _textEditingController = TextEditingController();
     super.initState();
+  }
+
+  createPdf(String text) async {
+    pw.Text yt = pw.Text(text);
+    print(PdfPageFormat.a4);
+
+    // pdf.addPage(
+    //   pw.MultiPage(
+    //     pageFormat: PdfPageFormat.a4,
+    //     footer: (pw.Context context) {
+    //       return pw.Center(
+    //           child: pw.Container(
+    //         alignment: pw.Alignment.center,
+    //         width: 40,
+    //         padding: pw.EdgeInsets.all(5),
+    //         decoration: pw.BoxDecoration(
+    //           border: pw.Border.all(color: PdfColors.grey),
+    //           borderRadius: pw.BorderRadius.circular(4),
+    //         ),
+    //         child: pw.Text(
+    //           context.pageNumber.toString(),
+    //           style: pw.TextStyle(color: PdfColors.black),
+    //         ),
+    //       ));
+    //     },
+    //     build: (pw.Context context) {
+    //       return [
+    //         pw.Container(
+    //           child: pw.Text(text, textAlign: pw.TextAlign.justify),
+    //         )
+    //       ];
+    //     },
+    //   ),
+    // );
+
+    // final file = Platform.isAndroid
+    //     ? await DownloadsPathProvider.downloadsDirectory
+    //     : await getApplicationDocumentsDirectory();
+    // final output = File('${file.path}/mypdf.pdf');
+    // output.writeAsBytesSync(await pdf.save());
+    // print(file.path);
   }
 
   @override
@@ -53,12 +101,13 @@ class _CreateBookState extends State<CreateBook> {
             child: TextFormField(
               controller: _textEditingController,
               minLines: 10,
-              maxLines: 10,
-              maxLength: 1000,
+              maxLines: 15,
+              maxLength: 20000,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               cursorHeight: 15,
               style: TextStyle(color: Colors.white),
               decoration: InputDecoration(
+                counterStyle: TextStyle(color: Colors.white54),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.white),
                   borderRadius: BorderRadius.circular(6),
@@ -88,14 +137,16 @@ class _CreateBookState extends State<CreateBook> {
           Align(
             alignment: Alignment.centerRight,
             child: MaterialButton(
-              onPressed: () {},
+              onPressed: () {
+                createPdf(_textEditingController.text.trim());
+              },
               color: Colors.white24,
               child: Text(
-                'Next',
+                'Create',
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ),
-          )
+          ),
         ]),
       ),
     );

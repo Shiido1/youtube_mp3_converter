@@ -302,6 +302,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.6"
+  extension:
+    dependency: transitive
+    description:
+      name: extension
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.1"
   fading_edge_scrollview:
     dependency: transitive
     description:
@@ -807,6 +814,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.9.7"
+  native_pdf_renderer:
+    dependency: "direct main"
+    description:
+      name: native_pdf_renderer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.4.0"
   nested:
     dependency: transitive
     description:
@@ -996,6 +1010,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.0"
+  printing:
+    dependency: "direct main"
+    description:
+      name: printing
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.1.0"
   process:
     dependency: transitive
     description:

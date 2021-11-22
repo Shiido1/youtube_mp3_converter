@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -13,6 +15,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
 import 'package:pdf_text/pdf_text.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class ViewBook extends StatefulWidget {
   final Book book;
@@ -23,7 +26,7 @@ class ViewBook extends StatefulWidget {
 }
 
 class _ViewBookState extends State<ViewBook> {
-  PDFDoc doc;
+  PdfDocument doc;
   String text;
   PdfViewerController _controller;
   BookwormProvider provider;
@@ -42,9 +45,9 @@ class _ViewBookState extends State<ViewBook> {
       isPlaying = true;
     });
     page = _controller.currentPageNumber;
-    doc = await PDFDoc.fromPath(widget.book.path);
-    text = await doc.pageAt(page).text;
-    text = text.toString().trim();
+    doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+    text = PdfTextExtractor(doc)
+        .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
 
     print('text: $text');
     if (text != null && text.isNotEmpty) {
@@ -57,9 +60,9 @@ class _ViewBookState extends State<ViewBook> {
   completionHandler() async {
     if (page < _controller.pageCount) {
       page = page + 1;
-      doc = await PDFDoc.fromPath(widget.book.path);
-      text = await doc.pageAt(page).text;
-      print('textComp: $text');
+      doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+      text = PdfTextExtractor(doc)
+          .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
       _controller.goToPage(pageNumber: page);
       if (text != null && text.isNotEmpty) {
         await flutterTtsp.awaitSpeakCompletion(true);

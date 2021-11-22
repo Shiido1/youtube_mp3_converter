@@ -184,7 +184,12 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
               );
             }),
           ),
-          Positioned(bottom: 20, right: 20, child: AddBookIcon()),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: AddBookIcon('subfolder',
+                Provider.of<BookwormProvider>(context)?.currentSubfolder?.id),
+          ),
         ],
       ),
     );

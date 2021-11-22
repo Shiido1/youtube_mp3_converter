@@ -166,6 +166,12 @@
 @import image_picker;
 #endif
 
+#if __has_include(<native_pdf_renderer/NativePdfRendererPlugin.h>)
+#import <native_pdf_renderer/NativePdfRendererPlugin.h>
+#else
+@import native_pdf_renderer;
+#endif
+
 #if __has_include(<path_provider/FLTPathProviderPlugin.h>)
 #import <path_provider/FLTPathProviderPlugin.h>
 #else
@@ -188,6 +194,12 @@
 #import <permission_handler/PermissionHandlerPlugin.h>
 #else
 @import permission_handler;
+#endif
+
+#if __has_include(<printing/PrintingPlugin.h>)
+#import <printing/PrintingPlugin.h>
+#else
+@import printing;
 #endif
 
 #if __has_include(<rave_flutter/RaveFlutterPlugin.h>)
@@ -262,10 +274,12 @@
   [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
   [ImageDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageDownloaderPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
+  [NativePdfRendererPlugin registerWithRegistrar:[registry registrarForPlugin:@"NativePdfRendererPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];
   [PdfRenderPlugin registerWithRegistrar:[registry registrarForPlugin:@"PdfRenderPlugin"]];
   [PdfTextPlugin registerWithRegistrar:[registry registrarForPlugin:@"PdfTextPlugin"]];
   [PermissionHandlerPlugin registerWithRegistrar:[registry registrarForPlugin:@"PermissionHandlerPlugin"]];
+  [PrintingPlugin registerWithRegistrar:[registry registrarForPlugin:@"PrintingPlugin"]];
   [RaveFlutterPlugin registerWithRegistrar:[registry registrarForPlugin:@"RaveFlutterPlugin"]];
   [FLTSharePlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSharePlugin"]];
   [FLTSharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTSharedPreferencesPlugin"]];

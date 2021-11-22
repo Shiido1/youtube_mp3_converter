@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/create_book/create_a_book.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
+import 'package:mp3_music_converter/screens/bookworm/subscription/subscription.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:page_transition/page_transition.dart';
@@ -89,6 +90,33 @@ class _BookwormState extends State<Bookworm> {
                   SizedBox(width: 12),
                   Text(
                     'Folder List',
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 15),
+            MaterialButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                      child: Subscription(),
+                      type: PageTransitionType.rightToLeft),
+                );
+              },
+              color: Colors.white12,
+              height: 60,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.subscriptions_rounded,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Plans',
                     style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ],

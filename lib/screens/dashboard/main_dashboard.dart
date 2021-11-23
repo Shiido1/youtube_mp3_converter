@@ -5,6 +5,7 @@ import 'package:mp3_music_converter/bottom_navigation/my_library.dart';
 import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
+import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
@@ -58,26 +59,41 @@ class _MainDashBoardState extends State<MainDashBoard> {
     _repository.initProvider();
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
     await _recordProvider.initProvider();
-    if (AudioService.queue == null || AudioService.queue.isEmpty)
-      preferencesHelper.getCachedData(key: 'last_play').then((value) {
-        if (value != null) {
-          MediaItem item = MediaItem(
-              album: value['title'],
-              id: value['id'],
-              title: value['title'],
-              artist: value['artist'],
-              extras: {
-                'fileName': value['fileName'],
-                'filePath': value['filePath'],
-                'image': value['image'],
-                'favourite': value['favourite']
-              });
+    if (AudioService.queue == null || AudioService.queue.isEmpty) {
+      if (await preferencesHelper.doesExists(key: 'last_play_queue'))
+        preferencesHelper
+            .getCachedData(key: 'last_play_queue')
+            .then((value) async {
+          print('the value is $value');
+        });
+      if (await preferencesHelper.doesExists(key: 'last_play'))
+        preferencesHelper.getCachedData(key: 'last_play').then((value) async {
+          // Map queue =
+          //     await preferencesHelper.getCachedData(key: 'last_play_queue');
+          // if (queue != null) {
+          //   print(queue);
+          // List<Song> songList = queue.values.map((e) => Song.fromMap(e));
+          // _musicProvider.songs = songList;
+          // }
+          if (value != null) {
+            MediaItem item = MediaItem(
+                album: value['title'],
+                id: value['id'],
+                title: value['title'],
+                artist: value['artist'],
+                extras: {
+                  'fileName': value['fileName'],
+                  'filePath': value['filePath'],
+                  'image': value['image'],
+                  'favourite': value['favourite']
+                });
 
-          _musicProvider.updateLocal(item);
-        }
-      }).catchError((error) {
-        print(error);
-      });
+            _musicProvider.updateLocal(item);
+          }
+        }).catchError((error) {
+          print(error);
+        });
+    }
   }
 
   @override

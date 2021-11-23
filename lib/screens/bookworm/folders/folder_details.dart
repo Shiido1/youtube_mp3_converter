@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,12 +10,18 @@ import 'package:mp3_music_converter/screens/bookworm/folders/book_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_options.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/unknown.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
+import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
+import 'package:mp3_music_converter/screens/bookworm/subscription/subsription_dialog.dart';
 import 'package:mp3_music_converter/screens/bookworm/view_book/view_book.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
+import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf_render/pdf_render_widgets2.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -301,97 +308,9 @@ class AddBookIcon extends StatelessWidget {
   AddBookIcon(this.folderType, this.id);
   @override
   Widget build(BuildContext context) {
-    BookwormProvider provider = Provider.of<BookwormProvider>(context);
-
-    addBook() async {
-      String url = 'https://youtubeaudio.com/api/book/addbook';
-      String token = await preferencesHelper.getStringValues(key: 'token');
-      FilePickerResult result = await FilePicker.platform
-          .pickFiles(allowedExtensions: ['pdf'], type: FileType.custom);
-      if (result != null && result.files.isNotEmpty) {
-        print(result.files.single.name);
-        final request = http.MultipartRequest('POST', Uri.parse(url));
-        try {
-          final PdfDocument document = PdfDocument(
-              inputBytes: File(result.files.single.path).readAsBytesSync());
-          String text = PdfTextExtractor(document).extractText();
-          document.dispose();
-          print('got here 0');
-          final doc = await npr.PdfDocument.openFile(result.files.single.path);
-          print('got here 1');
-          final page = await doc.getPage(1);
-          print('got here 2');
-          final pageImage =
-              await page.render(width: page.width, height: page.height);
-          print('got here 3');
-          await page.close();
-          print('got here 4');
-
-          // pr.PdfDocument doc =
-          //     await pr.PdfDocument.openFile(result.files.single.path);
-          // pr.PdfPage page = await doc.getPage(1);
-          // pr.PdfPageImage pageImage = await page.render(
-          //     width: page.width.floor(), height: page.height.floor());
-          // await page.document.dispose();
-
-          // Printing.raster(, pages: [0]);
-
-          if (text != null && text.trim().isNotEmpty) {
-            request.fields.addAll({
-              'title': result.files.single.name,
-              'text': text,
-              'fid': id,
-              'folder_type': folderType.toLowerCase(),
-              'token': token,
-            });
-            request.headers.addAll({'Content-Type': 'multipart/form-data'});
-            request.files
-                .add(http.MultipartFile.fromBytes('image', pageImage.bytes));
-            final response = await request.send();
-
-            print(response.statusCode);
-            print(jsonDecode(await response.stream.bytesToString()));
-
-            print('every');
-
-            if (response.statusCode == 200) {
-              String serverResponse = await response.stream.bytesToString();
-
-              var data = jsonDecode(serverResponse);
-
-              // if (data['message'].toString().toLowerCase().contains('free') &&
-              //     data['message'].toString().toLowerCase().contains('limit')) {
-              //   showToast(context,
-              //       message: 'Free trial text limit is 10000 words',
-              //       backgroundColor: Colors.red);
-              // }
-              print('data');
-              // print(data['message'].toString().toLowerCase());
-            }
-          } else {
-            print('failed');
-          }
-        } catch (e) {
-          print('this happeed');
-        }
-        // BookwormServices().addBook(
-        //   Book(
-        //     fid: '9',
-        //     fname: 'Notme',
-        //     id: '28',
-        //     name: result.files.single.name,
-        //     path: result.files.single.path,
-        //     sname: 'Greatest',
-        //     sid: '18',
-        //   ),
-        // );
-
-      }
-    }
-
     return GestureDetector(
       onTap: () {
-        addBook();
+        addBook(context: context, folderType: folderType, id: id);
       },
       child: Container(
         height: 50,
@@ -436,5 +355,125 @@ class AddBookIcon extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+addBook(
+    {@required BuildContext context,
+    @required String id,
+    @required String folderType,
+    bool createBook = false}) async {
+  CustomProgressIndicator _progressIndicator = CustomProgressIndicator(context);
+  BookwormProvider provider =
+      Provider.of<BookwormProvider>(context, listen: false);
+  String url = 'https://youtubeaudio.com/api/book/addbook';
+  String token = await preferencesHelper.getStringValues(key: 'token');
+  String path, name;
+
+  if (!createBook) {
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(allowedExtensions: ['pdf'], type: FileType.custom);
+    if (result != null && result.files.isNotEmpty) {
+      path = result.files.single.path;
+      name = result.files.single.name;
+    }
+  } else {
+    path = provider.createdBookPath;
+    name = provider.createdBookName;
+  }
+  if (path != null && path.isNotEmpty && name != null && name.isNotEmpty) {
+    final request = http.MultipartRequest('POST', Uri.parse(url));
+    try {
+      _progressIndicator.show();
+      final PdfDocument document =
+          PdfDocument(inputBytes: File(path).readAsBytesSync());
+      String text = PdfTextExtractor(document).extractText();
+      document.dispose();
+      final doc = await npr.PdfDocument.openFile(path);
+      final page = await doc.getPage(1);
+      final pageImage =
+          await page.render(width: page.width, height: page.height);
+      await page.close();
+
+      final file = Platform.isAndroid
+          ? await DownloadsPathProvider.downloadsDirectory
+          : await getApplicationDocumentsDirectory();
+      final output = File('${file.path}/$name.png');
+      output.writeAsBytesSync(pageImage.bytes);
+      print(file.path);
+
+      if (text != null && text.trim().isNotEmpty) {
+        request.fields.addAll({
+          'title': name,
+          'text': text,
+          'fid': id,
+          'folder_type': folderType.toLowerCase(),
+          'token': token,
+        });
+        request.headers.addAll({'Content-Type': 'multipart/form-data'});
+        request.files
+            .add(await http.MultipartFile.fromPath('image', output.path));
+        final response = await request.send();
+        await _progressIndicator.dismiss();
+
+        if (response.statusCode == 200) {
+          String serverResponse = await response.stream.bytesToString();
+          var decodedData = jsonDecode(serverResponse);
+          print(decodedData);
+
+          if (decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('free') &&
+              decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('limit')) {
+            showDialog(
+              context: context,
+              builder: (_) {
+                return SubsriptionDialog(
+                    'Free trial text limit is 1000 characters and current text exceeds limit. Please upload another book or kindly subscribe.');
+              },
+            );
+          }
+
+          if (decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('create') &&
+              decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('success')) {
+            await BookwormServices().addBook(
+              Book(
+                  fid: provider.currentFolder.id,
+                  fname: provider.currentFolder.name,
+                  sid: folderType.toLowerCase() == 'folder'
+                      ? null
+                      : provider.currentSubfolder.id,
+                  sname: folderType.toLowerCase() == 'folder'
+                      ? null
+                      : provider.currentSubfolder.name,
+                  id: decodedData['data']['id'].toString(),
+                  name: decodedData['data']['title'],
+                  path: path),
+            );
+            showToast(context,
+                message: 'Book added', backgroundColor: Colors.green);
+            provider.getFolderContents(provider.currentFolder.name);
+          }
+        } else {}
+      } else {
+        await _progressIndicator.dismiss();
+        showToast(context,
+            message: 'Could not load file', backgroundColor: Colors.red);
+      }
+    } catch (e) {
+      await _progressIndicator.dismiss();
+      showToast(context,
+          message: 'An error occurred', backgroundColor: Colors.red);
+    }
   }
 }

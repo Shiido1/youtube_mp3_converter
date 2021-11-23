@@ -160,6 +160,12 @@
 @import image_downloader;
 #endif
 
+#if __has_include(<image_gallery_saver/ImageGallerySaverPlugin.h>)
+#import <image_gallery_saver/ImageGallerySaverPlugin.h>
+#else
+@import image_gallery_saver;
+#endif
+
 #if __has_include(<image_picker/FLTImagePickerPlugin.h>)
 #import <image_picker/FLTImagePickerPlugin.h>
 #else
@@ -273,6 +279,7 @@
   [FLTGoogleMobileAdsPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleMobileAdsPlugin"]];
   [FLTGoogleSignInPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTGoogleSignInPlugin"]];
   [ImageDownloaderPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageDownloaderPlugin"]];
+  [ImageGallerySaverPlugin registerWithRegistrar:[registry registrarForPlugin:@"ImageGallerySaverPlugin"]];
   [FLTImagePickerPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTImagePickerPlugin"]];
   [NativePdfRendererPlugin registerWithRegistrar:[registry registrarForPlugin:@"NativePdfRendererPlugin"]];
   [FLTPathProviderPlugin registerWithRegistrar:[registry registrarForPlugin:@"FLTPathProviderPlugin"]];

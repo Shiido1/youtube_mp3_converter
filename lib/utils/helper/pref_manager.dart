@@ -39,6 +39,7 @@ class SharedPreferencesHelper extends ChangeNotifier {
       _preferences.setString(key, json.encode(value));
       return;
     }
+
     notifyListeners();
   }
 

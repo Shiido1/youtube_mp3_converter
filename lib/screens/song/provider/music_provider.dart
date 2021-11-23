@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -497,16 +498,16 @@ class MusicProvider with ChangeNotifier {
   }
 
   savePlayingSong(Song song) async {
-    Map data = {
-      'artist': song.artistName,
-      'id': song.file,
-      'title': song.songName,
-      'filePath': song.filePath,
-      'fileName': song.fileName,
-      'favourite': song.favorite,
-      'image': song.image
-    };
-    preferencesHelper.saveValue(key: 'last_play', value: data);
+    preferencesHelper.saveValue(key: 'last_play', value: song.toJson());
+  }
+
+  savePlayingQueue() {
+    Map data = {};
+    for (int i = 0; i < songs.length; i++) {
+      data.putIfAbsent(i, () => songs[i].musicid);
+    }
+    preferencesHelper.saveValue(key: 'last_play_queue', value: data);
+    print('done');
   }
 
   Future<void> getSongs() async {
@@ -532,7 +533,6 @@ class MusicProvider with ChangeNotifier {
   }
 
   updateSong(Song song) {
-    print('happened');
     songs.forEach((element) {
       if (element.fileName == song.fileName) {
         element = song;
@@ -672,6 +672,7 @@ class MusicProvider with ChangeNotifier {
     if (song != null) {
       currentSong = song;
       savePlayingSong(song);
+      savePlayingQueue();
       if (song.file == currentSongID && force == false) return;
       await addActionToAudioService(() async =>
           await AudioService.updateQueue(convertSongToMediaItem(songs)));

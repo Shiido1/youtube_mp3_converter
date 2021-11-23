@@ -74,7 +74,7 @@ class _BookwormState extends State<Bookworm> {
                 Navigator.push(
                   context,
                   PageTransition(
-                      child: FolderList(),
+                      child: FolderList(title: 'Folders'),
                       type: PageTransitionType.rightToLeft),
                 );
               },

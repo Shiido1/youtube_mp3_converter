@@ -14,6 +14,8 @@ class BookwormProvider extends ChangeNotifier {
   Folder currentFolder;
   Subfolder currentSubfolder;
   bool showModal = true;
+  String createdBookPath;
+  String createdBookName;
 
   getFolders() async {
     allFolders = await BookwormServices().getFolders();

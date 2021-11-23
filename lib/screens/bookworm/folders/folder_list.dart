@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:mp3_music_converter/screens/bookworm/create_book/choose_folder.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
@@ -20,7 +21,8 @@ import 'package:provider/provider.dart';
 enum whatToCreate { Folders, SubFolders }
 
 class FolderList extends StatefulWidget {
-  FolderList({Key key}) : super(key: key);
+  final String title;
+  FolderList({Key key, @required this.title}) : super(key: key);
 
   @override
   _FolderListState createState() => _FolderListState();
@@ -46,7 +48,7 @@ class _FolderListState extends State<FolderList> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Folders',
+          text: widget.title,
           color: AppColor.bottomRed,
         ),
         leading: IconButton(
@@ -62,12 +64,6 @@ class _FolderListState extends State<FolderList> {
           createFolderOrSubfolder(
               toCreate: whatToCreate.Folders, context: context),
         ],
-        // bottom: PreferredSize(
-        //     child: Align(
-        //         alignment: Alignment.centerLeft,
-        //         child: Text('Niza is a friend',
-        //             style: TextStyle(color: Colors.blue))),
-        //     preferredSize: Size.fromHeight(10)),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -85,17 +81,27 @@ class _FolderListState extends State<FolderList> {
                 children: [
                   MaterialButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        PageTransition(
-                            child: FolderDetails(folders[index]),
-                            type: PageTransitionType.rightToLeft),
-                      );
+                      if (widget.title.toLowerCase() == 'folders')
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                              child: FolderDetails(folders[index]),
+                              type: PageTransitionType.rightToLeft),
+                        );
+                      else
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                              child: ChooseFolder(folders[index]),
+                              type: PageTransitionType.rightToLeft),
+                        );
                     },
-                    onLongPress: () {
-                      showFolderOptions(
-                          context: context, folderName: folders[index]);
-                    },
+                    onLongPress: widget.title.toLowerCase() == 'folders'
+                        ? () {
+                            showFolderOptions(
+                                context: context, folderName: folders[index]);
+                          }
+                        : null,
                     color: Colors.white12,
                     height: 60,
                     child: Row(

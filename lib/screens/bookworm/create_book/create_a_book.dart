@@ -4,12 +4,19 @@ import 'dart:ui';
 
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
+import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
+import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
+import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class CreateBook extends StatefulWidget {
   CreateBook({Key key}) : super(key: key);
@@ -23,6 +30,7 @@ class _CreateBookState extends State<CreateBook> {
   TextEditingController _textEditingController;
   TextEditingController _titleEditingController;
   final _formKey = GlobalKey<FormState>();
+  BookwormProvider provider;
 
   @override
   void initState() {
@@ -98,24 +106,25 @@ class _CreateBookState extends State<CreateBook> {
         build: (pw.Context context) {
           return [
             pw.Column(
-                mainAxisAlignment: pw.MainAxisAlignment.center,
-                children: sharedTexts
-                    .map(
-                      (e) => pw.Center(
-                        child: pw.Text(
-                          e,
-                          style: pw.TextStyle(
-                            fontSize: 18,
-                            lineSpacing: 4.6,
-                            font: ttf,
-                            color: PdfColors.black,
-                            fontWeight: pw.FontWeight.normal,
-                          ),
-                          textAlign: pw.TextAlign.justify,
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: sharedTexts
+                  .map(
+                    (e) => pw.Center(
+                      child: pw.Text(
+                        e,
+                        style: pw.TextStyle(
+                          fontSize: 18,
+                          lineSpacing: 4.6,
+                          font: ttf,
+                          color: PdfColors.black,
+                          fontWeight: pw.FontWeight.normal,
                         ),
+                        textAlign: pw.TextAlign.justify,
                       ),
-                    )
-                    .toList()),
+                    ),
+                  )
+                  .toList(),
+            ),
           ];
         },
       ),
@@ -126,11 +135,21 @@ class _CreateBookState extends State<CreateBook> {
         : await getApplicationDocumentsDirectory();
     final output = File('${file.path}/$title.pdf');
     output.writeAsBytesSync(await pdf.save());
-    print(file.path);
+
+    provider.createdBookName = title;
+    provider.createdBookPath = output.path;
+
+    Navigator.push(
+      context,
+      PageTransition(
+          child: FolderList(title: 'Choose Folder'),
+          type: PageTransitionType.bottomToTop),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    provider = Provider.of<BookwormProvider>(context);
     return Scaffold(
       key: _scaffoldKey,
       endDrawerEnableOpenDragGesture: false,

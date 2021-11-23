@@ -60,26 +60,29 @@ class _CreateBookState extends State<CreateBook> {
     final ttf = pw.Font.ttf(byteData.buffer.asByteData());
     final ttfBold = pw.Font.ttf(byteDataBold.buffer.asByteData());
 
+    print(sharedTexts[0]);
+
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         build: (pw.Context context) {
           return pw.Container(
-              decoration: pw.BoxDecoration(
-                borderRadius: pw.BorderRadius.circular(12),
-                border: pw.Border.all(color: PdfColors.black),
-              ),
-              margin: pw.EdgeInsets.all(0),
-              padding: pw.EdgeInsets.all(10),
-              child: pw.Center(
-                child: pw.Text(title.toUpperCase(),
-                    style: pw.TextStyle(
-                        font: ttfBold,
-                        fontSize: 30,
-                        lineSpacing: 10,
-                        wordSpacing: 1.5),
-                    textAlign: pw.TextAlign.center),
-              ));
+            decoration: pw.BoxDecoration(
+              borderRadius: pw.BorderRadius.circular(12),
+              border: pw.Border.all(color: PdfColors.black),
+            ),
+            margin: pw.EdgeInsets.all(0),
+            padding: pw.EdgeInsets.all(10),
+            child: pw.Center(
+              child: pw.Text(title.toUpperCase(),
+                  style: pw.TextStyle(
+                      font: ttfBold,
+                      fontSize: 30,
+                      lineSpacing: 10,
+                      wordSpacing: 1.5),
+                  textAlign: pw.TextAlign.center),
+            ),
+          );
         },
       ),
     );
@@ -109,18 +112,16 @@ class _CreateBookState extends State<CreateBook> {
               mainAxisAlignment: pw.MainAxisAlignment.center,
               children: sharedTexts
                   .map(
-                    (e) => pw.Center(
-                      child: pw.Text(
-                        e,
-                        style: pw.TextStyle(
-                          fontSize: 18,
-                          lineSpacing: 4.6,
-                          font: ttf,
-                          color: PdfColors.black,
-                          fontWeight: pw.FontWeight.normal,
-                        ),
-                        textAlign: pw.TextAlign.justify,
+                    (e) => pw.Text(
+                      e,
+                      style: pw.TextStyle(
+                        fontSize: 18,
+                        lineSpacing: 4.6,
+                        font: ttf,
+                        color: PdfColors.black,
+                        fontWeight: pw.FontWeight.normal,
                       ),
+                      textAlign: pw.TextAlign.justify,
                     ),
                   )
                   .toList(),
@@ -324,7 +325,7 @@ List shareTextToPages(
       textStringList.add(pageText.join(' '));
       jointText = words[i - 1] + ' ' + words[i];
     } else {
-      jointText = jointText + ' ' + words[i];
+      if (i < words.length - 1) jointText = jointText + ' ' + words[i + 1];
       if (i == words.length - 1) textStringList.add(jointText);
     }
   }

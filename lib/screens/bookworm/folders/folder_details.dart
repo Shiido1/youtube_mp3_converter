@@ -400,7 +400,6 @@ addBook(
           : await getApplicationDocumentsDirectory();
       final output = File('${file.path}/$name.png');
       output.writeAsBytesSync(pageImage.bytes);
-      print(file.path);
 
       if (text != null && text.trim().isNotEmpty) {
         request.fields.addAll({
@@ -416,10 +415,12 @@ addBook(
         final response = await request.send();
         await _progressIndicator.dismiss();
 
+        File(output.path).delete();
+        print(response.statusCode);
+
         if (response.statusCode == 200) {
           String serverResponse = await response.stream.bytesToString();
           var decodedData = jsonDecode(serverResponse);
-          print(decodedData);
 
           if (decodedData['message']
                   .toString()
@@ -429,13 +430,24 @@ addBook(
                   .toString()
                   .toLowerCase()
                   .contains('limit')) {
-            showDialog(
-              context: context,
-              builder: (_) {
-                return SubsriptionDialog(
-                    'Free trial text limit is 1000 characters and current text exceeds limit. Please upload another book or kindly subscribe.');
-              },
-            );
+            if (createBook) {
+              Navigator.of(context)..pop()..pop();
+              if (folderType == 'subfolder') Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (_) {
+                  return SubsriptionDialog(
+                      'Free trial text limit is 1000 characters and current text exceeds limit. Please reduce text and try again or kindly subscribe.');
+                },
+              );
+            } else
+              showDialog(
+                context: context,
+                builder: (_) {
+                  return SubsriptionDialog(
+                      'Free trial text limit is 1000 characters and current text exceeds limit. Please upload another book or kindly subscribe.');
+                },
+              );
           }
 
           if (decodedData['message']
@@ -460,11 +472,20 @@ addBook(
                   name: decodedData['data']['title'],
                   path: path),
             );
+            if (createBook) {
+              Navigator.of(context)..pop()..pop()..pop();
+              if (folderType == 'subfolder') Navigator.pop(context);
+            }
             showToast(context,
                 message: 'Book added', backgroundColor: Colors.green);
             provider.getFolderContents(provider.currentFolder.name);
           }
-        } else {}
+        } else {
+          String serverResponse = await response.stream.bytesToString();
+          var decodedData = jsonDecode(serverResponse);
+          showToast(context,
+              message: decodedData['message'], backgroundColor: Colors.red);
+        }
       } else {
         await _progressIndicator.dismiss();
         showToast(context,

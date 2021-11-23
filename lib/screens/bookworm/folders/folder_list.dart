@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,6 +54,8 @@ class _FolderListState extends State<FolderList> {
         ),
         leading: IconButton(
           onPressed: () {
+            if (widget.title.toLowerCase() != 'folders')
+              File(_bookwormProvider.createdBookPath).delete();
             Navigator.pop(context);
           },
           icon: Icon(

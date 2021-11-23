@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/create_book/choose_subfolder.dart';
+import 'package:mp3_music_converter/screens/bookworm/folders/folder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
@@ -163,6 +166,7 @@ class _ChooseFolderState extends State<ChooseFolder> {
               children: [
                 TextButton(
                   onPressed: () {
+                    File(_bookwormProvider.createdBookPath).delete();
                     Navigator.of(context)..pop()..pop();
                   },
                   child: Text(
@@ -171,7 +175,14 @@ class _ChooseFolderState extends State<ChooseFolder> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    addBook(
+                      context: context,
+                      id: currentFolder.id,
+                      folderType: 'folder',
+                      createBook: true,
+                    );
+                  },
                   child: Text(
                     'Select',
                     style: TextStyle(color: Colors.blue, fontSize: 20),

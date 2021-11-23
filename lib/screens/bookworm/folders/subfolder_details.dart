@@ -187,8 +187,11 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
           Positioned(
             bottom: 20,
             right: 20,
-            child: AddBookIcon('subfolder',
-                Provider.of<BookwormProvider>(context)?.currentSubfolder?.id),
+            child: AddBookIcon(
+                'subfolder',
+                Provider.of<BookwormProvider>(context, listen: false)
+                    ?.currentSubfolder
+                    ?.id),
           ),
         ],
       ),

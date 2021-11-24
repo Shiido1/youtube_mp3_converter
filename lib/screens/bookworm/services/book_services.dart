@@ -214,4 +214,14 @@ class BookwormServices {
     if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
     return Book.fromMap(_bookBox.get(bookName));
   }
+
+  clearAll() async {
+    if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
+    if (!(_subfolderBox?.isOpen ?? false))
+      _subfolderBox = await openSubfolderBox();
+    if (!(_folderBox?.isOpen ?? false)) _folderBox = await openFolderBox();
+    _bookBox.clear();
+    _folderBox.clear();
+    _subfolderBox.clear();
+  }
 }

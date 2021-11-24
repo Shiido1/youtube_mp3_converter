@@ -83,12 +83,12 @@ class Book {
   }
 
   Book.fromMap(Map book) {
-    this.fid = book['fid'];
-    this.name = book['name'];
-    this.id = book['id'];
-    this.sid = book['sid'];
-    this.path = book['path'];
-    this.fname = book['fname'];
-    this.sname = book['sname'];
+    this.fid = book == null ? null : book['fid'];
+    this.name = book == null ? null : book['name'];
+    this.id = book == null ? null : book['id'];
+    this.sid = book == null ? null : book['sid'];
+    this.path = book == null ? null : book['path'];
+    this.fname = book == null ? null : book['fname'];
+    this.sname = book == null ? null : book['sname'];
   }
 }

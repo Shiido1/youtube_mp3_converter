@@ -256,7 +256,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
           userToken: userToken,
           paymentMethod: 'card');
       if (status)
-        showToast(context, message: 'Payment successful', duration: 7);
+        showToast(context,
+            message: 'Payment successful',
+            duration: 7,
+            backgroundColor: Colors.green);
       else
         showToast(context, message: 'Payment failed', duration: 7);
     } else if (trxResponse == 'Failed') {

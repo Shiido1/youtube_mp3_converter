@@ -72,6 +72,18 @@ class _FolderListState extends State<FolderList> {
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         child: Consumer<BookwormProvider>(builder: (context, _provider, _) {
           List folders = _provider?.allFolders;
+
+          if (folders.isEmpty)
+            return Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                child: Text(
+                  'Create a folder using the folder button above',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            );
           folders?.sort((a, b) {
             return a
                 .toString()

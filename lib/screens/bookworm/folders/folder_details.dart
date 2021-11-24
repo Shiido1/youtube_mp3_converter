@@ -10,7 +10,6 @@ import 'package:mp3_music_converter/screens/bookworm/folders/book_options.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/folder_list.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_details.dart';
 import 'package:mp3_music_converter/screens/bookworm/folders/subfolder_options.dart';
-import 'package:mp3_music_converter/screens/bookworm/folders/unknown.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
@@ -421,34 +420,7 @@ addBook(
         if (response.statusCode == 200) {
           String serverResponse = await response.stream.bytesToString();
           var decodedData = jsonDecode(serverResponse);
-
-          if (decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('free') &&
-              decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('limit')) {
-            if (createBook) {
-              Navigator.of(context)..pop()..pop();
-              if (folderType == 'subfolder') Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (_) {
-                  return SubsriptionDialog(
-                      'Free trial text limit is 1000 characters and current text exceeds limit. Please reduce text and try again or kindly subscribe.');
-                },
-              );
-            } else
-              showDialog(
-                context: context,
-                builder: (_) {
-                  return SubsriptionDialog(
-                      'Free trial text limit is 1000 characters and current text exceeds limit. Please upload another book or kindly subscribe.');
-                },
-              );
-          }
+          print(decodedData);
 
           if (decodedData['message']
                   .toString()
@@ -479,12 +451,35 @@ addBook(
             showToast(context,
                 message: 'Book added', backgroundColor: Colors.green);
             provider.getFolderContents(provider.currentFolder.name);
-          }
+          } else
+            showToast(context,
+                message: decodedData['message'], backgroundColor: Colors.red);
         } else {
           String serverResponse = await response.stream.bytesToString();
           var decodedData = jsonDecode(serverResponse);
-          showToast(context,
-              message: decodedData['message'], backgroundColor: Colors.red);
+
+          if (decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('free') &&
+              decodedData['message']
+                  .toString()
+                  .toLowerCase()
+                  .contains('limit')) {
+            if (createBook) {
+              Navigator.of(context)..pop()..pop();
+              if (folderType == 'subfolder') Navigator.pop(context);
+            }
+            showDialog(
+              context: context,
+              builder: (_) {
+                return SubsriptionDialog(
+                    'Limit exceeded. Free trial text limit is 1000 characters and 3 books. Please kindly subscribe.');
+              },
+            );
+          } else
+            showToast(context,
+                message: decodedData['message'], backgroundColor: Colors.red);
         }
       } else {
         await _progressIndicator.dismiss();

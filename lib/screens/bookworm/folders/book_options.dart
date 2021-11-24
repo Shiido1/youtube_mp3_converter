@@ -69,6 +69,9 @@ class _ShowConfirmRemoveBookOptionState
     String token = await preferencesHelper.getStringValues(key: 'token');
     CustomProgressIndicator _progressIndicator =
         CustomProgressIndicator(context);
+    BookwormProvider provider =
+        Provider.of<BookwormProvider>(context, listen: false);
+    print(token);
 
     try {
       _progressIndicator.show();
@@ -88,13 +91,13 @@ class _ShowConfirmRemoveBookOptionState
           await BookwormServices().deleteBook(widget.book);
           showToast(context,
               message: 'Book deleted', backgroundColor: Colors.green);
-          Provider.of<BookwormProvider>(context, listen: false)
-              .getFolderContents(
-                  Provider.of<BookwormProvider>(context, listen: false)
-                      .currentFolder
-                      .name);
-          print('happened');
-        }
+
+          provider.getFolderContents(provider?.currentFolder?.name);
+          if (provider.currentSubfolder != null)
+            provider.getSubfolderContents(provider.currentSubfolder.name);
+        } else
+          showToast(context,
+              message: data['message'], backgroundColor: Colors.red);
       } else {
         if (_progressIndicator.isShowing()) await _progressIndicator.dismiss();
         final data = jsonDecode(response.body);
@@ -104,6 +107,8 @@ class _ShowConfirmRemoveBookOptionState
       }
     } catch (e) {
       if (_progressIndicator.isShowing()) await _progressIndicator.dismiss();
+      showToast(context,
+          message: 'An error occurred', backgroundColor: Colors.red);
       Navigator.pop(context);
     }
   }

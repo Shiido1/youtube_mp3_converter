@@ -316,7 +316,7 @@ class AddBookIcon extends StatelessWidget {
         width: 50,
         alignment: Alignment.center,
         decoration:
-            BoxDecoration(color: Colors.white60, shape: BoxShape.circle),
+            BoxDecoration(color: Colors.red[100], shape: BoxShape.circle),
         child: Stack(
           children: [
             Positioned(
@@ -408,14 +408,22 @@ addBook(
           'folder_type': folderType.toLowerCase(),
           'token': token,
         });
+        print('here');
         request.headers.addAll({'Content-Type': 'multipart/form-data'});
+        print('here2');
         request.files
             .add(await http.MultipartFile.fromPath('image', output.path));
-        final response = await request.send();
+        print('here 3');
+        http.StreamedResponse response = await request.send();
+        print('here4');
         await _progressIndicator.dismiss();
 
+        print('over here');
+
         File(output.path).delete();
+
         print(response.statusCode);
+        print(response.reasonPhrase);
 
         if (response.statusCode == 200) {
           String serverResponse = await response.stream.bytesToString();
@@ -451,12 +459,15 @@ addBook(
             showToast(context,
                 message: 'Book added', backgroundColor: Colors.green);
             provider.getFolderContents(provider.currentFolder.name);
+            if (folderType == 'subfolder')
+              provider.getSubfolderContents(provider.currentSubfolder.name);
           } else
             showToast(context,
                 message: decodedData['message'], backgroundColor: Colors.red);
         } else {
           String serverResponse = await response.stream.bytesToString();
           var decodedData = jsonDecode(serverResponse);
+          print(response.reasonPhrase);
 
           if (decodedData['message']
                   .toString()
@@ -489,7 +500,7 @@ addBook(
     } catch (e) {
       await _progressIndicator.dismiss();
       showToast(context,
-          message: 'An error occurred', backgroundColor: Colors.red);
+          message: 'An error occurred. Try again', backgroundColor: Colors.red);
     }
   }
 }

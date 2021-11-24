@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mp3_music_converter/screens/bookworm/subscription/subscription.dart';
+import 'package:page_transition/page_transition.dart';
 
 class SubsriptionDialog extends StatelessWidget {
   final String text;
@@ -44,7 +46,14 @@ class SubsriptionDialog extends StatelessWidget {
                   elevation: 0,
                 ),
                 MaterialButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    Navigator.pushReplacement(
+                      context,
+                      PageTransition(
+                          child: Subscription(),
+                          type: PageTransitionType.rightToLeft),
+                    );
+                  },
                   child: Text(
                     'Yes',
                     style: TextStyle(color: Colors.black, fontSize: 17),

@@ -71,20 +71,39 @@ class _SubscriptionState extends State<Subscription> {
           context: context,
           txRef: trxResponse['data']['reference'],
           amount: amount,
-          txId: trxResponse['data']['reference'],
+          txId: trxResponse['data']['id'].toString(),
           duration: duration,
           userToken: userToken,
           paymentMethod: 'card');
       if (status) {
-        showToast(context, message: 'Payment successful', duration: 7);
+        showToast(
+          context,
+          message: 'Payment successful',
+          duration: 7,
+          backgroundColor: Colors.green,
+        );
         Navigator.pop(context);
       } else
-        showToast(context, message: 'Payment failed', duration: 7);
+        showToast(
+          context,
+          message: 'Payment failed',
+          duration: 7,
+          backgroundColor: Colors.red,
+        );
     } else if (trxResponse == 'Failed') {
-      showToast(context,
-          message: 'Transaction Failed. Try again later', duration: 5);
+      showToast(
+        context,
+        message: 'Transaction Failed. Try again later',
+        duration: 5,
+        backgroundColor: Colors.red,
+      );
     } else {
-      showToast(context, message: 'Transaction cancelled', duration: 5);
+      showToast(
+        context,
+        message: 'Transaction cancelled',
+        duration: 5,
+        backgroundColor: Colors.red,
+      );
     }
   }
 

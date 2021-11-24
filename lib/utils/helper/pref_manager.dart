@@ -55,6 +55,12 @@ class SharedPreferencesHelper extends ChangeNotifier {
     return _preferences.getBool(key) ?? false;
   }
 
+  /// get lis<string> values
+  Future<List<String>> getStringList({@required String key}) async {
+    _preferences = await SharedPreferences.getInstance();
+    return _preferences.getStringList(key) ?? false;
+  }
+
   /// get int values
   Future<int> getIntValues({@required String key}) async {
     _preferences = await SharedPreferences.getInstance();

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:audio_service/audio_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -56,6 +57,7 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   void initState() {
+    print(AudioService?.running);
     this._progressIndicator = CustomProgressIndicator(this.context);
     // LinkShareAssistant()
     //   ..onDataReceived = _handleSharedData

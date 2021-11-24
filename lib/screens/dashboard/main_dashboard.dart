@@ -62,9 +62,21 @@ class _MainDashBoardState extends State<MainDashBoard> {
     if (AudioService.queue == null || AudioService.queue.isEmpty) {
       if (await preferencesHelper.doesExists(key: 'last_play_queue'))
         preferencesHelper
-            .getCachedData(key: 'last_play_queue')
+            .getStringList(key: 'last_play_queue')
             .then((value) async {
-          print('the value is $value');
+          List<Song> songList = [];
+          Song song;
+          List lastPlayQueue = value;
+          await _musicProvider.getSongs();
+          for (String name in lastPlayQueue) {
+            song = _musicProvider.allSongs
+                .firstWhere((element) => element.musicid == name);
+            songList.add(song);
+          }
+          _musicProvider.songs = songList;
+          // List<MediaItem> songResult =
+          //     _musicProvider.convertSongToMediaItem(songList);
+          // AudioService.updateQueue(songResult);
         });
       if (await preferencesHelper.doesExists(key: 'last_play'))
         preferencesHelper.getCachedData(key: 'last_play').then((value) async {

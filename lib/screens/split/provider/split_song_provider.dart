@@ -103,47 +103,55 @@ class SplitSongProvider with ChangeNotifier {
 
   Future<void> seekToSecond(
       {@required int second, bool playVocals = false}) async {
-    await AudioService.customAction(AudioPlayerTask.SEEK_TO, second);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.SEEK_TO, second));
   }
 
   Future<void> playAudio(
       {@required Song song, String file, bool playVocals = false}) async {
     playerState = PlayerState.PLAYING;
-    await AudioService.customAction(AudioPlayerTask.PLAY, {
-      'url': song.file,
-      'identity': 'split',
-      'path': file ?? '',
-      'playVocals': playVocals
-    });
+    await addActionToAudioService(
+      () => AudioService.customAction(AudioPlayerTask.PLAY, {
+        'url': song.file,
+        'identity': 'split',
+        'path': file ?? '',
+        'playVocals': playVocals
+      }),
+    );
     notifyListeners();
   }
 
   Future<void> resumeAudio() async {
     playerState = PlayerState.PLAYING;
-    await AudioService.customAction(AudioPlayerTask.RESUME);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.RESUME));
     notifyListeners();
   }
 
   Future<void> pauseAudio() async {
     playerState = PlayerState.PAUSED;
-    await AudioService.customAction(AudioPlayerTask.PAUSE);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.PAUSE));
     notifyListeners();
   }
 
   Future<void> stopAudio() async {
     playerState = PlayerState.NONE;
-    await AudioService.customAction(AudioPlayerTask.STOP);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.STOP));
     progress = Duration();
     notifyListeners();
   }
 
   Future<void> setVolume(double vol) async {
-    await AudioService.customAction(AudioPlayerTask.VOLUME, vol);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.VOLUME, vol));
     notifyListeners();
   }
 
   Future<void> setVocalVolume(double vol) async {
-    await AudioService.customAction(AudioPlayerTask.VOCAL_VOLUME, vol);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.VOCAL_VOLUME, vol));
     notifyListeners();
   }
 }

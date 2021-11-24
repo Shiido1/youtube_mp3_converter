@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -15,6 +14,12 @@ enum PlayerType { ALL, SHUFFLE, REPEAT }
 
 void _entryPoint() {
   AudioServiceBackground.run(() => AudioPlayerTask());
+}
+
+Future<dynamic> addActionToAudioService(Function callback) async {
+  if (AudioService.running == null || !AudioService.running)
+    await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
+  return callback();
 }
 
 class AudioPlayerTask extends BackgroundAudioTask {
@@ -55,7 +60,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
     musicPlayer = AudioPlayer();
     vocalPlayer = AudioPlayer();
 
-    audioPlayer.onPlayerCompletion.listen((event) {
+    audioPlayer.onPlayerCompletion.listen((event) async {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
       print(playerType);
       switch (playerType) {
@@ -76,55 +81,55 @@ class AudioPlayerTask extends BackgroundAudioTask {
           break;
       }
 
-      _broadcastState();
+      await _broadcastState();
     });
 
-    audioPlayer.onPlayerStateChanged.listen((event) {
+    audioPlayer.onPlayerStateChanged.listen((event) async {
       AudioServiceBackground.sendCustomEvent({STATE_CHANGE: event});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    audioPlayer.onAudioPositionChanged.listen((position) {
+    audioPlayer.onAudioPositionChanged.listen((position) async {
       AudioServiceBackground.sendCustomEvent(
           {POSITION_EVENT: position.inSeconds});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    audioPlayer.onDurationChanged.listen((duration) {
+    audioPlayer.onDurationChanged.listen((duration) async {
       AudioServiceBackground.sendCustomEvent(
           {DURATION_EVENT: duration.inSeconds});
       AudioServiceBackground.setMediaItem(
           AudioServiceBackground.mediaItem.copyWith(duration: duration));
       AudioServiceBackground.sendCustomEvent(
           {STATE_CHANGE2: audioPlayer.state});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    musicPlayer.onPlayerCompletion.listen((event) {
+    musicPlayer.onPlayerCompletion.listen((event) async {
       musicPlayer.state = AudioPlayerState.STOPPED;
       if (playVocals) vocalPlayer.state = AudioPlayerState.STOPPED;
       AudioServiceBackground.sendCustomEvent(
           {COMPLETION: true, 'identity': identity});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    musicPlayer.onPlayerStateChanged.listen((event) {
+    musicPlayer.onPlayerStateChanged.listen((event) async {
       AudioServiceBackground.sendCustomEvent(
           {STATE: event, 'identity': identity});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    musicPlayer.onAudioPositionChanged.listen((position) {
+    musicPlayer.onAudioPositionChanged.listen((position) async {
       AudioServiceBackground.sendCustomEvent(
           {POSITION: position.inSeconds, 'identity': identity});
-      _broadcastState();
+      await _broadcastState();
     });
 
-    musicPlayer.onDurationChanged.listen((duration) {
+    musicPlayer.onDurationChanged.listen((duration) async {
       AudioServiceBackground.sendCustomEvent(
           {DURATION: duration.inSeconds, 'identity': identity});
 
-      _broadcastState();
+      await _broadcastState();
     });
   }
 
@@ -154,6 +159,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
         audioPlayer.state == AudioPlayerState.PLAYING
             ? MediaControl.pause
             : MediaControl.play,
+        MediaControl.stop,
         MediaControl.skipToNext
       ],
       playing: audioPlayer.state == AudioPlayerState.PLAYING,
@@ -273,7 +279,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
     if (musicPlayer.state == AudioPlayerState.PLAYING)
       await musicPlayer.pause();
     await audioPlayer.resume();
-    _broadcastState();
+    await _broadcastState();
   }
 
   @override
@@ -335,7 +341,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   Future<void> onPause() async {
     await audioPlayer.pause();
     await super.onPause();
-    _broadcastState();
+    await _broadcastState();
   }
 
   @override
@@ -429,7 +435,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       await vocalPlayer.setVolume(arguments);
     }
 
-    _broadcastState();
+    await _broadcastState();
     return super.onCustomAction(name, arguments);
   }
 
@@ -465,6 +471,10 @@ class MusicProvider with ChangeNotifier {
   AudioPlayerState audioPlayerState;
   // String sharedText = '';
   BuildContext context;
+
+  test() {
+    final runningStream = AudioService.runningStream;
+  }
 
   void setContext(BuildContext context) {
     this.context = context;
@@ -502,9 +512,9 @@ class MusicProvider with ChangeNotifier {
   }
 
   savePlayingQueue() {
-    Map data = {};
+    List<String> data = [];
     for (int i = 0; i < songs.length; i++) {
-      data.putIfAbsent(i, () => songs[i].musicid);
+      data.add(songs[i].musicid);
     }
     preferencesHelper.saveValue(key: 'last_play_queue', value: data);
     print('done');
@@ -619,6 +629,8 @@ class MusicProvider with ChangeNotifier {
                 image: song.extras['image'],
                 songName: song.title,
               ));
+      if (songs.isNotEmpty)
+        await AudioService.updateQueue(convertSongToMediaItem(songs));
       await AudioService.updateMediaItem(song);
       notifyListeners();
     }
@@ -636,18 +648,20 @@ class MusicProvider with ChangeNotifier {
     List<MediaItem> item = [];
     for (int i = 0; i < songs.length; i++) {
       item.insert(
-          i,
-          MediaItem(
-              artist: songs[i].artistName ?? 'Unknown artist',
-              title: songs[i].songName ?? 'Unknown',
-              id: songs[i].file,
-              album: songs[i].songName ?? 'Unknown',
-              extras: {
-                'image': songs[i].image,
-                'filePath': songs[i].filePath,
-                'fileName': songs[i].fileName,
-                'favourite': songs[i].favorite,
-              }));
+        i,
+        MediaItem(
+          artist: songs[i].artistName ?? 'Unknown artist',
+          title: songs[i].songName ?? 'Unknown',
+          id: songs[i].file,
+          album: songs[i].songName ?? 'Unknown',
+          extras: {
+            'image': songs[i].image,
+            'filePath': songs[i].filePath,
+            'fileName': songs[i].fileName,
+            'favourite': songs[i].favorite,
+          },
+        ),
+      );
     }
     return item;
   }
@@ -682,12 +696,6 @@ class MusicProvider with ChangeNotifier {
           await AudioService.customAction(AudioPlayerTask.PLAY_ACTION));
       notifyListeners();
     }
-  }
-
-  Future<dynamic> addActionToAudioService(Function callback) async {
-    if (AudioService.running == null || !AudioService.running)
-      await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
-    return callback();
   }
 
   void resumeAudio() async {
@@ -765,19 +773,31 @@ class MusicProvider with ChangeNotifier {
 
   updateAndPlay() async {
     if (currentSong != null) {
-      await AudioService.updateMediaItem(MediaItem(
-          artist: currentSong.artistName ?? 'Unknown artist',
-          title: currentSong.songName ?? 'Unknown',
-          id: currentSong.file,
-          album: currentSong.songName ?? 'Unknown',
-          extras: {
-            'image': currentSong.image,
-            'filePath': currentSong.filePath,
-            'fileName': currentSong.fileName,
-            'favourite': currentSong.favorite,
-          }));
       await addActionToAudioService(
-          () => AudioService.customAction(AudioPlayerTask.PLAY_ACTION));
+        () => AudioService.updateMediaItem(
+          MediaItem(
+            artist: currentSong.artistName ?? 'Unknown artist',
+            title: currentSong.songName ?? 'Unknown',
+            id: currentSong.file,
+            album: currentSong.songName ?? 'Unknown',
+            extras: {
+              'image': currentSong.image,
+              'filePath': currentSong.filePath,
+              'fileName': currentSong.fileName,
+              'favourite': currentSong.favorite,
+            },
+          ),
+        ),
+      );
+      if (songs.isNotEmpty)
+        await addActionToAudioService(
+          () => AudioService.updateQueue(
+            convertSongToMediaItem(songs),
+          ),
+        );
+      await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.PLAY_ACTION),
+      );
     }
   }
 

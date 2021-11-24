@@ -75,8 +75,9 @@ class RecordProvider with ChangeNotifier {
     });
   }
 
-  void seekToSecond(int second) {
-    AudioService.customAction(AudioPlayerTask.SEEK_TO, second);
+  void seekToSecond(int second) async {
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.SEEK_TO, second));
   }
 
   void playAudio(
@@ -86,8 +87,8 @@ class RecordProvider with ChangeNotifier {
         currentRecord.name == record.name) return;
     currentRecord = record;
     savePlayingSong({'name': record.name, 'path': record.path});
-    AudioService.customAction(
-        AudioPlayerTask.PLAY, {'url': record.path, 'identity': 'recorder'});
+    await addActionToAudioService(() => AudioService.customAction(
+        AudioPlayerTask.PLAY, {'url': record.path, 'identity': 'recorder'}));
   }
 
   savePlayingSong(Map song) {
@@ -96,17 +97,20 @@ class RecordProvider with ChangeNotifier {
   }
 
   void resumeAudio() async {
-    await AudioService.customAction(AudioPlayerTask.RESUME);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.RESUME));
     notifyListeners();
   }
 
   void pauseAudio() async {
-    await AudioService.customAction(AudioPlayerTask.PAUSE);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.PAUSE));
     notifyListeners();
   }
 
   void stopAudio() async {
-    await AudioService.customAction(AudioPlayerTask.STOP);
+    await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.STOP));
     progress = Duration();
     notifyListeners();
   }

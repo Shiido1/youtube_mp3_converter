@@ -123,28 +123,28 @@ class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (_provider.equalizer)
-                              Container(
-                                height: 20,
-                                width: viewport.maxWidth,
-                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                child: hasOverflow(text, textStyle,
-                                        maxWidth: viewport.maxWidth)
-                                    ? Marquee(
-                                        text: text,
-                                        scrollAxis: Axis.horizontal,
-                                        blankSpace: 30,
-                                        startAfter: Duration(seconds: 2),
-                                        pauseAfterRound: Duration(seconds: 2),
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        style: textStyle,
-                                      )
-                                    : Text(
-                                        text,
-                                        style: textStyle,
-                                      ),
-                              ),
+                            // if (_provider.equalizer)
+                            Container(
+                              height: 20,
+                              width: viewport.maxWidth,
+                              padding: EdgeInsets.symmetric(horizontal: 5),
+                              child: hasOverflow(text, textStyle,
+                                      maxWidth: viewport.maxWidth)
+                                  ? Marquee(
+                                      text: text,
+                                      scrollAxis: Axis.horizontal,
+                                      blankSpace: 30,
+                                      startAfter: Duration(seconds: 2),
+                                      pauseAfterRound: Duration(seconds: 2),
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      style: textStyle,
+                                    )
+                                  : Text(
+                                      text,
+                                      style: textStyle,
+                                    ),
+                            ),
                             SliderClass3(),
                           ],
                         );

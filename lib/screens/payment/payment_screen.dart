@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
     name = await preferencesHelper.getStringValues(key: 'name');
     userToken = await preferencesHelper.getStringValues(key: 'token');
     PaystackPlugin.initialize(publicKey: publicKey);
+    await AudioService.stop();
+    print('is playing : ${AudioService?.running}');
   }
 
   @override

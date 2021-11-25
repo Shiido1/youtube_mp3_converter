@@ -142,7 +142,7 @@ class _RenameFolderState extends State<RenameFolder> {
                   return val.trim().isEmpty ? 'Please enter a name' : null;
                 },
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'(\w+ ?)*$')),
+                  FilteringTextInputFormatter.allow(RegExp(r'(\w+ ?)')),
                 ],
               ),
             ),

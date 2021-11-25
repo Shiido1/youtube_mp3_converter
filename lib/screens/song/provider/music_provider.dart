@@ -692,8 +692,7 @@ class MusicProvider with ChangeNotifier {
     });
 
     AudioService.currentMediaItemStream.listen((event) {
-      //TODO: remove this false
-      if (event != null && false) {
+      if (event != null) {
         currentSongID = event.id;
         currentSong = songs.firstWhere((element) => element.file == event.id,
             orElse: () => Song(

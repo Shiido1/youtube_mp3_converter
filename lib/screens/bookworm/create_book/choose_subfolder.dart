@@ -88,9 +88,6 @@ class _ChooseSubfolderState extends State<ChooseSubfolder> {
                   onPressed: () {
                     addBook(
                       context: context,
-                      id: Provider.of<BookwormProvider>(context, listen: false)
-                          ?.currentSubfolder
-                          ?.id,
                       folderType: 'subfolder',
                       createBook: true,
                     );

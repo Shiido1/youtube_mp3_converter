@@ -75,7 +75,9 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
             child: Consumer<BookwormProvider>(builder: (context, _provider, _) {
               List<Book> books = _provider?.subfolderBooks;
               books?.sort((a, b) {
-                return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                return a?.name
+                    ?.toLowerCase()
+                    ?.compareTo(b?.name?.toLowerCase());
               });
 
               if (_provider?.currentSubfolder?.books == null ||
@@ -135,16 +137,6 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
                                                 ),
                                               ),
                                             );
-                                            // : Container(
-                                            //     height: 220,
-                                            //     width: double.infinity,
-                                            //     color: Colors.white,
-                                            //     child: Icon(
-                                            //       Icons.warning_rounded,
-                                            //       size: 60,
-                                            //       color: Colors.red,
-                                            //     ),
-                                            //   );
                                           },
                                         );
                                       },
@@ -188,10 +180,8 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
             bottom: 20,
             right: 20,
             child: AddBookIcon(
-                'subfolder',
-                Provider.of<BookwormProvider>(context, listen: false)
-                    ?.currentSubfolder
-                    ?.id),
+              'subfolder',
+            ),
           ),
         ],
       ),

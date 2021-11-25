@@ -210,6 +210,11 @@ class BookwormServices {
     _bookBox.delete(book.name);
   }
 
+  Future<bool> checkBook(String bookName) async {
+    if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
+    return _bookBox.containsKey(bookName);
+  }
+
   Future<Book> getBook(String bookName) async {
     if (!(_bookBox?.isOpen ?? false)) _bookBox = await openBookBox();
     return Book.fromMap(_bookBox.get(bookName));

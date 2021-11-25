@@ -36,7 +36,6 @@ class _VoiceSettingsState extends State<VoiceSettings> {
   initTts() async {
     flutterTts = FlutterTts();
     flutterTts.setCompletionHandler(() {
-      print('this hapee');
       setState(() {
         isPlaying = false;
       });

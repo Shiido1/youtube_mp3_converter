@@ -135,7 +135,28 @@ class _CreateBookState extends State<CreateBook> {
     final file = Platform.isAndroid
         ? await DownloadsPathProvider.downloadsDirectory
         : await getApplicationDocumentsDirectory();
-    final output = File('${file.path}/$title.pdf');
+    File output;
+    String titleHolder;
+
+    if (await File('${file.path}/$title.pdf').exists()) {
+      // List<String> splitTitle = title.trim().split(' ');
+      // String lastText = splitTitle.last;
+      // String lastString = lastText.substring(lastText.length);
+      // int val = int.tryParse(lastString);
+      // if (val == null) {
+      //   title = title + '1';
+      // } else {
+      //   val = val + 1;
+      //   // title.replaceRange(tit, end, replacement)
+      // }
+      int i = 1;
+      do {
+        titleHolder = title + '$i';
+        i++;
+      } while (await File('${file.path}/$titleHolder.pdf').exists());
+    }
+    if (titleHolder != null) title = titleHolder;
+    output = File('${file.path}/$title.pdf');
     output.writeAsBytesSync(await pdf.save());
 
     provider.createdBookName = title;

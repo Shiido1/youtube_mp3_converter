@@ -110,9 +110,9 @@ class _FolderDetailsState extends State<FolderDetails> {
               List subfolders = _provider?.currentFolder?.subfolders;
               subfolders?.sort((a, b) {
                 return a
-                    .toString()
-                    .toLowerCase()
-                    .compareTo(b.toString().toLowerCase());
+                    ?.toString()
+                    ?.toLowerCase()
+                    ?.compareTo(b?.toString()?.toLowerCase());
               });
               if ((_provider?.currentFolder?.books == null ||
                       _provider.currentFolder.books.isEmpty) &&
@@ -191,11 +191,12 @@ class _FolderDetailsState extends State<FolderDetails> {
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       List<Book> books = _provider.folderBooks;
-                      books?.sort((a, b) {
-                        return a.name
-                            .toLowerCase()
-                            .compareTo(b.name.toLowerCase());
-                      });
+                      print(books[0].toJson());
+                      // books?.sort((a, b) {
+                      //   return a.name
+                      //       .toLowerCase()
+                      //       .compareTo(b.name.toLowerCase());
+                      // });
                       return GestureDetector(
                         onLongPress: () {
                           showBookOptions(context, books[index]);
@@ -262,7 +263,7 @@ class _FolderDetailsState extends State<FolderDetails> {
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(8, 0, 8, 7),
                                 child: Text(
-                                  books[index].name,
+                                  books[index]?.name ?? '',
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 16),
@@ -291,7 +292,6 @@ class _FolderDetailsState extends State<FolderDetails> {
             right: 20,
             child: AddBookIcon(
               'folder',
-              Provider.of<BookwormProvider>(context)?.currentFolder?.id,
             ),
           ),
         ],
@@ -302,14 +302,13 @@ class _FolderDetailsState extends State<FolderDetails> {
 
 class AddBookIcon extends StatelessWidget {
   final String folderType;
-  final String id;
 
-  AddBookIcon(this.folderType, this.id);
+  AddBookIcon(this.folderType);
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        addBook(context: context, folderType: folderType, id: id);
+        addBook(context: context, folderType: folderType);
       },
       child: Container(
         height: 50,
@@ -359,7 +358,6 @@ class AddBookIcon extends StatelessWidget {
 
 addBook(
     {@required BuildContext context,
-    @required String id,
     @required String folderType,
     bool createBook = false}) async {
   CustomProgressIndicator _progressIndicator = CustomProgressIndicator(context);
@@ -368,6 +366,10 @@ addBook(
   String url = 'https://youtubeaudio.com/api/book/addbook';
   String token = await preferencesHelper.getStringValues(key: 'token');
   String path, name;
+
+  String id = folderType == 'folder'
+      ? provider?.currentFolder?.id
+      : provider?.currentSubfolder?.id;
 
   if (!createBook) {
     FilePickerResult result = await FilePicker.platform
@@ -381,126 +383,136 @@ addBook(
     name = provider.createdBookName;
   }
   if (path != null && path.isNotEmpty && name != null && name.isNotEmpty) {
-    final request = http.MultipartRequest('POST', Uri.parse(url));
-    try {
-      _progressIndicator.show();
-      final PdfDocument document =
-          PdfDocument(inputBytes: File(path).readAsBytesSync());
-      String text = PdfTextExtractor(document).extractText();
-      document.dispose();
-      final doc = await npr.PdfDocument.openFile(path);
-      final page = await doc.getPage(1);
-      final pageImage =
-          await page.render(width: page.width, height: page.height);
-      await page.close();
+    if (await BookwormServices().checkBook(name)) {
+      showToast(context,
+          message: 'This book has already been uploaded',
+          backgroundColor: Colors.red);
+    } else {
+      final request = http.MultipartRequest('POST', Uri.parse(url));
 
-      final file = Platform.isAndroid
-          ? await DownloadsPathProvider.downloadsDirectory
-          : await getApplicationDocumentsDirectory();
-      final output = File('${file.path}/$name.png');
-      output.writeAsBytesSync(pageImage.bytes);
+      try {
+        _progressIndicator.show();
+        final PdfDocument document =
+            PdfDocument(inputBytes: File(path).readAsBytesSync());
+        String text = PdfTextExtractor(document).extractText();
+        document.dispose();
+        final doc = await npr.PdfDocument.openFile(path);
+        final page = await doc.getPage(1);
+        final pageImage =
+            await page.render(width: page.width, height: page.height);
+        await page.close();
 
-      if (text != null && text.trim().isNotEmpty) {
-        request.fields.addAll({
-          'title': name,
-          'text': text,
-          'fid': id,
-          'folder_type': folderType.toLowerCase(),
-          'token': token,
-        });
-        print('here');
-        request.headers.addAll({'Content-Type': 'multipart/form-data'});
-        print('here2');
-        request.files
-            .add(await http.MultipartFile.fromPath('image', output.path));
-        print('here 3');
-        http.StreamedResponse response = await request.send();
-        print('here4');
-        await _progressIndicator.dismiss();
+        final file = Platform.isAndroid
+            ? await DownloadsPathProvider.downloadsDirectory
+            : await getApplicationDocumentsDirectory();
+        final output = File('${file.path}/$name.png');
+        output.writeAsBytesSync(pageImage.bytes);
 
-        print('over here');
+        if (text != null && text.trim().isNotEmpty) {
+          request.fields.addAll({
+            'title': name,
+            'text': text,
+            'fid': id,
+            'folder_type': folderType?.toLowerCase(),
+            'token': token,
+          });
+          print('here');
+          request.headers.addAll({'Content-Type': 'multipart/form-data'});
+          print('here2');
+          request.files
+              .add(await http.MultipartFile.fromPath('image', output.path));
+          print('here 3');
+          print(id);
+          print(folderType);
+          final response = await request.send();
+          print('here4');
+          await _progressIndicator.dismiss();
 
-        File(output.path).delete();
+          print('over here');
 
-        print(response.statusCode);
-        print(response.reasonPhrase);
+          File(output.path).delete();
 
-        if (response.statusCode == 200) {
-          String serverResponse = await response.stream.bytesToString();
-          var decodedData = jsonDecode(serverResponse);
-          print(decodedData);
-
-          if (decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('create') &&
-              decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('success')) {
-            await BookwormServices().addBook(
-              Book(
-                  fid: provider.currentFolder.id,
-                  fname: provider.currentFolder.name,
-                  sid: folderType.toLowerCase() == 'folder'
-                      ? null
-                      : provider.currentSubfolder.id,
-                  sname: folderType.toLowerCase() == 'folder'
-                      ? null
-                      : provider.currentSubfolder.name,
-                  id: decodedData['data']['id'].toString(),
-                  name: decodedData['data']['title'],
-                  path: path),
-            );
-            if (createBook) {
-              Navigator.of(context)..pop()..pop()..pop();
-              if (folderType == 'subfolder') Navigator.pop(context);
-            }
-            showToast(context,
-                message: 'Book added', backgroundColor: Colors.green);
-            provider.getFolderContents(provider.currentFolder.name);
-            if (folderType == 'subfolder')
-              provider.getSubfolderContents(provider.currentSubfolder.name);
-          } else
-            showToast(context,
-                message: decodedData['message'], backgroundColor: Colors.red);
-        } else {
-          String serverResponse = await response.stream.bytesToString();
-          var decodedData = jsonDecode(serverResponse);
+          print(response.statusCode);
           print(response.reasonPhrase);
 
-          if (decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('free') &&
-              decodedData['message']
-                  .toString()
-                  .toLowerCase()
-                  .contains('limit')) {
-            if (createBook) {
-              Navigator.of(context)..pop()..pop();
-              if (folderType == 'subfolder') Navigator.pop(context);
-            }
-            showDialog(
-              context: context,
-              builder: (_) {
-                return SubsriptionDialog(
-                    'Limit exceeded. Free trial text limit is 1000 characters and 3 books. Please kindly subscribe.');
-              },
-            );
-          } else
-            showToast(context,
-                message: decodedData['message'], backgroundColor: Colors.red);
+          if (response.statusCode == 200) {
+            String serverResponse = await response.stream.bytesToString();
+            var decodedData = jsonDecode(serverResponse);
+            print(decodedData);
+
+            if (decodedData['message']
+                    .toString()
+                    .toLowerCase()
+                    .contains('create') &&
+                decodedData['message']
+                    .toString()
+                    .toLowerCase()
+                    .contains('success')) {
+              await BookwormServices().addBook(
+                Book(
+                    fid: provider.currentFolder.id,
+                    fname: provider.currentFolder.name,
+                    sid: folderType?.toLowerCase() == 'folder'
+                        ? null
+                        : provider.currentSubfolder.id,
+                    sname: folderType?.toLowerCase() == 'folder'
+                        ? null
+                        : provider.currentSubfolder.name,
+                    id: decodedData['data']['id'].toString(),
+                    name: decodedData['data']['title'],
+                    path: path),
+              );
+              if (createBook) {
+                Navigator.of(context)..pop()..pop()..pop();
+                if (folderType == 'subfolder') Navigator.pop(context);
+              }
+              showToast(context,
+                  message: 'Book added', backgroundColor: Colors.green);
+              provider.getFolderContents(provider.currentFolder.name);
+              if (folderType == 'subfolder')
+                provider.getSubfolderContents(provider.currentSubfolder.name);
+            } else
+              showToast(context,
+                  message: decodedData['message'], backgroundColor: Colors.red);
+          } else {
+            String serverResponse = await response.stream.bytesToString();
+            var decodedData = jsonDecode(serverResponse);
+            print(response.reasonPhrase);
+
+            if (decodedData['message']
+                    .toString()
+                    .toLowerCase()
+                    .contains('free') &&
+                decodedData['message']
+                    .toString()
+                    .toLowerCase()
+                    .contains('limit')) {
+              if (createBook) {
+                Navigator.of(context)..pop()..pop();
+                if (folderType == 'subfolder') Navigator.pop(context);
+              }
+              showDialog(
+                context: context,
+                builder: (_) {
+                  return SubsriptionDialog(
+                      'Limit exceeded. Free trial text limit is 1000 characters and 3 books. Please kindly subscribe.');
+                },
+              );
+            } else
+              showToast(context,
+                  message: decodedData['message'], backgroundColor: Colors.red);
+          }
+        } else {
+          await _progressIndicator.dismiss();
+          showToast(context,
+              message: 'Could not load file', backgroundColor: Colors.red);
         }
-      } else {
+      } catch (e) {
         await _progressIndicator.dismiss();
         showToast(context,
-            message: 'Could not load file', backgroundColor: Colors.red);
+            message: 'An error occurred. Try again',
+            backgroundColor: Colors.red);
       }
-    } catch (e) {
-      await _progressIndicator.dismiss();
-      showToast(context,
-          message: 'An error occurred. Try again', backgroundColor: Colors.red);
     }
   }
 }

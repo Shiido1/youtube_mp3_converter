@@ -178,7 +178,6 @@ class _ChooseFolderState extends State<ChooseFolder> {
                   onPressed: () {
                     addBook(
                       context: context,
-                      id: currentFolder.id,
                       folderType: 'folder',
                       createBook: true,
                     );

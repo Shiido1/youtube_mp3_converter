@@ -54,7 +54,7 @@ class _FolderListState extends State<FolderList> {
         ),
         leading: IconButton(
           onPressed: () {
-            if (widget.title.toLowerCase() != 'folders')
+            if (widget?.title?.toLowerCase() != 'folders')
               File(_bookwormProvider.createdBookPath).delete();
             Navigator.pop(context);
           },
@@ -86,9 +86,9 @@ class _FolderListState extends State<FolderList> {
             );
           folders?.sort((a, b) {
             return a
-                .toString()
-                .toLowerCase()
-                .compareTo(b.toString().toLowerCase());
+                ?.toString()
+                ?.toLowerCase()
+                ?.compareTo(b?.toString()?.toLowerCase());
           });
           return ListView.builder(
             itemBuilder: (context, index) {
@@ -96,7 +96,7 @@ class _FolderListState extends State<FolderList> {
                 children: [
                   MaterialButton(
                     onPressed: () {
-                      if (widget.title.toLowerCase() == 'folders')
+                      if (widget?.title?.toLowerCase() == 'folders')
                         Navigator.push(
                           context,
                           PageTransition(
@@ -111,7 +111,7 @@ class _FolderListState extends State<FolderList> {
                               type: PageTransitionType.rightToLeft),
                         );
                     },
-                    onLongPress: widget.title.toLowerCase() == 'folders'
+                    onLongPress: widget?.title?.toLowerCase() == 'folders'
                         ? () {
                             showFolderOptions(
                                 context: context, folderName: folders[index]);
@@ -366,7 +366,7 @@ class _TitleInputFieldState extends State<TitleInputField> {
                   textCapitalization: TextCapitalization.words,
                   maxLength: 20,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'\w')),
+                    FilteringTextInputFormatter.allow(RegExp(r'(\w+ ?)')),
                   ],
                   validator: (val) {
                     return val.trim().isEmpty ? 'Please enter a name' : null;

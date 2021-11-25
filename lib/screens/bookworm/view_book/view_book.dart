@@ -30,7 +30,7 @@ class _ViewBookState extends State<ViewBook> {
   String text;
   PdfViewerController _controller;
   BookwormProvider provider;
-  FlutterTts flutterTtsp;
+  FlutterTts flutterTts;
 
   int currentPage;
   int page;
@@ -39,64 +39,6 @@ class _ViewBookState extends State<ViewBook> {
   bool goToPageError = true;
   int goToPage;
   bool update = true;
-
-  speak() async {
-    setState(() {
-      isPlaying = true;
-    });
-    page = _controller.currentPageNumber;
-    doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
-    text = PdfTextExtractor(doc)
-        .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
-
-    print('text: $text');
-    if (text != null && text.isNotEmpty) {
-      await flutterTtsp.awaitSpeakCompletion(true);
-      flutterTtsp.speak(text);
-    } else
-      flutterTtsp.completionHandler();
-  }
-
-  completionHandler() async {
-    if (page < _controller.pageCount) {
-      page = page + 1;
-      doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
-      text = PdfTextExtractor(doc)
-          .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
-      _controller.goToPage(pageNumber: page);
-      if (text != null && text.isNotEmpty) {
-        await flutterTtsp.awaitSpeakCompletion(true);
-        await flutterTtsp.speak(text);
-      } else {
-        flutterTtsp.completionHandler();
-      }
-    } else
-      setState(() {
-        isPlaying = false;
-      });
-  }
-
-  stop() async {
-    await flutterTtsp.stop();
-    setState(() {
-      isPlaying = false;
-    });
-  }
-
-  initTts() async {
-    flutterTtsp = FlutterTts();
-    flutterTtsp.setCompletionHandler(completionHandler);
-    flutterTtsp.setCancelHandler(() {
-      setState(() {
-        isPlaying = false;
-      });
-    });
-    flutterTtsp.setErrorHandler((message) {
-      stop();
-      showToast(context, message: 'An error occurred while reading book');
-      print('this error occurred: $message');
-    });
-  }
 
   getStoredSettings() async {
     Map<String, String> voice = {
@@ -112,14 +54,70 @@ class _ViewBookState extends State<ViewBook> {
     pitchDataExists = await preferencesHelper.doesExists(key: 'ttsPitch');
     speechRateDataExists = await preferencesHelper.doesExists(key: 'ttsRate');
 
-    await flutterTtsp.setVoice(voice);
-    await flutterTtsp.setPitch(pitchDataExists
+    await flutterTts.setVoice(voice);
+    await flutterTts.setPitch(pitchDataExists
         ? await preferencesHelper.getDoubleValues(key: 'ttsPitch')
         : 1.0);
 
-    await flutterTtsp.setSpeechRate(speechRateDataExists
+    await flutterTts.setSpeechRate(speechRateDataExists
         ? await preferencesHelper.getDoubleValues(key: 'ttsRate')
         : 1.0);
+  }
+
+  startTts() async {
+    setState(() {
+      isPlaying = true;
+    });
+    page = _controller.currentPageNumber;
+    doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+    text = PdfTextExtractor(doc)
+        .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
+    if (text != null && text.isNotEmpty) {
+      await flutterTts.awaitSpeakCompletion(true);
+      flutterTts.speak(text);
+    } else
+      flutterTts.completionHandler();
+  }
+
+  completionHandler() async {
+    if (page < _controller.pageCount) {
+      page = page + 1;
+      doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+      text = PdfTextExtractor(doc)
+          .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
+      _controller.goToPage(pageNumber: page);
+      if (text != null && text.trim().isNotEmpty) {
+        await flutterTts.awaitSpeakCompletion(true);
+        await flutterTts.speak(text);
+      } else {
+        flutterTts.completionHandler();
+      }
+    } else {
+      setState(() {
+        isPlaying = false;
+      });
+    }
+  }
+
+  stopTts() async {
+    await flutterTts.stop();
+    setState(() {
+      isPlaying = false;
+    });
+  }
+
+  initTts() async {
+    flutterTts = FlutterTts();
+    flutterTts.setCompletionHandler(completionHandler);
+    flutterTts.setCancelHandler(() {
+      setState(() {
+        isPlaying = false;
+      });
+    });
+    flutterTts.setErrorHandler((message) async {
+      showToast(context, message: 'An error occurred while reading book');
+      await stopTts();
+    });
   }
 
   @override
@@ -129,17 +127,14 @@ class _ViewBookState extends State<ViewBook> {
     getStoredSettings();
     _controller = PdfViewerController();
     provider.showModal = true;
-    currentPage = _controller.currentPageNumber;
-    // _controller.addListener(() {
-    //   if (provider.showModal && this.mounted) provider.updateShowModal(false);
-    //   currentPage = _controller.currentPageNumber;
-    // });
+
     super.initState();
   }
 
   @override
   void deactivate() {
     update = false;
+
     super.deactivate();
   }
 
@@ -147,13 +142,15 @@ class _ViewBookState extends State<ViewBook> {
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
-    flutterTtsp.stop();
+    flutterTts.stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bool showModal = Provider.of<BookwormProvider>(context).showModal;
+    BookwormProvider _bookwormProvider = Provider.of<BookwormProvider>(context);
+    bool showModal = _bookwormProvider.showModal;
+
     return Scaffold(
       appBar: showModal
           ? AppBar(
@@ -209,7 +206,9 @@ class _ViewBookState extends State<ViewBook> {
                           color: Colors.black,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: showGoTo ? goToWidget() : controlButtonsWidget(),
+                        child: showGoTo
+                            ? goToWidget()
+                            : controlButtonsWidget(_provider),
                       ),
                     )
                   : Container();
@@ -220,19 +219,22 @@ class _ViewBookState extends State<ViewBook> {
     );
   }
 
-  controlButtons({@required String name, @required IconData icon}) {
+  controlButtons(
+      {@required String name,
+      @required IconData icon,
+      @required BookwormProvider bookProvider}) {
     return GestureDetector(
       onTap: () {
-        if (name.toLowerCase() == 'play' && !isPlaying) speak();
+        if (name.toLowerCase() == 'play' && !bookProvider.isPlaying) startTts();
 
-        if (name.toLowerCase() == 'stop') stop();
+        if (name.toLowerCase() == 'stop') stopTts();
 
         if (name.toLowerCase() == 'goto')
           setState(() {
             showGoTo = true;
           });
         if (name.toLowerCase() == 'voices') {
-          stop();
+          stopTts();
           Navigator.push(
             context,
             PageTransition(
@@ -268,26 +270,24 @@ class _ViewBookState extends State<ViewBook> {
     );
   }
 
-  controlButtonsWidget() {
+  controlButtonsWidget(BookwormProvider bookProvider) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         controlButtons(
-          name: 'Play',
-          icon: Icons.play_arrow_rounded,
-        ),
+            name: 'Play',
+            icon: Icons.play_arrow_rounded,
+            bookProvider: bookProvider),
         controlButtons(
-          name: 'Stop',
-          icon: Icons.stop_rounded,
-        ),
+            name: 'Stop', icon: Icons.stop_rounded, bookProvider: bookProvider),
         controlButtons(
-          name: 'GoTo',
-          icon: Icons.pages_outlined,
-        ),
+            name: 'GoTo',
+            icon: Icons.pages_outlined,
+            bookProvider: bookProvider),
         controlButtons(
-          name: 'Voices',
-          icon: Icons.people_outline_sharp,
-        )
+            name: 'Voices',
+            icon: Icons.people_outline_sharp,
+            bookProvider: bookProvider)
       ],
     );
   }

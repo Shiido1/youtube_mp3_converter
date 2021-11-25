@@ -29,7 +29,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   AudioPlayer audioPlayer;
   AudioPlayer musicPlayer;
   AudioPlayer vocalPlayer;
-  FlutterTts flutterTts;
+  FlutterTts flutterTts = FlutterTts();
   // PlayerFunction playerFunction = PlayerFunction.MUSIC;
 
   //audioplayer for playing the main songs
@@ -692,7 +692,8 @@ class MusicProvider with ChangeNotifier {
     });
 
     AudioService.currentMediaItemStream.listen((event) {
-      if (event != null) {
+      //TODO: remove this false
+      if (event != null && false) {
         currentSongID = event.id;
         currentSong = songs.firstWhere((element) => element.file == event.id,
             orElse: () => Song(

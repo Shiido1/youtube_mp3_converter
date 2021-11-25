@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -5,9 +6,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_session/audio_session.dart' as asp;
 import 'package:flutter/material.dart';
 import 'package:flutter_radio/flutter_radio.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
 import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../../../utils/helper/instances.dart';
 
 enum PlayerType { ALL, SHUFFLE, REPEAT }
@@ -26,27 +29,46 @@ class AudioPlayerTask extends BackgroundAudioTask {
   AudioPlayer audioPlayer;
   AudioPlayer musicPlayer;
   AudioPlayer vocalPlayer;
+  FlutterTts flutterTts;
+  // PlayerFunction playerFunction = PlayerFunction.MUSIC;
+
+  //audioplayer for playing the main songs
   static const POSITION_EVENT = 'POSITION_EVENT';
-  static const POSITION = 'POSITION';
   static const DURATION_EVENT = 'DURATION_EVENT';
-  static const DURATION = 'DURATION';
   static const STATE_CHANGE = 'STATE_CHANGE';
-  static const STATE = 'STATE';
   static const STATE_CHANGE2 = 'STATE_CHANGE2';
   static const PLAY_ACTION = 'PLAY_ACTION';
   static const CHANGE_TYPE = 'CHANGE_TYPE';
-  static const SET_VOLUME = 'SET_VOLUME';
-  static const COMPLETION = 'COMPLETION';
   static const SEEK = 'SEEK';
+  static const SET_VOLUME = 'SET_VOLUME';
+
+//musicplayer for playing the instrumentals
+  static const POSITION = 'POSITION';
+  static const DURATION = 'DURATION';
+  static const STATE = 'STATE';
+  static const COMPLETION = 'COMPLETION';
+  static const VOLUME = 'volume';
   static const PLAY = 'play';
   static const RESUME = 'resume';
   static const PAUSE = 'pause';
   static const STOP = 'stop';
   static const SEEK_TO = 'seek_to';
-  static const VOLUME = 'volume';
+
+  //vocalplayer for playing vocals
   static const VOCAL_VOLUME = 'vocal_volume';
-  static const SET_SESSION = 'set_session';
-  static const END_SESSION = 'end_session';
+
+  //change from tts to music
+  static const CHANGEPLAYERFUNCTION = 'change_player_function';
+
+  //flutterTts for reading books
+  static const TtsSPEAK = 'ttsSpeak';
+  static const TtsSTOP = 'ttsStop';
+  static const TtsIsPlaying = 'ttsIsPlaying';
+  static const TtsCompletion = 'ttsCompletionHandler';
+  static const TtsSetVoice = 'ttsSetVoice';
+  static const TtsSetPitch = 'ttsSetPitch';
+  static const TtsSetSpeechRate = 'ttsSetSpeechRate';
+  static const TtsOnError = 'ttsOnError';
 
   int index;
   PlayerType playerType = PlayerType.ALL;
@@ -62,7 +84,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     audioPlayer.onPlayerCompletion.listen((event) async {
       List<MediaItem> mediaItems = AudioServiceBackground.queue;
-      print(playerType);
+
       switch (playerType) {
         case PlayerType.ALL:
           if (index != null && index < mediaItems.length - 1) {
@@ -263,11 +285,17 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
   @override
   Future<void> onStop() async {
+    // if (playerFunction == PlayerFunction.MUSIC) {
     await audioPlayer.stop();
     await vocalPlayer.stop();
     await musicPlayer.stop();
-    await _broadcastState();
     await super.onStop();
+    // } else {
+    //   await flutterTts.stop();
+    //   AudioServiceBackground.sendCustomEvent({TtsIsPlaying: false});
+    // }
+
+    await _broadcastState();
   }
 
   @override
@@ -277,7 +305,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   Future<void> onPlay() async {
     await super.onPlay();
     if (musicPlayer.state == AudioPlayerState.PLAYING)
-      await musicPlayer.pause();
+      await audioPlayer.pause();
     await audioPlayer.resume();
     await _broadcastState();
   }
@@ -355,8 +383,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (musicPlayer.state == AudioPlayerState.PLAYING) {
         await musicPlayer.stop();
         if (playVocals) await vocalPlayer.stop();
-        if (await FlutterRadio.isPlaying()) FlutterRadio.stop();
       }
+      if (await FlutterRadio?.isPlaying()) await FlutterRadio.stop();
 
       audioSession = await asp.AudioSession.instance;
       audioSession
@@ -380,6 +408,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
       if (arguments == 'SHUFFLE') playerType = PlayerType.SHUFFLE;
       if (arguments == 'REPEAT') playerType = PlayerType.REPEAT;
     }
+
     if (name == SET_VOLUME) {
       audioPlayer.setVolume(arguments);
     }
@@ -392,20 +421,21 @@ class AudioPlayerTask extends BackgroundAudioTask {
       playVocals = arguments['playVocals'] ?? false;
       if (audioPlayer.state == AudioPlayerState.PLAYING)
         await audioPlayer.pause();
+      if (await FlutterRadio?.isPlaying()) await FlutterRadio.stop();
       audioSession2 = await asp.AudioSession.instance;
 
-      audioSession2
-          .configure(asp.AudioSessionConfiguration.music())
-          .then((value) async {
-        handleInterruptions(audioSession2, false);
-        if (await audioSession2.setActive(true)) {
-          await musicPlayer.play(arguments['url'],
-              isLocal: true, position: Duration());
-          if (playVocals)
-            await vocalPlayer.play(arguments['path'],
+      audioSession2.configure(asp.AudioSessionConfiguration.music()).then(
+        (value) async {
+          handleInterruptions(audioSession2, false);
+          if (await audioSession2.setActive(true)) {
+            await musicPlayer.play(arguments['url'],
                 isLocal: true, position: Duration(seconds: 0));
-        }
-      });
+            if (playVocals)
+              await vocalPlayer.play(arguments['path'],
+                  isLocal: true, position: Duration(seconds: 0));
+          }
+        },
+      );
     }
     if (name == PAUSE) {
       await musicPlayer.pause();
@@ -434,6 +464,69 @@ class AudioPlayerTask extends BackgroundAudioTask {
     if (name == VOCAL_VOLUME) {
       await vocalPlayer.setVolume(arguments);
     }
+    // if (name == CHANGEPLAYERFUNCTION) {
+    //   if (arguments == 'TTS')
+    //     playerFunction = PlayerFunction.TTS;
+    //   else
+    //     playerFunction = PlayerFunction.MUSIC;
+    // }
+    if (name == TtsSetVoice) {
+      await flutterTts
+          .setVoice({'name': arguments['name'], 'locale': arguments['locale']});
+    }
+    if (name == TtsSetPitch) {
+      await flutterTts.setPitch(arguments);
+    }
+    if (name == TtsSetSpeechRate) {
+      await flutterTts.setSpeechRate(arguments);
+    }
+    if (name == TtsSPEAK) {
+      AudioServiceBackground.sendCustomEvent({TtsIsPlaying: true});
+      AudioServiceBackground.sendCustomEvent({TtsCompletion: false});
+      String text;
+      PdfDocument doc;
+
+      MediaItem mediaItem = MediaItem(
+          id: 'whatever', album: '', title: arguments['title'] ?? 'Test');
+      await AudioServiceBackground.setMediaItem(mediaItem);
+
+      if (audioPlayer.state == AudioPlayerState.PLAYING)
+        await audioPlayer.stop();
+      if (musicPlayer.state == AudioPlayerState.PLAYING) {
+        await musicPlayer.stop();
+        if (playVocals) await vocalPlayer.stop();
+      }
+      if (await FlutterRadio?.isPlaying()) await FlutterRadio.stop();
+
+      audioSession = await asp.AudioSession.instance;
+      audioSession
+          .configure(asp.AudioSessionConfiguration.music())
+          .then((value) async {
+        // handleInterruptions(audioSession, true);
+
+        if (arguments['text'] == null) {
+          doc = PdfDocument(
+              inputBytes: File(arguments['path']).readAsBytesSync());
+          text = PdfTextExtractor(doc).extractText(
+              startPageIndex: arguments['page'] - 1,
+              endPageIndex: arguments['page'] - 1);
+        } else {
+          text = arguments['text'];
+        }
+
+        if (await audioSession.setActive(true)) {
+          if (text != null && text.isNotEmpty) {
+            await flutterTts.awaitSpeakCompletion(true);
+            flutterTts.speak(text);
+          } else
+            flutterTts.completionHandler();
+        }
+      });
+    }
+    if (name == TtsSTOP) {
+      await flutterTts.stop();
+      AudioServiceBackground.sendCustomEvent({TtsIsPlaying: false});
+    }
 
     await _broadcastState();
     return super.onCustomAction(name, arguments);
@@ -442,12 +535,14 @@ class AudioPlayerTask extends BackgroundAudioTask {
   @override
   Future<void> onUpdateQueue(List<MediaItem> queue) {
     AudioServiceBackground.setQueue(queue);
+    _broadcastState();
     return super.onUpdateQueue(queue);
   }
 
   @override
   Future<void> onUpdateMediaItem(MediaItem mediaItem) {
     AudioServiceBackground.setMediaItem(mediaItem);
+    _broadcastState();
     return super.onUpdateMediaItem(mediaItem);
   }
 }

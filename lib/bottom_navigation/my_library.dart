@@ -220,33 +220,20 @@ class _LibraryState extends State<Library> {
                                     (e) => Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: InkWell(
-                                        onTap: () {
-                                          int width = MediaQuery.of(context)
-                                              .size
-                                              .width
-                                              .floor();
-                                          PageRouter.gotoWidget(
-                                              SongViewScreen(e, width),
-                                              context);
-                                        },
-                                        child: Container(
-                                            color: Colors.white,
-                                            height: 50,
-                                            width: 80),
-                                        // child: CachedNetworkImage(
-                                        //   imageUrl: e.image,
-                                        //   errorWidget: (context, data, _) =>
-                                        //       Container(
-                                        //     color: Colors.white54,
-                                        //     height: 30,
-                                        //     width: 150,
-                                        //     child: Icon(
-                                        //       Icons.error,
-                                        //       size: 35,
-                                        //     ),
-                                        //   ),
-                                        // ),
-                                      ),
+                                          onTap: () {
+                                            int width = MediaQuery.of(context)
+                                                .size
+                                                .width
+                                                .floor();
+                                            PageRouter.gotoWidget(
+                                                SongViewScreen(e, width),
+                                                context);
+                                          },
+                                          child: e.artWork != null &&
+                                                  e.artWork.isNotEmpty
+                                              ? Image.memory(e.artWork)
+                                              : Image.asset(
+                                                  'assets/new_icon.png')),
                                     ),
                                   )
                                   .toList(),

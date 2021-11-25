@@ -21,7 +21,7 @@ class RadioPlayProvider with ChangeNotifier {
   }
 
   void playRadio(radioPlayer) async {
-    if (AudioService.playbackState.playing) {
+    if (AudioService?.playbackState?.playing == true ?? false) {
       await AudioService.customAction(AudioPlayerTask.STOP);
       await AudioService.pause();
     }

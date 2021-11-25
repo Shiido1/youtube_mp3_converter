@@ -191,12 +191,7 @@ class _FolderDetailsState extends State<FolderDetails> {
                     physics: BouncingScrollPhysics(),
                     itemBuilder: (context, index) {
                       List<Book> books = _provider.folderBooks;
-                      print(books[0].toJson());
-                      // books?.sort((a, b) {
-                      //   return a.name
-                      //       .toLowerCase()
-                      //       .compareTo(b.name.toLowerCase());
-                      // });
+
                       return GestureDetector(
                         onLongPress: () {
                           showBookOptions(context, books[index]);

@@ -27,8 +27,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
   String email = '';
   String name = '';
   String userToken = '';
-  // String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
-  String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
+  String publicKey = 'pk_live_badd2f12087954f78aaaa51ac3142a7ba307daa3';
+  // String publicKey = 'pk_test_20fed7e409eb5e0f01fb5be78a63b9576612a566';
   FlutterPay flutterPay = FlutterPay();
 
   @override

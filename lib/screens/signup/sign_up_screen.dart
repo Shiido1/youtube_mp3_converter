@@ -51,6 +51,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         );
         _progressIndicator.dismiss();
 
+        print('code is ${response.statusCode}');
+
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
           if (data['message'].toString().toLowerCase().contains('success')) {

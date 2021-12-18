@@ -118,7 +118,7 @@ class _BottomPlayingIndicatorState extends State<BottomPlayingIndicator> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: LayoutBuilder(builder: (context, viewport) {
-                        String text = _provider?.currentRecord?.name;
+                        String text = _provider?.currentRecord?.name ?? '';
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,

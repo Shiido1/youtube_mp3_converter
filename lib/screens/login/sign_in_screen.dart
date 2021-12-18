@@ -56,6 +56,7 @@ class _SignInScreenState extends State<SignInScreen> {
           body: jsonEncode({'token': auth.accessToken}),
           headers: {'Content-Type': 'application/json'},
         );
+        print('status code is ${response.statusCode}');
         _progressIndicator.dismiss();
 
         if (response.statusCode == 200) {
@@ -110,6 +111,7 @@ class _SignInScreenState extends State<SignInScreen> {
         }
       } catch (e) {
         _progressIndicator.dismiss();
+        print(e);
         showToast(
           context,
           message: 'Operation failed',

@@ -10,12 +10,14 @@ import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/services/book_services.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class CreateBook extends StatefulWidget {
@@ -41,6 +43,7 @@ class _CreateBookState extends State<CreateBook> {
   }
 
   createPdf(String title, String text) async {
+    title = title.trim();
     pw.Document pdf = pw.Document();
     TextStyle style = TextStyle(
         color: Colors.black,
@@ -132,42 +135,49 @@ class _CreateBookState extends State<CreateBook> {
       ),
     );
 
-    final file = Platform.isAndroid
-        ? await DownloadsPathProvider.downloadsDirectory
-        : await getApplicationDocumentsDirectory();
-    File output;
-    String titleHolder;
+    final status = await Permission.storage.request();
 
-    if (await File('${file.path}/$title.pdf').exists()) {
-      // List<String> splitTitle = title.trim().split(' ');
-      // String lastText = splitTitle.last;
-      // String lastString = lastText.substring(lastText.length);
-      // int val = int.tryParse(lastString);
-      // if (val == null) {
-      //   title = title + '1';
-      // } else {
-      //   val = val + 1;
-      //   // title.replaceRange(tit, end, replacement)
-      // }
-      int i = 1;
-      do {
-        titleHolder = title + '$i';
-        i++;
-      } while (await File('${file.path}/$titleHolder.pdf').exists());
-    }
-    if (titleHolder != null) title = titleHolder;
-    output = File('${file.path}/$title.pdf');
-    output.writeAsBytesSync(await pdf.save());
+    if (status.isGranted) {
+      final file = Platform.isAndroid
+          ? await DownloadsPathProvider.downloadsDirectory
+          : await getApplicationDocumentsDirectory();
+      File output;
+      String titleHolder;
 
-    provider.createdBookName = title;
-    provider.createdBookPath = output.path;
+      if (await File('${file.path}/$title.pdf').exists()) {
+        // List<String> splitTitle = title.trim().split(' ');
+        // String lastText = splitTitle.last;
+        // String lastString = lastText.substring(lastText.length);
+        // int val = int.tryParse(lastString);
+        // if (val == null) {
+        //   title = title + '1';
+        // } else {
+        //   val = val + 1;
+        //   // title.replaceRange(tit, end, replacement)
+        // }
+        int i = 1;
+        do {
+          titleHolder = title + '$i';
+          i++;
+        } while (await File('${file.path}/$titleHolder.pdf').exists());
+      }
+      if (titleHolder != null) title = titleHolder;
+      output = File('${file.path}/$title.pdf');
+      output.writeAsBytesSync(await pdf.save());
 
-    Navigator.push(
-      context,
-      PageTransition(
-          child: FolderList(title: 'Choose Folder'),
-          type: PageTransitionType.bottomToTop),
-    );
+      provider.createdBookName = title;
+      provider.createdBookPath = output.path;
+
+      Navigator.push(
+        context,
+        PageTransition(
+            child: FolderList(title: 'Choose Folder'),
+            type: PageTransitionType.bottomToTop),
+      );
+    } else
+      showToast(context,
+          message: 'You need to grant storage permission',
+          backgroundColor: Colors.red);
   }
 
   @override

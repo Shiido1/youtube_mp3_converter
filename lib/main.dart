@@ -11,8 +11,10 @@ import 'package:hive/hive.dart';
 import 'package:mp3_music_converter/database/hive_boxes.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
 import 'package:mp3_music_converter/screens/login/sign_in_screen.dart';
+import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/helper/pref_manager.dart';
 import 'package:mp3_music_converter/utils/page_router/navigator.dart';
+import 'package:mp3_music_converter/widgets/red_background_backend/provider.dart';
 import 'package:provider/provider.dart';
 import 'common/providers.dart';
 import 'utils/color_assets/color.dart';
@@ -42,6 +44,19 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
+    //TODO: remove all these preferenceHelpers
+    // preferencesHelper.saveValue(key: 'email', value: 'ebenezerundie@gmail.com');
+    // preferencesHelper.saveValue(
+    //     key: 'token',
+    //     value:
+    //         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczpcL1wveW91dHViZWF1ZGlvLmNvbSIsImF1ZCI6Imh0dHBzOlwvXC95b3V0dWJlYXVkaW8uY29tIiwiaWF0IjoxMzU2OTkxNTI0LCJuYmYiOjEzNTcwMDEwMDAsImVtYWlsIjoibml6YXRyZWFzdXJlMkBnbWFpbC5jb20ifQ.47n_bfAZlNBoREiY4tSctWYVQirLEVH6lu1RCXp0who');
+    // preferencesHelper.saveValue(key: 'id', value: '126');
+    // preferencesHelper.saveValue(key: 'name', value: 'Undie Ebenezer', );
+    // preferencesHelper.saveValue(
+    //     key: 'profileImage',
+    //     value:
+    //         'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png');
+
     super.initState();
   }
 
@@ -75,7 +90,6 @@ class Wrapper extends StatefulWidget {
 }
 
 class _WrapperState extends State<Wrapper> {
-  SharedPreferencesHelper preferencesHelper;
   String email;
   bool newUser;
 
@@ -86,8 +100,8 @@ class _WrapperState extends State<Wrapper> {
   @override
   void initState() {
     openBox();
-    preferencesHelper = SharedPreferencesHelper();
     getEmail();
+
     super.initState();
   }
 

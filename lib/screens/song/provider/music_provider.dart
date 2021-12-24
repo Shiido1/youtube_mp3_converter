@@ -19,9 +19,14 @@ void _entryPoint() {
   AudioServiceBackground.run(() => AudioPlayerTask());
 }
 
+//controls which background task is running (if music or pdf reader)
+bool isPlayingMusic = true;
+
 Future<dynamic> addActionToAudioService(Function callback) async {
-  if (AudioService.running == null || !AudioService.running)
+  if (!AudioService.connected) await AudioService.connect();
+  if (AudioService.running == null || !AudioService.running) {
     await AudioService.start(backgroundTaskEntrypoint: _entryPoint);
+  }
   return callback();
 }
 
@@ -533,16 +538,16 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onUpdateQueue(List<MediaItem> queue) {
-    AudioServiceBackground.setQueue(queue);
-    _broadcastState();
+  Future<void> onUpdateQueue(List<MediaItem> queue) async {
+    await AudioServiceBackground.setQueue(queue);
+    await _broadcastState();
     return super.onUpdateQueue(queue);
   }
 
   @override
-  Future<void> onUpdateMediaItem(MediaItem mediaItem) {
-    AudioServiceBackground.setMediaItem(mediaItem);
-    _broadcastState();
+  Future<void> onUpdateMediaItem(MediaItem mediaItem) async {
+    await AudioServiceBackground.setMediaItem(mediaItem);
+    await _broadcastState();
     return super.onUpdateMediaItem(mediaItem);
   }
 }
@@ -566,10 +571,6 @@ class MusicProvider with ChangeNotifier {
   AudioPlayerState audioPlayerState;
   // String sharedText = '';
   BuildContext context;
-
-  test() {
-    final runningStream = AudioService.runningStream;
-  }
 
   void setContext(BuildContext context) {
     this.context = context;
@@ -654,45 +655,47 @@ class MusicProvider with ChangeNotifier {
       androidShowNotificationBadge: true,
     );
     AudioService.customEventStream.listen((event) async {
-      if (event[AudioPlayerTask.DURATION_EVENT] != null) {
-        totalDuration =
-            Duration(seconds: event[AudioPlayerTask.DURATION_EVENT]) ??
-                Duration();
+      if (isPlayingMusic) {
+        if (event[AudioPlayerTask.DURATION_EVENT] != null) {
+          totalDuration =
+              Duration(seconds: event[AudioPlayerTask.DURATION_EVENT]) ??
+                  Duration();
 
-        if (songs == null || songs.isEmpty)
-          songs = convertMediaItemToSong(
-              AudioService.queue ?? [AudioService.currentMediaItem]);
-        if (currentSong == null) {
-          currentSong = Song(
-            artistName: AudioService.currentMediaItem.artist,
-            fileName: AudioService.currentMediaItem.extras['fileName'],
-            favorite: AudioService.currentMediaItem.extras['favourite'],
-            filePath: AudioService.currentMediaItem.extras['filePath'],
-            image: AudioService.currentMediaItem.extras['image'],
-            songName: AudioService.currentMediaItem.title,
-          );
+          if (songs == null || songs.isEmpty)
+            songs = convertMediaItemToSong(
+                AudioService.queue ?? [AudioService.currentMediaItem]);
+          if (currentSong == null) {
+            currentSong = Song(
+              artistName: AudioService.currentMediaItem.artist,
+              fileName: AudioService.currentMediaItem.extras['fileName'],
+              favorite: AudioService.currentMediaItem.extras['favourite'],
+              filePath: AudioService.currentMediaItem.extras['filePath'],
+              image: AudioService.currentMediaItem.extras['image'],
+              songName: AudioService.currentMediaItem.title,
+            );
+          }
+
+          notifyListeners();
         }
+        if (event[AudioPlayerTask.POSITION_EVENT] != null) {
+          progress = Duration(seconds: event[AudioPlayerTask.POSITION_EVENT]) ??
+              Duration();
+          notifyListeners();
+        }
+        if (event[AudioPlayerTask.STATE_CHANGE] != null) {
+          audioPlayerState = event[AudioPlayerTask.STATE_CHANGE];
 
-        notifyListeners();
-      }
-      if (event[AudioPlayerTask.POSITION_EVENT] != null) {
-        progress = Duration(seconds: event[AudioPlayerTask.POSITION_EVENT]) ??
-            Duration();
-        notifyListeners();
-      }
-      if (event[AudioPlayerTask.STATE_CHANGE] != null) {
-        audioPlayerState = event[AudioPlayerTask.STATE_CHANGE];
-
-        notifyListeners();
-      }
-      if (event[AudioPlayerTask.STATE_CHANGE2] != null) {
-        audioPlayerState = event[AudioPlayerTask.STATE_CHANGE2];
-        notifyListeners();
+          notifyListeners();
+        }
+        if (event[AudioPlayerTask.STATE_CHANGE2] != null) {
+          audioPlayerState = event[AudioPlayerTask.STATE_CHANGE2];
+          notifyListeners();
+        }
       }
     });
 
     AudioService.currentMediaItemStream.listen((event) {
-      if (event != null) {
+      if (event != null && isPlayingMusic) {
         currentSongID = event.id;
         currentSong = songs.firstWhere((element) => element.file == event.id,
             orElse: () => Song(
@@ -724,9 +727,13 @@ class MusicProvider with ChangeNotifier {
                 image: song.extras['image'],
                 songName: song.title,
               ));
+
+      print(currentSong.songName);
       if (songs.isNotEmpty)
-        await AudioService.updateQueue(convertSongToMediaItem(songs));
-      await AudioService.updateMediaItem(song);
+        await addActionToAudioService(() async =>
+            await AudioService.updateQueue(convertSongToMediaItem(songs)));
+      await addActionToAudioService(
+          () async => await AudioService.updateMediaItem(song));
       notifyListeners();
     }
   }
@@ -867,9 +874,9 @@ class MusicProvider with ChangeNotifier {
   }
 
   updateAndPlay() async {
-    if (currentSong != null) {
+    if (currentSong != null && songs.isEmpty) {
       await addActionToAudioService(
-        () => AudioService.updateMediaItem(
+        () async => await AudioService.updateMediaItem(
           MediaItem(
             artist: currentSong.artistName ?? 'Unknown artist',
             title: currentSong.songName ?? 'Unknown',
@@ -884,12 +891,19 @@ class MusicProvider with ChangeNotifier {
           ),
         ),
       );
-      if (songs.isNotEmpty)
-        await addActionToAudioService(
-          () => AudioService.updateQueue(
-            convertSongToMediaItem(songs),
-          ),
-        );
+      await addActionToAudioService(
+        () => AudioService.customAction(AudioPlayerTask.PLAY_ACTION),
+      );
+    }
+    if (currentSong != null && songs.isNotEmpty) {
+      await addActionToAudioService(
+        () async => await AudioService.updateQueue(
+          convertSongToMediaItem(songs),
+        ),
+      );
+      await addActionToAudioService(
+        () async => await AudioService.skipToQueueItem(currentSong.file),
+      );
       await addActionToAudioService(
         () => AudioService.customAction(AudioPlayerTask.PLAY_ACTION),
       );

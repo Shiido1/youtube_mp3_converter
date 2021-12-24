@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +15,14 @@ import 'package:mp3_music_converter/screens/song/song_view_screen.dart';
 import 'package:mp3_music_converter/screens/song/upload_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
+import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -362,96 +365,104 @@ class _SongViewCLassState extends State<SongViewCLass> {
   }
 
   synchronizeSong(context) async {
-    SongRepository.clear();
-    List<SongModel> songs = await _audioquery.querySongs();
+    final status = await Permission.storage.request();
 
-    // print(songs[0].duration );
-    if (mounted)
-      setState(() {
-        showSync = true;
-        total = songs.length;
-        value = 0;
-      });
+    if (status.isGranted) {
+      SongRepository.clear();
+      List<SongModel> songs = await _audioquery.querySongs();
 
-    for (int i = 0; i < songs.length; i++) {
-      Uint8List artwork =
-          await _audioquery.queryArtworks(songs[i].id, ArtworkType.AUDIO);
-
-      if (songs[i].duration >= 60000 ?? false)
-        await SongRepository.addSong(
-          Song(
-              artistName: songs[i].artist,
-              fileName: songs[i].displayName,
-              songName: songs[i].title,
-              filePath: songs[i].fileParent,
-              size: songs[i].size,
-              artWork: artwork,
-              musicid: songs[i].id.toString()),
-        );
+      // print(songs[0].duration );
       if (mounted)
         setState(() {
-          value = i + 1;
+          showSync = true;
+          total = songs.length;
+          value = 0;
         });
-    }
-    if (mounted)
-      setState(() {
-        showSync = false;
-        value = 0;
-      });
-    _musicProvider.getSongs();
 
-    // String url = "http://67.205.165.56/api/mylib";
-    // String token = await preferencesHelper.getStringValues(key: 'token');
-    // MusicProvider _provider = Provider.of<MusicProvider>(context, listen: false);
-    // _provider.getSongs();
-    // final snackBar = SnackBar(
-    //   content: Text('Failed to synchronize songs. Please try again later'),
-    //   backgroundColor: Colors.red,
-    // );
+      for (int i = 0; i < songs.length; i++) {
+        Uint8List artwork =
+            await _audioquery.queryArtworks(songs[i].id, ArtworkType.AUDIO);
 
-    // try {
-    //   final response = await http.post(url,
-    //       body: jsonEncode({'token': token}),
-    //       headers: {'Content-Type': 'application/json'});
+        if (songs[i].duration >= 60000 ?? false)
+          await SongRepository.addSong(
+            Song(
+                artistName: songs[i].artist,
+                fileName: songs[i].displayName,
+                songName: songs[i].title,
+                filePath: songs[i].fileParent,
+                size: songs[i].size,
+                artWork: artwork,
+                musicid: songs[i].id.toString()),
+          );
+        if (mounted)
+          setState(() {
+            value = i + 1;
+          });
+      }
+      if (mounted)
+        setState(() {
+          showSync = false;
+          value = 0;
+        });
+      _musicProvider.getSongs();
 
-    //   if (response.statusCode == 200) {
-    //     Map data = jsonDecode(response.body);
-    //     List<Song> songs = _provider.allSongs;
-    //     List<String> songTitle = [];
-    //     Map<String, Map> songDetails = {};
-    //     for (Map item in data['mainlib']) {
-    //       songDetails.putIfAbsent(
-    //           item['title'],
-    //           () => {
-    //                 'path': item['path'],
-    //                 'image': item['image'][0] == "/"
-    //                     ? "https://youtubeaudio.com" + item['image']
-    //                     : item['image'],
-    //                 'libid': item['libid'],
-    //                 'songName': item['songname'] ?? 'Unknown',
-    //                 'artistName': item['artist'] ?? 'Unknown Artist',
-    //                 'musicid': item['musicid'].toString()
-    //               });
-    //       for (Song song in songs) {
-    //         if (item['title'] == song.fileName) {
-    //           songTitle.add(song.fileName);
-    //           break;
-    //         }
-    //       }
-    //     }
-    //     for (String title in songTitle) {
-    //       songDetails.remove(title);
-    //     }
+      // String url = "http://67.205.165.56/api/mylib";
+      // String token = await preferencesHelper.getStringValues(key: 'token');
+      // MusicProvider _provider = Provider.of<MusicProvider>(context, listen: false);
+      // _provider.getSongs();
+      // final snackBar = SnackBar(
+      //   content: Text('Failed to synchronize songs. Please try again later'),
+      //   backgroundColor: Colors.red,
+      // );
 
-    //     Navigator.push(
-    //         context,
-    //         MaterialPageRoute(
-    //             builder: (context) =>
-    //                 Downloads(syncSongData: songDetails, syncSong: true)));
-    //   } else
-    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // } catch (e) {
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // }
+      // try {
+      //   final response = await http.post(url,
+      //       body: jsonEncode({'token': token}),
+      //       headers: {'Content-Type': 'application/json'});
+
+      //   if (response.statusCode == 200) {
+      //     Map data = jsonDecode(response.body);
+      //     List<Song> songs = _provider.allSongs;
+      //     List<String> songTitle = [];
+      //     Map<String, Map> songDetails = {};
+      //     for (Map item in data['mainlib']) {
+      //       songDetails.putIfAbsent(
+      //           item['title'],
+      //           () => {
+      //                 'path': item['path'],
+      //                 'image': item['image'][0] == "/"
+      //                     ? "https://youtubeaudio.com" + item['image']
+      //                     : item['image'],
+      //                 'libid': item['libid'],
+      //                 'songName': item['songname'] ?? 'Unknown',
+      //                 'artistName': item['artist'] ?? 'Unknown Artist',
+      //                 'musicid': item['musicid'].toString()
+      //               });
+      //       for (Song song in songs) {
+      //         if (item['title'] == song.fileName) {
+      //           songTitle.add(song.fileName);
+      //           break;
+      //         }
+      //       }
+      //     }
+      //     for (String title in songTitle) {
+      //       songDetails.remove(title);
+      //     }
+
+      //     Navigator.push(
+      //         context,
+      //         MaterialPageRoute(
+      //             builder: (context) =>
+      //                 Downloads(syncSongData: songDetails, syncSong: true)));
+      //   } else
+      //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      // } catch (e) {
+      //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      // }
+    } else
+      showToast(context,
+          message: 'You need to grant storage permission',
+          backgroundColor: Colors.red,
+          textColor: Colors.white);
   }
 }

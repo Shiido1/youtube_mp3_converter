@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
+import 'package:provider/provider.dart';
 
 class VoiceSettings extends StatefulWidget {
-  final Function reInitTts;
-  VoiceSettings(this.reInitTts);
+  // final Function reInitTts;
+  // VoiceSettings(this.reInitTts);
 
   @override
   _VoiceSettingsState createState() => _VoiceSettingsState();
@@ -17,6 +19,7 @@ class _VoiceSettingsState extends State<VoiceSettings> {
   double rate = 1.0;
   int groupValue = 1;
   FlutterTts flutterTts;
+  BookwormProvider bookwormProvider;
   Map<String, String> male = {'name': 'en-gb-x-rjs-network', 'locale': 'en-GB'};
   Map<String, String> female = {
     'name': 'en-gb-x-gba-network',
@@ -76,6 +79,7 @@ class _VoiceSettingsState extends State<VoiceSettings> {
 
   @override
   void initState() {
+    bookwormProvider = Provider.of<BookwormProvider>(context, listen: false);
     initTts();
     getStoredSettings();
     super.initState();
@@ -84,35 +88,35 @@ class _VoiceSettingsState extends State<VoiceSettings> {
   @override
   void dispose() {
     flutterTts.stop();
-    widget.reInitTts();
+    // widget.reInitTts();
     super.dispose();
   }
 
   setVoice(Map<String, String> voice) async {
     isPlaying = true;
+    bookwormProvider.voice = voice;
     await flutterTts.setVoice(voice);
     preferencesHelper.saveValue(key: 'ttsVoice', value: voice);
-    // widget.setVoice(voice);
     await flutterTts.awaitSpeakCompletion(true);
-    await flutterTts.speak('This is an example of how it\'s going to sound');
+    await flutterTts.speak('This is YT Audio');
   }
 
   setSpeechRate(double rate) async {
     isPlaying = true;
+    bookwormProvider.rate = rate;
     await flutterTts.setSpeechRate(rate);
     preferencesHelper.saveValue(key: 'ttsRate', value: rate);
-    // widget.setSpeechRate(rate);
     await flutterTts.awaitSpeakCompletion(true);
-    await flutterTts.speak('This is an example of how it\'s going to sound');
+    await flutterTts.speak('This is YT Audio');
   }
 
   setVoicePitch(double pitch) async {
     isPlaying = true;
+    bookwormProvider.pitch = pitch;
     await flutterTts.setPitch(pitch);
     preferencesHelper.saveValue(key: 'ttsPitch', value: pitch);
-    // widget.setPitch(pitch);
     await flutterTts.awaitSpeakCompletion(true);
-    await flutterTts.speak('This is an example of how it\'s going to sound');
+    await flutterTts.speak('This is YT Audio');
   }
 
   @override

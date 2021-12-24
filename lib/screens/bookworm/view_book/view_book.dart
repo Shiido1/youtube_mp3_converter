@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
@@ -7,6 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mp3_music_converter/screens/bookworm/model/model.dart';
 import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/bookworm/view_book/voice_settings.dart';
+import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -30,7 +32,7 @@ class _ViewBookState extends State<ViewBook> {
   String text;
   PdfViewerController _controller;
   BookwormProvider provider;
-  FlutterTts flutterTts;
+  // FlutterTts flutterTts;
 
   int currentPage;
   int page;
@@ -54,76 +56,91 @@ class _ViewBookState extends State<ViewBook> {
     pitchDataExists = await preferencesHelper.doesExists(key: 'ttsPitch');
     speechRateDataExists = await preferencesHelper.doesExists(key: 'ttsRate');
 
-    await flutterTts.setVoice(voice);
-    await flutterTts.setPitch(pitchDataExists
+    provider.voice = voice;
+
+    provider.pitch = pitchDataExists
         ? await preferencesHelper.getDoubleValues(key: 'ttsPitch')
-        : 1.0);
+        : 1.0;
 
-    await flutterTts.setSpeechRate(speechRateDataExists
+    provider.rate = speechRateDataExists
         ? await preferencesHelper.getDoubleValues(key: 'ttsRate')
-        : 1.0);
+        : 1.0;
   }
 
-  startTts() async {
-    setState(() {
-      isPlaying = true;
-    });
-    page = _controller.currentPageNumber;
-    doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
-    text = PdfTextExtractor(doc)
-        .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
-    if (text != null && text.isNotEmpty) {
-      await flutterTts.awaitSpeakCompletion(true);
-      flutterTts.speak(text);
-    } else
-      flutterTts.completionHandler();
+  // startTts() async {
+  //   setState(() {
+  //     isPlaying = true;
+  //   });
+  //   page = _controller.currentPageNumber;
+  //   doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+  //   text = PdfTextExtractor(doc)
+  //       .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
+  //   if (text != null && text.isNotEmpty) {
+  //     await flutterTts.awaitSpeakCompletion(true);
+  //     flutterTts.speak(text);
+  //   } else
+  //     flutterTts.completionHandler();
+  // }
+
+  // completionHandler() async {
+  //   if (page < _controller.pageCount) {
+  //     page = page + 1;
+  //     doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
+  //     text = PdfTextExtractor(doc)
+  //         .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
+  //     _controller.goToPage(pageNumber: page);
+  //     if (text != null && text.trim().isNotEmpty) {
+  //       await flutterTts.awaitSpeakCompletion(true);
+  //       await flutterTts.speak(text);
+  //     } else {
+  //       flutterTts.completionHandler();
+  //     }
+  //   } else {
+  //     setState(() {
+  //       isPlaying = false;
+  //     });
+  //   }
+  // }
+
+  // stopTts() async {
+  //   await flutterTts.stop();
+  //   setState(() {
+  //     isPlaying = false;
+  //   });
+  // }
+
+  playNextPage() async {
+    if (provider.currentPage != null &&
+        provider.maxPage != null &&
+        provider.currentPage < provider.maxPage &&
+        provider.ttsCompleted) {
+      provider.ttsCompleted = false;
+      provider.currentPage = provider.currentPage + 1;
+      _controller.goToPage(pageNumber: provider.currentPage);
+
+      provider.startTts(widget.book);
+    } else if (provider.currentPage == provider.maxPage &&
+        provider.ttsCompleted) provider.stopTts();
   }
 
-  completionHandler() async {
-    if (page < _controller.pageCount) {
-      page = page + 1;
-      doc = PdfDocument(inputBytes: File(widget.book.path).readAsBytesSync());
-      text = PdfTextExtractor(doc)
-          .extractText(startPageIndex: page - 1, endPageIndex: page - 1);
-      _controller.goToPage(pageNumber: page);
-      if (text != null && text.trim().isNotEmpty) {
-        await flutterTts.awaitSpeakCompletion(true);
-        await flutterTts.speak(text);
-      } else {
-        flutterTts.completionHandler();
-      }
-    } else {
-      setState(() {
-        isPlaying = false;
-      });
-    }
-  }
-
-  stopTts() async {
-    await flutterTts.stop();
-    setState(() {
-      isPlaying = false;
-    });
-  }
-
-  initTts() async {
-    flutterTts = FlutterTts();
-    flutterTts.setCompletionHandler(completionHandler);
-    flutterTts.setCancelHandler(() {
-      setState(() {
-        isPlaying = false;
-      });
-    });
-    flutterTts.setErrorHandler((message) async {
-      showToast(context, message: 'An error occurred while reading book');
-      await stopTts();
-    });
-  }
+  // initTts() async {
+  //   flutterTts = FlutterTts();
+  //   flutterTts.setCompletionHandler(completionHandler);
+  //   flutterTts.setCancelHandler(() {
+  //     setState(() {
+  //       isPlaying = false;
+  //     });
+  //   });
+  //   flutterTts.setErrorHandler((message) async {
+  //     showToast(context, message: 'An error occurred while reading book');
+  //     await stopTts();
+  //   });
+  // }
 
   @override
   void initState() {
     provider = Provider.of<BookwormProvider>(context, listen: false);
-    initTts();
+    // initTts();
     getStoredSettings();
     _controller = PdfViewerController();
     provider.showModal = true;
@@ -131,10 +148,15 @@ class _ViewBookState extends State<ViewBook> {
     super.initState();
   }
 
+  stopTtsAudioBackground() async {
+    await provider.stopTts();
+    isPlayingMusic = true;
+  }
+
   @override
   void deactivate() {
     update = false;
-
+    stopTtsAudioBackground();
     super.deactivate();
   }
 
@@ -142,7 +164,7 @@ class _ViewBookState extends State<ViewBook> {
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
-    flutterTts.stop();
+    // flutterTts.stop();
     super.dispose();
   }
 
@@ -150,6 +172,7 @@ class _ViewBookState extends State<ViewBook> {
   Widget build(BuildContext context) {
     BookwormProvider _bookwormProvider = Provider.of<BookwormProvider>(context);
     bool showModal = _bookwormProvider.showModal;
+    playNextPage();
 
     return Scaffold(
       appBar: showModal
@@ -184,6 +207,7 @@ class _ViewBookState extends State<ViewBook> {
                   filePath: widget.book.path,
                   viewerController: _controller,
                   onViewerControllerInitialized: (controller) {
+                    _bookwormProvider.maxPage = _controller.pageCount;
                     _controller.addListener(() {
                       if (update) provider.updateShowModal(false);
                     });
@@ -224,22 +248,27 @@ class _ViewBookState extends State<ViewBook> {
       @required IconData icon,
       @required BookwormProvider bookProvider}) {
     return GestureDetector(
-      onTap: () {
-        if (name.toLowerCase() == 'play' && !bookProvider.isPlaying) startTts();
+      onTap: () async {
+        if (name.toLowerCase() == 'play' && !bookProvider.isPlaying) {
+          if (AudioService.running != null && AudioService.running)
+            await AudioService.stop();
+          isPlayingMusic = false;
+          bookProvider.currentPage = _controller.currentPageNumber;
+          bookProvider.startTts(widget.book);
+        }
 
-        if (name.toLowerCase() == 'stop') stopTts();
+        if (name.toLowerCase() == 'stop') await bookProvider.stopTts();
 
         if (name.toLowerCase() == 'goto')
           setState(() {
             showGoTo = true;
           });
         if (name.toLowerCase() == 'voices') {
-          stopTts();
+          await bookProvider.stopTts();
           Navigator.push(
             context,
             PageTransition(
-                child: VoiceSettings(initTts),
-                type: PageTransitionType.bottomToTop),
+                child: VoiceSettings(), type: PageTransitionType.bottomToTop),
           );
         }
       },
@@ -249,8 +278,8 @@ class _ViewBookState extends State<ViewBook> {
           children: [
             Icon(
               icon,
-              color: (name.toLowerCase() == 'play' && isPlaying) ||
-                      (name.toLowerCase() == 'stop' && !isPlaying)
+              color: (name.toLowerCase() == 'play' && bookProvider.isPlaying) ||
+                      (name.toLowerCase() == 'stop' && !bookProvider.isPlaying)
                   ? Colors.white30
                   : Colors.white,
               size: 40,
@@ -258,8 +287,10 @@ class _ViewBookState extends State<ViewBook> {
             Text(
               name,
               style: TextStyle(
-                  color: (name.toLowerCase() == 'play' && isPlaying) ||
-                          (name.toLowerCase() == 'stop' && !isPlaying)
+                  color: (name.toLowerCase() == 'play' &&
+                              bookProvider.isPlaying) ||
+                          (name.toLowerCase() == 'stop' &&
+                              !bookProvider.isPlaying)
                       ? Colors.white30
                       : Colors.white,
                   fontSize: 15),

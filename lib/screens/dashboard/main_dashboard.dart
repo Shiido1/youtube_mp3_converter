@@ -6,6 +6,7 @@ import 'package:mp3_music_converter/bottom_navigation/playlist.dart';
 import 'package:mp3_music_converter/bottom_navigation/search.dart';
 import 'package:mp3_music_converter/bottom_navigation/setting.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
+import 'package:mp3_music_converter/screens/bookworm/provider/bookworm_provider.dart';
 import 'package:mp3_music_converter/screens/dashboard/dashboard.dart';
 import 'package:mp3_music_converter/screens/recorded/provider/record_provider.dart';
 import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
@@ -28,6 +29,7 @@ class _MainDashBoardState extends State<MainDashBoard> {
   MusicProvider _musicProvider;
   SplitSongProvider _repository;
   RecordProvider _recordProvider;
+  BookwormProvider _bookwormProvider;
   List<Widget> _screens;
 
   @override
@@ -59,6 +61,8 @@ class _MainDashBoardState extends State<MainDashBoard> {
     _repository.initProvider();
     _recordProvider = Provider.of<RecordProvider>(context, listen: false);
     await _recordProvider.initProvider();
+    _bookwormProvider = Provider.of<BookwormProvider>(context, listen: false);
+    _bookwormProvider.initProvider();
     if (AudioService.queue == null || AudioService.queue.isEmpty) {
       if (await preferencesHelper.doesExists(key: 'last_play_queue'))
         preferencesHelper

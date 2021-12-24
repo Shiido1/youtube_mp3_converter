@@ -46,8 +46,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     name = await preferencesHelper.getStringValues(key: 'name');
     userToken = await preferencesHelper.getStringValues(key: 'token');
     PaystackPlugin.initialize(publicKey: publicKey);
-    await AudioService.stop();
-    print('is playing : ${AudioService?.running}');
   }
 
   @override

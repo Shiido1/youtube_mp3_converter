@@ -121,13 +121,17 @@ class _SubfolderDetailsState extends State<SubfolderDetails> {
                                     child: PdfDocumentLoader(
                                       filePath: books[index].path,
                                       pageNumber: 1,
-                                      pageBuilder:
-                                          (context, textureBuilder, pageSize) {
+                                      pageBuilder: (
+                                        context,
+                                        textureBuilder,
+                                        pageSize,
+                                      ) {
                                         return textureBuilder(
                                           backgroundFill: true,
                                           size: pageSize,
                                           placeholderBuilder: (size, status) {
                                             // return status == PdfPageStatus.loading
+
                                             //     ?
                                             return Center(
                                               child: CircularProgressIndicator(

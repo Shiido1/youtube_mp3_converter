@@ -64,11 +64,13 @@ class _SongViewScreenState extends State<SongViewScreen> {
             ? 'ca-app-pub-4279408488674166/1078290794'
             : 'ca-app-pub-4279408488674166/6018640831',
         listener: BannerAdListener(
-          onAdFailedToLoad: (ad, error) => ad.dispose(),
-          onAdLoaded: (ad) => setState(() {
-            songAd = ad;
-          }),
-        ),
+            onAdFailedToLoad: (ad, error) => ad.dispose(),
+            onAdLoaded: (ad) {
+              if (mounted)
+                setState(() {
+                  songAd = ad;
+                });
+            }),
         request: AdRequest(),
       );
       appAd.load();

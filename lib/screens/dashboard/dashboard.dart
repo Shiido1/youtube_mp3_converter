@@ -1,30 +1,22 @@
 import 'dart:io';
 import 'dart:ui';
-import 'package:audio_service/audio_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
-import 'package:mp3_music_converter/database/repository/song_repository.dart';
 import 'package:mp3_music_converter/screens/bookworm/bookworm.dart';
-import 'package:mp3_music_converter/screens/converter/convert.dart';
 import 'package:mp3_music_converter/screens/dashboard/name_song.dart';
 import 'package:mp3_music_converter/screens/downloads/downloads.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
-import 'package:mp3_music_converter/screens/recorded/model/recorder_model.dart';
-import 'package:mp3_music_converter/screens/recorded/recorder_services.dart';
-import 'package:mp3_music_converter/screens/song/provider/music_provider.dart';
 import 'package:mp3_music_converter/screens/split/split_loader.dart';
 import 'package:mp3_music_converter/screens/world_radio/radio_class.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
 import 'package:mp3_music_converter/utils/string_assets/assets.dart';
-import 'package:mp3_music_converter/utils/utilFold/linkShareAssistant.dart';
 import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/bottom_playlist_indicator.dart';
 import 'package:mp3_music_converter/widgets/drawer.dart';
-import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:mp3_music_converter/widgets/red_background_backend/red_background2.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:path_provider/path_provider.dart';
@@ -51,14 +43,11 @@ class _DashBoardState extends State<DashBoard> {
   static String _localPath;
   // String _sharedText = '';
   bool loading = false;
-  CustomProgressIndicator _progressIndicator;
   FilePickerResult result;
   bool hideDisclaimer = false;
 
   @override
   void initState() {
-    print(AudioService?.running);
-    this._progressIndicator = CustomProgressIndicator(this.context);
     // LinkShareAssistant()
     //   ..onDataReceived = _handleSharedData
     //   ..getSharedData().then(_handleSharedData);

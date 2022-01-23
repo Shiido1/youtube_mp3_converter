@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/database/model/song.dart';
@@ -13,11 +12,9 @@ import 'package:mp3_music_converter/screens/split/delete_song.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
-import 'package:mp3_music_converter/utils/page_router/navigator.dart';
 import 'package:mp3_music_converter/widgets/text_view_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:share/share.dart';
 
 class RecordedDrawer extends StatefulWidget {
   final RecorderModel model;

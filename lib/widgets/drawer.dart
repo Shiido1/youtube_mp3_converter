@@ -5,8 +5,6 @@ import 'package:mp3_music_converter/playlist/create_playlist_screen.dart';
 import 'package:mp3_music_converter/playlist/select_playlist_screen.dart';
 import 'package:mp3_music_converter/screens/converter/show_download_dialog.dart';
 import 'package:mp3_music_converter/screens/payment/payment_screen.dart';
-import 'package:mp3_music_converter/screens/recorded/public_share.dart';
-import 'package:mp3_music_converter/screens/recorded/recorded_drawer.dart';
 import 'package:mp3_music_converter/screens/split/split_loader.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -14,7 +12,6 @@ import 'package:mp3_music_converter/utils/utilFold/splitAssistant.dart';
 import 'package:mp3_music_converter/widgets/progress_indicator.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,12 +51,9 @@ class _AppDrawerState extends State<AppDrawer> {
   bool shuffle;
   bool repeat;
 
-  CustomProgressIndicator _progressIndicator;
-
   @override
   void initState() {
     _musicProvider = Provider.of<MusicProvider>(context, listen: false);
-    this._progressIndicator = CustomProgressIndicator(this.context);
 
     _permissionReady = false;
     _prepare();

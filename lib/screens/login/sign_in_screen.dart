@@ -2,15 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/dashboard/main_dashboard.dart';
-import 'package:mp3_music_converter/screens/login/model/login_model.dart';
 import 'package:mp3_music_converter/screens/login/provider/login_provider.dart';
-import 'package:mp3_music_converter/screens/signup/sign_up_screen.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
 import 'package:mp3_music_converter/utils/helper/helper.dart';
 import 'package:mp3_music_converter/utils/helper/instances.dart';
@@ -27,8 +23,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   TextEditingController _emailController = new TextEditingController();
   TextEditingController _passwordController = new TextEditingController();
-  bool _isEmail = false;
-  bool _isPassword = false;
+
   LoginProviders _loginProviders;
   bool newUser;
   String email, password;
@@ -37,13 +32,6 @@ class _SignInScreenState extends State<SignInScreen> {
     scopes: ['email', 'profile'],
   );
   String url = 'https://youtubeaudio.ca/api/google_callback_api';
-
-  void signIn(BuildContext context, String email, String password) {
-    if (_validateInputs())
-      _loginProviders.loginUser(
-          map: LoginModel.toJson(email: email, password: password),
-          context: context);
-  }
 
   void handleGoogleSignIn(GoogleSignInAccount account) async {
     if (account != null) {
@@ -136,21 +124,6 @@ class _SignInScreenState extends State<SignInScreen> {
       );
       print(e);
     }
-  }
-
-  bool _validateInputs() {
-    if (_emailController.text.trim().isEmpty ||
-        !validateEmail(_emailController.text.trim())) {
-      setState(() => _isEmail = true);
-      return false;
-    }
-
-    if (_passwordController.text.isEmpty) {
-      setState(() => _isPassword = true);
-      return false;
-    }
-
-    return true;
   }
 
   @override

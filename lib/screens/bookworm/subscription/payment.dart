@@ -16,7 +16,7 @@ class Payment {
       String duration,
       String userToken,
       String paymentMethod}) async {
-    String baseUrl = "https://youtubeaudio.com/api/book/storepayment";
+    String baseUrl = "https://youtubeaudio.ca/api/book/storepayment";
 
     var body = jsonEncode({
       "tx_ref": txRef,

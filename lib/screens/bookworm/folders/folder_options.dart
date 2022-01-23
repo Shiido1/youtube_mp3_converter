@@ -225,7 +225,7 @@ class _ShowConfirmDeleteDialogState extends State<ShowConfirmDeleteDialog> {
   }
 
   deleteFolder() async {
-    String url = 'https://youtubeaudio.com/api/book/removefolder';
+    String url = 'https://youtubeaudio.ca/api/book/removefolder';
 
     try {
       _progressIndicator.show();

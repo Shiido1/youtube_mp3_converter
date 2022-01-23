@@ -135,7 +135,7 @@ class _AvailableUsersState extends State<AvailableUsers> {
                                             imageUrl: availableUsers[index]
                                                         ['profilepic'][0] ==
                                                     "/"
-                                                ? "https://youtubeaudio.com" +
+                                                ? "https://youtubeaudio.ca" +
                                                     availableUsers[index]
                                                         ['profilepic']
                                                 : availableUsers[index]

@@ -359,7 +359,7 @@ addBook(
   CustomProgressIndicator _progressIndicator = CustomProgressIndicator(context);
   BookwormProvider provider =
       Provider.of<BookwormProvider>(context, listen: false);
-  String url = 'https://youtubeaudio.com/api/book/addbook';
+  String url = 'https://youtubeaudio.ca/api/book/addbook';
   String token = await preferencesHelper.getStringValues(key: 'token');
   String path, name;
 

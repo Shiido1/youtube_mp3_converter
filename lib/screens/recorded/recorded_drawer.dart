@@ -461,7 +461,7 @@ Future<Widget> buildShareOptions(BuildContext context, {RecorderModel model}) {
                 }
               },
               child: Text(
-                'Share to YoutubeAudio.com',
+                'Share to youtubeaudio.ca',
                 style: TextStyle(color: Colors.white, fontSize: 18),
               ),
             ),

@@ -54,7 +54,7 @@ class OtpModel {
     background = json['background'];
     color = json['color'];
     profilepic = json['profilepic'][0] == "/"
-        ? "https://youtubeaudio.com" + json['profilepic']
+        ? "https://youtubeaudio.ca" + json['profilepic']
         : json['profilepic'];
     about = json['about'];
     totalplayed = json['totalplayed'];

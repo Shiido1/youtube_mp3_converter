@@ -233,7 +233,7 @@ class _ShowDeleteSubfolderDialogState extends State<ShowDeleteSubfolderDialog> {
   }
 
   deleteSubfolder() async {
-    String url = 'https://youtubeaudio.com/api/book/removesubfolder';
+    String url = 'https://youtubeaudio.ca/api/book/removesubfolder';
 
     try {
       _progressIndicator.show();

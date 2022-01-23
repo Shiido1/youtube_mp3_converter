@@ -49,7 +49,7 @@ class _UploadSongState extends State<UploadSong> {
   CustomProgressIndicator _progressIndicator;
 
   getSongCategories() async {
-    String url = 'https://youtubeaudio.com/api/categoryapi';
+    String url = 'https://youtubeaudio.ca/api/categoryapi';
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -86,7 +86,7 @@ class _UploadSongState extends State<UploadSong> {
   }
 
   uploadSong({File image, File song}) async {
-    String baseUrl = 'http://www.youtubeaudio.com/api/uploadsongapi';
+    String baseUrl = 'http://www.youtubeaudio.ca/api/uploadsongapi';
     String token = await preferencesHelper.getStringValues(key: 'token');
     _progressIndicator.show();
 
@@ -130,7 +130,7 @@ class _UploadSongState extends State<UploadSong> {
                 fileName: songName,
                 path: song.path,
                 image: decodedData['path'][0] == '/'
-                    ? 'https://youtubeaudio.com' + decodedData['path']
+                    ? 'https://youtubeaudio.ca' + decodedData['path']
                     : decodedData['path'],
                 libid: decodedData['libid'],
                 musicid: decodedData['musicid'].toString());

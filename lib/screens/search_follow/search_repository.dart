@@ -17,7 +17,7 @@ class SearchRepository {
         Users user = Users(
           name: mapUser[i]["name"],
           profilePic: mapUser[i]["profilepic"][0] == "/"
-              ? "https://youtubeaudio.com" + mapUser[i]["profilepic"]
+              ? "https://youtubeaudio.ca" + mapUser[i]["profilepic"]
               : mapUser[i]["profilepic"],
           id: mapUser[i]["id"],
         );

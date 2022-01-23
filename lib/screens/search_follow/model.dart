@@ -35,7 +35,7 @@ class Users {
     profilePic = json['profile_pic'] == null
         ? null
         : json['profile_pic'][0] == "/"
-            ? "https://youtubeaudio.com" + json['profile_pic']
+            ? "https://youtubeaudio.ca" + json['profile_pic']
             : json['profile_pic'];
     id = json['id'] == null ? null : json['id'];
   }

@@ -65,7 +65,7 @@ class ShowConfirmRemoveBookOption extends StatefulWidget {
 class _ShowConfirmRemoveBookOptionState
     extends State<ShowConfirmRemoveBookOption> {
   removeBook() async {
-    String url = 'https://youtubeaudio.com/api/book/deletebook';
+    String url = 'https://youtubeaudio.ca/api/book/deletebook';
     String token = await preferencesHelper.getStringValues(key: 'token');
     CustomProgressIndicator _progressIndicator =
         CustomProgressIndicator(context);

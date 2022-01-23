@@ -88,7 +88,7 @@ class _PublicShareState extends State<PublicShare> {
       appBar: AppBar(
         backgroundColor: AppColor.black,
         title: TextViewWidget(
-          text: 'Share to YoutubeAudio.com',
+          text: 'Share to youtubeaudio.ca',
           color: AppColor.bottomRed,
         ),
         leading: IconButton(

@@ -158,7 +158,7 @@ getNewPicUrl(context) async {
     if (response.statusCode == 200) {
       Map decodedResponse = jsonDecode(response.body);
       String picUrl = decodedResponse["profilepic"];
-      if (picUrl[0] == "/") picUrl = "https://youtubeaudio.com" + picUrl;
+      if (picUrl[0] == "/") picUrl = "https://youtubeaudio.ca" + picUrl;
       preferencesHelper.saveValue(key: 'profileImage', value: picUrl);
       Provider.of<RedBackgroundProvider>(context, listen: false)
           .updateUrl(picUrl);

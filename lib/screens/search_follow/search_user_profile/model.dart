@@ -82,7 +82,7 @@ class User {
     hideprofile = json['hideprofile'];
     id = json['id'];
     profilepic = json['profilepic'][0] == "/"
-        ? "https://youtubeaudio.com" + json['profilepic']
+        ? "https://youtubeaudio.ca" + json['profilepic']
         : json['profilepic'];
   }
 

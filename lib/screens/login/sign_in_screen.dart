@@ -36,7 +36,7 @@ class _SignInScreenState extends State<SignInScreen> {
   GoogleSignIn googleSign = GoogleSignIn(
     scopes: ['email', 'profile'],
   );
-  String url = 'https://youtubeaudio.com/api/google_callback_api';
+  String url = 'https://youtubeaudio.ca/api/google_callback_api';
 
   void signIn(BuildContext context, String email, String password) {
     if (_validateInputs())
@@ -73,7 +73,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     data['profilepic'] == ''
                 ? 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png'
                 : data['profilepic'][0] == "/"
-                    ? "https://youtubeaudio.com" + data['profilepic']
+                    ? "https://youtubeaudio.ca" + data['profilepic']
                     : data['profilepic'];
             Provider.of<RedBackgroundProvider>(context, listen: false)
                 .updateUrl(picUrl);

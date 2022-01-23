@@ -32,7 +32,7 @@ class _ContactUsState extends State<ContactUs> {
   }
 
   sendComment() async {
-    String url = "https://youtubeaudio.com/api/contactus";
+    String url = "https://youtubeaudio.ca/api/contactus";
     _progressIndicator.show();
     final response = await http.post(url,
         body: jsonEncode({

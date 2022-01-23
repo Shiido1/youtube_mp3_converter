@@ -221,7 +221,7 @@ class _TitleInputFieldState extends State<TitleInputField> {
   }
 
   createFolder(String title) async {
-    String url = "https://youtubeaudio.com/api/book/createfolder";
+    String url = "https://youtubeaudio.ca/api/book/createfolder";
 
     try {
       _progressIndicator.show();
@@ -276,7 +276,7 @@ class _TitleInputFieldState extends State<TitleInputField> {
   }
 
   createSubfolder({@required String title, @required Folder folder}) async {
-    String url = "https://youtubeaudio.com/api/book/createsubfolder";
+    String url = "https://youtubeaudio.ca/api/book/createsubfolder";
 
     try {
       _progressIndicator.show();

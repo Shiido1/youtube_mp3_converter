@@ -246,7 +246,7 @@ class _SplitScreenState extends State<SplitScreen> {
 //           if (val['title'] == 'voice') {
 //             voice = val['path'];
 //             image = val['image'][0] == "/"
-//                 ? "https://youtubeaudio.com" + val['image']
+//                 ? "https://youtubeaudio.ca" + val['image']
 //                 : val['image'];
 //             vocalid = val['libid'];
 //           } else if (val['title'] == 'others') {

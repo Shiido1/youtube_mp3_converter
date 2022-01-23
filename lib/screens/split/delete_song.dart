@@ -189,7 +189,7 @@ Future<void> deleteSong(
     if (song == null) {
       try {
         var response = await http.post(
-            'https://youtubeaudio.com/api/deletesong',
+            'https://youtubeaudio.ca/api/deletesong',
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode({
               'token': token,

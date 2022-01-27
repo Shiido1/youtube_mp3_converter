@@ -1,4 +1,4 @@
 import 'package:jaynetwork/jaynetwork.dart';
 
 final JayNetworkClient jayNetworkClient =
-    JayNetworkClient('http://67.205.165.56/api/');
+    JayNetworkClient('http://159.223.129.191/api/');

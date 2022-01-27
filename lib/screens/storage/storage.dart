@@ -21,7 +21,7 @@ class _StorageState extends State<Storage> {
   int totalSplitSongs;
 
   getProfileDetails() async {
-    String baseUrl = "http://67.205.165.56/api/me";
+    String baseUrl = "http://159.223.129.191/api/me";
     String token = await preferencesHelper.getStringValues(key: 'token');
 
     try {

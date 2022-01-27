@@ -33,7 +33,7 @@ class _PublicShareState extends State<PublicShare> {
   }
 
   shareSong(String comment, int id) async {
-    String baseUrl = 'http://67.205.165.56/api/sharepublic';
+    String baseUrl = 'http://159.223.129.191/api/sharepublic';
     String token = await preferencesHelper.getStringValues(key: 'token');
     String musicType = selectedVal == 'Clean' ? 'clean' : 'dirty';
 

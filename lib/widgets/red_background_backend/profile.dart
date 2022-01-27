@@ -37,7 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   saveProfile(String hideProfile, String aboutMe, String newName) async {
-    String url = "http://67.205.165.56/api/editprofile";
+    String url = "http://159.223.129.191/api/editprofile";
     String token = await preferencesHelper.getStringValues(key: 'token');
     setState(() {
       about = null;
@@ -81,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   getProfileDetails() async {
-    String baseUrl = "http://67.205.165.56/api/me";
+    String baseUrl = "http://159.223.129.191/api/me";
     String token = await preferencesHelper.getStringValues(key: 'token');
     email = await preferencesHelper.getStringValues(key: 'email');
 

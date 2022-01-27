@@ -7,7 +7,7 @@ class SplitAssistant {
     String filePath,
     String userToken,
   }) async {
-    String baseUrl = "http://67.205.165.56/api/splitter?";
+    String baseUrl = "http://159.223.129.191/api/splitter?";
 
     try {
       var postUri = Uri.parse(baseUrl);
@@ -52,16 +52,16 @@ class SplitAssistant {
       String userToken,
       @required String songName,
       @required String artistName}) async {
-    String baseUrl = "http://67.205.165.56/api/savesplit";
+    String baseUrl = "https://youtubeaudio.ca/api/savesplit";
 
     var body = jsonEncode(
       {
         "token": userToken,
-        "bass": decodedData['files']['bass'],
-        "voice": decodedData['files']['voice'],
-        "drum": decodedData['files']['drums'],
-        "others": decodedData['files']['other'],
-        "title": decodedData['title'],
+        "bass": decodedData['bass'],
+        "voice": decodedData['voice'],
+        "drum": decodedData['drums'],
+        "others": decodedData['other'],
+        "title": songName,
         "id": decodedData['id'].toString(),
         'songname': songName,
         'artistname': artistName
@@ -100,6 +100,7 @@ class SplitAssistant {
         };
       }
     } catch (e) {
+      print(e);
       return {
         'reply': 'failed',
         'data': 'Could not get required details. Try again later'

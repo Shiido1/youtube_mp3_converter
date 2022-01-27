@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mp3_music_converter/chat/chat_home.dart';
-import 'package:mp3_music_converter/screens/change_password/forgot_password_email_screen.dart';
 import 'package:mp3_music_converter/screens/search_follow/search_follow.dart';
 import 'package:mp3_music_converter/screens/storage/storage.dart';
 import 'package:mp3_music_converter/utils/color_assets/color.dart';
@@ -31,8 +30,8 @@ class _SettingState extends State<Setting> {
                   // bodyContainer(
                   //   text: 'Change Theme',
                   // ),
-                  bodyContainer(
-                      text: 'Forgot Password', screen: ForgotPassword()),
+                  // bodyContainer(
+                  //     text: 'Forgot Password', screen: ForgotPassword()),
                   bodyContainer(text: 'Search User', screen: SearchFollow()),
                   bodyContainer(text: 'Chat', screen: ChatHome()),
                   bodyContainer(text: 'Storage', screen: Storage()),

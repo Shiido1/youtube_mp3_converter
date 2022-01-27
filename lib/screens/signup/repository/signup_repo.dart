@@ -4,7 +4,7 @@ import 'package:mp3_music_converter/screens/signup/model/signup_model.dart';
 import 'package:http/http.dart' as http;
 
 class SignUpApiRepository {
-  String url = 'http://67.205.165.56/api/register';
+  String url = 'http://159.223.129.191/api/register';
   Future<Map> signUp({@required Map data}) async {
     try {
       final response = await http.post(

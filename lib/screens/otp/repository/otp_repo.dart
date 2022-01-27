@@ -5,8 +5,8 @@ import 'package:mp3_music_converter/screens/otp/model/otp_model.dart';
 import 'package:http/http.dart' as http;
 
 class OtpApiRepository {
-  String url = 'http://67.205.165.56/api/rsendotp';
-  String vUrl = 'http://67.205.165.56/api/verify';
+  String url = 'http://159.223.129.191/api/rsendotp';
+  String vUrl = 'http://159.223.129.191/api/verify';
   Future<Map> verify({@required Map data}) async {
     try {
       final response = await http.post(vUrl,

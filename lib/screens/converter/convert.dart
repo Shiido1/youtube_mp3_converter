@@ -327,7 +327,7 @@ class _ConvertState extends State<Convert> {
 
       String url = base_url + _converterProvider?.youtubeModel?.url;
       try {
-        final response = await http.post('http://67.205.165.56/api/saveconvert',
+        final response = await http.post('http://159.223.129.191/api/saveconvert',
             body: jsonEncode({
               'token': token,
               'id': model?.youtubeModel?.id.toString(),
@@ -344,7 +344,7 @@ class _ConvertState extends State<Convert> {
             .toLowerCase()
             .contains('twice')) {
           try {
-            final data = await http.post('http://67.205.165.56/api/mylib',
+            final data = await http.post('http://159.223.129.191/api/mylib',
                 body: jsonEncode({'token': token}),
                 headers: {'Content-Type': 'application/json'});
             if (data.statusCode == 200) {

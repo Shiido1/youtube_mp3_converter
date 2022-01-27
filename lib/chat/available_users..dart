@@ -20,7 +20,7 @@ class AvailableUsers extends StatefulWidget {
 class _AvailableUsersState extends State<AvailableUsers> {
   String userName;
   List availableUsers = [];
-  String baseUrl = "http://67.205.165.56/api/me";
+  String baseUrl = "http://159.223.129.191/api/me";
   String userId;
 
   getAvailableUsers() async {

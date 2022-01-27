@@ -366,7 +366,7 @@ privateShareSong(
     @required String email,
     @required int id,
     @required BuildContext context}) async {
-  String url = "http://67.205.165.56/api/transferapi";
+  String url = "http://159.223.129.191/api/transferapi";
   final snackBar = SnackBar(
     content: Text('Failed to share song. Try again later'),
     backgroundColor: Colors.red,

@@ -68,7 +68,7 @@ String getStringPathName(String name) {
 }
 
 String getStringPathNameFromWeb(String name) {
-  return name.contains('vocals.wav') ? 'vocals.wav' : 'accompaniment.wav';
+  return name.contains('vocals.wav') ? 'vocals.wav' : 'other.wav';
 }
 
 //* finds available space for storage on users device

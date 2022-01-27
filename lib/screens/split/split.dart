@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' as io;
 import 'dart:async';
@@ -92,11 +93,13 @@ class _SplitState extends State<Split> {
         if (io.Platform.isIOS) {
           appDocDirectory = await getApplicationDocumentsDirectory();
         } else {
-          appDocDirectory = await getExternalStorageDirectory();
+          appDocDirectory = await DownloadsPathProvider.downloadsDirectory;
         }
 
-        io.Directory youtubeRecordDirectory = io.Directory(
-            "${appDocDirectory.parent.parent.parent.parent.path}/$customPath");
+        io.Directory youtubeRecordDirectory = io.Platform.isIOS
+            ? io.Directory(
+                "${appDocDirectory.parent.parent.parent.parent.path}/$customPath")
+            : io.Directory("${appDocDirectory.path}/$customPath");
 
         if (await youtubeRecordDirectory.exists()) {
           String alphaPath = "${youtubeRecordDirectory.path}/$customPath$date";
@@ -240,14 +243,16 @@ class _SplitState extends State<Split> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
-                  height: 250,
-                  width: 250,
-                  decoration: new BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(25)),
-                      image: new DecorationImage(
-                        image: new AssetImage('assets/new_icon.png'),
-                        fit: BoxFit.contain,
-                      ),),),
+                height: 250,
+                width: 250,
+                decoration: new BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  image: new DecorationImage(
+                    image: new AssetImage('assets/new_icon.png'),
+                    fit: BoxFit.contain,
+                  ),
+                ),
+              ),
               SizedBox(
                 height: 20,
               ),

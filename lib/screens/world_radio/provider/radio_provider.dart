@@ -69,11 +69,20 @@ class RadioProvider extends ChangeNotifier {
     if (search) {
       if (radioModels != null) radioModelsItems = radioModels;
       try {
-        radioModels = await _repository.radiox(
+        RadioModel radioModelsPlaceHolder = await _repository.radiox(
           map: Radio.mapToJson(token: _token, searchData: searchData),
           search: true,
           context: context,
         );
+
+        for (int i = 0; i < radioModelsPlaceHolder.radio.length; i++) {
+          if (i == radioModelsPlaceHolder.radio.length)
+            break;
+          else if (radioModelsPlaceHolder.radio[i].uid ==
+              radioModelsPlaceHolder.radio[i + 1].uid)
+            radioModelsPlaceHolder.radio.removeAt(i);
+        }
+        radioModels = radioModelsPlaceHolder;
 
         print('this is the model: ${radioModels.radio}');
         isLoading = false;
@@ -90,6 +99,11 @@ class RadioProvider extends ChangeNotifier {
             ),
             search: false,
             context: context);
+             for (int i=0; i<myModel.radio.length; i++) {
+          if (i== myModel.radio.length) break;
+          else if (myModel.radio[i].uid == myModel.radio[i+1].uid)
+          myModel.radio.removeAt(i);
+        }
 
         if (radioModels == null)
           radioModels = myModel;

@@ -332,8 +332,8 @@ class _DashBoardState extends State<DashBoard> {
                 //     duration: 15,
                 //     backgroundColor: Colors.blue[400],
                 //     textColor: Colors.black);
-                String voiceUrl = splitFiles['data']["files"]["voice"];
-                String otherUrl = splitFiles['data']["files"]["other"];
+                String voiceUrl = splitFiles['data']["voice"];
+                String otherUrl = splitFiles['data']["other"];
 
                 _apiSplitList = ['', ''];
                 _apiSplitList.insert(0, otherUrl);

@@ -16,7 +16,7 @@ class PaymentAssistant {
       int storage,
       String userToken,
       String paymentMethod}) async {
-    String baseUrl = "http://159.223.129.191/api/storepayment";
+    String baseUrl = "https://youtubeaudio.ca/api/storepayment";
 
     var body = jsonEncode({
       "tx_ref": txRef,

@@ -7,7 +7,7 @@ class SplitAssistant {
     String filePath,
     String userToken,
   }) async {
-    String baseUrl = "http://159.223.129.191/api/splitter?";
+    String baseUrl = "https://youtubeaudio.ca/api/splitter";
 
     try {
       var postUri = Uri.parse(baseUrl);
@@ -43,6 +43,7 @@ class SplitAssistant {
         return {'reply': 'failed', 'data': reason};
       }
     } catch (e) {
+      print(e);
       return {'reply': 'failed', 'data': ''};
     }
   }

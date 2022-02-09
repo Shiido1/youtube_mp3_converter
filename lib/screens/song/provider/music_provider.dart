@@ -707,6 +707,7 @@ class MusicProvider with ChangeNotifier {
                   songName: event.title,
                 ));
         savePlayingSong(currentSong);
+        updateDrawer(currentSong);
       }
 
       notifyListeners();

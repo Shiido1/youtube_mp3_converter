@@ -358,7 +358,7 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Future splitSongMethod() async {
     String userToken = await preferencesHelper.getStringValues(key: 'token');
-    if ((_musicProvider.drawerItem.size / 1000000.0).ceil() <= 20) {
+    if ((_musicProvider.drawerItem.size / 1000000.0).ceil() <= 8) {
       showDialog(
           context: context,
           barrierDismissible: false,
@@ -426,7 +426,7 @@ class _AppDrawerState extends State<AppDrawer> {
       }
     } else {
       showToast(context,
-          message: 'File exceeds 20MB limit. Please select another file',
+          message: 'File exceeds 8MB limit. Please select another file',
           duration: 6,
           gravity: 1,
           backgroundColor: Colors.red[700]);

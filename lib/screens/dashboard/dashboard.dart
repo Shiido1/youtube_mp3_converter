@@ -297,7 +297,7 @@ class _DashBoardState extends State<DashBoard> {
     // return;
 
     if (result != null && result.files.isNotEmpty) {
-      if ((result.files.single.size / 1000000.0).ceil() <= 20) {
+      if ((result.files.single.size / 1000000.0).ceil() <= 8) {
         final splitSongDetails = await showNameSong(context);
         if (splitSongDetails != null) {
           songName = splitSongDetails.split('+')[0];
@@ -381,7 +381,7 @@ class _DashBoardState extends State<DashBoard> {
       } else {
         showToast(context,
             message:
-                'File exceeds 20MB limit. Kindly reduce the file size and try again',
+                'File exceeds 8MB limit. Kindly reduce the file size and try again',
             duration: 6,
             gravity: 1,
             backgroundColor: Colors.red[700]);
@@ -402,7 +402,7 @@ class _DashBoardState extends State<DashBoard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Maximum of 20MB file per split',
+                    'Maximum of 8MB file per split',
                     style: TextStyle(color: Colors.white, fontSize: 17),
                   ),
                   Container(

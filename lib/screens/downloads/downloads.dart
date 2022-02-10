@@ -437,9 +437,20 @@ class _DownloadsState extends State<Downloads> {
     List<DownloadTask> downloads = await FlutterDownloader.loadTasks();
     List downloadName = task.filename.split('-');
     downloadName.removeLast();
-    bool bothDownloaded = downloads.any(
+    bool navigate = false;
+    bool otherDownloaded = downloads.any(
         (element) => element.filename == downloadName.join('-') + '-other.wav');
-    return bothDownloaded;
+
+    if (otherDownloaded) {
+      DownloadTask task = downloads.firstWhere((element) =>
+          element.filename == downloadName.join('-') + '-other.wav');
+      if (task.status == DownloadTaskStatus(3))
+        navigate = true;
+      else
+        navigate = false;
+    }
+
+    return navigate;
   }
 
   @override

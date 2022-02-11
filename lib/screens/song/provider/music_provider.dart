@@ -75,6 +75,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
   static const TtsSetSpeechRate = 'ttsSetSpeechRate';
   static const TtsOnError = 'ttsOnError';
 
+  static const SongIndex = 'songIndex';
+
   int index;
   PlayerType playerType = PlayerType.ALL;
   asp.AudioSession audioSession;
@@ -338,7 +340,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     if (playerType == PlayerType.SHUFFLE) {
       Random r = new Random();
-      int songIndex = index + r.nextInt(mediaItems.length);
+      int songIndex = r.nextInt(mediaItems.length);
       index = songIndex;
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
@@ -357,7 +359,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     if (playerType == PlayerType.SHUFFLE) {
       Random r = new Random();
-      int songIndex = r.nextInt(index);
+      int songIndex = r.nextInt(mediaItems.length);
       index = songIndex;
       AudioServiceBackground.setMediaItem(mediaItems[index]);
       AudioService.customAction(PLAY_ACTION);
@@ -385,6 +387,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
       if (mediaItems != null && mediaItems.isNotEmpty)
         index = mediaItems.indexWhere((element) => element.id == mediaItem.id);
+      AudioServiceBackground.sendCustomEvent({SongIndex: index});
       if (musicPlayer.state == AudioPlayerState.PLAYING) {
         await musicPlayer.stop();
         if (playVocals) await vocalPlayer.stop();
@@ -666,13 +669,14 @@ class MusicProvider with ChangeNotifier {
                 AudioService.queue ?? [AudioService.currentMediaItem]);
           if (currentSong == null) {
             currentSong = Song(
-              artistName: AudioService.currentMediaItem.artist,
-              fileName: AudioService.currentMediaItem.extras['fileName'],
-              favorite: AudioService.currentMediaItem.extras['favourite'],
-              filePath: AudioService.currentMediaItem.extras['filePath'],
-              image: AudioService.currentMediaItem.extras['image'],
-              songName: AudioService.currentMediaItem.title,
-            );
+                artistName: AudioService.currentMediaItem.artist,
+                fileName: AudioService.currentMediaItem.extras['fileName'],
+                favorite: AudioService.currentMediaItem.extras['favourite'],
+                filePath: AudioService.currentMediaItem.extras['filePath'],
+                image: AudioService.currentMediaItem.extras['image'],
+                size: AudioService.currentMediaItem.extras['size'],
+                songName: AudioService.currentMediaItem.title,
+                musicid: AudioService.currentMediaItem.extras['musicid']);
           }
 
           notifyListeners();
@@ -691,6 +695,10 @@ class MusicProvider with ChangeNotifier {
           audioPlayerState = event[AudioPlayerTask.STATE_CHANGE2];
           notifyListeners();
         }
+        if (event[AudioPlayerTask.SongIndex] != null) {
+          _currentSongIndex = event[AudioPlayerTask.SongIndex];
+          notifyListeners();
+        }
       }
     });
 
@@ -699,13 +707,14 @@ class MusicProvider with ChangeNotifier {
         currentSongID = event.id;
         currentSong = songs.firstWhere((element) => element.file == event.id,
             orElse: () => Song(
-                  artistName: event.artist,
-                  fileName: event.extras['fileName'],
-                  favorite: event.extras['favourite'],
-                  filePath: event.extras['filePath'],
-                  image: event.extras['image'],
-                  songName: event.title,
-                ));
+                artistName: event.artist,
+                fileName: event.extras['fileName'],
+                favorite: event.extras['favourite'],
+                filePath: event.extras['filePath'],
+                image: event.extras['image'],
+                size: event.extras['size'],
+                songName: event.title,
+                musicid: event.extras['musicid']));
         savePlayingSong(currentSong);
         updateDrawer(currentSong);
       }
@@ -726,6 +735,8 @@ class MusicProvider with ChangeNotifier {
                 favorite: song.extras['favourite'],
                 filePath: song.extras['filePath'],
                 image: song.extras['image'],
+                musicid: song.extras['musicid'],
+                size: song.extras['size'],
                 songName: song.title,
               ));
 
@@ -762,6 +773,8 @@ class MusicProvider with ChangeNotifier {
             'filePath': songs[i].filePath,
             'fileName': songs[i].fileName,
             'favourite': songs[i].favorite,
+            'musicid': songs[i].musicid,
+            'size': songs[i].size,
           },
         ),
       );
@@ -780,6 +793,8 @@ class MusicProvider with ChangeNotifier {
               fileName: items[i].extras['fileName'],
               filePath: items[i].extras['filePath'],
               favorite: items[i].extras['favourite'],
+              musicid: items[i].extras['musicid'],
+              size: items[i].extras['size'],
               image: items[i].extras['image']));
     }
     return playingSongs;
@@ -888,6 +903,8 @@ class MusicProvider with ChangeNotifier {
               'filePath': currentSong.filePath,
               'fileName': currentSong.fileName,
               'favourite': currentSong.favorite,
+              'size': currentSong.size,
+              'musicid': currentSong.musicid,
             },
           ),
         ),

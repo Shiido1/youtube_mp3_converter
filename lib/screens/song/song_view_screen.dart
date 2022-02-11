@@ -190,7 +190,8 @@ class _SongViewScreenState extends State<SongViewScreen> {
                     IconButton(
                         icon: Icon(Icons.skip_previous_outlined),
                         onPressed: () {
-                          if (!_provider.canPrevSong) {
+                          if (!_provider.canPrevSong ||
+                              _musicProvider.shuffleSong) {
                             _musicProvider.prev();
                             if (repeat)
                               _musicProvider.repeat(_musicProvider.drawerItem);
@@ -209,7 +210,8 @@ class _SongViewScreenState extends State<SongViewScreen> {
                     IconButton(
                         icon: Icon(Icons.skip_next_outlined),
                         onPressed: () {
-                          if (!_provider.canNextSong) {
+                          if (!_provider.canNextSong ||
+                              _musicProvider.shuffleSong) {
                             _musicProvider.next();
                             if (repeat)
                               _musicProvider.repeat(_musicProvider.drawerItem);

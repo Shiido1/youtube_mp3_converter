@@ -101,7 +101,9 @@ class _MainDashBoardState extends State<MainDashBoard> {
                   'fileName': value['fileName'],
                   'filePath': value['filePath'],
                   'image': value['image'],
-                  'favourite': value['favorite']
+                  'favourite': value['favorite'],
+                  'size': value['size'],
+                  'musicid': value['musicid'],
                 });
 
             _musicProvider.updateLocal(item);

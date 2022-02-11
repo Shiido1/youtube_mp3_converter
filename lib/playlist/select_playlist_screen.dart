@@ -165,27 +165,30 @@ Future<Widget> selectPlayListScreen(
                                 context: context, showToastMessage: false);
                             String name = result;
 
-                            setState(() {
-                              if (playlists.contains(name) == false) {
-                                playlists.add(name);
-                                playlists.sort(
-                                  (a, b) =>
-                                      a.toString().toLowerCase().compareTo(
-                                            b.toString().toLowerCase(),
-                                          ),
-                                );
-                                selected.insert(playlists.indexOf(name), true);
-                                playListName.add(name);
-                              }
-                              if (playlists.contains(name) == true) {
-                                selected[playlists.indexOf(name)] = true;
-                                if (playListName.contains(name) == false)
+                            if (name != null && name.isNotEmpty) {
+                              setState(() {
+                                if (playlists.contains(name) == false) {
+                                  playlists.add(name);
+                                  playlists.sort(
+                                    (a, b) =>
+                                        a.toString().toLowerCase().compareTo(
+                                              b.toString().toLowerCase(),
+                                            ),
+                                  );
+                                  selected.insert(
+                                      playlists.indexOf(name), true);
                                   playListName.add(name);
-                              }
-                              showOkButton = true;
-                              _scrollController
-                                  .jumpTo(playlists.indexOf(name) * 40.0);
-                            });
+                                }
+                                if (playlists.contains(name) == true) {
+                                  selected[playlists.indexOf(name)] = true;
+                                  if (playListName.contains(name) == false)
+                                    playListName.add(name);
+                                }
+                                showOkButton = true;
+                                _scrollController
+                                    .jumpTo(playlists.indexOf(name) * 40.0);
+                              });
+                            }
                           },
                           child: Container(
                             padding: EdgeInsets.all(8),
@@ -228,6 +231,7 @@ Future<Widget> selectPlayListScreen(
                         InkWell(
                           onTap: showOkButton
                               ? () async {
+                                  print(songs[0]);
                                   if (selectedAction == 'add') {
                                     for (String elements in playListName) {
                                       await SongRepository.addSongsToPlayList(

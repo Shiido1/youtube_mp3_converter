@@ -263,11 +263,11 @@ class _DownloadsState extends State<Downloads> {
 
           String name = specificDownload.filename;
           String splitName = name.split('-').last;
-          Song song = splitName == 'other.wav' || splitName == 'vocals.wav'
+          Song song = splitName == 'other.mp3' || splitName == 'vocals.mp3'
               ? await SplitSongRepository.getDownload(splitFileNameHere(name))
               : await SplitSongRepository.getDownload(name);
           String path = specificDownload.savedDir;
-          if (splitName == 'other.wav') {
+          if (splitName == 'other.mp3') {
             await SplitSongRepository.addSong(
               Song(
                 fileName: name,
@@ -283,7 +283,7 @@ class _DownloadsState extends State<Downloads> {
             );
 
             _splitSongProvider.getSongs(false);
-          } else if (splitName == 'vocals.wav') {
+          } else if (splitName == 'vocals.mp3') {
             await SplitSongRepository.addSong(
               Song(
                 vocalName: name,
@@ -365,7 +365,7 @@ class _DownloadsState extends State<Downloads> {
         if (!sync)
           showToast(context, message: 'File already exists');
         else {
-          if (_fileName.split('-').last == 'vocals.wav') {
+          if (_fileName.split('-').last == 'vocals.mp3') {
             await SplitSongRepository.addSong(Song(
               vocalName: _fileName,
               filePath: _localPath,
@@ -439,11 +439,11 @@ class _DownloadsState extends State<Downloads> {
     downloadName.removeLast();
     bool navigate = false;
     bool otherDownloaded = downloads.any(
-        (element) => element.filename == downloadName.join('-') + '-other.wav');
+        (element) => element.filename == downloadName.join('-') + '-other.mp3');
 
     if (otherDownloaded) {
       DownloadTask task = downloads.firstWhere((element) =>
-          element.filename == downloadName.join('-') + '-other.wav');
+          element.filename == downloadName.join('-') + '-other.mp3');
       if (task.status == DownloadTaskStatus(3))
         navigate = true;
       else
@@ -508,24 +508,24 @@ class _DownloadsState extends State<Downloads> {
                               int width =
                                   MediaQuery.of(context).size.width.floor();
                               if (_download.filename.split('-').last ==
-                                  'other.wav')
+                                  'other.mp3')
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => SplitScreen()));
                               else if (_download.filename.split('-').last ==
-                                      'vocals.wav' &&
+                                      'vocals.mp3' &&
                                   await checkName(_download))
                                 Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
                                         builder: (_) => SingAlong()));
                               else if (_download.filename.split('-').last ==
-                                      'vocals.wav' &&
+                                      'vocals.mp3' &&
                                   !(await checkName(_download)))
                                 showToast(context,
                                     message:
-                                        'Please download the \'other.wav\' file for this song');
+                                        'Please download the \'other.mp3\' file for this song');
                               else
                                 Navigator.pushReplacement(
                                     context,

@@ -272,7 +272,7 @@ Future<void> deleteSong2(
     path.removeRange(0, index);
     var file = File(Uri.decodeFull(path.join('/')));
 
-    if (song?.vocalName?.split('-')?.last == 'vocals.wav' ?? false) {
+    if (song?.vocalName?.split('-')?.last == 'vocals.mp3' ?? false) {
       var path2 = song.vocalName.split('/');
       int index = path2.indexOf(
           path2.firstWhere((element) => element != '' && element != 'file:'));

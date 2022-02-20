@@ -364,12 +364,20 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                         '${widget.song.filePath}/${widget.song.vocalName}',
                                     playVocals: true),
                               ]);
+                              if (_playVocals)
+                                await _provider.setVocalVolume(1);
+                              else
+                                _provider.setVocalVolume(0);
                             } else if (_provider.playerState ==
                                     PlayerState.PAUSED &&
                                 !_isRecording) {
                               await Future.wait([
                                 _provider.resumeAudio(),
                               ]);
+                              if (_playVocals)
+                                await _provider.setVocalVolume(1);
+                              else
+                                _provider.setVocalVolume(0);
                             }
                           }),
                     IconButton(
@@ -411,6 +419,10 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                         playVocals: true),
                                     _startRecorder()
                                   ]);
+                                  if (_playVocals)
+                                    await _provider.setVocalVolume(0.5);
+                                  else
+                                    _provider.setVocalVolume(0);
 
                                   setState(() {
                                     _isRecording = true;
@@ -422,6 +434,8 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                   await _startRecorder();
                                   if (_playVocals)
                                     await _provider.setVocalVolume(0.5);
+                                  else
+                                    _provider.setVocalVolume(0);
                                   await _provider.setVolume(0.5);
                                 } else
                                   await _stopRecorder();

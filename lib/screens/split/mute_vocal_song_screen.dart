@@ -419,10 +419,12 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                         playVocals: true),
                                     _startRecorder()
                                   ]);
+
+                                  print(_playVocals);
                                   if (_playVocals)
                                     await _provider.setVocalVolume(0.5);
                                   else
-                                    _provider.setVocalVolume(0);
+                                    await _provider.setVocalVolume(0);
 
                                   setState(() {
                                     _isRecording = true;
@@ -432,11 +434,12 @@ class _MuteVocalsScreenState extends State<MuteVocalsScreen> {
                                     _provider.playerState ==
                                         PlayerState.PLAYING) {
                                   await _startRecorder();
+
+                                  await _provider.setVolume(0.5);
                                   if (_playVocals)
                                     await _provider.setVocalVolume(0.5);
                                   else
-                                    _provider.setVocalVolume(0);
-                                  await _provider.setVolume(0.5);
+                                    await _provider.setVocalVolume(0);
                                 } else
                                   await _stopRecorder();
                               }),
